@@ -7,11 +7,13 @@
 #define IROHA_SHARED_MODEL_PROTO_TRANSACTION_HPP
 
 #include "interfaces/transaction.hpp"
+#include "obj_counter.hpp"
 #include "transaction.pb.h"
 
 namespace shared_model {
   namespace proto {
-    class Transaction final : public interface::Transaction {
+    class Transaction final : public interface::Transaction,
+                              public ::ObjCounter<Transaction> {
      public:
       using TransportType = iroha::protocol::Transaction;
 
