@@ -19,6 +19,8 @@
 #include "interfaces/query_responses/pending_transactions_page_response.hpp"
 #include "interfaces/query_responses/query_response.hpp"
 
+#include "obj_counter.hpp"
+
 namespace shared_model {
   namespace crypto {
     class Hash;
@@ -147,7 +149,7 @@ namespace shared_model {
        * @return transactions response
        */
       virtual std::unique_ptr<QueryResponse> createTransactionsResponse(
-          std::vector<std::unique_ptr<shared_model::interface::Transaction>>
+          std::vector<UniquePtrCounter<shared_model::interface::Transaction>>
               transactions,
           const crypto::Hash &query_hash) const = 0;
 
@@ -162,7 +164,7 @@ namespace shared_model {
        * @return transactions response
        */
       virtual std::unique_ptr<QueryResponse> createTransactionsPageResponse(
-          std::vector<std::unique_ptr<shared_model::interface::Transaction>>
+          std::vector<UniquePtrCounter<shared_model::interface::Transaction>>
               transactions,
           boost::optional<const crypto::Hash &> next_tx_hash,
           interface::types::TransactionsNumberType all_transactions_size,
@@ -179,7 +181,7 @@ namespace shared_model {
        */
       virtual std::unique_ptr<QueryResponse>
       createPendingTransactionsPageResponse(
-          std::vector<std::unique_ptr<interface::Transaction>> transactions,
+          std::vector<UniquePtrCounter<interface::Transaction>> transactions,
           interface::types::TransactionsNumberType all_transactions_size,
           boost::optional<interface::PendingTransactionsPageResponse::BatchInfo>
               next_batch_info,

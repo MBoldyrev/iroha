@@ -36,6 +36,8 @@
 #include "logger/logger_fwd.hpp"
 #include "logger/logger_manager_fwd.hpp"
 
+#include "obj_counter.hpp"
+
 namespace iroha {
   namespace ametsuchi {
 
@@ -121,7 +123,7 @@ namespace iroha {
        * predicate pred
        */
       template <typename RangeGen, typename Pred>
-      std::vector<std::unique_ptr<shared_model::interface::Transaction>>
+      std::vector<UniquePtrCounter<shared_model::interface::Transaction>>
       getTransactionsFromBlock(uint64_t block_id,
                                RangeGen &&range_gen,
                                Pred &&pred);

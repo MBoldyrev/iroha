@@ -8,6 +8,8 @@
 
 #include "interfaces/iroha_internal/query_response_factory.hpp"
 
+#include "obj_counter.hpp"
+
 namespace shared_model {
   namespace proto {
 
@@ -52,12 +54,12 @@ namespace shared_model {
           const crypto::Hash &query_hash) const override;
 
       std::unique_ptr<interface::QueryResponse> createTransactionsResponse(
-          std::vector<std::unique_ptr<shared_model::interface::Transaction>>
+          std::vector<UniquePtrCounter<shared_model::interface::Transaction>>
               transactions,
           const crypto::Hash &query_hash) const override;
 
       std::unique_ptr<interface::QueryResponse> createTransactionsPageResponse(
-          std::vector<std::unique_ptr<shared_model::interface::Transaction>>
+          std::vector<UniquePtrCounter<shared_model::interface::Transaction>>
               transactions,
           boost::optional<const crypto::Hash &> next_tx_hash,
           interface::types::TransactionsNumberType all_transactions_size,
@@ -65,7 +67,7 @@ namespace shared_model {
 
       std::unique_ptr<interface::QueryResponse>
       createPendingTransactionsPageResponse(
-          std::vector<std::unique_ptr<shared_model::interface::Transaction>>
+          std::vector<UniquePtrCounter<shared_model::interface::Transaction>>
               transactions,
           interface::types::TransactionsNumberType all_transactions_size,
           boost::optional<interface::PendingTransactionsPageResponse::BatchInfo>

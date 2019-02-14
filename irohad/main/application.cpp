@@ -38,6 +38,7 @@
 #include "multi_sig_transactions/transport/mst_transport_stub.hpp"
 #include "network/impl/block_loader_impl.hpp"
 #include "network/impl/peer_communication_service_impl.hpp"
+#include "obj_counter.hpp"
 #include "ordering/impl/on_demand_common.hpp"
 #include "ordering/impl/on_demand_ordering_gate.hpp"
 #include "pending_txs_storage/impl/pending_txs_storage_impl.hpp"
@@ -598,6 +599,10 @@ Irohad::RunResult Irohad::initPeerCommunicationService() {
 
   pcs->onProposal().subscribe([this](const auto &) {
     log_->info("~~~~~~~~~| PROPOSAL ^_^ |~~~~~~~~~ ");
+    log_->warn(
+        UniquePtrCounter<shared_model::interface::Transaction>::getStats());
+    log_->warn(
+        SharedPtrCounter<shared_model::interface::Transaction>::getStats());
   });
 
   pcs->onSynchronization().subscribe([this](const auto &event) {

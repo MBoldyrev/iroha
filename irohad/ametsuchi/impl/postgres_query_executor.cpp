@@ -41,6 +41,8 @@
 #include "logger/logger.hpp"
 #include "logger/logger_manager.hpp"
 
+#include "obj_counter.hpp"
+
 using namespace shared_model::interface::permissions;
 
 namespace {
@@ -159,11 +161,12 @@ namespace iroha {
   namespace ametsuchi {
 
     template <typename RangeGen, typename Pred>
-    std::vector<std::unique_ptr<shared_model::interface::Transaction>>
+    std::vector<UniquePtrCounter<shared_model::interface::Transaction>>
     PostgresQueryExecutorVisitor::getTransactionsFromBlock(uint64_t block_id,
                                                            RangeGen &&range_gen,
                                                            Pred &&pred) {
-      std::vector<std::unique_ptr<shared_model::interface::Transaction>> result;
+      std::vector<UniquePtrCounter<shared_model::interface::Transaction>>
+          result;
       auto serialized_block = block_store_.get(block_id);
       if (not serialized_block) {
         log_->error("Failed to retrieve block with id {}", block_id);
@@ -490,7 +493,7 @@ namespace iroha {
               });
             });
 
-            std::vector<std::unique_ptr<shared_model::interface::Transaction>>
+            std::vector<UniquePtrCounter<shared_model::interface::Transaction>>
                 response_txs;
             // get transactions corresponding to indexes
             for (auto &block : index) {
@@ -797,7 +800,7 @@ namespace iroha {
               });
             });
 
-            std::vector<std::unique_ptr<shared_model::interface::Transaction>>
+            std::vector<UniquePtrCounter<shared_model::interface::Transaction>>
                 response_txs;
             for (auto &block : index) {
               auto txs = this->getTransactionsFromBlock(
@@ -1300,7 +1303,7 @@ namespace iroha {
 
     QueryExecutorResult PostgresQueryExecutorVisitor::operator()(
         const shared_model::interface::GetPendingTransactions &q) {
-      std::vector<std::unique_ptr<shared_model::interface::Transaction>>
+      std::vector<UniquePtrCounter<shared_model::interface::Transaction>>
           response_txs;
       if (q.paginationMeta()) {
         return pending_txs_storage_

@@ -10,6 +10,8 @@
 
 #include <boost/optional.hpp>
 
+#include "obj_counter.hpp"
+
 namespace shared_model {
   namespace validation {
     class BatchOrderValidator : public OrderValidator {
@@ -22,8 +24,8 @@ namespace shared_model {
        * @return empty string if order is correct or error message
        */
       std::string canFollow(
-          boost::optional<std::shared_ptr<interface::Transaction>> tr1,
-          boost::optional<std::shared_ptr<interface::Transaction>> tr2) const;
+          boost::optional<SharedPtrCounter<interface::Transaction>> tr1,
+          boost::optional<SharedPtrCounter<interface::Transaction>> tr2) const;
 
      public:
       virtual Answer validate(const interface::types::SharedTxsCollectionType

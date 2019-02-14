@@ -14,6 +14,8 @@
 #include "interfaces/transaction.hpp"
 #include "validators/answer.hpp"
 
+#include "obj_counter.hpp"
+
 namespace shared_model {
   namespace interface {
     namespace {
@@ -37,7 +39,7 @@ namespace shared_model {
             &validator,
         const FieldValidator &field_validator) {
       std::unordered_map<interface::types::HashType,
-                         std::vector<std::shared_ptr<Transaction>>,
+                         std::vector<SharedPtrCounter<Transaction>>,
                          interface::types::HashType::Hasher>
           extracted_batches;
 

@@ -14,6 +14,8 @@
 #include "interfaces/transaction.hpp"
 #include "utils/string_builder.hpp"
 
+#include "obj_counter.hpp"
+
 namespace shared_model {
   namespace interface {
 
@@ -82,7 +84,7 @@ namespace shared_model {
                           std::end(original_txs),
                           types::SharedTxsCollectionType{},
                           [](types::SharedTxsCollectionType acc,
-                             std::shared_ptr<Transaction> tx) {
+                             SharedPtrCounter<Transaction> tx) {
                             acc.push_back(::clone(*tx));
                             return acc;
                           });

@@ -44,7 +44,7 @@ struct ObjCounter : public ConstrBt {
   static std::atomic<size_t> objects_alive;
 
   ObjCounter() noexcept {
-    objects_created.fetch_add(1, std::memory_order_relaxed) - 1;
+    objects_created.fetch_add(1, std::memory_order_relaxed);
     objects_alive.fetch_add(1, std::memory_order_relaxed);
 
     {
@@ -78,7 +78,8 @@ struct ObjCounter : public ConstrBt {
   }
 
  protected:
-  ~ObjCounter()  // objects should never be removed through pointers of this type
+  ~ObjCounter()  // objects should never be removed through pointers of this
+                 // type
   {
     objects_alive.fetch_add(-1, std::memory_order_relaxed);
 
@@ -101,10 +102,7 @@ template <typename T>
 class UniquePtrCounter : public ObjCounter<UniquePtrCounter<T>>,
                          public std::unique_ptr<T> {
  public:
-
   constexpr UniquePtrCounter() noexcept : std::unique_ptr<T>() {}
-  constexpr UniquePtrCounter(nullptr_t) noexcept
-      : std::unique_ptr<T>(nullptr) {}
 
   template <typename... Types,
             typename = std::enable_if_t<

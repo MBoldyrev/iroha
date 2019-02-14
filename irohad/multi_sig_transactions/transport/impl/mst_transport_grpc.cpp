@@ -17,6 +17,8 @@
 #include "network/impl/grpc_channel_builder.hpp"
 #include "validators/field_validator.hpp"
 
+#include "obj_counter.hpp"
+
 using namespace iroha;
 using namespace iroha::network;
 
@@ -75,10 +77,10 @@ MstTransportGrpc::deserializeTransactions(const transport::MstState *request) {
               });
         })
       | boost::adaptors::transformed([&](auto result) {
-          return std::move(
-                     boost::get<iroha::expected::ValueOf<decltype(result)>>(
-                         result))
-              .value;
+          return SharedPtrCounter<shared_model::interface::Transaction>(
+              std::move(boost::get<iroha::expected::ValueOf<decltype(result)>>(
+                            result))
+                  .value);
         }));
 }
 

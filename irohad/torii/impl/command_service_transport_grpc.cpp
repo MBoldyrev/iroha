@@ -25,6 +25,8 @@
 #include "logger/logger.hpp"
 #include "torii/status_bus.hpp"
 
+#include "obj_counter.hpp"
+
 namespace iroha {
   namespace torii {
 

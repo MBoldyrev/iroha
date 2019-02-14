@@ -11,6 +11,8 @@
 #include "common/result.hpp"
 #include "interfaces/iroha_internal/block.hpp"
 
+#include "obj_counter.hpp"
+
 namespace iroha {
 
   namespace ametsuchi {

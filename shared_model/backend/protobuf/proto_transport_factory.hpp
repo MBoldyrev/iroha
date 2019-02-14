@@ -28,6 +28,9 @@ namespace shared_model {
       using typename interface::AbstractTransportFactory<
           Interface,
           typename Proto::TransportType>::Error;
+      using typename interface::AbstractTransportFactory<
+          Interface,
+          typename Proto::TransportType>::BuildResultValue;
       using ValidatorType = std::unique_ptr<
           shared_model::validation::AbstractValidator<Interface>>;
       using ProtoValidatorType =
@@ -39,7 +42,7 @@ namespace shared_model {
           : interface_validator_(std::move(interface_validator)),
             proto_validator_{std::move(proto_validator)} {}
 
-      iroha::expected::Result<std::unique_ptr<Interface>, Error> build(
+      iroha::expected::Result<BuildResultValue, Error> build(
           typename Proto::TransportType m) const override {
         if (auto answer = proto_validator_->validate(m)) {
           auto payload_field_descriptor =
@@ -55,8 +58,7 @@ namespace shared_model {
           return iroha::expected::makeError(Error{hash, answer.reason()});
         }
 
-        std::unique_ptr<Interface> result =
-            std::make_unique<Proto>(std::move(m));
+        BuildResultValue result = std::make_unique<Proto>(std::move(m));
         if (auto answer = interface_validator_->validate(*result)) {
           return iroha::expected::makeError(
               Error{result->hash(), answer.reason()});

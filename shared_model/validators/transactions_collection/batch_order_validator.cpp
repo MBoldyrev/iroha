@@ -13,8 +13,8 @@
 namespace shared_model {
   namespace validation {
     std::string BatchOrderValidator::canFollow(
-        boost::optional<std::shared_ptr<interface::Transaction>> tr1,
-        boost::optional<std::shared_ptr<interface::Transaction>> tr2) const {
+        boost::optional<SharedPtrCounter<interface::Transaction>> tr1,
+        boost::optional<SharedPtrCounter<interface::Transaction>> tr2) const {
       boost::optional<std::shared_ptr<interface::BatchMeta>> batch1 =
           tr1 ? tr1.value()->batchMeta() : boost::none;
       boost::optional<std::shared_ptr<interface::BatchMeta>> batch2 =
