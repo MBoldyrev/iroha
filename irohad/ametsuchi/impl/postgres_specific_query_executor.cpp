@@ -502,7 +502,7 @@ namespace iroha {
                   });
             }
 
-            std::vector<std::unique_ptr<shared_model::interface::Transaction>>
+            std::vector<UniquePtrCounter<shared_model::interface::Transaction>>
                 response_txs;
             // get transactions corresponding to indexes
             for (auto &block : index) {
@@ -814,7 +814,7 @@ namespace iroha {
               });
             }
 
-            std::vector<std::unique_ptr<shared_model::interface::Transaction>>
+            std::vector<UniquePtrCounter<shared_model::interface::Transaction>>
                 response_txs;
             for (auto &block : index) {
               auto txs_result = this->getTransactionsFromBlock(
@@ -1363,7 +1363,7 @@ namespace iroha {
         const shared_model::interface::GetPendingTransactions &q,
         const shared_model::interface::types::AccountIdType &creator_id,
         const shared_model::interface::types::HashType &query_hash) {
-      std::vector<std::unique_ptr<shared_model::interface::Transaction>>
+      std::vector<UniquePtrCounter<shared_model::interface::Transaction>>
           response_txs;
       if (q.paginationMeta()) {
         return pending_txs_storage_

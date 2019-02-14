@@ -23,6 +23,8 @@
 #include "network/impl/grpc_channel_builder.hpp"
 #include "validators/field_validator.hpp"
 
+#include "obj_counter.hpp"
+
 using namespace iroha;
 using namespace iroha::network;
 
