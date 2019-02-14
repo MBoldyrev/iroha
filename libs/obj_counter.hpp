@@ -30,7 +30,7 @@ class ConstrBt {
   }
 
  private:
-  static constexpr size_t kMaxBtSize = 20;
+  static constexpr size_t kMaxBtSize = 100;
 
   //char **backtrace_;
   void *bt_addresses_[kMaxBtSize];
