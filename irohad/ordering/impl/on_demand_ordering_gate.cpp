@@ -18,6 +18,8 @@
 #include "logger/logger.hpp"
 #include "ordering/impl/on_demand_common.hpp"
 
+#include "obj_counter.hpp"
+
 using namespace iroha;
 using namespace iroha::ordering;
 
@@ -85,10 +87,10 @@ rxcpp::observable<network::OrderingEvent> OnDemandOrderingGate::onProposal() {
   return proposal_notifier_.get_observable();
 }
 
-boost::optional<std::shared_ptr<const shared_model::interface::Proposal>>
+boost::optional<SharedPtrCounter<const shared_model::interface::Proposal>>
 OnDemandOrderingGate::processProposalRequest(
     boost::optional<
-        std::shared_ptr<const OnDemandOrderingService::ProposalType>> proposal)
+        SharedPtrCounter<const OnDemandOrderingService::ProposalType>> proposal)
     const {
   if (not proposal) {
     return boost::none;
@@ -125,9 +127,9 @@ void OnDemandOrderingGate::sendCachedTransactions() {
   }
 }
 
-std::shared_ptr<const shared_model::interface::Proposal>
+SharedPtrCounter<const shared_model::interface::Proposal>
 OnDemandOrderingGate::removeReplays(
-    std::shared_ptr<const shared_model::interface::Proposal> proposal) const {
+    SharedPtrCounter<const shared_model::interface::Proposal> proposal) const {
   std::vector<bool> proposal_txs_validation_results;
   auto tx_is_not_processed = [this](const auto &tx) {
     auto tx_result = tx_cache_->check(tx.hash());
@@ -173,6 +175,7 @@ OnDemandOrderingGate::removeReplays(
       | boost::adaptors::transformed(
             [](const auto &el) -> decltype(auto) { return el.value(); });
 
-  return proposal_factory_->unsafeCreateProposal(
-      proposal->height(), proposal->createdTime(), unprocessed_txs);
+  return UniquePtrCounter<const shared_model::interface::Proposal>(
+      proposal_factory_->unsafeCreateProposal(
+          proposal->height(), proposal->createdTime(), unprocessed_txs));
 }

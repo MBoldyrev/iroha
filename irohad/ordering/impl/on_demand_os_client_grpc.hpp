@@ -13,6 +13,8 @@
 #include "network/impl/async_grpc_client.hpp"
 #include "ordering.grpc.pb.h"
 
+#include "obj_counter.hpp"
+
 namespace iroha {
   namespace ordering {
     namespace transport {
@@ -44,7 +46,7 @@ namespace iroha {
 
         void onBatches(CollectionType batches) override;
 
-        boost::optional<std::shared_ptr<const ProposalType>> onRequestProposal(
+        boost::optional<SharedPtrCounter<const ProposalType>> onRequestProposal(
             consensus::Round round) override;
 
        private:

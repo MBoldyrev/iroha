@@ -74,10 +74,10 @@ void OnDemandOrderingServiceImpl::onBatches(CollectionType batches) {
 }
 
 boost::optional<
-    std::shared_ptr<const OnDemandOrderingServiceImpl::ProposalType>>
+    SharedPtrCounter<const OnDemandOrderingServiceImpl::ProposalType>>
 OnDemandOrderingServiceImpl::onRequestProposal(consensus::Round round) {
   boost::optional<
-      std::shared_ptr<const OnDemandOrderingServiceImpl::ProposalType>>
+      SharedPtrCounter<const OnDemandOrderingServiceImpl::ProposalType>>
       result;
   {
     std::shared_lock<std::shared_timed_mutex> lock(proposals_mutex_);

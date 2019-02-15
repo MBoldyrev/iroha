@@ -19,6 +19,8 @@
 #include "ordering/impl/ordering_gate_cache/ordering_gate_cache.hpp"
 #include "ordering/on_demand_ordering_service.hpp"
 
+#include "obj_counter.hpp"
+
 namespace iroha {
   namespace ametsuchi {
     class TxPresenceCache;
@@ -70,10 +72,10 @@ namespace iroha {
       /**
        * Handle an incoming proposal from ordering service
        */
-      boost::optional<std::shared_ptr<const shared_model::interface::Proposal>>
+      boost::optional<SharedPtrCounter<const shared_model::interface::Proposal>>
       processProposalRequest(
           boost::optional<
-              std::shared_ptr<const OnDemandOrderingService::ProposalType>>
+              SharedPtrCounter<const OnDemandOrderingService::ProposalType>>
               proposal) const;
 
       void sendCachedTransactions();
@@ -81,8 +83,8 @@ namespace iroha {
       /**
        * remove already processed transactions from proposal
        */
-      std::shared_ptr<const shared_model::interface::Proposal> removeReplays(
-          std::shared_ptr<const shared_model::interface::Proposal> proposal)
+      SharedPtrCounter<const shared_model::interface::Proposal> removeReplays(
+          SharedPtrCounter<const shared_model::interface::Proposal> proposal)
           const;
 
       logger::LoggerPtr log_;

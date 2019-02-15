@@ -13,6 +13,8 @@
 #include <boost/optional.hpp>
 #include "consensus/round.hpp"
 
+#include "obj_counter.hpp"
+
 namespace shared_model {
   namespace interface {
     class TransactionBatch;
@@ -58,7 +60,7 @@ namespace iroha {
          * Calculated as block_height + 1
          * @return proposal for requested round
          */
-        virtual boost::optional<std::shared_ptr<const ProposalType>>
+        virtual boost::optional<SharedPtrCounter<const ProposalType>>
         onRequestProposal(consensus::Round round) = 0;
 
         virtual ~OdOsNotification() = default;
