@@ -89,7 +89,7 @@ namespace shared_model {
       // ------------------------| Primitive override |-------------------------
 
       std::string toString() const override {
-        return detail::PrettyStringBuilder()
+        return ::shared_model::detail::PrettyStringBuilder()
             .init("Signable")
             .append("created_time", std::to_string(createdTime()))
             .appendAll(signatures(),
