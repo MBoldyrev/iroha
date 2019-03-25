@@ -6,8 +6,6 @@
 #ifndef IROHA_ON_DEMAND_ORDERING_INIT_HPP
 #define IROHA_ON_DEMAND_ORDERING_INIT_HPP
 
-#include <random>
-
 #include "ametsuchi/peer_query_factory.hpp"
 #include "ametsuchi/tx_presence_cache.hpp"
 #include "interfaces/iroha_internal/unsafe_proposal_factory.hpp"
@@ -149,22 +147,11 @@ namespace iroha {
      private:
       logger::LoggerPtr log_;
 
-      std::vector<std::shared_ptr<shared_model::interface::Peer>>
-          current_peers_;
-
       /// indexes to permutations for corresponding rounds
       enum RoundType { kCurrentRound, kNextRound, kRoundAfterNext, kCount };
 
       template <RoundType V>
       using RoundTypeConstant = std::integral_constant<RoundType, V>;
-
-      /// permutations for peers lists
-      std::array<std::vector<size_t>, kCount> permutations_;
-
-      /// random generator for peer list permutations
-      // TODO andrei 08.11.2018 IR-1850 Refactor default_random_engine usages
-      // with platform-independent class
-      std::default_random_engine gen_;
     };
   }  // namespace network
 }  // namespace iroha

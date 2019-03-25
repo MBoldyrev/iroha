@@ -84,10 +84,7 @@ TEST_F(OnDemandConnectionManagerTest, onBatches) {
     EXPECT_CALL(*connections[type], onBatches(collection)).Times(1);
   };
 
-  set_expect(OnDemandConnectionManager::kRejectRejectConsumer);
-  set_expect(OnDemandConnectionManager::kRejectCommitConsumer);
-  set_expect(OnDemandConnectionManager::kCommitRejectConsumer);
-  set_expect(OnDemandConnectionManager::kCommitCommitConsumer);
+  set_expect(OnDemandConnectionManager::kConsumer);
 
   manager->onBatches(collection);
 }
