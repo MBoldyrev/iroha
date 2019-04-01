@@ -49,14 +49,18 @@ OnDemandOrderingGate::OnDemandOrderingGate(
       ordering_service_(std::move(ordering_service)),
       network_client_(std::move(network_client)),
       events_subscription_(events.subscribe([this](auto event) {
-        consensus::Round current_round =
-            visit_in_place(event, [this, &current_round](const auto &event) {
+        consensus::Round current_round;
+        shared_model::interface::types::HeightType current_height;
+        visit_in_place(
+            event, [this, &current_round, current_height](const auto &event) {
               log_->debug("{}", event);
-              return event.round;
+              current_round = event.round;
+              current_height = event.height;
             });
 
         // notify our ordering service about new round
-        ordering_service_->onCollaborationOutcome(current_round);
+        ordering_service_->onCollaborationOutcome(current_round,
+                                                  current_height);
 
         this->sendCachedTransactions(event);
 

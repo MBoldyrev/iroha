@@ -94,8 +94,6 @@ namespace iroha {
         auto &latest_commit = std::get<0>(latest_data);
         auto &current_hashes = std::get<1>(latest_data);
 
-        consensus::Round current_round = latest_commit.round;
-
         std::vector<std::shared_ptr<shared_model::interface::Peer>>
             current_peers;
 
@@ -163,17 +161,13 @@ namespace iroha {
         auto on_blocks = [this,
                           peer_query_factory,
                           current_hashes,
-                          &current_round,
                           &update_ordering](const auto &commit) {
-          current_round = ordering::nextCommitRound(current_round);
+          current_height = commit.height;
           update_peers();
           update_ordering();
         };
-        auto on_nothing = [&current_round](const auto &) {
-          current_round = ordering::nextRejectRound(current_round);
-        };
 
-        matchEvent(latest_commit, on_blocks, on_nothing);
+        matchEvent(latest_commit, on_blocks, [](const auto &) {});
 
         return current_peers[current_ordering.next()];
       };

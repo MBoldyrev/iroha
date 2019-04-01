@@ -161,29 +161,32 @@ void OnDemandOrderingServiceImpl::packNextProposals(
    * (1,0) - current round. The diagram is similar to the initial case.
    */
 
-  size_t discarded_txs_quantity;
-  auto now = iroha::time::now();
-  auto generate_proposal = [this, now, &discarded_txs_quantity](
-                               consensus::Round round, const auto &txs) {
+  auto generate_proposal = [](shared_model::interface::types::HeightType height,
+                              consensus::Round round,
+                              const auto &txs) {
     auto proposal = proposal_factory_->unsafeCreateProposal(
-        round.block_round, now, txs | boost::adaptors::indirected);
-    proposal_map_.erase(round);
-    proposal_map_.emplace(round, std::move(proposal));
+        height, iroha::time::now(), txs | boost::adaptors::indirected);
     log_->debug(
-        "packNextProposal: data has been fetched for {}. "
-        "Number of transactions in proposal = {}. Discarded {} "
-        "transactions.",
-        round,
-        txs.size(),
-        discarded_txs_quantity);
+        "packNextProposal: proposal is created for height {}, round {}.",
+        height,
+        round, );
+    return proposal;
   };
 
   if (not pending_batches_.empty()) {
+    size_t discarded_txs_quantity;
     auto txs = getTransactions(
         transaction_limit_, pending_batches_, discarded_txs_quantity);
+    log_->debug(
+        "packNextProposal: data has been fetched for round {}. "
+        "Number of transactions for proposals: {}, discarded: {}.",
+        round + 1,
+        txs.size(),
+        discarded_txs_quantity);
     if (not txs.empty()) {
-      generate_proposal({round.block_round, round.reject_round + 1}, txs);
-      generate_proposal({round.block_round + 1, kFirstRejectRound}, txs);
+      current_height_proposals_.emplace(
+          round + 1, generate_proposal(height, round + 1, txs));
+      next_height_proposal_ = generate_proposal(height + 1, round + 1, txs);
     }
   }
 

@@ -689,7 +689,8 @@ Irohad::RunResult Irohad::run() {
                 synchronizer::SynchronizationEvent{
                     rxcpp::observable<>::just(block),
                     SynchronizationOutcomeType::kCommit,
-                    {block->height(), ordering::kFirstRejectRound}});
+                    block->height(),
+                    ordering::kFirstRejectRound});
             return {};
           },
           [&](const expected::Error<std::string> &e) -> RunResult {

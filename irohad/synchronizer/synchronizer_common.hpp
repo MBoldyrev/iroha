@@ -11,7 +11,8 @@
 #include <rxcpp/rx.hpp>
 
 #include "ametsuchi/ledger_state.hpp"
-#include "consensus/round.hpp"
+#include "consensus/types.hpp"
+#include "interfaces/common_objects/types.hpp"
 #include "interfaces/iroha_internal/block.hpp"
 
 namespace iroha {
@@ -26,12 +27,6 @@ namespace iroha {
         rxcpp::observable<std::shared_ptr<shared_model::interface::Block>>;
 
     /**
-     * Outcome, which was decided by synchronizer based on consensus result and
-     * current local ledger state
-     */
-    enum class SynchronizationOutcomeType { kCommit, kReject, kNothing };
-
-    /**
      * Event, which is emitted by synchronizer, when it receives and processes
      * commit
      */
@@ -39,7 +34,8 @@ namespace iroha {
       // TODO andrei 08.11.2018 IR-1852 Rework blocks collection from
       // synchronizer with iterable
       Chain synced_blocks;
-      SynchronizationOutcomeType sync_outcome;
+      iroha::consensus::OutcomeType sync_outcome;
+      shared_model::interface::types::HeightType height;
       consensus::Round round;
       std::shared_ptr<iroha::LedgerState> ledger_state;
     };

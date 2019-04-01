@@ -36,8 +36,9 @@ namespace iroha {
        * Represents storage modification. Proposal round increment
        */
       struct BlockEvent {
-        /// next round number
-        consensus::Round round;
+        // needed? wait for refactoring
+        consensus::ConsensusOutcome consensus_outcome;
+
         /// hashes of processed transactions
         cache::OrderingGateCache::HashesSetType hashes;
 
@@ -48,8 +49,7 @@ namespace iroha {
        * Represents no storage modification. Reject round increment
        */
       struct EmptyEvent {
-        /// next round number
-        consensus::Round round;
+        consensus::ConsensusOutcome consensus_outcome;
 
         std::string toString() const;
       };

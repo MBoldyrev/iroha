@@ -99,7 +99,13 @@ namespace iroha {
        * Map of available proposals
        */
       std::map<consensus::Round, std::shared_ptr<const ProposalType>>
-          proposal_map_;
+          current_height_proposals_;
+
+      /// Proposal for the next height.
+      std::shared_ptr<const ProposalType> next_height_proposal_;
+
+      /// Current height.
+      shared_model::interface::types::HeightType current_height_;
 
       /**
        * Collections of batches for current round
