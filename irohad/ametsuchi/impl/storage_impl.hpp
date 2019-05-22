@@ -17,6 +17,7 @@
 #include "ametsuchi/block_storage_factory.hpp"
 #include "ametsuchi/impl/postgres_options.hpp"
 #include "ametsuchi/key_value_storage.hpp"
+#include "ametsuchi/ledger_state.hpp"
 #include "ametsuchi/reconnection_strategy.hpp"
 #include "interfaces/common_objects/common_objects_factory.hpp"
 #include "interfaces/iroha_internal/block_json_converter.hpp"
@@ -101,7 +102,7 @@ namespace iroha {
 
       void freeConnections() override;
 
-      boost::optional<std::unique_ptr<LedgerState>> commit(
+      CommitResult commit(
           std::unique_ptr<MutableStorage> mutable_storage) override;
 
       boost::optional<std::unique_ptr<LedgerState>> commitPrepared(

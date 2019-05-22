@@ -687,32 +687,42 @@ namespace iroha {
       return storage;
     }
 
-    boost::optional<std::unique_ptr<LedgerState>> StorageImpl::commit(
+    CommitResult StorageImpl::commit(
         std::unique_ptr<MutableStorage> mutable_storage) {
       auto storage = static_cast<MutableStorageImpl *>(mutable_storage.get());
 
       try {
         *(storage->sql_) << "COMMIT";
-        storage->committed = true;
-
-        storage->block_storage_->forEach(
-            [this](const auto &block) { this->storeBlock(block); });
-
-        return PostgresWsvQuery(*(storage->sql_),
-                                factory_,
-                                log_manager_->getChild("WsvQuery")->getLogger())
-                   .getPeers()
-            | [&storage](auto &&peers) {
-                return boost::optional<std::unique_ptr<LedgerState>>(
-                    std::make_unique<LedgerState>(std::move(peers),
-                                                  storage->getTopBlockHeight(),
-                                                  storage->getTopBlockHash()));
-              };
       } catch (std::exception &e) {
         storage->committed = false;
         log_->warn("Mutable storage is not committed. Reason: {}", e.what());
-        return boost::none;
+        return expected::makeError(e.what());
       }
+      storage->committed = true;
+
+      shared_model::interface::types::HeightType top_height;
+      shared_model::crypto::Hash top_hash;
+      storage->block_storage_->forEach(
+          [this, &top_height, &top_hash](const auto &block) {
+            this->storeBlock(block);
+            top_height = block->height();
+            top_hash = block->hash();
+          });
+
+      decltype(std::declval<PostgresWsvQuery>().getPeers()) opt_ledger_peers;
+      {
+        auto peer_query =
+            PostgresWsvQuery(*(storage->sql_),
+                             factory_,
+                             log_manager_->getChild("WsvQuery")->getLogger());
+        while (not(opt_ledger_peers = peer_query.getPeers())) {
+          log_->error("Failed to get ledger peers! Will retry.");
+        }
+      }
+      assert(opt_ledger_peers);
+
+      return expected::makeValue(std::make_shared<LedgerState>(
+          std::move(*opt_ledger_peers), top_height, top_hash));
     }
 
     boost::optional<std::unique_ptr<LedgerState>> StorageImpl::commitPrepared(
@@ -741,19 +751,26 @@ namespace iroha {
             sql, log_manager_->getChild("BlockIndex")->getLogger());
         block_index.index(*block);
         block_is_prepared = false;
-        return PostgresWsvQuery(sql,
-                                factory_,
-                                log_manager_->getChild("WsvQuery")->getLogger())
-                       .getPeers()
-                   | [this, &block, &sql](auto &&peers)
-                   -> boost::optional<std::unique_ptr<LedgerState>> {
-          if (this->storeBlock(block)) {
-            return boost::optional<std::unique_ptr<LedgerState>>(
-                std::make_unique<LedgerState>(
-                    std::move(peers), block->height(), block->hash()));
+
+        if (this->storeBlock(block)) {
+
+          decltype(
+              std::declval<PostgresWsvQuery>().getPeers()) opt_ledger_peers;
+          {
+            auto peer_query = PostgresWsvQuery(
+                sql, factory_, log_manager_->getChild("WsvQuery")->getLogger());
+            while (not(opt_ledger_peers = peer_query.getPeers())) {
+              log_->error("Failed to get ledger peers! Will retry.");
+            }
           }
-          return boost::none;
-        };
+          assert(opt_ledger_peers);
+
+          return boost::optional<std::unique_ptr<LedgerState>>(
+              std::make_unique<LedgerState>(std::move(*opt_ledger_peers),
+                                            block->height(),
+                                            block->hash()));
+        }
+        return boost::none;
       } catch (const std::exception &e) {
         log_->warn("failed to apply prepared block {}: {}",
                    block->hash().hex(),

@@ -22,6 +22,7 @@
 using namespace iroha::ametsuchi;
 using namespace framework::test_subscriber;
 using namespace shared_model::interface::permissions;
+using framework::expected::val;
 
 auto zero_string = std::string(32, '0');
 auto fake_hash = shared_model::crypto::Hash(zero_string);
@@ -88,7 +89,7 @@ void apply(S &&storage,
       [&](auto &&_storage) { ms = std::move(_storage.value); },
       [](const auto &error) { FAIL() << "MutableStorage: " << error.error; });
   ms->apply(block);
-  storage->commit(std::move(ms));
+  ASSERT_TRUE(val(storage->commit(std::move(ms))));
 }
 
 TEST_F(AmetsuchiTest, GetBlocksCompletedWhenCalled) {
@@ -409,7 +410,7 @@ TEST_F(AmetsuchiTest, TestingStorageWhenCommitBlock) {
 
   mutable_storage->apply(expected_block);
 
-  storage->commit(std::move(mutable_storage));
+  ASSERT_TRUE(val(storage->commit(std::move(mutable_storage))));
 
   ASSERT_TRUE(wrapper.validate());
   wrapper.unsubscribe();
@@ -574,7 +575,6 @@ class PreparedBlockTest : public AmetsuchiTest {
     genesis_block = createBlock({*genesis_tx});
     initial_tx = clone(createAddAsset("5.00"));
     apply(storage, genesis_block);
-    using framework::expected::val;
     temp_wsv = std::move(val(storage->createTemporaryWsv())->value);
   }
 
@@ -643,7 +643,7 @@ TEST_F(PreparedBlockTest, PrepareBlockCommitDifferentBlock) {
   auto block = createBlock({other_tx}, 2);
 
   auto result = temp_wsv->apply(*initial_tx);
-  ASSERT_TRUE(framework::expected::val(result));
+  ASSERT_TRUE(val(result));
   storage->prepareBlock(std::move(temp_wsv));
 
   apply(storage, block);
@@ -687,13 +687,12 @@ TEST_F(PreparedBlockTest, CommitPreparedFailsAfterCommit) {
  */
 TEST_F(PreparedBlockTest, TemporaryWsvUnlocks) {
   auto result = temp_wsv->apply(*initial_tx);
-  ASSERT_TRUE(framework::expected::val(result));
+  ASSERT_TRUE(val(result));
   storage->prepareBlock(std::move(temp_wsv));
 
-  using framework::expected::val;
   temp_wsv = std::move(val(storage->createTemporaryWsv())->value);
 
   result = temp_wsv->apply(*initial_tx);
-  ASSERT_TRUE(framework::expected::val(result));
+  ASSERT_TRUE(val(result));
   storage->prepareBlock(std::move(temp_wsv));
 }
