@@ -37,7 +37,7 @@ namespace iroha {
               std::shared_ptr<shared_model::interface::QueryResponseFactory>));
       MOCK_METHOD1(doCommit, CommitResult(MutableStorage *storage));
       MOCK_METHOD1(commitPrepared,
-                   boost::optional<std::unique_ptr<LedgerState>>(
+                   boost::optional<CommitResult>(
                        std::shared_ptr<const shared_model::interface::Block>));
       MOCK_METHOD1(insertBlock,
                    bool(std::shared_ptr<const shared_model::interface::Block>));

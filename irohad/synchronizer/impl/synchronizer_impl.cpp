@@ -9,6 +9,7 @@
 
 #include "ametsuchi/block_query_factory.hpp"
 #include "ametsuchi/mutable_storage.hpp"
+#include "common/bind.hpp"
 #include "common/visitor.hpp"
 #include "interfaces/iroha_internal/block.hpp"
 #include "logger/logger.hpp"
@@ -100,13 +101,25 @@ namespace iroha {
 
     void SynchronizerImpl::processNext(const consensus::PairValid &msg) {
       log_->info("at handleNext");
-      auto ledger_state = mutable_factory_->commitPrepared(msg.block);
-      if (ledger_state) {
-        notifier_.get_subscriber().on_next(
-            SynchronizationEvent{SynchronizationOutcomeType::kCommit,
-                                 msg.round,
-                                 std::move(*ledger_state)});
-      } else {
+      const bool committed_prepared =
+          mutable_factory_->commitPrepared(msg.block) |
+          [this, &msg](iroha::ametsuchi::CommitResult &&commit_result) {
+            return std::move(commit_result)
+                .match(
+                    [this, &msg](auto &&value) {
+                      notifier_.get_subscriber().on_next(SynchronizationEvent{
+                          SynchronizationOutcomeType::kCommit,
+                          msg.round,
+                          std::move(value.value)});
+                      return true;
+                    },
+                    [this](const auto &error) {
+                      log_->error("Error committing prepared block: {}",
+                                  error.error);
+                      return false;
+                    });
+          };
+      if (not committed_prepared) {
         auto opt_storage = getStorage();
         if (opt_storage == boost::none) {
           return;

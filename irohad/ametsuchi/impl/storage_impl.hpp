@@ -19,6 +19,7 @@
 #include "ametsuchi/key_value_storage.hpp"
 #include "ametsuchi/ledger_state.hpp"
 #include "ametsuchi/reconnection_strategy.hpp"
+#include "common/result.hpp"
 #include "interfaces/common_objects/common_objects_factory.hpp"
 #include "interfaces/iroha_internal/block_json_converter.hpp"
 #include "interfaces/permission_to_string.hpp"
@@ -105,7 +106,7 @@ namespace iroha {
       CommitResult commit(
           std::unique_ptr<MutableStorage> mutable_storage) override;
 
-      boost::optional<std::unique_ptr<LedgerState>> commitPrepared(
+      boost::optional<CommitResult> commitPrepared(
           std::shared_ptr<const shared_model::interface::Block> block) override;
 
       std::shared_ptr<WsvQuery> getWsvQuery() const override;
@@ -138,6 +139,14 @@ namespace iroha {
                   logger::LoggerManagerTreePtr log_manager);
 
       /**
+       * Commit a prepared block, assuming prepared blocks are enabled.
+       * @param block the previously prepared block
+       * @return commit result of prepared block
+       */
+      CommitResult commitPreparedImpl(
+          std::shared_ptr<const shared_model::interface::Block> block);
+
+      /**
        * Folder with raw blocks
        */
       const std::string block_store_dir_;
@@ -146,6 +155,8 @@ namespace iroha {
       const PostgresOptions postgres_options_;
 
      private:
+      using StoreBlockResult = iroha::expected::Result<void, std::string>;
+
       /**
        * revert prepared transaction
        */
@@ -154,7 +165,7 @@ namespace iroha {
       /**
        * add block to block storage
        */
-      bool storeBlock(
+      StoreBlockResult storeBlock(
           std::shared_ptr<const shared_model::interface::Block> block);
 
       std::unique_ptr<KeyValueStorage> block_store_;

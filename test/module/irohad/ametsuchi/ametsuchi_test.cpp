@@ -22,6 +22,7 @@
 using namespace iroha::ametsuchi;
 using namespace framework::test_subscriber;
 using namespace shared_model::interface::permissions;
+using framework::expected::err;
 using framework::expected::val;
 
 auto zero_string = std::string(32, '0');
@@ -623,7 +624,9 @@ TEST_F(PreparedBlockTest, CommitPreparedStateChanged) {
 
   auto commited = storage->commitPrepared(block);
 
-  EXPECT_TRUE(commited);
+  ASSERT_TRUE(commited);
+  EXPECT_TRUE(val(*commited))
+      << "Error in commitPrepared: " << err(*commited)->error;
 
   shared_model::interface::Amount resultingAmount("10.00");
 
@@ -674,7 +677,8 @@ TEST_F(PreparedBlockTest, CommitPreparedFailsAfterCommit) {
 
   auto commited = storage->commitPrepared(block);
 
-  ASSERT_FALSE(commited);
+  ASSERT_TRUE(commited);
+  EXPECT_TRUE(err(*commited));
 
   shared_model::interface::Amount resultingBalance{"15.00"};
   validateAccountAsset(sql_query, "admin@test", "coin#test", resultingBalance);

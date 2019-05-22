@@ -475,8 +475,9 @@ TEST_F(SynchronizerTest, NoneOutcome) {
  */
 TEST_F(SynchronizerTest, VotedForBlockCommitPrepared) {
   EXPECT_CALL(*mutable_factory, commitPrepared(_))
-      .WillOnce(Return(ByMove(std::make_unique<LedgerState>(
-          ledger_peers, kHeight, commit_message->hash()))));
+      .WillOnce(Return(ByMove(boost::optional<CommitResult>(
+          expected::makeValue(std::make_shared<LedgerState>(
+              ledger_peers, kHeight, commit_message->hash()))))));
 
   EXPECT_CALL(*mutable_factory, commit_(_)).Times(0);
 

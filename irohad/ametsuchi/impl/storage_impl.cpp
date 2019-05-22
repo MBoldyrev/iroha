@@ -725,25 +725,28 @@ namespace iroha {
           std::move(*opt_ledger_peers), top_height, top_hash));
     }
 
-    boost::optional<std::unique_ptr<LedgerState>> StorageImpl::commitPrepared(
+    boost::optional<CommitResult> StorageImpl::commitPrepared(
         std::shared_ptr<const shared_model::interface::Block> block) {
       if (not prepared_blocks_enabled_) {
         log_->warn("prepared blocks are not enabled");
         return boost::none;
       }
+      return commitPreparedImpl(std::move(block));
+    }
 
-      if (not block_is_prepared) {
-        log_->info("there are no prepared blocks");
-        return boost::none;
-      }
+    CommitResult StorageImpl::commitPreparedImpl(
+        std::shared_ptr<const shared_model::interface::Block> block) {
+      assert(prepared_blocks_enabled_);
+
       log_->info("applying prepared block");
 
       try {
         std::shared_lock<std::shared_timed_mutex> lock(drop_mutex);
         if (not connection_) {
-          log_->info(
+          std::string msg(
               "commitPrepared: connection to database is not initialised");
-          return boost::none;
+          log_->info("{}", msg);
+          return expected::makeError(std::move(msg));
         }
         soci::session sql(*connection_);
         sql << "COMMIT PREPARED '" + prepared_block_name_ + "';";
@@ -752,30 +755,33 @@ namespace iroha {
         block_index.index(*block);
         block_is_prepared = false;
 
-        if (this->storeBlock(block)) {
+        return storeBlock(block).match(
+            [this, &sql, &block](const auto &) -> CommitResult {
+              decltype(
+                  std::declval<PostgresWsvQuery>().getPeers()) opt_ledger_peers;
+              {
+                auto peer_query = PostgresWsvQuery(
+                    sql,
+                    this->factory_,
+                    this->log_manager_->getChild("WsvQuery")->getLogger());
+                while (not(opt_ledger_peers = peer_query.getPeers())) {
+                  this->log_->error("Failed to get ledger peers! Will retry.");
+                }
+              }
+              assert(opt_ledger_peers);
 
-          decltype(
-              std::declval<PostgresWsvQuery>().getPeers()) opt_ledger_peers;
-          {
-            auto peer_query = PostgresWsvQuery(
-                sql, factory_, log_manager_->getChild("WsvQuery")->getLogger());
-            while (not(opt_ledger_peers = peer_query.getPeers())) {
-              log_->error("Failed to get ledger peers! Will retry.");
-            }
-          }
-          assert(opt_ledger_peers);
-
-          return boost::optional<std::unique_ptr<LedgerState>>(
-              std::make_unique<LedgerState>(std::move(*opt_ledger_peers),
-                                            block->height(),
-                                            block->hash()));
-        }
-        return boost::none;
+              return expected::makeValue(
+                  std::make_shared<LedgerState>(std::move(*opt_ledger_peers),
+                                                block->height(),
+                                                block->hash()));
+            },
+            [](auto &&error) -> CommitResult { return std::move(error); });
       } catch (const std::exception &e) {
-        log_->warn("failed to apply prepared block {}: {}",
-                   block->hash().hex(),
-                   e.what());
-        return boost::none;
+        std::string msg((boost::format("failed to apply prepared block %s: %s")
+                         % block->hash().hex() % e.what())
+                            .str());
+        log_->warn("{}", msg);
+        return expected::makeError(msg);
       }
     }
 
@@ -846,21 +852,23 @@ namespace iroha {
       }
     }
 
-    bool StorageImpl::storeBlock(
+    StorageImpl::StoreBlockResult StorageImpl::storeBlock(
         std::shared_ptr<const shared_model::interface::Block> block) {
       return converter_->serialize(*block).match(
-          [this, &block](const auto &v) {
+          [this, &block](const auto &v) -> StoreBlockResult {
             if (block_store_->add(block->height(), stringToBytes(v.value))) {
               notifier_.get_subscriber().on_next(block);
-              return true;
+              return {};
             } else {
               log_->error("Block insertion failed: {}", *block);
-              return false;
+              return expected::makeError(
+                  std::string{"Block insertion failed."});
             }
           },
-          [this, &block](const auto &e) {
+          [this, &block](const auto &e) -> StoreBlockResult {
             log_->error("Block serialization failed: {}: {}", *block, e.error);
-            return false;
+            return expected::makeError(
+                std::string{"Block serialization failed."});
           });
     }
 
