@@ -195,9 +195,7 @@ namespace iroha {
           *top_block_height, required_height, msg.public_keys);
 
       commit_result.match(
-          // TODO make it auto after #2226
-          [this, required_height, alternative_outcome, &msg](
-              ametsuchi::CommitResult::ValueType &value) {
+          [this, required_height, alternative_outcome, &msg](auto &value) {
             auto &ledger_state = value.value;
             assert(ledger_state);
             shared_model::interface::types::HeightType new_height =
@@ -210,7 +208,7 @@ namespace iroha {
                                      : msg.round,
                 std::move(ledger_state)});
           },
-          [this](const ametsuchi::CommitResult::ErrorType &error) {
+          [this](const auto &error) {
             log_->error("Synchronization failed: {}", error.error);
           });
     }

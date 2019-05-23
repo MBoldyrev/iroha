@@ -46,7 +46,8 @@ class ChainValidationTest : public ::testing::Test {
     signatures.push_back(signature);
 
     EXPECT_CALL(*block, height()).WillRepeatedly(Return(height));
-    EXPECT_CALL(*block, prevHash()).WillRepeatedly(testing::ReturnRef(hash));
+    EXPECT_CALL(*block, prevHash())
+        .WillRepeatedly(testing::ReturnRef(prev_hash));
     EXPECT_CALL(*block, signatures())
         .WillRepeatedly(Return(signatures | boost::adaptors::indirected));
     EXPECT_CALL(*block, payload())
@@ -64,7 +65,8 @@ class ChainValidationTest : public ::testing::Test {
 
   std::vector<std::shared_ptr<shared_model::interface::Signature>> signatures;
   std::vector<std::shared_ptr<shared_model::interface::Peer>> peers;
-  shared_model::crypto::Hash hash = shared_model::crypto::Hash("valid hash");
+  shared_model::crypto::Hash prev_hash =
+      shared_model::crypto::Hash("previous top hash");
   shared_model::interface::types::HeightType prev_height = 1;
   shared_model::interface::types::HeightType height = prev_height + 1;
   std::shared_ptr<MockBlock> block = std::make_shared<MockBlock>();
@@ -86,7 +88,7 @@ TEST_F(ChainValidationTest, ValidCase) {
 
   EXPECT_CALL(*storage, apply(blocks, _))
       .WillOnce(
-          InvokeArgument<1>(block, LedgerState{peers, prev_height, hash}));
+          InvokeArgument<1>(block, LedgerState{peers, prev_height, prev_hash}));
 
   ASSERT_TRUE(validator->validateAndApply(blocks, *storage));
   ASSERT_EQ(boost::size(block->signatures()), block_signatures_amount);
@@ -125,7 +127,7 @@ TEST_F(ChainValidationTest, FailWhenNoSupermajority) {
 
   EXPECT_CALL(*storage, apply(blocks, _))
       .WillOnce(
-          InvokeArgument<1>(block, LedgerState{peers, prev_height, hash}));
+          InvokeArgument<1>(block, LedgerState{peers, prev_height, prev_hash}));
 
   ASSERT_FALSE(validator->validateAndApply(blocks, *storage));
   ASSERT_EQ(boost::size(block->signatures()), block_signatures_amount);
