@@ -1365,7 +1365,7 @@ namespace iroha {
       CHECK_SUCCESSFUL_RESULT(
           execute(*mock_command_factory->constructSetAccountDetail(
               account_id, "key", "value")));
-      auto kv = sql_query->getAccountDetail(account_id);
+      auto kv = sql_query->getAccountDetail(999, account_id);
       ASSERT_TRUE(kv);
       ASSERT_EQ(kv.get(), "{\"id@domain\": {\"key\": \"value\"}}");
     }
@@ -1387,7 +1387,7 @@ namespace iroha {
                       account2_id, "key", "value"),
                   false,
                   account_id));
-      auto kv = sql_query->getAccountDetail(account2_id);
+      auto kv = sql_query->getAccountDetail(999, account2_id);
       ASSERT_TRUE(kv);
       ASSERT_EQ(kv.get(), "{\"id@domain\": {\"key\": \"value\"}}");
     }
@@ -1404,7 +1404,7 @@ namespace iroha {
                       account2_id, "key", "value"),
                   false,
                   account_id));
-      auto kv = sql_query->getAccountDetail(account2_id);
+      auto kv = sql_query->getAccountDetail(999, account2_id);
       ASSERT_TRUE(kv);
       ASSERT_EQ(kv.get(), "{\"id@domain\": {\"key\": \"value\"}}");
     }
@@ -1424,7 +1424,7 @@ namespace iroha {
       std::vector<std::string> query_args{account2_id, "key", "value"};
       CHECK_ERROR_CODE_AND_MESSAGE(cmd_result, 2, query_args);
 
-      auto kv = sql_query->getAccountDetail(account2_id);
+      auto kv = sql_query->getAccountDetail(999, account2_id);
       ASSERT_TRUE(kv);
       ASSERT_EQ(kv.get(), "{}");
     }
