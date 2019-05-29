@@ -104,16 +104,23 @@ namespace iroha {
      */
     template <typename ExpectedQueryErrorType>
     void checkStatefulError(
-        QueryExecutorResult exec_result,
+        const QueryExecutorResult &exec_result,
         shared_model::interface::ErrorQueryResponse::ErrorCodeType
             expected_code) {
-      ASSERT_NO_THROW({
-        const auto &error_qry_rsp =
-            boost::get<const shared_model::interface::ErrorQueryResponse &>(
-                exec_result->get());
-        ASSERT_EQ(error_qry_rsp.errorCode(), expected_code);
-        boost::get<const ExpectedQueryErrorType &>(error_qry_rsp.get());
-      }) << exec_result->toString();
+      const shared_model::interface::ErrorQueryResponse *error_qry_rsp =
+          boost::get<const shared_model::interface::ErrorQueryResponse &>(
+              &exec_result->get());
+      if (not error_qry_rsp) {
+        ADD_FAILURE() << "Result is not an error as it is supposed to be! "
+                         "Actual result is: "
+                      << exec_result->toString();
+        return;
+      }
+      EXPECT_EQ(error_qry_rsp->errorCode(), expected_code);
+      EXPECT_TRUE(
+          boost::get<const ExpectedQueryErrorType &>(&error_qry_rsp->get()))
+          << "Result has wrong error type! Actual result is: "
+          << exec_result->toString();
     }
 
     class QueryExecutorTest : public AmetsuchiTest {
@@ -215,6 +222,8 @@ namespace iroha {
       // introducing a uniform way to use them in code
       static constexpr shared_model::interface::ErrorQueryResponse::
           ErrorCodeType kNoStatefulError = 0;
+      static constexpr shared_model::interface::ErrorQueryResponse::
+          ErrorCodeType kNoAccountAssets = 0;
       static constexpr shared_model::interface::ErrorQueryResponse::
           ErrorCodeType kNoPermissions = 2;
       static constexpr shared_model::interface::ErrorQueryResponse::
@@ -670,9 +679,12 @@ namespace iroha {
               if (is_last_page) {
                 EXPECT_FALSE(response.nextAssetId());
               } else {
-                EXPECT_TRUE(response.nextAssetId());
-                EXPECT_EQ(*response.nextAssetId(),
-                          makeAssetId(page_start + page_size));
+                if (not response.nextAssetId()) {
+                  ADD_FAILURE() << "nextAssetId not set!";
+                } else {
+                  EXPECT_EQ(*response.nextAssetId(),
+                            makeAssetId(page_start + page_size));
+                }
               }
               for (size_t i = 0; i < response.accountAssets().size(); ++i) {
                 EXPECT_EQ(response.accountAssets()[i].assetId(),
@@ -689,15 +701,15 @@ namespace iroha {
        */
       QueryExecutorResult queryPage(boost::optional<size_t> page_start,
                                     size_t page_size) {
+        boost::optional<shared_model::interface::types::AssetIdType>
+            first_asset_id;
+        if (page_start) {
+          first_asset_id = makeAssetId(page_start.value());
+        }
         auto query =
             TestQueryBuilder()
                 .creatorAccountId(account_id)
-                .getAccountAssets(account_id,
-                                  page_size,
-                                  page_start |
-                                      [this](auto &page_start) {
-                                        return this->makeAssetId(page_start);
-                                      })
+                .getAccountAssets(account_id, page_size, first_asset_id)
                 .build();
         return executeQuery(query);
       }
@@ -742,7 +754,7 @@ namespace iroha {
       QueryExecutorResult response = executeQuery(query);
 
       // validate result
-      queryPageAndValidateResponse(boost::none, 10);
+      validatePageResponse(response, boost::none, 10);
       }
 
     /**
@@ -788,11 +800,13 @@ namespace iroha {
     /**
      * @given account with all related permissions and 10 assets
      * @when queried assets page of size 5 starting from unknown asset
-     * @then assets' #0 to #4 values are returned and are valid
+     * @then error response is returned
      */
     TEST_F(GetAccountAssetPaginationExecutorTest, NonexistentStartTx) {
       createAccountAssets(10);
-      queryPageAndValidateResponse(10, 5);
+      auto response = queryPage(10, 5);
+      checkStatefulError<shared_model::interface::NoAccountAssetsErrorResponse>(
+          response, kNoAccountAssets);
     }
 
     class GetAccountDetailExecutorTest : public QueryExecutorTest {
