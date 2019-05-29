@@ -1009,16 +1009,28 @@ namespace iroha {
 
       const auto writer = q.writer();
       const auto key = q.key();
-      boost::optional<std::string> str_not_set;
-      size_t page_size = 999;
+      boost::optional<std::string> first_record_writer;
+      boost::optional<std::string> first_record_key;
+      size_t page_size = 999;  // default value, used when pagination
+                               // metadata is not set.
+      // TODO 2019.05.29 mboldyrev IR-516 remove when pagination is made
+      // mandatory
+      q.paginationMeta() | [&](const auto &pagination_meta) {
+        page_size = pagination_meta.pageSize();
+        pagination_meta.firstRecordId() | [&](const auto &first_record_id) {
+          first_record_writer = first_record_id.writer();
+          first_record_key = first_record_id.key();
+        };
+      };
+
       return executeQuery<QueryTuple, PermissionTuple>(
           [&] {
             return (sql_.prepare << cmd,
                     soci::use(q.accountId(), "account_id"),
                     soci::use(writer, "writer"),
                     soci::use(key, "key"),
-                    soci::use(str_not_set, "first_record_writer"),
-                    soci::use(str_not_set, "first_record_key"),
+                    soci::use(first_record_writer, "first_record_writer"),
+                    soci::use(first_record_key, "first_record_key"),
                     soci::use(page_size, "page_size"));
           },
           [this, &q](auto range, auto &) {
