@@ -32,8 +32,15 @@ namespace iroha {
      * @nocode
      */
 
+    struct ValueBase {};
+
     template <typename T>
-    struct Value {
+    struct Value : ValueBase {
+      using type = T;
+      template <
+          typename... Args,
+          typename = std::enable_if_t<std::is_constructible<T, Args...>::value>>
+      Value(Args &&... args) : value(std::forward<Args>(args)...) {}
       T value;
       template <typename V>
       operator Value<V>() {
@@ -44,8 +51,15 @@ namespace iroha {
     template <>
     struct Value<void> {};
 
+    struct ErrorBase {};
+
     template <typename E>
-    struct Error {
+    struct Error : ErrorBase {
+      using type = E;
+      template <
+          typename... Args,
+          typename = std::enable_if_t<std::is_constructible<E, Args...>::value>>
+      Error(Args &&... args) : error(std::forward<Args>(args)...) {}
       E error;
       template <typename V>
       operator Error<V>() {
@@ -56,6 +70,8 @@ namespace iroha {
     template <>
     struct Error<void> {};
 
+    struct ResultBase {};
+
     /**
      * Result is a specialization of a variant type with value or error
      * semantics.
@@ -63,7 +79,7 @@ namespace iroha {
      * @tparam E error type
      */
     template <typename V, typename E>
-    class Result : public boost::variant<Value<V>, Error<E>> {
+    class Result : ResultBase, public boost::variant<Value<V>, Error<E>> {
       using variant_type = boost::variant<Value<V>, Error<E>>;
       using variant_type::variant_type;  // inherit constructors
 
@@ -187,6 +203,31 @@ namespace iroha {
       return Error<E>{std::forward<E>(error)};
     }
 
+    template <typename ValueTransformReturnType,
+              typename ErrorType,
+              typename = void>
+    struct BindReturnType {
+      using type = Result<ValueTransformReturnType, ErrorType>;
+    };
+
+    template <typename ValueTransformReturnType, typename ErrorType>
+    struct BindReturnType<
+        ValueTransformReturnType,
+        ErrorType,
+        std::enable_if_t<
+            std::is_base_of<ResultBase, ValueTransformReturnType>::value>> {
+      using type = ValueTransformReturnType;
+    };
+
+    template <typename ValueTransformReturnType, typename ErrorType>
+    struct BindReturnType<
+        ValueTransformReturnType,
+        ErrorType,
+        std::enable_if_t<
+            std::is_base_of<ValueBase, ValueTransformReturnType>::value>> {
+      using type = Result<typename ValueTransformReturnType::type, ErrorType>;
+    };
+
     /**
      * Bind operator allows chaining several functions which return result. If
      * result contains error, it returns this error, if it contains value,
@@ -194,29 +235,55 @@ namespace iroha {
      * @param f function which return type must be compatible with original
      * result
      */
-    template <typename T, typename E, typename Transform>
-    constexpr auto operator|(const Result<T, E> &r, Transform &&f) ->
-        typename std::enable_if<
-            not std::is_same<decltype(f(std::declval<T>())), void>::value,
-            decltype(f(std::declval<T>()))>::type {
-      using return_type = decltype(f(std::declval<T>()));
+    template <typename T,
+              typename E,
+              typename Transform,
+              typename ReturnType = typename BindReturnType<
+                  decltype(std::declval<Transform>()(std::declval<T>())),
+                  E>::type>
+    constexpr auto operator|(const Result<T, E> &r, Transform &&f)
+        -> ReturnType {
+      static_assert(std::is_base_of<ResultBase, ReturnType>::value,
+                    "wrong return_type");
       return r.match(
-          [&f](const Value<T> &v) { return f(v.value); },
-          [](const Error<E> &e) { return return_type(makeError(e.error)); });
+          [&f](const Value<T> &v) { return ReturnType(f(v.value)); },
+          [](const Error<E> &e) { return ReturnType(makeError(e.error)); });
     }
 
     /**
      * Mutable alternative for bind with parameters
      */
-    template <typename T, typename E, typename Transform>
-    constexpr auto operator|(Result<T, E> &r, Transform &&f) ->
-        typename std::enable_if<
-            not std::is_same<decltype(f(std::declval<T>())), void>::value,
-            decltype(f(std::declval<T>()))>::type {
-      using return_type = decltype(f(std::declval<T>()));
+    template <typename T,
+              typename E,
+              typename Transform,
+              typename ReturnType = typename BindReturnType<
+                  decltype(std::declval<Transform>()(std::declval<T>())),
+                  E>::type>
+    constexpr auto operator|(Result<T, E> &r, Transform &&f) -> ReturnType {
+      static_assert(std::is_base_of<ResultBase, ReturnType>::value,
+                    "wrong return_type");
       return r.match(
-          [&f](Value<T> &v) { return f(v.value); },
-          [](Error<E> &e) { return return_type(makeError(e.error)); });
+          [&f](Value<T> &v) { return ReturnType(f(v.value)); },
+          [](Error<E> &e) { return ReturnType(makeError(e.error)); });
+    }
+
+    /**
+     * Mutable alternative for bind with parameters
+     */
+    template <typename T,
+              typename E,
+              typename Transform,
+              typename ReturnType = typename BindReturnType<
+                  decltype(std::declval<Transform>()(std::move(std::declval<T>()))),
+                  E>::type>
+    constexpr auto operator|(Result<T, E> &&r, Transform &&f) -> ReturnType {
+      static_assert(std::is_base_of<ResultBase, ReturnType>::value,
+                    "wrong return_type");
+      return std::move(r).match(
+          [&f](Value<T> &&v) { return ReturnType(f(std::move(v.value))); },
+          [](Error<E> &&e) {
+            return ReturnType(makeError(std::move(e.error)));
+          });
     }
 
     /**
@@ -229,7 +296,7 @@ namespace iroha {
     constexpr auto operator|(const Result<T, E> &r, Procedure f) ->
         typename std::enable_if<not std::is_same<decltype(f()), void>::value,
                                 decltype(f())>::type {
-      using return_type = decltype(f());
+      using return_type = typename BindReturnType<decltype(f()), E>::type;
       return r.match(
           [&f](const Value<T> &v) { return f(); },
           [](const Error<E> &e) { return return_type(makeError(e.error)); });
@@ -242,7 +309,7 @@ namespace iroha {
     constexpr auto operator|(Result<T, E> &r, Procedure f) ->
         typename std::enable_if<not std::is_same<decltype(f()), void>::value,
                                 decltype(f())>::type {
-      using return_type = decltype(f());
+      using return_type = typename BindReturnType<decltype(f()), E>::type;
       return r.match(
           [&f](Value<T> &v) { return f(); },
           [](Error<E> &e) { return return_type(makeError(e.error)); });

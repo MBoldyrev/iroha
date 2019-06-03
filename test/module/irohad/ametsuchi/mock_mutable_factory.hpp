@@ -25,9 +25,10 @@ namespace iroha {
         return commit_(mutableStorage);
       }
 
-      MOCK_METHOD1(commitPrepared,
-                   boost::optional<CommitResult>(
-                       std::shared_ptr<const shared_model::interface::Block>));
+      MOCK_CONST_METHOD0(preparedCommitEnabled, bool(void));
+      MOCK_METHOD1(
+          commitPrepared,
+          CommitResult(std::shared_ptr<const shared_model::interface::Block>));
       MOCK_METHOD1(commit_, CommitResult(std::unique_ptr<MutableStorage> &));
     };
 

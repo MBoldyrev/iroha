@@ -43,12 +43,15 @@ namespace iroha {
       virtual CommitResult commit(
           std::unique_ptr<MutableStorage> mutableStorage) = 0;
 
+      /// Check if prepared commits are enabled.
+      virtual bool preparedCommitEnabled() const = 0;
+
       /**
        * Try to apply prepared block to Ametsuchi.
        * @return commit result if prepared blocks are enabled, boost::none
        * otherwise. WSV is not changed in this case.
        */
-      virtual boost::optional<CommitResult> commitPrepared(
+      virtual CommitResult commitPrepared(
           std::shared_ptr<const shared_model::interface::Block> block) = 0;
 
       virtual ~MutableFactory() = default;

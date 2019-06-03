@@ -624,9 +624,8 @@ TEST_F(PreparedBlockTest, CommitPreparedStateChanged) {
 
   auto commited = storage->commitPrepared(block);
 
-  ASSERT_TRUE(commited);
-  EXPECT_TRUE(val(*commited))
-      << "Error in commitPrepared: " << err(*commited)->error;
+  ASSERT_TRUE(val(commited))
+      << "Error in commitPrepared: " << err(commited)->error;
 
   shared_model::interface::Amount resultingAmount("10.00");
 
@@ -677,8 +676,7 @@ TEST_F(PreparedBlockTest, CommitPreparedFailsAfterCommit) {
 
   auto commited = storage->commitPrepared(block);
 
-  ASSERT_TRUE(commited);
-  EXPECT_TRUE(err(*commited));
+  EXPECT_TRUE(err(commited));
 
   shared_model::interface::Amount resultingBalance{"15.00"};
   validateAccountAsset(sql_query, "admin@test", "coin#test", resultingBalance);

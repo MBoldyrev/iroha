@@ -94,7 +94,7 @@ class SynchronizerTest : public ::testing::Test {
                                           commit_message->height(),
                                           commit_message->hash())))));
     ON_CALL(*mutable_factory, commitPrepared(_))
-        .WillByDefault(Return(ByMove(boost::none)));
+        .WillByDefault(Return(expected::makeError("")));
 
     synchronizer =
         std::make_shared<SynchronizerImpl>(consensus_gate,
@@ -223,7 +223,7 @@ void mutableStorageExpectChain(
  */
 TEST_F(SynchronizerTest, ValidWhenSingleCommitSynchronized) {
   EXPECT_CALL(*mutable_factory, commitPrepared(_))
-      .WillOnce(Return(ByMove(boost::none)));
+      .WillOnce(Return(expected::makeError("")));
   mutableStorageExpectChain(*mutable_factory, {commit_message});
   EXPECT_CALL(*chain_validator, validateAndApply(_, _)).Times(0);
   EXPECT_CALL(*block_loader, retrieveBlocks(_, _)).Times(0);
@@ -475,9 +475,9 @@ TEST_F(SynchronizerTest, NoneOutcome) {
  */
 TEST_F(SynchronizerTest, VotedForBlockCommitPrepared) {
   EXPECT_CALL(*mutable_factory, commitPrepared(_))
-      .WillOnce(Return(ByMove(boost::optional<CommitResult>(
-          expected::makeValue(std::make_shared<LedgerState>(
-              ledger_peers, kHeight, commit_message->hash()))))));
+      .WillOnce(Return(
+          ByMove(CommitResult{expected::makeValue(std::make_shared<LedgerState>(
+              ledger_peers, kHeight, commit_message->hash()))})));
 
   EXPECT_CALL(*mutable_factory, commit_(_)).Times(0);
 
@@ -530,7 +530,7 @@ TEST_F(SynchronizerTest, VotedForOtherCommitPrepared) {
  */
 TEST_F(SynchronizerTest, VotedForThisCommitPreparedFailure) {
   EXPECT_CALL(*mutable_factory, commitPrepared(_))
-      .WillOnce(Return(ByMove(boost::none)));
+      .WillOnce(Return(expected::makeError("")));
 
   mutableStorageExpectChain(*mutable_factory, {commit_message});
 
@@ -555,7 +555,7 @@ TEST_F(SynchronizerTest, VotedForThisCommitPreparedFailure) {
  */
 TEST_F(SynchronizerTest, CommitFailureVoteSameBlock) {
   EXPECT_CALL(*mutable_factory, commitPrepared(_))
-      .WillOnce(Return(ByMove(boost::none)));
+      .WillOnce(Return(expected::makeError("")));
   mutableStorageExpectChain(*mutable_factory, {commit_message});
   EXPECT_CALL(*mutable_factory, commit_(_))
       .WillOnce(Return(ByMove(expected::makeError(""))));

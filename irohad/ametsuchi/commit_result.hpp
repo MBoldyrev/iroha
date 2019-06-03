@@ -16,7 +16,7 @@ namespace iroha {
   namespace ametsuchi {
 
     using CommitResult =
-        iroha::expected::Result<std::shared_ptr<iroha::LedgerState>,
+        iroha::expected::Result<std::shared_ptr<const iroha::LedgerState>,
                                 std::string>;
   }
 }  // namespace iroha

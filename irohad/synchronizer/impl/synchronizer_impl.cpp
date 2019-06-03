@@ -101,24 +101,24 @@ namespace iroha {
 
     void SynchronizerImpl::processNext(const consensus::PairValid &msg) {
       log_->info("at handleNext");
-      const bool committed_prepared =
-          mutable_factory_->commitPrepared(msg.block) |
-          [this, &msg](iroha::ametsuchi::CommitResult &&commit_result) {
-            return std::move(commit_result)
-                .match(
-                    [this, &msg](auto &&value) {
-                      notifier_.get_subscriber().on_next(SynchronizationEvent{
-                          SynchronizationOutcomeType::kCommit,
-                          msg.round,
-                          std::move(value.value)});
-                      return true;
-                    },
-                    [this](const auto &error) {
-                      log_->error("Error committing prepared block: {}",
-                                  error.error);
-                      return false;
-                    });
-          };
+      const auto notify = [this, &msg](std::shared_ptr<const iroha::LedgerState>
+                                           &&ledger_state) {
+        this->notifier_.get_subscriber().on_next(
+            SynchronizationEvent{SynchronizationOutcomeType::kCommit,
+                                 msg.round,
+                                 std::move(ledger_state)});
+      };
+      const bool committed_prepared = mutable_factory_->preparedCommitEnabled()
+          and mutable_factory_->commitPrepared(msg.block).match(
+                  [&notify](auto &&value) {
+                    notify(std::move(value.value));
+                    return true;
+                  },
+                  [this](const auto &error) {
+                    this->log_->error("Error committing prepared block: {}",
+                                      error.error);
+                    return false;
+                  });
       if (not committed_prepared) {
         auto opt_storage = getStorage();
         if (opt_storage == boost::none) {
@@ -128,18 +128,12 @@ namespace iroha {
             std::move(opt_storage.value());
         if (storage->apply(msg.block)) {
           mutable_factory_->commit(std::move(storage))
-              .match(
-                  [this, &msg](auto &&value) {
-                    auto &ledger_state = value.value;
-                    notifier_.get_subscriber().on_next(SynchronizationEvent{
-                        SynchronizationOutcomeType::kCommit,
-                        msg.round,
-                        std::move(ledger_state)});
-                  },
-                  [this](const auto &error) {
-                    log_->error("Failed to commit mutable storage: {}",
-                                error.error);
-                  });
+              .match([&notify](
+                         auto &&value) { notify(std::move(value.value)); },
+                     [this](const auto &error) {
+                       this->log_->error("Failed to commit mutable storage: {}",
+                                         error.error);
+                     });
         } else {
           log_->warn("Block was not committed due to fail in mutable storage");
         }

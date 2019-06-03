@@ -106,7 +106,9 @@ namespace iroha {
       CommitResult commit(
           std::unique_ptr<MutableStorage> mutable_storage) override;
 
-      boost::optional<CommitResult> commitPrepared(
+      bool preparedCommitEnabled() const override;
+
+      CommitResult commitPrepared(
           std::shared_ptr<const shared_model::interface::Block> block) override;
 
       std::shared_ptr<WsvQuery> getWsvQuery() const override;
@@ -121,7 +123,8 @@ namespace iroha {
       ~StorageImpl() override;
 
      protected:
-      StorageImpl(std::string block_store_dir,
+      StorageImpl(std::shared_ptr<const iroha::LedgerState> ledger_state,
+                  std::string block_store_dir,
                   PostgresOptions postgres_options,
                   std::unique_ptr<KeyValueStorage> block_store,
                   std::shared_ptr<soci::connection_pool> connection,
@@ -137,14 +140,6 @@ namespace iroha {
                   size_t pool_size,
                   bool enable_prepared_blocks,
                   logger::LoggerManagerTreePtr log_manager);
-
-      /**
-       * Commit a prepared block, assuming prepared blocks are enabled.
-       * @param block the previously prepared block
-       * @return commit result of prepared block
-       */
-      CommitResult commitPreparedImpl(
-          std::shared_ptr<const shared_model::interface::Block> block);
 
       /**
        * Folder with raw blocks
@@ -203,6 +198,8 @@ namespace iroha {
       std::atomic<bool> block_is_prepared;
 
       std::string prepared_block_name_;
+
+      std::shared_ptr<const iroha::LedgerState> ledger_state_;
 
      protected:
       static const std::string &drop_;
