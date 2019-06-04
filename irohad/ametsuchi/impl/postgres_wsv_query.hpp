@@ -9,6 +9,7 @@
 #include "ametsuchi/wsv_query.hpp"
 
 #include <soci/soci.h>
+#include "ametsuchi/soci_session.hpp"
 #include "interfaces/common_objects/common_objects_factory.hpp"
 #include "logger/logger_fwd.hpp"
 
@@ -17,13 +18,13 @@ namespace iroha {
     class PostgresWsvQuery : public WsvQuery {
      public:
       PostgresWsvQuery(
-          soci::session &sql,
+          SociSession &sql,
           std::shared_ptr<shared_model::interface::CommonObjectsFactory>
               factory,
           logger::LoggerPtr log);
 
       PostgresWsvQuery(
-          std::unique_ptr<soci::session> sql,
+          std::unique_ptr<SociSession> sql,
           std::shared_ptr<shared_model::interface::CommonObjectsFactory>
               factory,
           logger::LoggerPtr log);
@@ -57,10 +58,10 @@ namespace iroha {
       template <typename T, typename F>
       auto execute(F &&f) -> boost::optional<soci::rowset<T>>;
 
-      // TODO andrei 24.09.2018: IR-1718 Consistent soci::session fields in
+      // TODO andrei 24.09.2018: IR-1718 Consistent SociSession fields in
       // storage classes
-      std::unique_ptr<soci::session> psql_;
-      soci::session &sql_;
+      std::unique_ptr<SociSession> psql_;
+      SociSession &sql_;
       std::shared_ptr<shared_model::interface::CommonObjectsFactory> factory_;
       logger::LoggerPtr log_;
     };

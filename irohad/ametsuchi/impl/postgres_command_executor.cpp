@@ -210,7 +210,7 @@ namespace {
    */
   template <typename QueryArgsCallable>
   iroha::ametsuchi::CommandResult executeQuery(
-      soci::session &sql,
+      iroha::ametsuchi::SociSession &sql,
       const std::string &cmd,
       std::string command_name,
       QueryArgsCallable &&query_args) noexcept {
@@ -790,7 +790,7 @@ namespace iroha {
     }
 
     PostgresCommandExecutor::PostgresCommandExecutor(
-        soci::session &sql,
+        SociSession &sql,
         std::shared_ptr<shared_model::interface::PermissionToString>
             perm_converter)
         : sql_(sql),

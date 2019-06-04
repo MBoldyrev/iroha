@@ -133,7 +133,7 @@ namespace iroha {
 
       void SetUp() override {
         AmetsuchiTest::SetUp();
-        sql = std::make_unique<soci::session>(*soci::factory_postgresql(),
+        sql = std::make_unique<SociSession>(*soci::factory_postgresql(),
                                               pgopt_);
 
         auto factory =
@@ -244,7 +244,7 @@ namespace iroha {
       std::unique_ptr<shared_model::interface::types::PubkeyType> pubkey;
       std::unique_ptr<shared_model::interface::types::PubkeyType> pubkey2;
 
-      std::unique_ptr<soci::session> sql;
+      std::unique_ptr<SociSession> sql;
 
       std::unique_ptr<shared_model::interface::Command> command;
 

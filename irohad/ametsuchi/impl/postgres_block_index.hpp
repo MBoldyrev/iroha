@@ -17,7 +17,7 @@ namespace iroha {
   namespace ametsuchi {
     class PostgresBlockIndex : public BlockIndex {
      public:
-      PostgresBlockIndex(soci::session &sql, logger::LoggerPtr log);
+      PostgresBlockIndex(SociSession &sql, logger::LoggerPtr log);
 
       /**
        * Create several indices for block. Namely:
@@ -35,7 +35,7 @@ namespace iroha {
       void index(const shared_model::interface::Block &block) override;
 
      private:
-      soci::session &sql_;
+      SociSession &sql_;
       logger::LoggerPtr log_;
     };
   }  // namespace ametsuchi

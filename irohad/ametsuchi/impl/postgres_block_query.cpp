@@ -13,7 +13,7 @@
 namespace iroha {
   namespace ametsuchi {
     PostgresBlockQuery::PostgresBlockQuery(
-        soci::session &sql,
+        SociSession &sql,
         KeyValueStorage &file_store,
         std::shared_ptr<shared_model::interface::BlockJsonDeserializer>
             converter,
@@ -24,7 +24,7 @@ namespace iroha {
           log_(std::move(log)) {}
 
     PostgresBlockQuery::PostgresBlockQuery(
-        std::unique_ptr<soci::session> sql,
+        std::unique_ptr<SociSession> sql,
         KeyValueStorage &file_store,
         std::shared_ptr<shared_model::interface::BlockJsonDeserializer>
             converter,

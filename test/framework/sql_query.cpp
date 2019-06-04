@@ -52,7 +52,7 @@ namespace framework {
     }
 
     SqlQuery::SqlQuery(
-        soci::session &sql,
+        SociSession &sql,
         std::shared_ptr<shared_model::interface::CommonObjectsFactory> factory,
         logger::LoggerPtr log)
         : sql_{sql}, factory_{std::move(factory)}, log_{std::move(log)} {}

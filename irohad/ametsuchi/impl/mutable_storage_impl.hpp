@@ -8,7 +8,7 @@
 
 #include "ametsuchi/mutable_storage.hpp"
 
-#include <soci/soci.h>
+#include "ametsuchi/soci_session.hpp"
 #include "ametsuchi/block_storage.hpp"
 #include "ametsuchi/command_executor.hpp"
 #include "interfaces/common_objects/common_objects_factory.hpp"
@@ -30,7 +30,7 @@ namespace iroha {
           boost::optional<std::shared_ptr<const iroha::LedgerState>>
               ledger_state,
           std::shared_ptr<PostgresCommandExecutor> cmd_executor,
-          std::unique_ptr<soci::session> sql,
+          std::unique_ptr<SociSession> sql,
           std::shared_ptr<shared_model::interface::CommonObjectsFactory>
               factory,
           std::unique_ptr<BlockStorage> block_storage,
@@ -66,7 +66,7 @@ namespace iroha {
 
       boost::optional<std::shared_ptr<const iroha::LedgerState>> ledger_state_;
 
-      std::unique_ptr<soci::session> sql_;
+      std::unique_ptr<SociSession> sql_;
       std::unique_ptr<PeerQuery> peer_query_;
       std::unique_ptr<BlockIndex> block_index_;
       std::shared_ptr<CommandExecutor> command_executor_;

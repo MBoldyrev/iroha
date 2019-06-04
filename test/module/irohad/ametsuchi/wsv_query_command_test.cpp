@@ -21,7 +21,7 @@ namespace iroha {
      public:
       void SetUp() override {
         AmetsuchiTest::SetUp();
-        sql = std::make_unique<soci::session>(*soci::factory_postgresql(),
+        sql = std::make_unique<SociSession>(*soci::factory_postgresql(),
                                               pgopt_);
 
         command = std::make_unique<PostgresWsvCommand>(*sql);
@@ -36,7 +36,7 @@ namespace iroha {
         AmetsuchiTest::TearDown();
       }
 
-      std::unique_ptr<soci::session> sql;
+      std::unique_ptr<SociSession> sql;
 
       std::unique_ptr<WsvCommand> command;
       std::unique_ptr<WsvQuery> query;

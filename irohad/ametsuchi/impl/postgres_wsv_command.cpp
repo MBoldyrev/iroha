@@ -30,7 +30,7 @@ namespace iroha {
       }
     }
 
-    PostgresWsvCommand::PostgresWsvCommand(soci::session &sql) : sql_(sql) {}
+    PostgresWsvCommand::PostgresWsvCommand(SociSession &sql) : sql_(sql) {}
 
     WsvCommandResult PostgresWsvCommand::insertRole(
         const shared_model::interface::types::RoleIdType &role_name) {

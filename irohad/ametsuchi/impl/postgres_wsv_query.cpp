@@ -19,13 +19,13 @@ namespace iroha {
     using shared_model::interface::types::PubkeyType;
 
     PostgresWsvQuery::PostgresWsvQuery(
-        soci::session &sql,
+        SociSession &sql,
         std::shared_ptr<shared_model::interface::CommonObjectsFactory> factory,
         logger::LoggerPtr log)
         : sql_(sql), factory_(std::move(factory)), log_(std::move(log)) {}
 
     PostgresWsvQuery::PostgresWsvQuery(
-        std::unique_ptr<soci::session> sql,
+        std::unique_ptr<SociSession> sql,
         std::shared_ptr<shared_model::interface::CommonObjectsFactory> factory,
         logger::LoggerPtr log)
         : psql_(std::move(sql)),

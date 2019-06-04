@@ -35,7 +35,7 @@ namespace {
   /**
    * Verify whether postgres supports prepared transactions
    */
-  bool preparedTransactionsAvailable(soci::session &sql) {
+  bool preparedTransactionsAvailable(iroha::ametsuchi::SociSession &sql) {
     int prepared_txs_count = 0;
     try {
       sql << "SHOW max_prepared_transactions;", soci::into(prepared_txs_count);
@@ -351,7 +351,7 @@ namespace iroha {
       if (connection_ == nullptr) {
         return expected::makeError("Connection was closed");
       }
-      auto sql = std::make_unique<soci::session>(*connection_);
+      auto sql = std::make_unique<SociSession>(*connection_);
       // if we create temporary storage, then we intend to validate a new
       // proposal. this means that any state prepared before that moment is
       // not needed and must be removed to prevent locking
@@ -404,7 +404,7 @@ namespace iroha {
       }
       return boost::make_optional<std::shared_ptr<QueryExecutor>>(
           std::make_shared<PostgresQueryExecutor>(
-              std::make_unique<soci::session>(*connection_),
+              std::make_unique<SociSession>(*connection_),
               *block_store_,
               std::move(pending_txs_storage),
               converter_,
@@ -430,7 +430,7 @@ namespace iroha {
     expected::Result<void, std::string> StorageImpl::insertPeer(
         const shared_model::interface::Peer &peer) {
       log_->info("Insert peer {}", peer.pubkey().hex());
-      soci::session sql(*connection_);
+      SociSession sql(*connection_);
       PostgresWsvCommand wsv_command(sql);
       return wsv_command.insertPeer(peer);
     }
@@ -442,7 +442,7 @@ namespace iroha {
         return expected::makeError("Connection was closed");
       }
 
-      auto sql = std::make_unique<soci::session>(*connection_);
+      auto sql = std::make_unique<SociSession>(*connection_);
       // if we create mutable storage, then we intend to mutate wsv
       // this means that any state prepared before that moment is not needed
       // and must be removed to prevent locking
@@ -473,7 +473,7 @@ namespace iroha {
     expected::Result<void, std::string> StorageImpl::resetWsv() {
       log_->debug("drop wsv records from db tables");
       try {
-        soci::session sql(*connection_);
+        SociSession sql(*connection_);
         // rollback possible prepared transaction
         if (block_is_prepared) {
           rollbackPrepared(sql);
@@ -488,7 +488,7 @@ namespace iroha {
     void StorageImpl::resetPeers() {
       log_->info("Remove everything from peers table");
       try {
-        soci::session sql(*connection_);
+        SociSession sql(*connection_);
         sql << reset_peers_;
       } catch (std::exception &e) {
         log_->error("Failed to reset peers list, reason: {}", e.what());
@@ -507,7 +507,7 @@ namespace iroha {
         std::unique_lock<std::shared_timed_mutex> lock(drop_mutex);
         log_->info("Drop database {}", db);
         freeConnections();
-        soci::session sql(*soci::factory_postgresql(),
+        SociSession sql(*soci::factory_postgresql(),
                           postgres_options_.optionsStringWithoutDbName());
         // perform dropping
         try {
@@ -518,9 +518,9 @@ namespace iroha {
       } else {
         // Clear all the tables first, as it takes much less time because the
         // foreign key triggers are ignored.
-        soci::session(*connection_) << reset_;
+        SociSession(*connection_) << reset_;
         // Empty tables can now be dropped very fast.
-        soci::session(*connection_) << drop_;
+        SociSession(*connection_) << drop_;
       }
 
       // erase blocks
@@ -535,12 +535,13 @@ namespace iroha {
       }
       // rollback possible prepared transaction
       if (block_is_prepared) {
-        soci::session sql(*connection_);
+        SociSession sql(*connection_);
         rollbackPrepared(sql);
       }
-      std::vector<std::shared_ptr<soci::session>> connections;
+      log_->warn(SociSession::getStats());
+      std::vector<std::shared_ptr<SociSession>> connections;
       for (size_t i = 0; i < pool_size_; i++) {
-        connections.push_back(std::make_shared<soci::session>(*connection_));
+        connections.push_back(std::make_shared<SociSession>(*connection_));
         connections[i]->close();
         log_->debug("Closed connection {}", i);
       }
@@ -552,7 +553,7 @@ namespace iroha {
         const std::string &dbname,
         const std::string &options_str_without_dbname) {
       try {
-        soci::session sql(*soci::factory_postgresql(),
+        SociSession sql(*soci::factory_postgresql(),
                           options_str_without_dbname);
 
         int size;
@@ -644,7 +645,7 @@ namespace iroha {
                    [&](auto connection)
                    -> expected::Result<std::shared_ptr<StorageImpl>,
                                        std::string> {
-          soci::session sql(*connection);
+          SociSession sql(*connection);
           bool enable_prepared_transactions =
               preparedTransactionsAvailable(sql);
           try {
@@ -756,7 +757,7 @@ namespace iroha {
               "commitPrepared: connection to database is not initialised");
           return expected::makeError(std::move(msg));
         }
-        soci::session sql(*connection_);
+        SociSession sql(*connection_);
         sql << "COMMIT PREPARED '" + prepared_block_name_ + "';";
         PostgresBlockIndex block_index(
             sql, log_manager_->getChild("BlockIndex")->getLogger());
@@ -797,7 +798,7 @@ namespace iroha {
         return nullptr;
       }
       return std::make_shared<PostgresWsvQuery>(
-          std::make_unique<soci::session>(*connection_),
+          std::make_unique<SociSession>(*connection_),
           factory_,
           log_manager_->getChild("WsvQuery")->getLogger());
     }
@@ -809,7 +810,7 @@ namespace iroha {
         return nullptr;
       }
       return std::make_shared<PostgresBlockQuery>(
-          std::make_unique<soci::session>(*connection_),
+          std::make_unique<SociSession>(*connection_),
           *block_store_,
           converter_,
           log_manager_->getChild("PostgresBlockQuery")->getLogger());
@@ -831,7 +832,7 @@ namespace iroha {
             "Refusing to add new prepared state, because there already is one. "
             "Multiple prepared states are not yet supported.");
       } else {
-        soci::session &sql = *wsv_impl.sql_;
+        SociSession &sql = *wsv_impl.sql_;
         try {
           sql << "PREPARE TRANSACTION '" + prepared_block_name_ + "';";
           block_is_prepared = true;

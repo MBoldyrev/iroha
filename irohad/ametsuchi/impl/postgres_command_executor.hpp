@@ -21,7 +21,7 @@ namespace iroha {
     class PostgresCommandExecutor : public CommandExecutor {
      public:
       PostgresCommandExecutor(
-          soci::session &transaction,
+          SociSession &transaction,
           std::shared_ptr<shared_model::interface::PermissionToString>
               perm_converter);
 
@@ -83,7 +83,7 @@ namespace iroha {
       static void prepareStatements(soci::session &sql);
 
      private:
-      soci::session &sql_;
+      SociSession &sql_;
       bool do_validation_;
 
       shared_model::interface::types::AccountIdType creator_account_id_;

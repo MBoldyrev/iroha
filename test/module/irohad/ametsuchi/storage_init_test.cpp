@@ -8,6 +8,7 @@
 #include <gtest/gtest.h>
 #include <soci/postgresql/soci-postgresql.h>
 #include <soci/soci.h>
+#include "ametsuchi/soci_session.hpp"
 #include <boost/filesystem.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
@@ -74,7 +75,7 @@ class StorageInitTest : public ::testing::Test {
   }
 
   void TearDown() override {
-    soci::session sql(*soci::factory_postgresql(), pg_opt_without_dbname_);
+    SociSession sql(*soci::factory_postgresql(), pg_opt_without_dbname_);
     std::string query = "DROP DATABASE IF EXISTS " + dbname_;
     sql << query;
     boost::filesystem::remove_all(block_store_path);
@@ -105,7 +106,7 @@ TEST_F(StorageInitTest, CreateStorageWithDatabase) {
             SUCCEED();
           },
           [](const auto &error) { FAIL() << error.error; });
-  soci::session sql(*soci::factory_postgresql(), pg_opt_without_dbname_);
+  SociSession sql(*soci::factory_postgresql(), pg_opt_without_dbname_);
   int size;
   sql << "SELECT COUNT(datname) FROM pg_catalog.pg_database WHERE datname = "
          ":dbname",

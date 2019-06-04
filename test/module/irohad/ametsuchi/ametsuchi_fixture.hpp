@@ -9,6 +9,7 @@
 #include <gtest/gtest.h>
 #include <soci/postgresql/soci-postgresql.h>
 #include <soci/soci.h>
+#include "ametsuchi/soci_session.hpp"
 #include <boost/filesystem.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
@@ -62,7 +63,7 @@ namespace iroha {
                    [](const auto &error) {
                      FAIL() << "StorageImpl: " << error.error;
                    });
-        sql = std::make_shared<soci::session>(*soci::factory_postgresql(),
+        sql = std::make_shared<SociSession>(*soci::factory_postgresql(),
                                               pgopt_);
         sql_query =
             std::make_unique<framework::ametsuchi::SqlQuery>(*sql, factory);
@@ -79,7 +80,7 @@ namespace iroha {
       }
 
      protected:
-      static std::shared_ptr<soci::session> sql;
+      static std::shared_ptr<SociSession> sql;
 
       static std::shared_ptr<shared_model::proto::ProtoCommonObjectsFactory<
           shared_model::validation::FieldValidator>>
@@ -214,7 +215,7 @@ CREATE TABLE IF NOT EXISTS index_by_id_height_asset (
     std::shared_ptr<shared_model::interface::PermissionToString>
         AmetsuchiTest::perm_converter_ = nullptr;
 
-    std::shared_ptr<soci::session> AmetsuchiTest::sql = nullptr;
+    std::shared_ptr<SociSession> AmetsuchiTest::sql = nullptr;
     // hold the storage static logger while the static storage is alive
     logger::LoggerPtr AmetsuchiTest::storage_logger_ =
         getTestLoggerManager()->getChild("Storage")->getLogger();

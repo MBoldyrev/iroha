@@ -23,7 +23,7 @@ namespace iroha {
     MutableStorageImpl::MutableStorageImpl(
         boost::optional<std::shared_ptr<const iroha::LedgerState>> ledger_state,
         std::shared_ptr<PostgresCommandExecutor> cmd_executor,
-        std::unique_ptr<soci::session> sql,
+        std::unique_ptr<SociSession> sql,
         std::shared_ptr<shared_model::interface::CommonObjectsFactory> factory,
         std::unique_ptr<BlockStorage> block_storage,
         logger::LoggerManagerTreePtr log_manager)

@@ -50,7 +50,7 @@ namespace iroha {
         : public boost::static_visitor<QueryExecutorResult> {
      public:
       PostgresQueryExecutorVisitor(
-          soci::session &sql,
+          SociSession &sql,
           KeyValueStorage &block_store,
           std::shared_ptr<PendingTransactionStorage> pending_txs_storage,
           std::shared_ptr<shared_model::interface::BlockJsonConverter>
@@ -225,7 +225,7 @@ namespace iroha {
             error_message = "";
       };
 
-      soci::session &sql_;
+      SociSession &sql_;
       KeyValueStorage &block_store_;
       shared_model::interface::types::AccountIdType creator_id_;
       shared_model::interface::types::HashType query_hash_;
@@ -241,7 +241,7 @@ namespace iroha {
     class PostgresQueryExecutor : public QueryExecutor {
      public:
       PostgresQueryExecutor(
-          std::unique_ptr<soci::session> sql,
+          std::unique_ptr<SociSession> sql,
           KeyValueStorage &block_store,
           std::shared_ptr<PendingTransactionStorage> pending_txs_storage,
           std::shared_ptr<shared_model::interface::BlockJsonConverter>
@@ -263,7 +263,7 @@ namespace iroha {
       template <class Q>
       bool validateSignatures(const Q &query);
 
-      std::unique_ptr<soci::session> sql_;
+      std::unique_ptr<SociSession> sql_;
       KeyValueStorage &block_store_;
       std::shared_ptr<PendingTransactionStorage> pending_txs_storage_;
       PostgresQueryExecutorVisitor visitor_;

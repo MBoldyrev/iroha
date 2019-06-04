@@ -32,7 +32,7 @@ class BlockQueryTest : public AmetsuchiTest {
     ASSERT_TRUE(tmp);
     file = std::move(*tmp);
     mock_file = std::make_shared<MockKeyValueStorage>();
-    sql = std::make_unique<soci::session>(*soci::factory_postgresql(), pgopt_);
+    sql = std::make_unique<SociSession>(*soci::factory_postgresql(), pgopt_);
 
     index =
         std::make_shared<PostgresBlockIndex>(*sql, getTestLogger("BlockIndex"));
@@ -100,7 +100,7 @@ class BlockQueryTest : public AmetsuchiTest {
     AmetsuchiTest::TearDown();
   }
 
-  std::unique_ptr<soci::session> sql;
+  std::unique_ptr<SociSession> sql;
   std::vector<shared_model::crypto::Hash> tx_hashes;
   std::shared_ptr<BlockQuery> blocks;
   std::shared_ptr<BlockQuery> empty_blocks;

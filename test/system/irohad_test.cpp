@@ -10,6 +10,7 @@
 #include <rapidjson/stringbuffer.h>
 #include <soci/postgresql/soci-postgresql.h>
 #include <soci/soci.h>
+#include "ametsuchi/soci_session.hpp"
 #include <boost/filesystem.hpp>
 #include <boost/optional.hpp>
 #include <boost/process.hpp>
@@ -232,7 +233,7 @@ DROP TABLE IF EXISTS index_by_creator_height;
 DROP TABLE IF EXISTS position_by_account_asset;
 )";
 
-    soci::session sql(*soci::factory_postgresql(), pgopts_);
+    iroha::ametsuchi::SociSession sql(*soci::factory_postgresql(), pgopts_);
     sql << drop;
   }
 

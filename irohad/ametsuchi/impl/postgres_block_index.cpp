@@ -119,7 +119,7 @@ namespace {
 
 namespace iroha {
   namespace ametsuchi {
-    PostgresBlockIndex::PostgresBlockIndex(soci::session &sql,
+    PostgresBlockIndex::PostgresBlockIndex(SociSession &sql,
                                            logger::LoggerPtr log)
         : sql_(sql), log_(std::move(log)) {}
 

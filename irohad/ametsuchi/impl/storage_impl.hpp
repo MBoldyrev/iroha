@@ -13,6 +13,7 @@
 #include <shared_mutex>
 
 #include <soci/soci.h>
+#include "ametsuchi/soci_session.hpp"
 #include <boost/optional.hpp>
 #include "ametsuchi/block_storage_factory.hpp"
 #include "ametsuchi/impl/postgres_options.hpp"

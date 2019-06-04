@@ -7,6 +7,7 @@
 #define IROHA_POSTGRES_WSV_COMMON_HPP
 
 #include <soci/soci.h>
+#include "ametsuchi/soci_session.hpp"
 #include <boost/optional.hpp>
 #include <boost/range/adaptor/filtered.hpp>
 #include <boost/range/adaptor/transformed.hpp>

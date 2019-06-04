@@ -8,7 +8,7 @@
 
 #include "ametsuchi/temporary_wsv.hpp"
 
-#include <soci/soci.h>
+#include "ametsuchi/soci_session.hpp"
 #include "ametsuchi/command_executor.hpp"
 #include "interfaces/common_objects/common_objects_factory.hpp"
 #include "logger/logger_fwd.hpp"
@@ -37,14 +37,14 @@ namespace iroha {
         ~SavepointWrapperImpl() override;
 
        private:
-        soci::session &sql_;
+        SociSession &sql_;
         std::string savepoint_name_;
         bool is_released_;
         logger::LoggerPtr log_;
       };
 
       TemporaryWsvImpl(
-          std::unique_ptr<soci::session> sql,
+          std::unique_ptr<SociSession> sql,
           std::shared_ptr<shared_model::interface::CommonObjectsFactory>
               factory,
           std::shared_ptr<shared_model::interface::PermissionToString>
@@ -67,7 +67,7 @@ namespace iroha {
       expected::Result<void, validation::CommandError> validateSignatures(
           const shared_model::interface::Transaction &transaction);
 
-      std::unique_ptr<soci::session> sql_;
+      std::unique_ptr<SociSession> sql_;
       std::unique_ptr<CommandExecutor> command_executor_;
 
       logger::LoggerManagerTreePtr log_manager_;

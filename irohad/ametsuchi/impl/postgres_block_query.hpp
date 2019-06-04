@@ -8,7 +8,7 @@
 
 #include "ametsuchi/block_query.hpp"
 
-#include <soci/soci.h>
+#include "ametsuchi/soci_session.hpp"
 #include <boost/optional.hpp>
 #include "ametsuchi/key_value_storage.hpp"
 #include "interfaces/iroha_internal/block_json_deserializer.hpp"
@@ -23,14 +23,14 @@ namespace iroha {
     class PostgresBlockQuery : public BlockQuery {
      public:
       PostgresBlockQuery(
-          soci::session &sql,
+          SociSession &sql,
           KeyValueStorage &file_store,
           std::shared_ptr<shared_model::interface::BlockJsonDeserializer>
               converter,
           logger::LoggerPtr log);
 
       PostgresBlockQuery(
-          std::unique_ptr<soci::session> sql,
+          std::unique_ptr<SociSession> sql,
           KeyValueStorage &file_store,
           std::shared_ptr<shared_model::interface::BlockJsonDeserializer>
               converter,
@@ -45,8 +45,8 @@ namespace iroha {
           const shared_model::crypto::Hash &hash) override;
 
      private:
-      std::unique_ptr<soci::session> psql_;
-      soci::session &sql_;
+      std::unique_ptr<SociSession> psql_;
+      SociSession &sql_;
 
       KeyValueStorage &block_store_;
       std::shared_ptr<shared_model::interface::BlockJsonDeserializer>

@@ -15,7 +15,7 @@ namespace iroha {
 
     class PostgresWsvCommand : public WsvCommand {
      public:
-      explicit PostgresWsvCommand(soci::session &sql);
+      explicit PostgresWsvCommand(SociSession &sql);
       WsvCommandResult insertRole(
           const shared_model::interface::types::RoleIdType &role_name) override;
 
@@ -74,7 +74,7 @@ namespace iroha {
           shared_model::interface::permissions::Grantable permission) override;
 
      private:
-      soci::session &sql_;
+      SociSession &sql_;
     };
   }  // namespace ametsuchi
 }  // namespace iroha

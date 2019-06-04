@@ -270,7 +270,7 @@ namespace iroha {
     }
 
     PostgresQueryExecutor::PostgresQueryExecutor(
-        std::unique_ptr<soci::session> sql,
+        std::unique_ptr<SociSession> sql,
         KeyValueStorage &block_store,
         std::shared_ptr<PendingTransactionStorage> pending_txs_storage,
         std::shared_ptr<shared_model::interface::BlockJsonConverter> converter,
@@ -344,7 +344,7 @@ namespace iroha {
     }
 
     PostgresQueryExecutorVisitor::PostgresQueryExecutorVisitor(
-        soci::session &sql,
+        SociSession &sql,
         KeyValueStorage &block_store,
         std::shared_ptr<PendingTransactionStorage> pending_txs_storage,
         std::shared_ptr<shared_model::interface::BlockJsonConverter> converter,

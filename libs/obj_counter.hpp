@@ -81,11 +81,7 @@ struct ObjCounter : public ConstrBt {
 };
 
 template <typename T>
-std::atomic<size_t> ObjCounter<T>::objects_created(0);
-template <typename T>
-std::atomic<size_t> ObjCounter<T>::objects_alive(0);
-template <typename T>
-std::mutex ObjCounter<T>::get_stats_mu_;
+size_t ObjCounter<T>::objects_created(0);
 template <typename T>
 std::string ObjCounter<T>::class_name_([] {
   std::string class_name = boost::core::demangle(typeid(T).name());

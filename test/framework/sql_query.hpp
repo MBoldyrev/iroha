@@ -9,6 +9,7 @@
 #include <string>
 
 #include <soci/soci.h>
+#include "ametsuchi/soci_session.hpp"
 #include <boost/optional.hpp>
 #include "framework/test_logger.hpp"
 #include "interfaces/common_objects/account.hpp"
@@ -33,7 +34,7 @@ namespace framework {
      */
     class SqlQuery {
      public:
-      SqlQuery(soci::session &sql,
+      SqlQuery(SociSession &sql,
                std::shared_ptr<shared_model::interface::CommonObjectsFactory>
                    factory,
                logger::LoggerPtr log = getTestLogger("SqlQuery"));
@@ -134,7 +135,7 @@ namespace framework {
           const shared_model::interface::types::AccountIdType &writer = "");
 
      private:
-      soci::session &sql_;
+      SociSession &sql_;
       std::shared_ptr<shared_model::interface::CommonObjectsFactory> factory_;
       logger::LoggerPtr log_;
 
