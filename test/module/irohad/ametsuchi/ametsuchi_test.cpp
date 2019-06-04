@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include "module/irohad/ametsuchi/ametsuchi_fixture.hpp"
+
 #include <gtest/gtest.h>
 
 #include "ametsuchi/impl/postgres_block_query.hpp"
@@ -15,7 +17,6 @@
 #include "framework/result_fixture.hpp"
 #include "framework/test_logger.hpp"
 #include "framework/test_subscriber.hpp"
-#include "module/irohad/ametsuchi/ametsuchi_fixture.hpp"
 #include "module/shared_model/builders/protobuf/test_block_builder.hpp"
 #include "module/shared_model/builders/protobuf/test_transaction_builder.hpp"
 
@@ -89,7 +90,7 @@ void apply(S &&storage,
   storageResult.match(
       [&](auto &&_storage) { ms = std::move(_storage.value); },
       [](const auto &error) { FAIL() << "MutableStorage: " << error.error; });
-  ms->apply(block);
+  ASSERT_TRUE(ms->apply(block));
   ASSERT_TRUE(val(storage->commit(std::move(ms))));
 }
 

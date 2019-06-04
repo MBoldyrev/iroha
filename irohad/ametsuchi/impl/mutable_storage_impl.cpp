@@ -21,7 +21,7 @@
 namespace iroha {
   namespace ametsuchi {
     MutableStorageImpl::MutableStorageImpl(
-        std::shared_ptr<const iroha::LedgerState> ledger_state,
+        boost::optional<std::shared_ptr<const iroha::LedgerState>> ledger_state,
         std::shared_ptr<PostgresCommandExecutor> cmd_executor,
         std::unique_ptr<soci::session> sql,
         std::shared_ptr<shared_model::interface::CommonObjectsFactory> factory,
@@ -70,20 +70,21 @@ namespace iroha {
                  block->height(),
                  block->hash().hex());
 
-      auto opt_ledger_peers = peer_query_->getLedgerPeers();
-      if (not opt_ledger_peers) {
-        log_->error("Failed to get ledger peers!");
-        return false;
-      }
-      assert(opt_ledger_peers);
-
-      auto block_applied = predicate(block, *ledger_state_)
+      auto block_applied =
+          (not ledger_state_ or predicate(block, *ledger_state_.value()))
           and std::all_of(block->transactions().begin(),
                           block->transactions().end(),
                           execute_transaction);
       if (block_applied) {
         block_storage_->insert(block);
         block_index_->index(*block);
+
+        auto opt_ledger_peers = peer_query_->getLedgerPeers();
+        if (not opt_ledger_peers) {
+          log_->error("Failed to get ledger peers!");
+          return false;
+        }
+        assert(opt_ledger_peers);
 
         // atomic?
         ledger_state_ = std::make_shared<const LedgerState>(
@@ -131,7 +132,7 @@ namespace iroha {
       });
     }
 
-    std::shared_ptr<const iroha::LedgerState>
+    boost::optional<std::shared_ptr<const iroha::LedgerState>>
     MutableStorageImpl::getLedgerState() const {
       return ledger_state_;
     }

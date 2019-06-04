@@ -123,7 +123,8 @@ namespace iroha {
       ~StorageImpl() override;
 
      protected:
-      StorageImpl(std::shared_ptr<const iroha::LedgerState> ledger_state,
+      StorageImpl(boost::optional<std::shared_ptr<const iroha::LedgerState>>
+                      ledger_state,
                   std::string block_store_dir,
                   PostgresOptions postgres_options,
                   std::unique_ptr<KeyValueStorage> block_store,
@@ -199,7 +200,7 @@ namespace iroha {
 
       std::string prepared_block_name_;
 
-      std::shared_ptr<const iroha::LedgerState> ledger_state_;
+      boost::optional<std::shared_ptr<const iroha::LedgerState>> ledger_state_;
 
      protected:
       static const std::string &drop_;

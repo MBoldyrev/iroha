@@ -27,7 +27,8 @@ namespace iroha {
 
      public:
       MutableStorageImpl(
-          std::shared_ptr<const iroha::LedgerState> ledger_state,
+          boost::optional<std::shared_ptr<const iroha::LedgerState>>
+              ledger_state,
           std::shared_ptr<PostgresCommandExecutor> cmd_executor,
           std::unique_ptr<soci::session> sql,
           std::shared_ptr<shared_model::interface::CommonObjectsFactory>
@@ -42,7 +43,8 @@ namespace iroha {
                      std::shared_ptr<shared_model::interface::Block>> blocks,
                  MutableStoragePredicate predicate) override;
 
-      std::shared_ptr<const iroha::LedgerState> getLedgerState() const;
+      boost::optional<std::shared_ptr<const iroha::LedgerState>>
+      getLedgerState() const;
 
       ~MutableStorageImpl() override;
 
@@ -62,7 +64,7 @@ namespace iroha {
       bool apply(std::shared_ptr<const shared_model::interface::Block> block,
                  MutableStoragePredicate predicate);
 
-      std::shared_ptr<const iroha::LedgerState> ledger_state_;
+      boost::optional<std::shared_ptr<const iroha::LedgerState>> ledger_state_;
 
       std::unique_ptr<soci::session> sql_;
       std::unique_ptr<PeerQuery> peer_query_;
