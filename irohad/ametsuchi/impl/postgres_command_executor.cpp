@@ -734,7 +734,7 @@ namespace iroha {
                   FROM new_src_quantity
 
                   UNION
-                  SELECT 7, value < (2::decimal ^ 256) / 10::decimal^$5
+                  SELECT 7, value < 2::decimal ^ (256 - $5)
                   FROM new_dest_quantity
               ),
               insert_src AS
