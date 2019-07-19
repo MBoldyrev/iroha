@@ -358,7 +358,7 @@ namespace iroha {
                       AND precision >= $3
 
                    UNION
-                   SELECT 4, value < (2::decimal ^ 256) / 10::decimal^$3
+                   SELECT 4, value < 2::decimal ^ (256 - $3)
                    FROM new_quantity
                ),
                inserted AS
