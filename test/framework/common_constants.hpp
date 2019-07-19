@@ -10,6 +10,7 @@
 #include <string>
 
 #include "cryptography/keypair.hpp"
+#include "interfaces/common_objects/amount.hpp"
 
 static const uint32_t kMaxPageSize = std::numeric_limits<uint32_t>::max();
 using shared_model::crypto::Keypair;
@@ -39,12 +40,19 @@ namespace common_constants {
   extern const std::string kSameDomainUserId;
   extern const std::string kAnotherDomainUserId;
   extern const std::string kAssetId;
+  extern const std::string kAnotherDomainAssetId;
 
   /// keypairs
   extern const Keypair kAdminKeypair;
   extern const Keypair kUserKeypair;
   extern const Keypair kSameDomainUserKeypair;
   extern const Keypair kAnotherDomainUserKeypair;
+
+  // misc
+  extern const shared_model::interface::Amount
+      kAmountPrec1Max;  // maximum amount of asset with pricision 1
+  extern const shared_model::interface::Amount
+      kAmountPrec2Max;  // maximum amount of asset with pricision 2
 }  // namespace common_constants
 
 #endif /* IROHA_TEST_FRAMEWORK_COMMON_CONSTANTS_HPP_ */
