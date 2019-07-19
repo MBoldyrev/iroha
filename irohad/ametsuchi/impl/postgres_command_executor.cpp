@@ -358,8 +358,9 @@ namespace iroha {
                       AND precision >= $3
 
                    UNION
-                   SELECT 4, value < 2::decimal ^ (256 - $3)
-                   FROM new_quantity
+                   SELECT 4, value < 2::decimal ^ (256 - precision)
+                   FROM new_quantity, asset
+                   WHERE asset_id = $2
                ),
                inserted AS
                (
@@ -734,8 +735,9 @@ namespace iroha {
                   FROM new_src_quantity
 
                   UNION
-                  SELECT 7, value < 2::decimal ^ (256 - $5)
-                  FROM new_dest_quantity
+                  SELECT 7, value < 2::decimal ^ (256 - precision)
+                  FROM new_dest_quantity, asset
+                  WHERE asset_id = $4
               ),
               insert_src AS
               (
