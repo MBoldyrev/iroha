@@ -266,12 +266,14 @@ namespace iroha {
       using ReturnType = Result<void, ErrorType>;
     };
 
-    template <typename ValueTransformer, typename Value, typename Error>
-    using BindReturnTypeHelper = typename std::enable_if_t<
-        not std::is_same<Value, void>::value,
-        BindReturnType<decltype(std::declval<ValueTransformer>()(
-                           std::declval<Value>())),
-                       Error>>;
+    template <typename ValueTransformer, typename Value>
+    using TransformedHelper =
+        typename std::enable_if_t<not std::is_same<Value, void>::value,
+                                  decltype(std::declval<ValueTransformer>()(
+                                      std::declval<Value>()))>;
+
+    template <typename T>
+    constexpr bool isVoid = std::is_same<T, void>::value;
 
     /**
      * Bind operator allows chaining several functions which return result. If
@@ -285,10 +287,11 @@ namespace iroha {
     template <typename V,
               typename E,
               typename Transform,
-              typename TypeHelper = BindReturnTypeHelper<Transform, V, E>,
+              typename Transformed = TransformedHelper<Transform, V>,
+              typename TypeHelper = BindReturnType<Transformed, E>,
               typename ReturnType = typename TypeHelper::ReturnType>
     constexpr auto operator|(const Result<V, E> &r, Transform &&f)
-        -> ReturnType {
+        -> std::enable_if_t<not isVoid<Transformed>, ReturnType> {
       return r.match(
           [&f](const auto &v) { return TypeHelper::makeValue(f(v.value)); },
           [](const auto &e) { return ReturnType(makeError(e.error)); });
@@ -298,13 +301,52 @@ namespace iroha {
     template <typename V,
               typename E,
               typename Transform,
-              typename TypeHelper = BindReturnTypeHelper<Transform, V, E>,
+              typename Transformed = TransformedHelper<Transform, V>,
+              typename TypeHelper = BindReturnType<Transformed, E>,
               typename ReturnType = typename TypeHelper::ReturnType>
-    constexpr auto operator|(Result<V, E> &&r, Transform &&f) -> ReturnType {
+    constexpr auto operator|(Result<V, E> &&r, Transform &&f)
+        -> std::enable_if_t<not isVoid<Transformed>, ReturnType> {
       static_assert(isResult<ReturnType>, "wrong return_type");
       return std::move(r).match(
           [&f](auto &&v) {
             return TypeHelper::makeValue(f(std::move(v.value)));
+          },
+          [](auto &&e) { return ReturnType(makeError(std::move(e.error))); });
+    }
+
+    /**
+     * Bind operator overload for functions which do not return anything.
+     * @param f Function that accepts result value and returns nothing.
+     */
+
+    /// constref version
+    template <typename V,
+              typename E,
+              typename Transform,
+              typename Transformed = TransformedHelper<Transform, V>,
+              typename TypeHelper = BindReturnType<Transformed, E>,
+              typename ReturnType = typename TypeHelper::ReturnType>
+    constexpr auto operator|(const Result<V, E> &r, Transform &&f)
+        -> std::enable_if_t<isVoid<Transformed>, ReturnType> {
+      return r.match(
+          [&f](const auto &v) { f(v.value); },
+          [](const auto &e) { return ReturnType(makeError(e.error)); });
+    }
+
+    /// rvalue version
+    template <typename V,
+              typename E,
+              typename Transform,
+              typename Transformed = TransformedHelper<Transform, V>,
+              typename TypeHelper = BindReturnType<Transformed, E>,
+              typename ReturnType = typename TypeHelper::ReturnType>
+    constexpr auto operator|(Result<V, E> &&r, Transform &&f)
+        -> std::enable_if_t<isVoid<Transformed>, ReturnType> {
+      static_assert(isResult<ReturnType>, "wrong return_type");
+      return std::move(r).match(
+          [&f](auto &&v) -> ReturnType {
+            f(std::move(v.value));
+            return {};
           },
           [](auto &&e) { return ReturnType(makeError(std::move(e.error))); });
     }
@@ -323,9 +365,8 @@ namespace iroha {
               typename TypeHelper =
                   BindReturnType<decltype(std::declval<Procedure>()()), E>,
               typename ReturnType = typename TypeHelper::ReturnType>
-    constexpr auto operator|(const Result<T, E> &r, Procedure f) ->
-        typename std::enable_if<not std::is_same<decltype(f()), void>::value,
-                                ReturnType>::type {
+    constexpr auto operator|(const Result<T, E> &r, Procedure f)
+        -> std::enable_if_t<not isVoid<decltype(f())>, ReturnType> {
       return r.match(
           [&f](const Value<T> &v) { return TypeHelper::makeValue(f()); },
           [](const Error<E> &e) { return ReturnType(makeError(e.error)); });
@@ -338,9 +379,8 @@ namespace iroha {
               typename TypeHelper =
                   BindReturnType<decltype(std::declval<Procedure>()()), E>,
               typename ReturnType = typename TypeHelper::ReturnType>
-    constexpr auto operator|(Result<V, E> &&r, Procedure f) ->
-        typename std::enable_if<not std::is_same<decltype(f()), void>::value,
-                                ReturnType>::type {
+    constexpr auto operator|(Result<V, E> &&r, Procedure f)
+        -> std::enable_if_t<not isVoid<decltype(f())>, ReturnType> {
       return std::move(r).match(
           [&f](const auto &) { return TypeHelper::makeValue(f()); },
           [](auto &&e) { return ReturnType(makeError(std::move(e.error))); });
