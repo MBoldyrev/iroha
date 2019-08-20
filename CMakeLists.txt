@@ -48,6 +48,8 @@ if(UNIX)
     )
 endif()
 
+set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
+
 if(COVERAGE)
   find_program(LCOV_PROGRAM lcov)
   if(NOT LCOV_PROGRAM)
