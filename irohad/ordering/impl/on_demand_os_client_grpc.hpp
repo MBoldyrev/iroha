@@ -44,9 +44,6 @@ namespace iroha {
             std::chrono::milliseconds proposal_request_timeout,
             logger::LoggerPtr log);
 
-        ON_DEMAND_ORDERING_SERVICE_TRANSPORT_GRPC_EXPORT
-        ~OnDemandOsClientGrpc() = default;
-
         void ON_DEMAND_ORDERING_SERVICE_TRANSPORT_GRPC_EXPORT
         onBatches(CollectionType batches) override;
 
@@ -75,9 +72,6 @@ namespace iroha {
             std::function<OnDemandOsClientGrpc::TimepointType()> time_provider,
             OnDemandOsClientGrpc::TimeoutType proposal_request_timeout,
             logger::LoggerPtr client_log);
-
-        ON_DEMAND_ORDERING_SERVICE_TRANSPORT_GRPC_EXPORT
-        ~OnDemandOsClientGrpcFactory() = default;
 
         /**
          * Create connection with insecure gRPC channel defined by

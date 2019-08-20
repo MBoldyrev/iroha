@@ -20,8 +20,6 @@ namespace iroha {
         YAC_TRANSPORT_EXPORT CryptoProviderImpl(
             const shared_model::crypto::Keypair &keypair);
 
-        YAC_TRANSPORT_EXPORT ~CryptoProviderImpl() = default;
-
         bool YAC_TRANSPORT_EXPORT
         verify(const std::vector<VoteMessage> &msg) override;
 

@@ -39,9 +39,6 @@ namespace iroha {
                 transaction_batch_factory,
             logger::LoggerPtr log);
 
-        ON_DEMAND_ORDERING_SERVICE_TRANSPORT_GRPC_EXPORT ~OnDemandOsServerGrpc() =
-            default;
-
         grpc::Status ON_DEMAND_ORDERING_SERVICE_TRANSPORT_GRPC_EXPORT
         SendBatches(::grpc::ServerContext *context,
                     const proto::BatchesRequest *request,

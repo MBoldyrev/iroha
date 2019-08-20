@@ -38,8 +38,6 @@ namespace iroha {
                 const shared_model::interface::Peer &)> client_creator,
             logger::LoggerPtr log);
 
-        YAC_TRANSPORT_EXPORT ~NetworkImpl() = default;
-
         void YAC_TRANSPORT_EXPORT
         subscribe(std::shared_ptr<YacNetworkNotifications> handler) override;
 
