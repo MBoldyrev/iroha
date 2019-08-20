@@ -9,6 +9,8 @@
 #include "mst.grpc.pb.h"
 #include "network/mst_transport.hpp"
 
+#include "mst_transport_export.h"
+
 #include "cryptography/public_key.hpp"
 #include "interfaces/common_objects/common_objects_factory.hpp"
 #include "interfaces/iroha_internal/abstract_transport_factory.hpp"
@@ -36,7 +38,7 @@ namespace iroha {
               shared_model::interface::Transaction,
               iroha::protocol::Transaction>;
 
-      MstTransportGrpc(
+      MST_TRANSPORT_EXPORT MstTransportGrpc(
           std::shared_ptr<network::AsyncGrpcClient<google::protobuf::Empty>>
               async_call,
           std::shared_ptr<TransportFactoryType> transaction_factory,
@@ -58,16 +60,17 @@ namespace iroha {
        * @param response - buffer for response data, not used
        * @return grpc::Status (always OK)
        */
-      grpc::Status SendState(
-          ::grpc::ServerContext *context,
-          const ::iroha::network::transport::MstState *request,
-          ::google::protobuf::Empty *response) override;
+      grpc::Status MST_TRANSPORT_EXPORT
+      SendState(::grpc::ServerContext *context,
+                const ::iroha::network::transport::MstState *request,
+                ::google::protobuf::Empty *response) override;
 
-      void subscribe(
+      void MST_TRANSPORT_EXPORT subscribe(
           std::shared_ptr<MstTransportNotification> notification) override;
 
-      void sendState(const shared_model::interface::Peer &to,
-                     ConstRefState providing_state) override;
+      void MST_TRANSPORT_EXPORT
+      sendState(const shared_model::interface::Peer &to,
+                ConstRefState providing_state) override;
 
      private:
       /**
@@ -96,10 +99,11 @@ namespace iroha {
       boost::optional<SenderFactory> sender_factory_;
     };
 
-    void sendStateAsync(const shared_model::interface::Peer &to,
-                        iroha::ConstRefState state,
-                        const shared_model::crypto::PublicKey &sender_key,
-                        AsyncGrpcClient<google::protobuf::Empty> &async_call);
+    void MST_TRANSPORT_EXPORT
+    sendStateAsync(const shared_model::interface::Peer &to,
+                   iroha::ConstRefState state,
+                   const shared_model::crypto::PublicKey &sender_key,
+                   AsyncGrpcClient<google::protobuf::Empty> &async_call);
 
   }  // namespace network
 }  // namespace iroha

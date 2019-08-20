@@ -8,14 +8,17 @@
 
 #include "network/mst_transport.hpp"
 
+#include "mst_transport_export.h"
+
 namespace iroha {
   namespace network {
     class MstTransportStub : public MstTransport {
      public:
-      void subscribe(std::shared_ptr<MstTransportNotification>) override;
+      void MST_TRANSPORT_EXPORT
+          subscribe(std::shared_ptr<MstTransportNotification>) override;
 
-      void sendState(const shared_model::interface::Peer &,
-                     ConstRefState) override;
+      void MST_TRANSPORT_EXPORT sendState(const shared_model::interface::Peer &,
+                                          ConstRefState) override;
     };
   }  // namespace network
 }  // namespace iroha

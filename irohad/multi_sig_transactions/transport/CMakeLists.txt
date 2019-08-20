@@ -5,6 +5,7 @@ add_library(mst_transport
     impl/mst_transport_grpc.cpp
     impl/mst_transport_stub.cpp
     )
+setup_export_header(mst_transport hidden)
 
 target_link_libraries(mst_transport
     mst_grpc

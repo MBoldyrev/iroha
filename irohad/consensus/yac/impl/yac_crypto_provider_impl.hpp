@@ -8,6 +8,8 @@
 
 #include "consensus/yac/yac_crypto_provider.hpp"
 
+#include "yac_transport_export.h"
+
 #include "cryptography/keypair.hpp"
 
 namespace iroha {
@@ -15,11 +17,13 @@ namespace iroha {
     namespace yac {
       class CryptoProviderImpl : public YacCryptoProvider {
        public:
-        CryptoProviderImpl(const shared_model::crypto::Keypair &keypair);
+        YAC_TRANSPORT_EXPORT CryptoProviderImpl(
+            const shared_model::crypto::Keypair &keypair);
 
-        bool verify(const std::vector<VoteMessage> &msg) override;
+        bool YAC_TRANSPORT_EXPORT
+        verify(const std::vector<VoteMessage> &msg) override;
 
-        VoteMessage getVote(YacHash hash) override;
+        VoteMessage YAC_TRANSPORT_EXPORT getVote(YacHash hash) override;
 
        private:
         shared_model::crypto::Keypair keypair_;

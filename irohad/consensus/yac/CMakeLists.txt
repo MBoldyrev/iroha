@@ -45,6 +45,7 @@ add_library(yac_transport
     transport/impl/network_impl.cpp
     impl/yac_crypto_provider_impl.cpp
     )
+setup_export_header(yac_transport hidden)
 target_link_libraries(yac_transport
     yac
     yac_grpc

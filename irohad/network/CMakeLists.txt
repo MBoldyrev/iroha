@@ -15,6 +15,7 @@ target_link_libraries(networking
 add_library(block_loader
     impl/block_loader_impl.cpp
     )
+setup_export_header(block_loader hidden)
 
 target_link_libraries(block_loader
     loader_grpc

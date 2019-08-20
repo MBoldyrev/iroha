@@ -8,6 +8,8 @@
 
 #include "ordering/on_demand_os_transport.hpp"
 
+#include "on_demand_ordering_service_transport_grpc_export.h"
+
 #include "interfaces/iroha_internal/abstract_transport_factory.hpp"
 #include "interfaces/iroha_internal/transaction_batch_factory.hpp"
 #include "interfaces/iroha_internal/transaction_batch_parser.hpp"
@@ -28,7 +30,7 @@ namespace iroha {
                 shared_model::interface::Transaction,
                 iroha::protocol::Transaction>;
 
-        OnDemandOsServerGrpc(
+        ON_DEMAND_ORDERING_SERVICE_TRANSPORT_GRPC_EXPORT OnDemandOsServerGrpc(
             std::shared_ptr<OdOsNotification> ordering_service,
             std::shared_ptr<TransportFactoryType> transaction_factory,
             std::shared_ptr<shared_model::interface::TransactionBatchParser>
@@ -37,14 +39,15 @@ namespace iroha {
                 transaction_batch_factory,
             logger::LoggerPtr log);
 
-        grpc::Status SendBatches(::grpc::ServerContext *context,
-                                 const proto::BatchesRequest *request,
-                                 ::google::protobuf::Empty *response) override;
+        grpc::Status ON_DEMAND_ORDERING_SERVICE_TRANSPORT_GRPC_EXPORT
+        SendBatches(::grpc::ServerContext *context,
+                    const proto::BatchesRequest *request,
+                    ::google::protobuf::Empty *response) override;
 
-        grpc::Status RequestProposal(
-            ::grpc::ServerContext *context,
-            const proto::ProposalRequest *request,
-            proto::ProposalResponse *response) override;
+        grpc::Status ON_DEMAND_ORDERING_SERVICE_TRANSPORT_GRPC_EXPORT
+        RequestProposal(::grpc::ServerContext *context,
+                        const proto::ProposalRequest *request,
+                        proto::ProposalResponse *response) override;
 
        private:
         /**

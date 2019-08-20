@@ -8,6 +8,8 @@
 
 #include "network/block_loader.hpp"
 
+#include "block_loader_export.h"
+
 #include <unordered_map>
 
 #include "ametsuchi/peer_query_factory.hpp"
@@ -20,20 +22,20 @@ namespace iroha {
     class BlockLoaderImpl : public BlockLoader {
      public:
       // TODO 30.01.2019 lebdron: IR-264 Remove PeerQueryFactory
-      BlockLoaderImpl(
+      BLOCK_LOADER_EXPORT BlockLoaderImpl(
           std::shared_ptr<ametsuchi::PeerQueryFactory> peer_query_factory,
           shared_model::proto::ProtoBlockFactory factory,
           logger::LoggerPtr log);
 
       rxcpp::observable<std::shared_ptr<shared_model::interface::Block>>
-      retrieveBlocks(
-          const shared_model::interface::types::HeightType height,
-          const shared_model::crypto::PublicKey &peer_pubkey) override;
+          BLOCK_LOADER_EXPORT retrieveBlocks(
+              const shared_model::interface::types::HeightType height,
+              const shared_model::crypto::PublicKey &peer_pubkey) override;
 
       boost::optional<std::shared_ptr<shared_model::interface::Block>>
-      retrieveBlock(
-          const shared_model::crypto::PublicKey &peer_pubkey,
-          shared_model::interface::types::HeightType block_height) override;
+          BLOCK_LOADER_EXPORT retrieveBlock(
+              const shared_model::crypto::PublicKey &peer_pubkey,
+              shared_model::interface::types::HeightType block_height) override;
 
      private:
       /**

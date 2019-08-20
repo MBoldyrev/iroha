@@ -6,6 +6,8 @@
 #ifndef MAIN_SERVER_RUNNER_HPP
 #define MAIN_SERVER_RUNNER_HPP
 
+#include "server_runner_export.h"
+
 #include <grpc++/grpc++.h>
 #include <grpc++/impl/codegen/service_type.h>
 #include "common/result.hpp"
@@ -22,37 +24,39 @@ class ServerRunner {
    * @param log to print progress to
    * @param reuse - allow multiple sockets to bind to the same port
    */
-  explicit ServerRunner(const std::string &address,
-                        logger::LoggerPtr log,
-                        bool reuse = true);
+  explicit SERVER_RUNNER_EXPORT ServerRunner(const std::string &address,
+                                             logger::LoggerPtr log,
+                                             bool reuse = true);
 
   /**
    * Adds a new grpc service to be run.
    * @param service - service to append.
    * @return reference to this with service appended
    */
-  ServerRunner &append(std::shared_ptr<grpc::Service> service);
+  ServerRunner SERVER_RUNNER_EXPORT &append(
+      std::shared_ptr<grpc::Service> service);
 
   /**
    * Initialize the server and run main loop.
    * @return Result with used port number or error message
    */
-  iroha::expected::Result<int, std::string> run();
+  iroha::expected::Result<int, std::string> SERVER_RUNNER_EXPORT run();
 
   /**
    * Wait until the server is up.
    */
-  void waitForServersReady();
+  void SERVER_RUNNER_EXPORT waitForServersReady();
 
   /**
    * Ask grpc server to terminate.
    */
-  void shutdown();
+  void SERVER_RUNNER_EXPORT shutdown();
 
   /**
    * Shutdown gRPC server with force on given deadline
    */
-  void shutdown(const std::chrono::system_clock::time_point &deadline);
+  void SERVER_RUNNER_EXPORT
+  shutdown(const std::chrono::system_clock::time_point &deadline);
 
  private:
   logger::LoggerPtr log_;

@@ -9,6 +9,8 @@
 #include "consensus/yac/transport/yac_network_interface.hpp"  // for YacNetwork
 #include "yac.grpc.pb.h"
 
+#include "yac_transport_export.h"
+
 #include <memory>
 #include <unordered_map>
 
@@ -29,28 +31,29 @@ namespace iroha {
        */
       class NetworkImpl : public YacNetwork, public proto::Yac::Service {
        public:
-        explicit NetworkImpl(
+        explicit YAC_TRANSPORT_EXPORT NetworkImpl(
             std::shared_ptr<network::AsyncGrpcClient<google::protobuf::Empty>>
                 async_call,
             std::function<std::unique_ptr<proto::Yac::StubInterface>(
                 const shared_model::interface::Peer &)> client_creator,
             logger::LoggerPtr log);
 
-        void subscribe(
-            std::shared_ptr<YacNetworkNotifications> handler) override;
+        void YAC_TRANSPORT_EXPORT
+        subscribe(std::shared_ptr<YacNetworkNotifications> handler) override;
 
-        void sendState(const shared_model::interface::Peer &to,
-                       const std::vector<VoteMessage> &state) override;
+        void YAC_TRANSPORT_EXPORT
+        sendState(const shared_model::interface::Peer &to,
+                  const std::vector<VoteMessage> &state) override;
 
         /**
          * Receive votes from another peer;
          * Naming is confusing, because this is rpc call that
          * perform on another machine;
          */
-        grpc::Status SendState(
-            ::grpc::ServerContext *context,
-            const ::iroha::consensus::yac::proto::State *request,
-            ::google::protobuf::Empty *response) override;
+        grpc::Status YAC_TRANSPORT_EXPORT
+        SendState(::grpc::ServerContext *context,
+                  const ::iroha::consensus::yac::proto::State *request,
+                  ::google::protobuf::Empty *response) override;
 
        private:
         /**

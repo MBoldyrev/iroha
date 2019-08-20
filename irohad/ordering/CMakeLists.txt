@@ -27,6 +27,7 @@ add_library(on_demand_ordering_service_transport_grpc
     impl/on_demand_os_server_grpc.cpp
     impl/on_demand_os_client_grpc.cpp
     )
+setup_export_header(on_demand_ordering_service_transport_grpc hidden)
 
 target_link_libraries(on_demand_ordering_service_transport_grpc
     shared_model_interfaces

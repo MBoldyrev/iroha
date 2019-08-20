@@ -8,6 +8,8 @@
 
 #include "ordering/on_demand_os_transport.hpp"
 
+#include "on_demand_ordering_service_transport_grpc_export.h"
+
 #include "interfaces/iroha_internal/abstract_transport_factory.hpp"
 #include "logger/logger_fwd.hpp"
 #include "network/impl/async_grpc_client.hpp"
@@ -33,7 +35,7 @@ namespace iroha {
          * Constructor is left public because testing required passing a mock
          * stub interface
          */
-        OnDemandOsClientGrpc(
+        ON_DEMAND_ORDERING_SERVICE_TRANSPORT_GRPC_EXPORT OnDemandOsClientGrpc(
             std::unique_ptr<proto::OnDemandOrdering::StubInterface> stub,
             std::shared_ptr<network::AsyncGrpcClient<google::protobuf::Empty>>
                 async_call,
@@ -42,10 +44,12 @@ namespace iroha {
             std::chrono::milliseconds proposal_request_timeout,
             logger::LoggerPtr log);
 
-        void onBatches(CollectionType batches) override;
+        void ON_DEMAND_ORDERING_SERVICE_TRANSPORT_GRPC_EXPORT
+        onBatches(CollectionType batches) override;
 
-        boost::optional<std::shared_ptr<const ProposalType>> onRequestProposal(
-            consensus::Round round) override;
+        boost::optional<std::shared_ptr<const ProposalType>>
+            ON_DEMAND_ORDERING_SERVICE_TRANSPORT_GRPC_EXPORT
+            onRequestProposal(consensus::Round round) override;
 
        private:
         logger::LoggerPtr log_;
@@ -60,6 +64,7 @@ namespace iroha {
       class OnDemandOsClientGrpcFactory : public OdOsNotificationFactory {
        public:
         using TransportFactoryType = OnDemandOsClientGrpc::TransportFactoryType;
+        ON_DEMAND_ORDERING_SERVICE_TRANSPORT_GRPC_EXPORT
         OnDemandOsClientGrpcFactory(
             std::shared_ptr<network::AsyncGrpcClient<google::protobuf::Empty>>
                 async_call,
@@ -74,8 +79,9 @@ namespace iroha {
          * @see network/impl/grpc_channel_builder.hpp
          * This factory method can be used in production code
          */
-        std::unique_ptr<OdOsNotification> create(
-            const shared_model::interface::Peer &to) override;
+        std::unique_ptr<OdOsNotification>
+            ON_DEMAND_ORDERING_SERVICE_TRANSPORT_GRPC_EXPORT
+            create(const shared_model::interface::Peer &to) override;
 
        private:
         std::shared_ptr<network::AsyncGrpcClient<google::protobuf::Empty>>
