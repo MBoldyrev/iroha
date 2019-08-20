@@ -15,15 +15,13 @@
 namespace iroha {
   namespace consensus {
     namespace yac {
-      class CryptoProviderImpl : public YacCryptoProvider {
+      class YAC_TRANSPORT_EXPORT CryptoProviderImpl : public YacCryptoProvider {
        public:
-        YAC_TRANSPORT_EXPORT CryptoProviderImpl(
-            const shared_model::crypto::Keypair &keypair);
+        CryptoProviderImpl(const shared_model::crypto::Keypair &keypair);
 
-        bool YAC_TRANSPORT_EXPORT
-        verify(const std::vector<VoteMessage> &msg) override;
+        bool verify(const std::vector<VoteMessage> &msg) override;
 
-        VoteMessage YAC_TRANSPORT_EXPORT getVote(YacHash hash) override;
+        VoteMessage getVote(YacHash hash) override;
 
        private:
         shared_model::crypto::Keypair keypair_;

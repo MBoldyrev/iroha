@@ -27,8 +27,9 @@ namespace iroha {
   }
 
   namespace network {
-    class MstTransportGrpc : public MstTransport,
-                             public transport::MstTransportGrpc::Service {
+    class MST_TRANSPORT_EXPORT MstTransportGrpc
+        : public MstTransport,
+          public transport::MstTransportGrpc::Service {
      public:
       using SenderFactory = std::function<
           std::unique_ptr<transport::MstTransportGrpc::StubInterface>(
@@ -38,7 +39,7 @@ namespace iroha {
               shared_model::interface::Transaction,
               iroha::protocol::Transaction>;
 
-      MST_TRANSPORT_EXPORT MstTransportGrpc(
+      MstTransportGrpc(
           std::shared_ptr<network::AsyncGrpcClient<google::protobuf::Empty>>
               async_call,
           std::shared_ptr<TransportFactoryType> transaction_factory,
@@ -60,17 +61,16 @@ namespace iroha {
        * @param response - buffer for response data, not used
        * @return grpc::Status (always OK)
        */
-      grpc::Status MST_TRANSPORT_EXPORT
-      SendState(::grpc::ServerContext *context,
-                const ::iroha::network::transport::MstState *request,
-                ::google::protobuf::Empty *response) override;
+      grpc::Status SendState(
+          ::grpc::ServerContext *context,
+          const ::iroha::network::transport::MstState *request,
+          ::google::protobuf::Empty *response) override;
 
-      void MST_TRANSPORT_EXPORT subscribe(
+      void subscribe(
           std::shared_ptr<MstTransportNotification> notification) override;
 
-      void MST_TRANSPORT_EXPORT
-      sendState(const shared_model::interface::Peer &to,
-                ConstRefState providing_state) override;
+      void sendState(const shared_model::interface::Peer &to,
+                     ConstRefState providing_state) override;
 
      private:
       /**

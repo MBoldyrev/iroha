@@ -23,14 +23,15 @@ namespace iroha {
       /**
        * gRPC server for on demand ordering service
        */
-      class OnDemandOsServerGrpc : public proto::OnDemandOrdering::Service {
+      class ON_DEMAND_ORDERING_SERVICE_TRANSPORT_GRPC_EXPORT
+          OnDemandOsServerGrpc : public proto::OnDemandOrdering::Service {
        public:
         using TransportFactoryType =
             shared_model::interface::AbstractTransportFactory<
                 shared_model::interface::Transaction,
                 iroha::protocol::Transaction>;
 
-        ON_DEMAND_ORDERING_SERVICE_TRANSPORT_GRPC_EXPORT OnDemandOsServerGrpc(
+        OnDemandOsServerGrpc(
             std::shared_ptr<OdOsNotification> ordering_service,
             std::shared_ptr<TransportFactoryType> transaction_factory,
             std::shared_ptr<shared_model::interface::TransactionBatchParser>
@@ -39,15 +40,14 @@ namespace iroha {
                 transaction_batch_factory,
             logger::LoggerPtr log);
 
-        grpc::Status ON_DEMAND_ORDERING_SERVICE_TRANSPORT_GRPC_EXPORT
-        SendBatches(::grpc::ServerContext *context,
-                    const proto::BatchesRequest *request,
-                    ::google::protobuf::Empty *response) override;
+        grpc::Status SendBatches(::grpc::ServerContext *context,
+                                 const proto::BatchesRequest *request,
+                                 ::google::protobuf::Empty *response) override;
 
-        grpc::Status ON_DEMAND_ORDERING_SERVICE_TRANSPORT_GRPC_EXPORT
-        RequestProposal(::grpc::ServerContext *context,
-                        const proto::ProposalRequest *request,
-                        proto::ProposalResponse *response) override;
+        grpc::Status RequestProposal(
+            ::grpc::ServerContext *context,
+            const proto::ProposalRequest *request,
+            proto::ProposalResponse *response) override;
 
        private:
         /**

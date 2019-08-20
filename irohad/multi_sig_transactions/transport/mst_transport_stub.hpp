@@ -12,13 +12,12 @@
 
 namespace iroha {
   namespace network {
-    class MstTransportStub : public MstTransport {
+    class MST_TRANSPORT_EXPORT MstTransportStub : public MstTransport {
      public:
-      void MST_TRANSPORT_EXPORT
-          subscribe(std::shared_ptr<MstTransportNotification>) override;
+      void subscribe(std::shared_ptr<MstTransportNotification>) override;
 
-      void MST_TRANSPORT_EXPORT sendState(const shared_model::interface::Peer &,
-                                          ConstRefState) override;
+      void sendState(const shared_model::interface::Peer &,
+                     ConstRefState) override;
     };
   }  // namespace network
 }  // namespace iroha
