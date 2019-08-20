@@ -28,6 +28,8 @@ class ServerRunner {
                                              logger::LoggerPtr log,
                                              bool reuse = true);
 
+  SERVER_RUNNER_EXPORT ~ServerRunner() = default;
+
   /**
    * Adds a new grpc service to be run.
    * @param service - service to append.

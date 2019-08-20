@@ -27,6 +27,8 @@ namespace iroha {
           shared_model::proto::ProtoBlockFactory factory,
           logger::LoggerPtr log);
 
+      BLOCK_LOADER_EXPORT ~BlockLoaderImpl() = default;
+
       rxcpp::observable<std::shared_ptr<shared_model::interface::Block>>
           BLOCK_LOADER_EXPORT retrieveBlocks(
               const shared_model::interface::types::HeightType height,

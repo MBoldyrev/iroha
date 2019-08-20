@@ -53,6 +53,8 @@ namespace iroha {
           logger::LoggerPtr log,
           boost::optional<SenderFactory> = boost::none);
 
+      MST_TRANSPORT_EXPORT ~MstTransportGrpc() = default;
+
       /**
        * Server part of grpc SendState method call
        * @param context - server context with information about call
