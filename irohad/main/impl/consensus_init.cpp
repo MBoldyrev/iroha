@@ -94,6 +94,8 @@ namespace iroha {
               iroha::network::AsyncGrpcClient<google::protobuf::Empty>>
               async_call,
           ConsistencyModel consistency_model,
+          std::unique_ptr<iroha::network::ClientFactory<proto::Yac>>
+              client_factory,
           const logger::LoggerManagerTreePtr &consensus_log_manager) {
         auto peer_orderer = createPeerOrderer(peer_query_factory);
         auto peers = peer_query_factory->createPeerQuery() |
@@ -101,9 +103,7 @@ namespace iroha {
 
         consensus_network_ = std::make_shared<NetworkImpl>(
             async_call,
-            [](const shared_model::interface::Peer &peer) {
-              return network::createClient<proto::Yac>(peer.address());
-            },
+            std::move(client_factory),
             consensus_log_manager->getChild("Network")->getLogger());
 
         auto yac = createYac(*ClusterOrdering::create(peers.value()),

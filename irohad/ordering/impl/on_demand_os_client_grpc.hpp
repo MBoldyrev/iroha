@@ -66,6 +66,9 @@ namespace iroha {
             std::shared_ptr<TransportFactoryType> proposal_factory,
             std::function<OnDemandOsClientGrpc::TimepointType()> time_provider,
             OnDemandOsClientGrpc::TimeoutType proposal_request_timeout,
+            std::unique_ptr<
+                iroha::network::ClientFactory<proto::OnDemandOrdering>>
+                client_factory,
             logger::LoggerPtr client_log);
 
         /**
@@ -83,6 +86,8 @@ namespace iroha {
         std::shared_ptr<TransportFactoryType> proposal_factory_;
         std::function<OnDemandOsClientGrpc::TimepointType()> time_provider_;
         std::chrono::milliseconds proposal_request_timeout_;
+        std::unique_ptr<iroha::network::ClientFactory<proto::OnDemandOrdering>>
+            client_factory_;
         logger::LoggerPtr client_log_;
       };
 

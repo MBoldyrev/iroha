@@ -27,13 +27,16 @@ auto BlockLoaderInit::createLoader(
     std::shared_ptr<PeerQueryFactory> peer_query_factory,
     std::shared_ptr<shared_model::validation::ValidatorsConfig>
         validators_config,
+    std::unique_ptr<ClientFactory<proto::Loader>> client_factory,
     logger::LoggerPtr loader_log) {
   shared_model::proto::ProtoBlockFactory factory(
       std::make_unique<shared_model::validation::DefaultSignedBlockValidator>(
           validators_config),
       std::make_unique<shared_model::validation::ProtoBlockValidator>());
-  return std::make_shared<BlockLoaderImpl>(
-      std::move(peer_query_factory), std::move(factory), std::move(loader_log));
+  return std::make_shared<BlockLoaderImpl>(std::move(peer_query_factory),
+                                           std::move(factory),
+                                           std::move(client_factory),
+                                           std::move(loader_log));
 }
 
 std::shared_ptr<BlockLoader> BlockLoaderInit::initBlockLoader(
@@ -42,12 +45,14 @@ std::shared_ptr<BlockLoader> BlockLoaderInit::initBlockLoader(
     std::shared_ptr<consensus::ConsensusResultCache> consensus_result_cache,
     std::shared_ptr<shared_model::validation::ValidatorsConfig>
         validators_config,
+    std::unique_ptr<ClientFactory<proto::Loader>> client_factory,
     const logger::LoggerManagerTreePtr &loader_log_manager) {
   service = createService(std::move(block_query_factory),
                           std::move(consensus_result_cache),
                           loader_log_manager);
   loader = createLoader(std::move(peer_query_factory),
                         std::move(validators_config),
+                        std::move(client_factory),
                         loader_log_manager->getLogger());
   return loader;
 }

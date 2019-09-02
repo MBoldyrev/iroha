@@ -42,6 +42,8 @@ namespace iroha {
                 iroha::network::AsyncGrpcClient<google::protobuf::Empty>>
                 async_call,
             ConsistencyModel consistency_model,
+            std::unique_ptr<iroha::network::ClientFactory<proto::Yac>>
+                client_factory,
             const logger::LoggerManagerTreePtr &consensus_log_manager);
 
         std::shared_ptr<NetworkImpl> getConsensusNetwork() const;

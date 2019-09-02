@@ -16,6 +16,12 @@ add_library(block_loader
     impl/block_loader_impl.cpp
     )
 
+add_library(grpc_client_factory impl/grpc_client_factory.cpp)
+target_link_libraries(grpc_client_factory
+    common
+    grpc++
+    )
+
 target_link_libraries(block_loader
     loader_grpc
     rxcpp

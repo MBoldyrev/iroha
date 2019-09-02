@@ -8,9 +8,9 @@
 #include <grpcpp/server_context.h>
 #include <grpcpp/support/status.h>
 #include "endpoint.grpc.pb.h"
+#include "framework/test_grpc_channel_builder.hpp"
 #include "framework/test_logger.hpp"
 #include "main/server_runner.hpp"
-#include "network/impl/grpc_channel_builder.hpp"
 #include "qry_responses.pb.h"
 #include "queries.pb.h"
 
@@ -62,7 +62,7 @@ namespace {
                                  grpc::StatusCode code,
                                  const std::string &message) {
     auto client =
-        iroha::network::createClient<iroha::protocol::QueryService_v1>(
+        iroha::network::createTestClient<iroha::protocol::QueryService_v1>(
             std::string(kListenIP) + ":" + std::to_string(port));
 
     iroha::protocol::Query query;

@@ -30,9 +30,11 @@ namespace {
 BlockLoaderImpl::BlockLoaderImpl(
     std::shared_ptr<PeerQueryFactory> peer_query_factory,
     shared_model::proto::ProtoBlockFactory factory,
+    std::unique_ptr<ClientFactory<proto::Loader>> client_factory,
     logger::LoggerPtr log)
     : peer_query_factory_(std::move(peer_query_factory)),
       block_factory_(std::move(factory)),
+      client_factory_(std::move(client_factory)),
       log_(std::move(log)) {}
 
 rxcpp::observable<std::shared_ptr<Block>> BlockLoaderImpl::retrieveBlocks(
@@ -58,8 +60,8 @@ rxcpp::observable<std::shared_ptr<Block>> BlockLoaderImpl::retrieveBlocks(
         // request next block to our top
         request.set_height(height + 1);
 
-        auto reader =
-            this->getPeerStub(**peer).retrieveBlocks(&context, request);
+        auto reader = this->client_factory_->getClient(peer->value()->address())
+                          .retrieveBlocks(&context, request);
         while (subscriber.is_subscribed() and reader->Read(&block)) {
           block_factory_.createBlock(std::move(block))
               .match(
@@ -91,7 +93,8 @@ boost::optional<std::shared_ptr<Block>> BlockLoaderImpl::retrieveBlock(
   // request block with specified height
   request.set_height(block_height);
 
-  auto status = getPeerStub(**peer).retrieveBlock(&context, request, &block);
+  auto status = this->client_factory_->getClient(peer->value()->address())
+                    .retrieveBlock(&context, request, &block);
   if (not status.ok()) {
     log_->warn("{}", status.error_message());
     return boost::none;
@@ -128,17 +131,4 @@ BlockLoaderImpl::findPeer(const shared_model::crypto::PublicKey &pubkey) {
     return boost::none;
   }
   return *it;
-}
-
-proto::Loader::StubInterface &BlockLoaderImpl::getPeerStub(
-    const shared_model::interface::Peer &peer) {
-  auto it = peer_connections_.find(peer.address());
-  if (it == peer_connections_.end()) {
-    it = peer_connections_
-             .insert(std::make_pair(
-                 peer.address(),
-                 network::createClient<proto::Loader>(peer.address())))
-             .first;
-  }
-  return *it->second;
 }

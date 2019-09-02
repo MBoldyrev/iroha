@@ -26,13 +26,13 @@
 #include "framework/integration_framework/fake_peer/network/yac_network_notifier.hpp"
 #include "framework/integration_framework/fake_peer/proposal_storage.hpp"
 #include "framework/result_fixture.hpp"
+#include "framework/test_grpc_channel_builder.hpp"
 #include "interfaces/common_objects/common_objects_factory.hpp"
 #include "logger/logger.hpp"
 #include "logger/logger_manager.hpp"
 #include "main/server_runner.hpp"
 #include "multi_sig_transactions/transport/mst_transport_grpc.hpp"
 #include "network/impl/async_grpc_client.hpp"
-#include "network/impl/grpc_channel_builder.hpp"
 #include "ordering/impl/on_demand_os_client_grpc.hpp"
 #include "ordering/impl/on_demand_os_server_grpc.hpp"
 
@@ -108,7 +108,7 @@ namespace integration_framework {
           yac_transport_(std::make_shared<YacTransport>(
               async_call_,
               [](const shared_model::interface::Peer &peer) {
-                return iroha::network::createClient<
+                return iroha::network::createTestClient<
                     iroha::consensus::yac::proto::Yac>(peer.address());
               },
               consensus_log_manager_->getChild("Transport")->getLogger())),

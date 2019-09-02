@@ -7,6 +7,7 @@ add_library(query_client
     impl/query_client.cpp
     )
 target_link_libraries(query_client
+    grpc_channel_builder
     torii_service
     endpoint
     )

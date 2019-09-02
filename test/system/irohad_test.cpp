@@ -192,6 +192,18 @@ class IrohadTest : public AcceptanceFixture {
         config_copy_, path_genesis_.string(), path_keypair_node_.string(), {});
   }
 
+  static iroha::network::GrpcClientParams getChannelParams() {
+    static const GrpcClientParams params = [] {
+      GrpcClientParams params = getDefaultTestChannelParams();
+      params.retry_policy.max_attempts = 3u;
+      params.retry_policy.initial_backoff = 1s;
+      params.retry_policy.max_backoff = 1s;
+      params.retry_policy.backoff_multiplier = 1f;
+      return params;
+    }();
+    return params;
+  }
+
   torii::CommandSyncClient createToriiClient(
       bool enable_tls = false,
       const boost::optional<uint16_t> override_port = {}) {
@@ -201,10 +213,10 @@ class IrohadTest : public AcceptanceFixture {
     if (enable_tls) {
       stub = iroha::network::createSecureClient<
           iroha::protocol::CommandService_v1>(
-          kAddress + ":" + std::to_string(port), root_ca_);
+          kAddress + ":" + std::to_string(port), root_ca_, getChannelParams());
     } else {
       stub = iroha::network::createClient<iroha::protocol::CommandService_v1>(
-          kAddress + ":" + std::to_string(port));
+          kAddress + ":" + std::to_string(port), getChannelParams());
     }
 
     return torii::CommandSyncClient(

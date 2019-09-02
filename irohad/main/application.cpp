@@ -77,29 +77,33 @@ using namespace std::chrono_literals;
 /// Consensus consistency model type.
 static constexpr iroha::consensus::yac::ConsistencyModel
     kConsensusConsistencyModel = iroha::consensus::yac::ConsistencyModel::kBft;
+static constexpr size_t kClientCacheSize = 64;
 
 /**
  * Configuring iroha daemon
  */
-Irohad::Irohad(const boost::optional<std::string> &block_store_dir,
-               std::unique_ptr<ametsuchi::PostgresOptions> pg_opt,
-               const std::string &listen_ip,
-               size_t torii_port,
-               size_t internal_port,
-               size_t max_proposal_size,
-               std::chrono::milliseconds proposal_delay,
-               std::chrono::milliseconds vote_delay,
-               std::chrono::minutes mst_expiration_time,
-               const shared_model::crypto::Keypair &keypair,
-               std::chrono::milliseconds max_rounds_delay,
-               size_t stale_stream_max_rounds,
-               boost::optional<shared_model::interface::types::PeerList>
-                   opt_alternative_peers,
-               logger::LoggerManagerTreePtr logger_manager,
-               const boost::optional<GossipPropagationStrategyParams>
-                   &opt_mst_gossip_params,
-               const boost::optional<iroha::torii::TlsParams> &torii_tls_params)
-    : block_store_dir_(block_store_dir),
+Irohad::Irohad(
+    const boost::optional<std::string> &block_store_dir,
+    std::unique_ptr<ametsuchi::PostgresOptions> pg_opt,
+    const std::string &listen_ip,
+    size_t torii_port,
+    size_t internal_port,
+    size_t max_proposal_size,
+    std::chrono::milliseconds proposal_delay,
+    std::chrono::milliseconds vote_delay,
+    std::chrono::minutes mst_expiration_time,
+    const shared_model::crypto::Keypair &keypair,
+    std::chrono::milliseconds max_rounds_delay,
+    size_t stale_stream_max_rounds,
+    boost::optional<shared_model::interface::types::PeerList>
+        opt_alternative_peers,
+    logger::LoggerManagerTreePtr logger_manager,
+    std::shared_ptr<const iroha::network::GrpcClientParams> grpc_client_params,
+    const boost::optional<GossipPropagationStrategyParams>
+        &opt_mst_gossip_params,
+    const boost::optional<iroha::torii::TlsParams> &torii_tls_params)
+    : grpc_client_params_(std::move(grpc_client_params)),
+      block_store_dir_(block_store_dir),
       listen_ip_(listen_ip),
       torii_port_(torii_port),
       torii_tls_params_(torii_tls_params),
@@ -146,6 +150,13 @@ Irohad::Irohad(const boost::optional<std::string> &block_store_dir,
 Irohad::~Irohad() {
   consensus_gate_objects_lifetime.unsubscribe();
   consensus_gate_events_subscription.unsubscribe();
+}
+
+template <typename Service>
+std::unique_ptr<iroha::network::ClientFactory<Service>>
+Irohad::makeClientFactory() const {
+  return std::make_unique<iroha::network::ClientFactoryLru<Service>>(
+      *grpc_client_params_, kClientCacheSize);
 }
 
 /**
@@ -513,20 +524,21 @@ Irohad::RunResult Irohad::initOrderingGate() {
       std::make_shared<ordering::KickOutProposalCreationStrategy>(
           getSupermajorityChecker(kConsensusConsistencyModel));
 
-  ordering_gate =
-      ordering_init.initOrderingGate(max_proposal_size_,
-                                     proposal_delay_,
-                                     std::move(hashes),
-                                     transaction_factory,
-                                     batch_parser,
-                                     transaction_batch_factory_,
-                                     async_call_,
-                                     std::move(factory),
-                                     proposal_factory,
-                                     persistent_cache,
-                                     proposal_strategy,
-                                     delay,
-                                     log_manager_->getChild("Ordering"));
+  ordering_gate = ordering_init.initOrderingGate(
+      max_proposal_size_,
+      proposal_delay_,
+      std::move(hashes),
+      transaction_factory,
+      batch_parser,
+      transaction_batch_factory_,
+      async_call_,
+      std::move(factory),
+      proposal_factory,
+      persistent_cache,
+      proposal_strategy,
+      delay,
+      makeClientFactory<ordering::proto::OnDemandOrdering>(),
+      log_manager_->getChild("Ordering"));
   log_->info("[Init] => init ordering gate - [{}]",
              logger::logBool(ordering_gate));
   return {};
@@ -584,6 +596,7 @@ Irohad::RunResult Irohad::initBlockLoader() {
                                   storage,
                                   consensus_result_cache_,
                                   block_validators_config_,
+                                  makeClientFactory<network::proto::Loader>(),
                                   log_manager_->getChild("BlockLoader"));
 
   log_->info("[Init] => block loader");
@@ -618,6 +631,7 @@ Irohad::RunResult Irohad::initConsensusGate() {
       vote_delay_,
       async_call_,
       kConsensusConsistencyModel,
+      makeClientFactory<consensus::proto::Yac>(),
       log_manager_->getChild("Consensus"));
   consensus_gate->onOutcome().subscribe(
       consensus_gate_events_subscription,
@@ -709,7 +723,8 @@ Irohad::RunResult Irohad::initMstProcessor() {
         mst_completer,
         keypair.publicKey(),
         std::move(mst_state_logger),
-        mst_logger_manager->getChild("Transport")->getLogger());
+        mst_logger_manager->getChild("Transport")->getLogger(),
+        makeClientFactory<ordering::transport::MstTransportGrpc>());
     mst_propagation = std::make_shared<GossipPropagationStrategy>(
         storage, rxcpp::observe_on_new_thread(), *opt_mst_gossip_params_);
   } else {

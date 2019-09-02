@@ -14,6 +14,7 @@ endif()
 
 addtest(grpc_retry_test grpc_retry_test.cpp)
 target_link_libraries(grpc_retry_test
+    grpc_channel_builder
     server_runner
     endpoint
     test_logger

@@ -60,8 +60,17 @@ namespace iroha {
         if (found == handler_map_.end()) {
           return boost::none;
         } else {
-          return handler_map_.at(key);
+          return found->second;
         }
+      }
+
+      ValueType getOrCreateImpl(const KeyType &key, ValueCreator creator) {
+        auto it = handler_map_.find(key);
+        if (it == handler_map_.end()) {
+          it = handler_map_.emplace(key, creator()).second;
+          handler_map_index_.push_back(key);
+        }
+        return it->second;
       }
 
      private:

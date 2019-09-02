@@ -39,10 +39,13 @@ namespace iroha {
   }    // namespace consensus
   namespace network {
     class BlockLoader;
+    template <typename Service>
+    class ClientFactory;
     class ConsensusGate;
     class PeerCommunicationService;
     class MstTransport;
     class OrderingGate;
+    struct GrpcClientParams;
   }  // namespace network
   namespace simulator {
     class Simulator;
@@ -100,6 +103,7 @@ class Irohad {
    * consecutive status emissions
    * @param opt_alternative_peers - optional alternative initial peers list
    * @param logger_manager - the logger manager to use
+   * @param grpc_client_params - parameters for all grpc clients
    * @param opt_mst_gossip_params - parameters for Gossip MST propagation
    * (optional). If not provided, disables mst processing support
    * TODO mboldyrev 03.11.2018 IR-1844 Refactor the constructor.
@@ -121,6 +125,8 @@ class Irohad {
          boost::optional<shared_model::interface::types::PeerList>
              opt_alternative_peers,
          logger::LoggerManagerTreePtr logger_manager,
+         std::shared_ptr<const iroha::network::GrpcClientParams>
+             grpc_client_params,
          const boost::optional<iroha::GossipPropagationStrategyParams>
              &opt_mst_gossip_params = boost::none,
          const boost::optional<iroha::torii::TlsParams> &torii_tls_params =
@@ -232,6 +238,10 @@ class Irohad {
   std::shared_ptr<shared_model::interface::QueryResponseFactory>
       query_response_factory_;
 
+  template <typename Service>
+  std::unique_ptr<iroha::network::ClientFactory<Service>> makeClientFactory()
+      const;
+
   // ------------------------| internal dependencies |-------------------------
  public:
   shared_model::crypto::Keypair keypair;
@@ -244,6 +254,8 @@ class Irohad {
   iroha::network::BlockLoaderInit loader_init;
 
   std::shared_ptr<iroha::ametsuchi::PoolWrapper> pool_wrapper_;
+
+  std::shared_ptr<const iroha::network::GrpcClientParams> grpc_client_params_;
 
   // WSV restorer
   std::shared_ptr<iroha::ametsuchi::WsvRestorer> wsv_restorer_;

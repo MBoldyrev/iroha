@@ -23,6 +23,7 @@ namespace iroha {
       BlockLoaderImpl(
           std::shared_ptr<ametsuchi::PeerQueryFactory> peer_query_factory,
           shared_model::proto::ProtoBlockFactory factory,
+          std::unique_ptr<ClientFactory<proto::Loader>> client_factory,
           logger::LoggerPtr log);
 
       rxcpp::observable<std::shared_ptr<shared_model::interface::Block>>
@@ -44,17 +45,8 @@ namespace iroha {
        */
       boost::optional<std::shared_ptr<shared_model::interface::Peer>> findPeer(
           const shared_model::crypto::PublicKey &pubkey);
-      /**
-       * Get or create a RPC stub for connecting to peer
-       * @param peer for connecting
-       * @return RPC stub
-       */
-      proto::Loader::StubInterface &getPeerStub(
-          const shared_model::interface::Peer &peer);
 
-      std::unordered_map<shared_model::interface::types::AddressType,
-                         std::unique_ptr<proto::Loader::StubInterface>>
-          peer_connections_;
+      std::unique_ptr<ClientFactory<proto::Loader>> client_factory_;
       std::shared_ptr<ametsuchi::PeerQueryFactory> peer_query_factory_;
       shared_model::proto::ProtoBlockFactory block_factory_;
 
