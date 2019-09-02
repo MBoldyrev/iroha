@@ -111,3 +111,5 @@ target_link_libraries(ametsuchi
 target_compile_definitions(ametsuchi
     PRIVATE SOCI_USE_BOOST HAVE_BOOST
     )
+
+add_subdirectory(newstorage)
