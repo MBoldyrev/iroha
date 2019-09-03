@@ -8,7 +8,7 @@ add_library(new_storage
     wsv_query_impl.cpp
     keyvalue_db_backend.cpp)
 
-target_link_libraries(new_storage sqlite3)
+target_link_libraries(new_storage sqlite3 leveldb)
 
 add_executable(nssb nssandbox.cpp)
 add_dependencies(nssb new_storage)
