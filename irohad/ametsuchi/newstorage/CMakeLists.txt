@@ -4,11 +4,22 @@
 #
 
 add_library(new_storage
+    storage_impl.cpp
     rel_db_backend.cpp
     wsv_query_impl.cpp
-    keyvalue_db_backend.cpp)
+    keyvalue_db_backend.cpp
+    block_query_impl.cpp
+    block_storage_impl.cpp
+    block_storage_factory.cpp)
 
-target_link_libraries(new_storage sqlite3 leveldb)
+target_link_libraries(
+    new_storage
+    shared_model_proto_backend
+    logger
+    logger_manager
+    rxcpp
+    libs_files
+    sqlite3 leveldb)
 
 add_executable(nssb nssandbox.cpp)
 add_dependencies(nssb new_storage)

@@ -7,6 +7,7 @@
 #define IROHA_SPECIFIC_QUERY_EXECUTOR_IMPL_HPP
 
 #include "ametsuchi/specific_query_executor.hpp"
+#include "ametsuchi/newstorage/rel_db_backend.hpp"
 #include "interfaces/iroha_internal/query_response_factory.hpp"
 #include "logger/logger_fwd.hpp"
 
@@ -33,10 +34,11 @@ namespace iroha {
 
   class PendingTransactionStorage;
 
-  namespace newstorage {
-
+  namespace ametsuchi {
     class BlockStorage;
+  }
 
+  namespace newstorage {
     using QueryErrorType =
         shared_model::interface::QueryResponseFactory::ErrorQueryType;
 
@@ -46,9 +48,9 @@ namespace iroha {
 
    class SpecificQueryExecutorImpl : public ametsuchi::SpecificQueryExecutor {
      public:
-      PostgresSpecificQueryExecutor(
-          soci::session &sql,
-          BlockStorage &block_store,
+        SpecificQueryExecutorImpl(
+          RelDbBackend& db,
+          ametsuchi::BlockStorage &block_store,
           std::shared_ptr<PendingTransactionStorage> pending_txs_storage,
           std::shared_ptr<shared_model::interface::QueryResponseFactory>
               response_factory,
@@ -250,7 +252,7 @@ namespace iroha {
             error_message = "";
       };
 
-      //soci::session &sql_;
+      RelDbBackend &db_;
       BlockStorage &block_store_;
       std::shared_ptr<PendingTransactionStorage> pending_txs_storage_;
       std::shared_ptr<shared_model::interface::QueryResponseFactory>

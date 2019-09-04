@@ -67,6 +67,9 @@
 #include "validators/protobuf/proto_query_validator.hpp"
 #include "validators/protobuf/proto_transaction_validator.hpp"
 
+#include "ametsuchi/newstorage/storage_impl.hpp"
+#include "ametsuchi/newstorage/block_storage_factory.hpp"
+
 using namespace iroha;
 using namespace iroha::ametsuchi;
 using namespace iroha::simulator;
@@ -230,6 +233,11 @@ Irohad::RunResult Irohad::initStorage(
     std::unique_ptr<ametsuchi::PostgresOptions> pg_opt) {
   query_response_factory_ =
       std::make_shared<shared_model::proto::ProtoQueryResponseFactory>();
+
+  if (!pg_opt) {
+    return initStorage2();
+  }
+
   auto perm_converter =
       std::make_shared<shared_model::proto::ProtoPermissionToString>();
 
@@ -310,6 +318,52 @@ Irohad::RunResult Irohad::initStorage(
              | [&](auto &&v) -> RunResult {
     storage = std::move(v);
     log_->info("[Init] => storage");
+    return {};
+  };
+}
+
+Irohad::RunResult Irohad::initStorage2() {
+  if (!block_store_dir_) {
+    return expected::makeError("Block store dir not specified. Cannot init storage");
+  }
+
+  auto perm_converter =
+      std::make_shared<shared_model::proto::ProtoPermissionToString>();
+
+  // TODO: luckychess IR-308 05.08.2019 stateless validation for genesis block
+  auto block_transport_factory =
+      std::make_shared<shared_model::proto::ProtoBlockFactory>(
+          std::make_unique<shared_model::validation::AlwaysValidValidator<
+              shared_model::interface::Block>>(block_validators_config_),
+          std::make_unique<shared_model::validation::ProtoBlockValidator>());
+
+  boost::optional<std::string> string_res = boost::none;
+
+  std::unique_ptr<BlockStorageFactory> temporary_block_storage_factory =
+      std::make_unique<newstorage::BlockStorageFactory>(
+          block_transport_factory,
+          *block_store_dir_ + "/tmp",
+          log_manager_->getChild("TemporaryBlockStorage")->getLogger());
+
+  std::unique_ptr<BlockStorageFactory> persistent_block_storage_factory =
+      std::make_unique<newstorage::BlockStorageFactory>(
+          block_transport_factory,
+          *block_store_dir_ + "/block",
+          log_manager_->getChild("PersistentBlockStorage")->getLogger());
+
+  std::unique_ptr<BlockStorage> persistent_block_storage =
+      persistent_block_storage_factory->create();
+
+  return newstorage::StorageImpl::create(
+                             perm_converter,
+                             pending_txs_storage_,
+                             query_response_factory_,
+                             std::move(temporary_block_storage_factory),
+                             std::move(persistent_block_storage),
+                             log_manager_->getChild("Storage"))
+         | [&](auto &&v) -> RunResult {
+    storage = std::move(v);
+    log_->info("[Init] => storage 2");
     return {};
   };
 }

@@ -23,10 +23,19 @@ namespace iroha {
 
             void getPeers(std::function<void(const std::string&, const std::string&)> fn);
 
+            void insertPeer(const std::string& pub_key, const std::string& address);
+
+            void dropPeers();
+
+            void dropAll();
+
+            int getTxStatusByHash(const std::string& hash);
+
         private:
           void createSchema();
 
             std::shared_ptr<sqlite::database> db_;
+            std::string path_;
             logger::LoggerPtr log_;
         };
     }  // namespace newstorage

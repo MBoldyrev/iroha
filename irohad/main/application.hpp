@@ -163,6 +163,10 @@ class Irohad {
 
  protected:
   // -----------------------| component initialization |------------------------
+
+  // TODO new stuff due to storage redesign, called by initStorage iff pg_opt==0
+  RunResult initStorage2();
+
   virtual RunResult initStorage(
       std::unique_ptr<iroha::ametsuchi::PostgresOptions> pg_opt);
 

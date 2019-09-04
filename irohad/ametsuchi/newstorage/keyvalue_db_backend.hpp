@@ -33,15 +33,19 @@ namespace iroha {
         // ~etc
       };
 
-      KeyValueDbBackend(Options options, logger::LoggerPtr log);
+      KeyValueDbBackend(Options options, logger::LoggerPtr log, bool createHere=true);
+
+      void create();
 
       void put(const Slice& key, const Slice& value);
       void put(const Slice& key_scope, const Slice& key, const Slice& value);
       void put(uint64_t key, const Slice& value);
 
-      std::string get(const Slice& key);
-      std::string get(const Slice& key_scope, const Slice& key);
-      std::string get(uint64_t key);
+      std::string get(const Slice& key) const;
+      std::string get(const Slice& key_scope, const Slice& key) const;
+      std::string get(uint64_t key) const;
+
+      bool get_last_num_key(uint64_t& key);
 
       void iterate_from(const Slice& key,
           const std::function<bool(const Slice& key, const Slice& value)>& fn);

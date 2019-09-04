@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "specific_query_executor_impl.hpp"
+#include "ametsuchi/newstorage/specific_query_executor_impl.hpp"
 
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
@@ -12,8 +12,7 @@
 #include <boost/range/adaptor/transformed.hpp>
 #include <boost/range/algorithm/transform.hpp>
 #include <boost/range/irange.hpp>
-#include "newstorage/block_storage.hpp"
-#include "newstorage/impl/soci_utils.hpp"
+#include "ametsuchi/block_storage.hpp"
 #include "backend/plain/account_detail_record_id.hpp"
 #include "backend/plain/peer.hpp"
 #include "common/bind.hpp"
@@ -168,22 +167,23 @@ namespace {
 namespace iroha {
   namespace newstorage {
 
-    PostgresSpecificQueryExecutor::PostgresSpecificQueryExecutor(
-        soci::session &sql,
-        BlockStorage &block_store,
+    SpecificQueryExecutorImpl::SpecificQueryExecutorImpl(
+        RelDbBackend &db,
+        ametsuchi::BlockStorage &block_store,
         std::shared_ptr<PendingTransactionStorage> pending_txs_storage,
         std::shared_ptr<shared_model::interface::QueryResponseFactory>
             response_factory,
         std::shared_ptr<shared_model::interface::PermissionToString>
             perm_converter,
         logger::LoggerPtr log)
-        : sql_(sql),
+        : db_(db),
           block_store_(block_store),
           pending_txs_storage_(std::move(pending_txs_storage)),
           query_response_factory_{std::move(response_factory)},
           perm_converter_(std::move(perm_converter)),
           log_(std::move(log)) {}
 
+          /*
     QueryExecutorResult PostgresSpecificQueryExecutor::execute(
         const shared_model::interface::Query &qry) {
       return boost::apply_visitor(
@@ -259,8 +259,8 @@ namespace iroha {
             QueryErrorType::kStatefulFailed, e.what(), 1, query_hash);
       }
     }
-
-    bool PostgresSpecificQueryExecutor::hasAccountRolePermission(
+*/
+    bool SpecificQueryExecutorImpl::hasAccountRolePermission(
         shared_model::interface::permissions::Role permission,
         const std::string &account_id) const {
       using T = boost::tuple<int>;

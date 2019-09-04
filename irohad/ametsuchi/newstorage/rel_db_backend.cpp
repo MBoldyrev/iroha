@@ -5,6 +5,7 @@
 
 #include "sqlite_modern_cpp.h"
 #include "ametsuchi/newstorage/rel_db_backend.hpp"
+#include <boost/filesystem/operations.hpp>
 //#include "logger/logger.hpp"
 
 namespace iroha {
@@ -12,18 +13,44 @@ namespace iroha {
 
      RelDbBackend::RelDbBackend(const std::string& db_file, logger::LoggerPtr log) :
         db_(std::make_shared<sqlite::database>(db_file)),
+        path_(db_file),
         log_(std::move(log))
      {
         createSchema();
      }
 
      void RelDbBackend::getSignatories(const std::string &account_id, std::function<void(const std::string&)> fn) {
-        //"SELECT public_key FROM account_has_signatory WHERE "
-         //                       "account_id = :account_id",
+       *db_ << "select public_key from account_has_signatory where account_id = ?"
+          << account_id
+          >> fn;
      }
 
      void RelDbBackend::getPeers(std::function<void(const std::string&, const std::string&)> fn) {
+       *db_ << "select * from peer" >> fn;
+     }
 
+     void RelDbBackend::insertPeer(const std::string &pub_key, const std::string &address) {
+       *db_ << "insert into peer values (?,?)" << pub_key << address;
+     }
+
+     void RelDbBackend::dropPeers() {
+       *db_ << "delete from peer";
+     }
+
+     void RelDbBackend::dropAll() {
+       // TODO mutex
+
+       db_.reset();
+       boost::filesystem::remove_all(path_);
+       db_ = std::make_shared<sqlite::database>(path_);
+       createSchema();
+     }
+
+     int RelDbBackend::getTxStatusByHash(const std::string &hash) {
+       int status = -1;
+       *db_ << "select status from tx_status_by_hash where hash = ?" << hash
+            >> [&status](int s) { status = s; };
+       return status;
      }
 
      void RelDbBackend::createSchema() {
@@ -79,7 +106,7 @@ namespace iroha {
             height INTEGER,\
             idx INTEGER)",
         "CREATE TABLE IF NOT EXISTS tx_status_by_hash (\
-            hash BLOB NOT NULL,\
+            hash TEXT NOT NULL,\
             status INTEGER)",
         "CREATE INDEX IF NOT EXISTS tx_status_by_hash_hash_index\
           ON tx_status_by_hash\

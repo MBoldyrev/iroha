@@ -44,10 +44,16 @@ namespace iroha {
 
     } // namespace
 
-    KeyValueDbBackend::KeyValueDbBackend(KeyValueDbBackend::Options options, logger::LoggerPtr log) :
+    KeyValueDbBackend::KeyValueDbBackend(KeyValueDbBackend::Options options, logger::LoggerPtr log, bool createHere) :
       options_(std::move(options)),
       log_(std::move(log))
     {
+      if (createHere) create();
+    }
+
+    void KeyValueDbBackend::create() {
+      if (db_) return;
+
       leveldb::DB* db_ptr;
       leveldb::Options o;
       o.create_if_missing = true;
@@ -77,20 +83,20 @@ namespace iroha {
       put(slice(&k, 8), value);
     }
 
-    std::string KeyValueDbBackend::get(const Slice& key) {
+    std::string KeyValueDbBackend::get(const Slice& key) const {
       std::string value;
       leveldb::Status status = db_->Get(leveldb::ReadOptions{}, key, &value);
       if (!status.IsNotFound()) throwIfLeveldbError(options_.path, status);
       return value;
     }
 
-    std::string KeyValueDbBackend::get(const Slice& key_scope, const Slice& key) {
+    std::string KeyValueDbBackend::get(const Slice& key_scope, const Slice& key) const {
       size_t buf_size = key_scope.size() + 1 + key.size();
       char* buffer = (char*)alloca(buf_size);
       return get(combine(buffer, buf_size, key_scope, options_.delimiter, key));
     }
 
-    std::string KeyValueDbBackend::get(uint64_t key) {
+    std::string KeyValueDbBackend::get(uint64_t key) const {
       uint64_t k = boost::endian::native_to_big(key);
       return get(slice(&k, 8));
     }
