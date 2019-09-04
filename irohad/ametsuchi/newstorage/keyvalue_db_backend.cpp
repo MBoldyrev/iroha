@@ -160,6 +160,18 @@ namespace iroha {
       );
     }
 
+    bool KeyValueDbBackend::get_last_num_key(uint64_t &key) {
+      bool success = false;
+      std::unique_ptr<leveldb::Iterator> it(db_->NewIterator(leveldb::ReadOptions{}));
+      it->SeekToLast();
+      if (it->Valid() && it->key().size() == 8) {
+        memcpy(&key, it->key().data(), 8);
+        boost::endian::big_to_native_inplace(key);
+        success = true;
+      }
+      return success;
+    }
+
   }  // namespace newstorage
 }  // namespace iroha
 
