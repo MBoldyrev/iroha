@@ -41,12 +41,37 @@ namespace iroha::newstorage {
 
     try {
       db_.put(h, slice(b));
+      ++height_;
       return true;
     } catch (const std::exception &e) {
       log_->warn("Failed to insert block {}, reason {}", h, e.what());
       return false;
     }
   }
+
+  boost::optional<std::shared_ptr<const shared_model::interface::Block>>
+  BlockStorageImpl::deserializeBlock(uint64_t height, const void* blob, size_t size) const {
+      iroha::protocol::Block_v1 b1;
+      b1.ParseFromArray(blob, size); // TODO return values!
+      iroha::protocol::Block block;
+      *block.mutable_block_v1() = b1;
+
+      return block_factory_->createBlock(std::move(block))
+          .match(
+              [&](auto &&v) {
+                return boost::make_optional(
+                    std::shared_ptr<const shared_model::interface::Block>(
+                        std::move(v.value)));
+              },
+              [&](const auto &e)
+                  -> boost::optional<std::shared_ptr<
+                  const shared_model::interface::Block>> {
+                log_->error("Could not build block at height {}: {}",
+                            height,
+                            e.error);
+                return boost::none;
+              });
+    }
 
   boost::optional<std::shared_ptr<const shared_model::interface::Block>>
   BlockStorageImpl::fetch(
@@ -60,30 +85,10 @@ namespace iroha::newstorage {
           boost::none);
     }
 
-    iroha::protocol::Block_v1 b1;
-    b1.ParseFromString(blob);
-    iroha::protocol::Block block;
-    *block.mutable_block_v1() = b1;
-
-    return block_factory_->createBlock(std::move(block))
-        .match(
-            [&](auto &&v) {
-              return boost::make_optional(
-                  std::shared_ptr<const shared_model::interface::Block>(
-                      std::move(v.value)));
-            },
-            [&](const auto &e)
-                -> boost::optional<std::shared_ptr<
-                const shared_model::interface::Block>> {
-              log_->error("Could not build block at height {}: {}",
-                          height,
-                          e.error);
-              return boost::none;
-            });
+    return deserializeBlock(height, blob.data(), blob.size());
   }
 
   size_t BlockStorageImpl::size() const {
-    // TODO
     return height_;
   }
 
@@ -93,7 +98,15 @@ namespace iroha::newstorage {
 
   void BlockStorageImpl::forEach(
       iroha::ametsuchi::BlockStorage::FunctionType function) const {
-    // TODO !!! iterate
+      db_.iterate_from(
+          0,
+          [&function, this](uint64_t h, const Slice& blob) -> bool {
+            auto block = deserializeBlock(h, blob.data(), blob.size());
+            if (!block) return false;
+            function(*block);
+            return true;
+          }
+      );
   }
 
 } //namespace

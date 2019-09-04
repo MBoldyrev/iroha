@@ -37,6 +37,9 @@ namespace iroha {
       void forEach(FunctionType function) const override;
 
      private:
+     boost::optional<std::shared_ptr<const shared_model::interface::Block>>
+     deserializeBlock(uint64_t height, const void* blob, size_t size) const;
+
       std::shared_ptr<BlockTransportFactory> block_factory_;
       logger::LoggerPtr log_;
       KeyValueDbBackend db_;

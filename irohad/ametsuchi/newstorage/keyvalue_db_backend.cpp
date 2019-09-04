@@ -103,7 +103,7 @@ namespace iroha {
 
     void KeyValueDbBackend::iterate_from(
         const Slice& key,
-        const std::function<bool(const Slice& key, const Slice& value)>& fn)
+        const std::function<bool(const Slice& key, const Slice& value)>& fn) const
     {
       std::unique_ptr<leveldb::Iterator> it(db_->NewIterator(leveldb::ReadOptions{}));
       if (key.empty()) {
@@ -128,7 +128,7 @@ namespace iroha {
 
     void KeyValueDbBackend::iterate_from(
         uint64_t key,
-        const std::function<bool(uint64_t key, const Slice& value)>& fn)
+        const std::function<bool(uint64_t key, const Slice& value)>& fn) const
     {
       uint64_t kn = boost::endian::native_to_big(key);
       iterate_from(
@@ -145,7 +145,7 @@ namespace iroha {
 
     void KeyValueDbBackend::iterate_scope(
         const Slice& key_scope,
-        const std::function<bool(const Slice& key_scope, const Slice& key, const Slice& value)>& fn)
+        const std::function<bool(const Slice& key_scope, const Slice& key, const Slice& value)>& fn) const
     {
       iterate_from(
         key_scope,
