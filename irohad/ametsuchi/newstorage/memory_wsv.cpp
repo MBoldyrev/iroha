@@ -36,6 +36,7 @@ namespace iroha {
       kDomainDoesntExist,
       kDomainAlreadyExists,
       kAssetAlreadyExists,
+      kAssetDoesntExist,
       kRoleAlreadyExists,
       kSignatoryAlreadyExists,
       kAccountAlreadyExists,
@@ -45,7 +46,8 @@ namespace iroha {
       kAmountOverflow,
       kPeerAlreadyExists,
       kNoPermission,
-      kNoCreatorAccount
+      kNoCreatorAccount,
+      kDataIntegrityError
     };
 
     template<typename Object> class IdTable {
@@ -108,6 +110,10 @@ namespace iroha {
           obj = &it->second;
         }
         return obj;
+      }
+
+      void getRoles(std::vector<RoleID>& out) const {
+        out = all_roles_;
       }
 
      private:
@@ -202,7 +208,7 @@ namespace iroha {
     struct Account {
       AccountID id;
       DomainID domain_id;
-      std::unordered_set<AssetID> assets;
+      std::unordered_map<AssetID, uint256_t> assets;
       std::unordered_set<RoleID> roles;
       std::unordered_set<PK> signatories;
       RolePermissionSet permissions; // recalc if role added
@@ -257,24 +263,23 @@ namespace iroha {
       AssetID id;
       DomainID domain_id;
       uint8_t precision = 0;
-      std::unordered_map<AccountID, uint256_t> balances;
 
       // appends to cache
-      void insertAccount(AccountID account, uint256_t amount=uint256_t(0)) {
-        balances.emplace(std::move(account), std::move(amount));
+      void insertAccount(Account& account, uint256_t amount=uint256_t(0)) {
+        account.assets.emplace(id, std::move(amount));
       }
 
       // returns nullptr if no record
-      uint256_t* getBalance(const AccountID& account) {
+      uint256_t* getBalance(Account& account) {
         uint256_t* result = nullptr;
-        auto it = balances.find(account);
-        if (it != balances.end()) {
+        auto it = account.assets.find(id);
+        if (it != account.assets.end()) {
           result = &it->second;
         }
         return result;
       }
 
-      ResultCode appendAmount(const AccountID& to, const uint256_t& amount) {
+      ResultCode appendAmount(Account& to, const uint256_t& amount) {
         uint256_t* pTo = getBalance(to);
         if (!pTo) {
           return ResultCode::kNoAccountAsset;
@@ -288,7 +293,7 @@ namespace iroha {
         return ResultCode::kOk;
       }
 
-      ResultCode transferAmount(const AccountID& from, const AccountID& to, const uint256_t& amount) {
+      ResultCode transferAmount(Account& from, Account& to, const uint256_t& amount) {
         uint256_t* pFrom = getBalance(from);
         if (!pFrom) {
           return ResultCode::kNoAccountAsset;
@@ -304,6 +309,12 @@ namespace iroha {
       }
     };
 
+    struct Peer {
+      NetworkAddress address;
+      PK pub_key;
+      // TODO certificate
+    };
+
     class Peers {
      public:
       //returns nullptr if no such a peer
@@ -314,6 +325,14 @@ namespace iroha {
           address = &it->second;
         }
         return address;
+      }
+
+      void get(std::vector<Peer>& peers) const {
+        peers.clear();
+        peers.reserve(table_.size());
+        for (const auto& kv : table_) {
+          peers.emplace_back(kv.second, kv.first);
+        }
       }
 
       ResultCode add(const PK& key, const NetworkAddress& address) {
@@ -396,10 +415,16 @@ namespace iroha {
         return ResultCode::kOk;
       }
 
+      struct AccountAsset {
+        AssetID asset_id;
+        uint8_t precision;
+        uint256_t balance;
+      };
+
       ResultCode getAccountAssets(
           const AccountID& creator_id,
           const AccountID& account_id,
-          std::vector<PK>& signatories
+          std::vector<AccountAsset>& assets
       ) {
         Account* creator = nullptr;
         Account* account = nullptr;
@@ -414,13 +439,84 @@ namespace iroha {
           return result;
         }
 
-        signatories.clear();
-        signatories.reserve(account->signatories.size());
-        for (const auto& s : account->signatories) {
-          signatories.push_back(s);
+        assets.clear();
+        assets.resize(account->assets.size());
+        size_t i = 0;
+        ResultCode rc = ResultCode::kOk;
+        for (const auto& kv : account->assets) {
+          AccountAsset& a = assets[i];
+          a.asset_id = kv.first;
+          a.balance = kv.second;
+          rc = getAssetPrecision(a.asset_id, a.precision);
+          if (rc != ResultCode::kOk) {
+            return rc;
+          }
+          ++i;
         }
 
-        return ResultCode::kOk;
+        return rc;
+      }
+
+      ResultCode getRoles(
+          const AccountID& creator_id,
+          std::vector<RoleID>& roles
+      ) {
+        Account* creator = nullptr;
+        ResultCode rc = loadAccount(creator_id, RolePermission::kGetRoles, creator);
+        if (rc == ResultCode::kOk) {
+          roles_.getRoles(roles);
+        }
+        return rc;
+      }
+
+      ResultCode getRolePermissions(
+          const AccountID& creator_id,
+          const RoleID& role_id,
+          RolePermissionSet& permissions
+      ) {
+        Account* creator = nullptr;
+        ResultCode rc = loadAccount(creator_id, RolePermission::kGetRoles, creator);
+        if (rc == ResultCode::kOk) {
+          const RolePermissionSet* p = roles_.getRolePermissions(role_id);
+          if (p) {
+            permissions = *p;
+          } else {
+            rc = ResultCode::kRoleDoesntExist;
+          }
+        }
+        return rc;
+      }
+
+      ResultCode getAssetInfo(
+          const AccountID& creator_id,
+          const AssetID& asset_id,
+          DomainID& domain_id,
+          uint8_t& precision
+      ) {
+        Account* creator = nullptr;
+        ResultCode rc = loadAccount(creator_id, RolePermission::kReadAssets, creator);
+        if (rc == ResultCode::kOk) {
+          const Asset* asset = assets_.get(asset_id);
+          if (asset) {
+            domain_id = asset->domain_id;
+            precision = asset->precision;
+          } else {
+            rc = ResultCode::kAssetDoesntExist;
+          }
+        }
+        return rc;
+      }
+
+      ResultCode getPeers(
+          const AccountID& creator_id,
+          std::vector<Peer>& peers
+      ) {
+        Account* creator = nullptr;
+        ResultCode rc = loadAccount(creator_id, RolePermission::kGetPeers, creator);
+        if (rc == ResultCode::kOk) {
+          peers_.get(peers);
+        }
+        return rc;
       }
 
       /*
@@ -435,13 +531,11 @@ namespace iroha {
       class GetAccountTransactions;
       class GetAccountAssetTransactions;
       class GetTransactions;
-      class GetAccountAssets;
+
       class GetAccountDetail;
-      class GetRoles;
-      class GetRolePermissions;
-      class GetAssetInfo;
+
       class GetPendingTransactions;
-      class GetPeers;
+
 */
      private:
       ResultCode loadAccounts(
@@ -476,6 +570,32 @@ namespace iroha {
                      creator->hasPermission(domainPerm));
         }
         return hasPerm ? ResultCode::kOk : ResultCode::kNoPermission;
+      }
+
+      ResultCode loadAccount(
+          const AccountID& creator_id,
+          RolePermission perm,
+          Account*& creator)
+      {
+        bool maybe_not_loaded=false;
+        creator = accounts_.get(creator_id, &maybe_not_loaded); // TODO load
+        if (!creator) {
+          return ResultCode::kNoCreatorAccount;
+        }
+        if (!creator->hasPermission(perm)) {
+          return ResultCode::kNoPermission;
+        }
+        return ResultCode::kOk;
+      }
+
+      ResultCode getAssetPrecision(const AssetID& id, uint8_t& precision) {
+        bool maybe_not_loaded=false;
+        Asset* asset = assets_.get(id, &maybe_not_loaded); // TODO load
+        if (!asset) {
+          return ResultCode::kAssetDoesntExist;
+        }
+        precision = asset->precision;
+        return ResultCode::kOk;
       }
 
       Roles roles_;
