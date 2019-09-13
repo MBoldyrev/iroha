@@ -11,11 +11,17 @@ namespace shared_model {
   namespace interface {
 
     std::string AddPeer::toString() const {
-      return detail::PrettyStringBuilder()
+      auto builder = detail::PrettyStringBuilder()
           .init("AddPeer")
           .append("peer_address", peer().address())
-          .append("pubkey", peer().pubkey().toString())
-          .finalize();
+          .append("pubkey", peer().pubkey().toString());
+
+      auto tls_certificate = peer().tlsCertificate();
+      if (tls_certificate) {
+        builder = builder.append("tls_certificate", *tls_certificate);
+      }
+
+      return builder.finalize();
     }
 
     bool AddPeer::operator==(const ModelType &rhs) const {

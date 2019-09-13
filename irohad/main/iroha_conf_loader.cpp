@@ -287,7 +287,7 @@ inline void JsonDeserializerImpl::getVal<logger::LogLevel>(
     BOOST_THROW_EXCEPTION(std::runtime_error(
         "Wrong log level at " + path + ": must be one of '"
         + boost::algorithm::join(
-              config_members::LogLevels | boost::adaptors::map_keys, "', '")
+            config_members::LogLevels | boost::adaptors::map_keys, "', '")
         + "'."));
   }
   dest = it->second;
@@ -336,11 +336,14 @@ JsonDeserializerImpl::getVal<std::unique_ptr<shared_model::interface::Peer>>(
   getValByKey(path, address, obj, config_members::Address);
   std::string public_key_str;
   getValByKey(path, public_key_str, obj, config_members::PublicKey);
+  boost::optional<std::string> tls_certificate_str =
+      getOptValByKey<std::string>(path, obj, config_members::TlsCertificate);
   common_objects_factory_
       ->createPeer(
           address,
           shared_model::crypto::PublicKey(
-              shared_model::crypto::Blob::fromHexString(public_key_str)))
+              shared_model::crypto::Blob::fromHexString(public_key_str)),
+          tls_certificate_str)
       .match([&dest](auto &&v) { dest = std::move(v.value); },
              [&path](const auto &error) {
                throw std::runtime_error("Failed to create a peer at '" + path

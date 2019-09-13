@@ -449,6 +449,13 @@ namespace iroha {
         arguments_string_builder_.append(argument_name, value);
       }
 
+      void addArgumentToString(const std::string &argument_name,
+                               const boost::optional<std::string> &value) {
+        if (value) {
+          addArgumentToString(argument_name, *value);
+        }
+      }
+
       template <typename T>
       std::enable_if_t<std::is_arithmetic<T>::value> addArgumentToString(
           const std::string &argument_name, const T &value) {
@@ -550,10 +557,10 @@ namespace iroha {
           END AS result;)",
           {(boost::format(R"(has_perm AS (%s),)")
             % checkAccountDomainRoleOrGlobalRolePermission(
-                  Role::kAddAssetQty,
-                  Role::kAddDomainAssetQty,
-                  ":creator",
-                  ":asset_id"))
+                Role::kAddAssetQty,
+                Role::kAddDomainAssetQty,
+                ":creator",
+                ":asset_id"))
                .str(),
            "AND (SELECT * from has_perm)",
            "WHEN NOT (SELECT * from has_perm) THEN 2"});
@@ -563,9 +570,9 @@ namespace iroha {
           R"(
           WITH %s
             inserted AS (
-                INSERT INTO peer(public_key, address)
+                INSERT INTO peer(public_key, address, tls_certificate)
                 (
-                    SELECT :pubkey, :address
+                    SELECT :pubkey, :address, :tls_certificate
                     %s
                 ) RETURNING (1)
             )
@@ -727,7 +734,7 @@ namespace iroha {
               )")
             % checkAccountRolePermission(Role::kSetDetail, ":creator")
             % checkAccountGrantablePermission(
-                  Grantable::kSetMyAccountDetail, ":creator", ":target")
+                Grantable::kSetMyAccountDetail, ":creator", ":target")
             % hasQueryPermission(":creator",
                                  ":target",
                                  Role::kGetMyAccDetail,
@@ -1128,7 +1135,7 @@ namespace iroha {
               )")
             % checkAccountRolePermission(Role::kSetDetail, ":creator")
             % checkAccountGrantablePermission(
-                  Grantable::kSetMyAccountDetail, ":creator", ":target"))
+                Grantable::kSetMyAccountDetail, ":creator", ":target"))
                .str(),
            R"( AND (SELECT * FROM has_perm))",
            R"( WHEN NOT (SELECT * FROM has_perm) THEN 2 )"});
@@ -1219,10 +1226,10 @@ namespace iroha {
           {(boost::format(R"(
                has_perm AS (%s),)")
             % checkAccountDomainRoleOrGlobalRolePermission(
-                  Role::kSubtractAssetQty,
-                  Role::kSubtractDomainAssetQty,
-                  ":creator",
-                  ":asset_id"))
+                Role::kSubtractAssetQty,
+                Role::kSubtractDomainAssetQty,
+                ":creator",
+                ":asset_id"))
                .str(),
            R"( AND (SELECT * FROM has_perm))",
            R"( WHEN NOT (SELECT * FROM has_perm) THEN 2 )"});
@@ -1326,9 +1333,8 @@ namespace iroha {
               ),
               )")
             % checkAccountRolePermission(Role::kTransfer, ":creator")
-            % checkAccountGrantablePermission(Grantable::kTransferMyAssets,
-                                              ":creator",
-                                              ":source_account_id")
+            % checkAccountGrantablePermission(
+                Grantable::kTransferMyAssets, ":creator", ":source_account_id")
             % checkAccountRolePermission(Role::kReceive, ":dest_account_id"))
                .str(),
            R"( AND (SELECT * FROM has_perm))",
@@ -1411,6 +1417,7 @@ namespace iroha {
       executor.use("creator", creator_account_id);
       executor.use("address", peer.address());
       executor.use("pubkey", peer.pubkey().hex());
+      executor.use("tls_certificate", peer.tlsCertificate());
 
       return executor.execute();
     }

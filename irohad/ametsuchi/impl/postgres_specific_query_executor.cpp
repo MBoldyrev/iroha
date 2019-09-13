@@ -18,6 +18,7 @@
 #include "backend/plain/peer.hpp"
 #include "common/bind.hpp"
 #include "common/byteutils.hpp"
+#include "common/range_tools.hpp"
 #include "interfaces/common_objects/amount.hpp"
 #include "interfaces/iroha_internal/block.hpp"
 #include "interfaces/permission_to_string.hpp"
@@ -168,12 +169,10 @@ namespace {
 
   template <typename T>
   auto resultWithoutNulls(T range) {
-    return range | boost::adaptors::transformed([](auto &&t) {
-             return iroha::ametsuchi::rebind(t);
-           })
-        | boost::adaptors::filtered(
-               [](const auto &t) { return static_cast<bool>(t); })
-        | boost::adaptors::transformed([](auto t) { return *t; });
+    return iroha::dereferenceOptionals(
+        range | boost::adaptors::transformed([](auto &&t) {
+          return iroha::ametsuchi::rebind(t);
+        }));
   }
 
 }  // namespace
@@ -1327,13 +1326,14 @@ namespace iroha {
         const shared_model::interface::GetPeers &q,
         const shared_model::interface::types::AccountIdType &creator_id,
         const shared_model::interface::types::HashType &query_hash) {
-      using QueryTuple =
-          QueryType<std::string, shared_model::interface::types::AddressType>;
+      using QueryTuple = QueryType<std::string,
+                                   shared_model::interface::types::AddressType,
+                                   std::string>;
       using PermissionTuple = boost::tuple<int>;
 
       auto cmd = (boost::format(
                       R"(WITH has_perms AS (%s)
-      SELECT public_key, address, perm FROM peer
+      SELECT public_key, address, tls_certificate, perm FROM peer
       RIGHT OUTER JOIN has_perms ON TRUE
       )") % getAccountRolePermissionCheckSql(Role::kGetPeers))
                      .str();
@@ -1345,15 +1345,20 @@ namespace iroha {
           },
           query_hash,
           [&](auto range, auto &) {
-            auto range_without_nulls = resultWithoutNulls(std::move(range));
+//            auto range_without_nulls = resultWithoutNulls(std::move(range));
             shared_model::interface::types::PeerList peers;
-            for (const auto &row : range_without_nulls) {
-              apply(row, [&peers](auto &peer_key, auto &address) {
-                peers.push_back(std::make_shared<shared_model::plain::Peer>(
-                    address,
-                    shared_model::interface::types::PubkeyType{
-                        shared_model::crypto::Blob::fromHexString(peer_key)}));
-              });
+            for (const auto &row : range) {
+              apply(
+                  row,
+                  [&peers](
+                      auto &peer_key, auto &address, auto &tls_certificate) {
+                    peers.push_back(std::make_shared<shared_model::plain::Peer>(
+                        *address,
+                        shared_model::interface::types::PubkeyType{
+                            shared_model::crypto::Blob::fromHexString(
+                                *peer_key)},
+                        tls_certificate));
+                  });
             }
             return query_response_factory_->createPeersResponse(peers,
                                                                 query_hash);

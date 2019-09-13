@@ -6,10 +6,11 @@
 #ifndef IROHA_SHARED_MODEL_PROTO_PEER_HPP
 #define IROHA_SHARED_MODEL_PROTO_PEER_HPP
 
+#include "interfaces/common_objects/peer.hpp"
+
 #include "backend/protobuf/util.hpp"
 #include "cryptography/hash.hpp"
 #include "cryptography/public_key.hpp"
-#include "interfaces/common_objects/peer.hpp"
 #include "primitive.pb.h"
 #include "utils/reference_holder.hpp"
 
@@ -18,14 +19,25 @@ namespace shared_model {
     class Peer final : public interface::Peer {
      public:
       template <typename PeerType>
-      explicit Peer(PeerType &&peer) : proto_(std::forward<PeerType>(peer)) {}
+      explicit Peer(PeerType &&peer) : proto_(std::forward<PeerType>(peer)) {
+        setTlsCertificateFromProto();
+      }
 
-      Peer(const Peer &o) : Peer(o.proto_) {}
+      Peer(const Peer &o) : Peer(o.proto_) {
+        setTlsCertificateFromProto();
+      }
 
-      Peer(Peer &&o) noexcept : Peer(std::move(o.proto_)) {}
+      Peer(Peer &&o) noexcept : Peer(std::move(o.proto_)) {
+        setTlsCertificateFromProto();
+      }
 
       const interface::types::AddressType &address() const override {
         return proto_->address();
+      }
+
+      const boost::optional<interface::types::TLSCertificateType>
+          &tlsCertificate() const override {
+        return tls_certificate_;
       }
 
       const interface::types::PubkeyType &pubkey() const override {
@@ -36,6 +48,14 @@ namespace shared_model {
       detail::ReferenceHolder<iroha::protocol::Peer> proto_;
       const interface::types::PubkeyType public_key_{
           crypto::Hash::fromHexString(proto_->peer_key())};
+      boost::optional<std::string> tls_certificate_;
+
+      void setTlsCertificateFromProto() {
+        if (proto_->certificate_case()) {
+          tls_certificate_ = proto_->tls_certificate();
+        }
+      }
+      // TODO: tls certificate
     };
   }  // namespace proto
 }  // namespace shared_model
