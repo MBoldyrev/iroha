@@ -225,11 +225,20 @@ namespace iroha {
         pk = std::make_unique<shared_model::interface::types::PubkeyType>("");
         tls_certificate = std::make_unique<boost::optional<
             shared_model::interface::types::TLSCertificateType>>("");
+        blank_tls_certificate = std::make_unique<boost::optional<
+            shared_model::interface::types::TLSCertificateType>>();
         peer = std::make_unique<MockPeer>();
         EXPECT_CALL(*peer, address())
             .WillRepeatedly(testing::ReturnRef(*address));
         EXPECT_CALL(*peer, pubkey()).WillRepeatedly(testing::ReturnRef(*pk));
         EXPECT_CALL(*peer, tlsCertificate())
+            .WillRepeatedly(testing::ReturnRef(*blank_tls_certificate));
+        peer_with_cert = std::make_unique<MockPeer>();
+        EXPECT_CALL(*peer_with_cert, address())
+            .WillRepeatedly(testing::ReturnRef(*address));
+        EXPECT_CALL(*peer_with_cert, pubkey())
+            .WillRepeatedly(testing::ReturnRef(*pk));
+        EXPECT_CALL(*peer_with_cert, tlsCertificate())
             .WillRepeatedly(testing::ReturnRef(*tls_certificate));
         createDefaultRole();
         createDefaultDomain();
@@ -240,8 +249,12 @@ namespace iroha {
       std::unique_ptr<shared_model::interface::types::PubkeyType> pk;
       std::unique_ptr<
           boost::optional<shared_model::interface::types::TLSCertificateType>>
+          blank_tls_certificate;
+      std::unique_ptr<
+          boost::optional<shared_model::interface::types::TLSCertificateType>>
           tls_certificate;
       std::unique_ptr<MockPeer> peer;
+      std::unique_ptr<MockPeer> peer_with_cert;
     };
 
     /**
@@ -250,6 +263,17 @@ namespace iroha {
      * @then peer is successfully added
      */
     TEST_F(AddPeer, Valid) {
+      addAllPerms();
+      CHECK_SUCCESSFUL_RESULT(
+          execute(*mock_command_factory->constructAddPeer(*peer_with_cert)));
+    }
+
+    /**
+     * @given command
+     * @when trying to add peer with a TLS cert
+     * @then peer is successfully added
+     */
+    TEST_F(AddPeer, ValidWithCertificate) {
       addAllPerms();
       CHECK_SUCCESSFUL_RESULT(
           execute(*mock_command_factory->constructAddPeer(*peer)));
