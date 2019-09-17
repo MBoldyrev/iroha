@@ -12,9 +12,9 @@ namespace shared_model {
 
     std::string AddPeer::toString() const {
       auto builder = detail::PrettyStringBuilder()
-          .init("AddPeer")
-          .append("peer_address", peer().address())
-          .append("pubkey", peer().pubkey().toString());
+                         .init("AddPeer")
+                         .append("peer_address", peer().address())
+                         .append("pubkey", peer().pubkey().toString());
 
       auto tls_certificate = peer().tlsCertificate();
       if (tls_certificate) {

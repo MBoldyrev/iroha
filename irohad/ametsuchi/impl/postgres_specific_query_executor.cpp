@@ -218,9 +218,9 @@ namespace iroha {
 
       boost::transform(range_gen(boost::size((*block)->transactions()))
                            | boost::adaptors::transformed(
-                                 [&block](auto i) -> decltype(auto) {
-                                   return (*block)->transactions()[i];
-                                 })
+                               [&block](auto i) -> decltype(auto) {
+                                 return (*block)->transactions()[i];
+                               })
                            | boost::adaptors::filtered(pred),
                        std::back_inserter(result),
                        [&](const auto &tx) { return clone(tx); });
@@ -1345,7 +1345,6 @@ namespace iroha {
           },
           query_hash,
           [&](auto range, auto &) {
-//            auto range_without_nulls = resultWithoutNulls(std::move(range));
             shared_model::interface::types::PeerList peers;
             for (const auto &row : range) {
               apply(

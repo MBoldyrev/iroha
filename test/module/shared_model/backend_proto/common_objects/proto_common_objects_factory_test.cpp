@@ -59,7 +59,8 @@ J6DR+swaKJJCJpwSShC2+YjrcPa9hdkc
  * @then peer is successfully initialized
  */
 TEST_F(PeerTest, ValidPeerInitialization) {
-  auto peer = factory.createPeer(valid_address, valid_pubkey, example_tls_certificate);
+  auto peer =
+      factory.createPeer(valid_address, valid_pubkey, example_tls_certificate);
 
   peer.match(
       [&](const auto &v) {
@@ -75,7 +76,8 @@ TEST_F(PeerTest, ValidPeerInitialization) {
  * @then peer is not initialized correctly
  */
 TEST_F(PeerTest, InvalidPeerInitialization) {
-  auto peer = factory.createPeer(invalid_address, valid_pubkey, example_tls_certificate);
+  auto peer = factory.createPeer(
+      invalid_address, valid_pubkey, example_tls_certificate);
 
   peer.match([](const auto &v) { FAIL() << "Expected error case"; },
              [](const auto &e) { SUCCEED(); });

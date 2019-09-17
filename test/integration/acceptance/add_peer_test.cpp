@@ -185,10 +185,10 @@ TEST_F(FakePeerFixture, RealPeerIsAdded) {
 
   auto block_with_add_peer =
       proto::BlockBuilder()
-          .transactions(std::vector<shared_model::proto::Transaction>{complete(
-              baseTx(kAdminId).addPeer(
-                  itf_->getAddress(), itf_->getThisPeer()->pubkey()),
-              kAdminKeypair)})
+          .transactions(std::vector<shared_model::proto::Transaction>{
+              complete(baseTx(kAdminId).addPeer(itf_->getAddress(),
+                                                itf_->getThisPeer()->pubkey()),
+                       kAdminKeypair)})
           .height(genesis_block.height() + 1)
           .prevHash(genesis_block.hash())
           .createdTime(iroha::time::now())

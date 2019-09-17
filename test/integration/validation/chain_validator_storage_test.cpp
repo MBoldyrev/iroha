@@ -128,8 +128,8 @@ namespace iroha {
   TEST_F(ChainValidatorStorageTest, PeerAdded) {
     auto block1 = generateAndApplyFirstBlock();
 
-    auto add_peer = completeTx(baseTx().addPeer(
-        "0.0.0.0:50545", keys.at(4).publicKey()));
+    auto add_peer =
+        completeTx(baseTx().addPeer("0.0.0.0:50545", keys.at(4).publicKey()));
     auto block2 = completeBlock(baseBlock({add_peer}, 2, block1->hash())
                                     .signAndAddSignature(keys.at(0))
                                     .signAndAddSignature(keys.at(1))

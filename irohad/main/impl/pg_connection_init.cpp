@@ -190,7 +190,8 @@ void PgConnectionInit::initializeConnectionPool(
   auto init_failover_callback = [&](soci::session &session) {
     static size_t connection_index = 0;
     auto restore_session = [initialize_session](soci::session &s) {
-      return initialize_session(s, [](auto &) {}, [](auto &) {});
+      return initialize_session(
+          s, [](auto &) {}, [](auto &) {});
     };
 
     auto &callback = callback_factory.makeFailoverCallback(
@@ -210,7 +211,8 @@ void PgConnectionInit::initializeConnectionPool(
   initialize_session(connection_pool.at(0), init_db, init_failover_callback);
   for (size_t i = 1; i != pool_size; i++) {
     soci::session &session = connection_pool.at(i);
-    initialize_session(session, [](auto &) {}, init_failover_callback);
+    initialize_session(
+        session, [](auto &) {}, init_failover_callback);
   }
 }
 

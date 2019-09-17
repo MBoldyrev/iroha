@@ -48,8 +48,12 @@ namespace iroha {
 
       Peer() = default;
 
-      Peer(const AddressType &address, const KeyType &pubkey, const TlsCertificateType &tls_certificate)
-          : address(address), pubkey(pubkey), tls_certificate(tls_certificate) {}
+      Peer(const AddressType &address,
+           const KeyType &pubkey,
+           const TlsCertificateType &tls_certificate)
+          : address(address),
+            pubkey(pubkey),
+            tls_certificate(tls_certificate) {}
     };
   }  // namespace model
 }  // namespace iroha
