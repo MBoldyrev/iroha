@@ -3,23 +3,20 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef IROHA_REL_DB_BACKEND_HPP
-#define IROHA_REL_DB_BACKEND_HPP
+#ifndef IROHA_WSV_SQLITE_DB_HPP
+#define IROHA_WSV_SQLITE_DB_HPP
 
 #include <functional>
 #include <string>
 #include "logger/logger_fwd.hpp"
 
-namespace sqlite {
-  class database;
-}
-
 namespace iroha {
   namespace newstorage {
+    class SqliteWrapper;
 
-    class RelDbBackend {
+    class WsvSqliteDB {
      public:
-      RelDbBackend(const std::string &db_file, logger::LoggerPtr log);
+      WsvSqliteDB(const std::string &db_file, logger::LoggerPtr log);
 
       void getSignatories(const std::string &account_id,
                           std::function<void(const std::string &)> fn);
@@ -38,11 +35,11 @@ namespace iroha {
      private:
       void createSchema();
 
-      std::shared_ptr<sqlite::database> db_;
+      std::shared_ptr<SqliteWrapper> db_;
       std::string path_;
       logger::LoggerPtr log_;
     };
   }  // namespace newstorage
 }  // namespace iroha
 
-#endif  // IROHA_REL_DB_BACKEND_HPP
+#endif  // IROHA_WSV_SQLITE_DB_HPP

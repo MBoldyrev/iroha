@@ -3,7 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "ametsuchi/newstorage/rel_db_backend.hpp"
+#include "ametsuchi/newstorage/wsv_sqlite_db.hpp"
+#include "ametsuchi/newstorage/sqlite_wrapper.hpp"
 #include <boost/filesystem/operations.hpp>
 #include "sqlite_modern_cpp.h"
 //#include "logger/logger.hpp"
@@ -11,15 +12,15 @@
 namespace iroha {
   namespace newstorage {
 
-    RelDbBackend::RelDbBackend(const std::string &db_file,
+    WsvSqliteDB::WsvSqliteDB(const std::string &db_file,
                                logger::LoggerPtr log)
-        : db_(std::make_shared<sqlite::database>(db_file)),
+        : db_(SqliteWrapper::create(db_file)),
           path_(db_file),
           log_(std::move(log)) {
       createSchema();
     }
-
-    void RelDbBackend::getSignatories(
+/*
+    void WsvSqliteDB::getSignatories(
         const std::string &account_id,
         std::function<void(const std::string &)> fn) {
       *db_ << "select public_key from account_has_signatory where account_id = "
@@ -28,42 +29,42 @@ namespace iroha {
           >> fn;
     }
 
-    void RelDbBackend::getPeers(
+    void WsvSqliteDB::getPeers(
         std::function<void(const std::string &, const std::string &)> fn) {
       *db_ << "select * from peer" >> fn;
     }
 
-    void RelDbBackend::insertPeer(const std::string &pub_key,
+    void WsvSqliteDB::insertPeer(const std::string &pub_key,
                                   const std::string &address) {
       *db_ << "insert into peer values (?,?)" << pub_key << address;
     }
 
-    void RelDbBackend::dropPeers() {
+    void WsvSqliteDB::dropPeers() {
       *db_ << "delete from peer";
     }
 
-    void RelDbBackend::dropAll() {
+    void WsvSqliteDB::dropAll() {
       // TODO mutex
 
       db_.reset();
       boost::filesystem::remove_all(path_);
-      db_ = std::make_shared<sqlite::database>(path_);
+      db_ = SqliteWrapper::create(path_);
       createSchema();
     }
 
-    int RelDbBackend::getTxStatusByHash(const std::string &hash) {
+    int WsvSqliteDB::getTxStatusByHash(const std::string &hash) {
       int status = -1;
       *db_ << "select status from tx_status_by_hash where hash = ?" << hash
           //>> [&status](int s) { status = s; };
           >> status;
       return status;
     }
-
-    void RelDbBackend::createSchema() {
+*/
+    void WsvSqliteDB::createSchema() {
       static const char *prepare_tables_sql[] = {
           "CREATE TABLE IF NOT EXISTS role (\
             role_id TEXT,\
-            PRIMARY KEY (role_id));",
+            PRIMARY KEY (role_id))",
           "CREATE TABLE IF NOT EXISTS domain (\
             domain_id TEXT,\
             default_role TEXT NOT NULL,\
@@ -129,11 +130,8 @@ namespace iroha {
           "CREATE INDEX IF NOT EXISTS position_by_account_asset_index\
           ON position_by_account_asset\
           (account_id, asset_id, height, idx ASC)"};
-      // static const size_t num_queries = sizeof(prepare_tables_sql) /
-      // sizeof(prepare_tables_sql[0]);
-      for (const char *query : prepare_tables_sql) {
-        *db_ << query;
-      }
+
+      db_->createSchema(prepare_tables_sql);
     }
 
   }  // namespace newstorage

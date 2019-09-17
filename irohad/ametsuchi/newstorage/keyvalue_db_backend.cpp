@@ -5,6 +5,7 @@
 
 #include <leveldb/db.h>
 #include <leveldb/env.h>
+#include <leveldb/write_batch.h>
 #include <cstring>
 #include <boost/endian/conversion.hpp>
 #include "ametsuchi/newstorage/keyvalue_db_backend.hpp"
@@ -44,15 +45,9 @@ namespace iroha {
 
     } // namespace
 
-    KeyValueDbBackend::KeyValueDbBackend(KeyValueDbBackend::Options options, logger::LoggerPtr log, bool createHere) :
-      options_(std::move(options)),
-      log_(std::move(log))
-    {
-      if (createHere) create();
-    }
-
-    void KeyValueDbBackend::create() {
+    void KeyValueDbBackend::create(KeyValueDbBackend::Options options) {
       if (db_) return;
+      options_ = std::move(options);
 
       leveldb::DB* db_ptr;
       leveldb::Options o;
@@ -170,6 +165,13 @@ namespace iroha {
         success = true;
       }
       return success;
+    }
+
+    bool KeyValueDbBackend::keyExists(const Slice &key) const {
+      if (key.empty()) return false;
+      std::unique_ptr<leveldb::Iterator> it(db_->NewIterator(leveldb::ReadOptions{}));
+      it->Seek(key);
+      return (it->Valid() && it->key() == key);
     }
 
   }  // namespace newstorage

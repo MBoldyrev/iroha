@@ -15,10 +15,9 @@ namespace iroha::newstorage {
       const std::string& location,
       logger::LoggerPtr log)
       : block_factory_(std::move(block_factory)),
-        log_(std::move(log)),
-        db_({location}, std::move(log), false)
+        log_(std::move(log))
       {
-        db_.create();
+        db_.create({location});
         db_.get_last_num_key(height_);
       }
 

@@ -1,21 +1,23 @@
-#include "rel_db_backend.hpp"
+#include "wsv_sqlite_db.hpp"
 #include "keyvalue_db_backend.hpp"
 #include <iostream>
 
 using namespace iroha::newstorage;
 
 void rel_test_1() {
-  RelDbBackend db("sandbox/sandbox.db", nullptr);
+  WsvSqliteDB db("sandbox/sandbox.db", nullptr);
 }
 
 void kv_test_1() {
-  KeyValueDbBackend db({ "sandbox/str"}, nullptr );
+  KeyValueDbBackend db;
+  db.create({ "sandbox/str"} );
   db.put("xxx", "xxxx");
   db.put("xxx", "aaaaa", "zzzzzzzaasasasaszzzzzzzzzzzzz");
 }
 
 void kv_test_2() {
-  KeyValueDbBackend db({ "sandbox/num"}, nullptr );
+  KeyValueDbBackend db;
+  db.create({ "sandbox/num"} );
   for (uint64_t i=100500; i<100600; ++i) {
     db.put(i, std::to_string(i));
   }

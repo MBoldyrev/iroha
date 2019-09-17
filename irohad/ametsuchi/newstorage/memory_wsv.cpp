@@ -18,8 +18,6 @@ namespace iroha {
     using shared_model::interface::GrantablePermissionSet;
     using GrantablePermission = shared_model::interface::permissions::Grantable;
     using RolePermission = shared_model::interface::permissions::Role;
-    using ID = std::string;
-    using AccountID = ID;
     using RoleID = ID;
     using DomainID = ID;
     using AssetID = ID;
@@ -313,6 +311,9 @@ namespace iroha {
       NetworkAddress address;
       PK pub_key;
       // TODO certificate
+
+      Peer(NetworkAddress a, PK pk) : address(std::move(a)), pub_key(std::move(pk))
+      {}
     };
 
     class Peers {
@@ -520,23 +521,35 @@ namespace iroha {
       }
 
       /*
-      ResultCode getAccount(
-          const AccountID& creator_id,
-
-      );
-       */
-
-      /*
-
       class GetAccountTransactions;
       class GetAccountAssetTransactions;
       class GetTransactions;
-
       class GetAccountDetail;
-
       class GetPendingTransactions;
-
 */
+
+      // Commands
+      /*
+class AddAssetQuantity;
+    class AddPeer;
+    class AddSignatory;
+    class AppendRole;
+    class CreateAccount;
+    class CreateAsset;
+    class CreateDomain;
+    class CreateRole;
+    class DetachRole;
+    class GrantPermission;
+    class RemovePeer;
+    class RemoveSignatory;
+    class RevokePermission;
+    class SetAccountDetail;
+    class SetQuorum;
+    class SubtractAssetQuantity;
+    class TransferAsset;
+    class CompareAndSetAccountDetail;
+       */
+
      private:
       ResultCode loadAccounts(
           const AccountID& creator_id,

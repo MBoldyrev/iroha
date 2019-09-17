@@ -6,7 +6,7 @@
 #ifndef IROHA_MEMORY_WSV_HPP
 #define IROHA_MEMORY_WSV_HPP
 
-#include <string>
+#include "ametsuchi/newstorage/types.hpp"
 
 namespace iroha {
   namespace newstorage {

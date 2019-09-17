@@ -8,8 +8,8 @@
 
 #include <leveldb/slice.h>
 #include <functional>
+#include <memory>
 #include <vector>
-#include "logger/logger_fwd.hpp"
 
 namespace leveldb { class DB; }
 
@@ -33,13 +33,13 @@ namespace iroha {
         // ~etc
       };
 
-      KeyValueDbBackend(Options options, logger::LoggerPtr log, bool createHere=true);
-
-      void create();
+      void create(Options options);
 
       void put(const Slice& key, const Slice& value);
       void put(const Slice& key_scope, const Slice& key, const Slice& value);
       void put(uint64_t key, const Slice& value);
+
+      bool keyExists(const Slice& key) const;
 
       std::string get(const Slice& key) const;
       std::string get(const Slice& key_scope, const Slice& key) const;
@@ -56,11 +56,25 @@ namespace iroha {
 
       // ~etc
 
+      struct WriteBatch {
+        WriteBatch& put(const Slice& key, const Slice& value) {
+          put_ops.emplace_back(key, value);
+          return *this;
+        }
+        WriteBatch& del(const Slice& key) {
+          del_ops.emplace_back(key);
+          return *this;
+        }
+        std::vector<std::pair<Slice, Slice>> put_ops;
+        std::vector<Slice> del_ops;
+      };
+
+      bool apply(WriteBatch& batch);
+
      private:
 
       Options options_;
       std::shared_ptr<leveldb::DB> db_;
-      logger::LoggerPtr log_;
     };
 
   }  // namespace newstorage
