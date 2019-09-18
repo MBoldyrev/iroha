@@ -287,8 +287,8 @@ namespace iroha {
     TEST_F(AddPeer, NoPerms) {
       auto cmd_result = execute(*mock_command_factory->constructAddPeer(*peer));
 
-      std::vector<std::string> query_args{peer->address(),
-                                          peer->pubkey().hex()};
+      std::vector<std::string> query_args{
+          peer->address(), peer->pubkey().hex(), peer->tlsCertificate()};
       CHECK_ERROR_CODE_AND_MESSAGE(cmd_result, 2, query_args);
     }
 
