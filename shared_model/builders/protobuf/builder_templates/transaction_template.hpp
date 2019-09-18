@@ -95,7 +95,7 @@ namespace shared_model {
       // used only in tests
       TemplateTransactionBuilder()
           : TemplateTransactionBuilder(
-              SV(iroha::test::kTestsValidatorsConfig)) {}
+                SV(iroha::test::kTestsValidatorsConfig)) {}
 
       auto creatorAccountId(const interface::types::AccountIdType &account_id)
           const {

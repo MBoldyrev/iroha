@@ -557,10 +557,10 @@ namespace iroha {
           END AS result;)",
           {(boost::format(R"(has_perm AS (%s),)")
             % checkAccountDomainRoleOrGlobalRolePermission(
-                Role::kAddAssetQty,
-                Role::kAddDomainAssetQty,
-                ":creator",
-                ":asset_id"))
+                  Role::kAddAssetQty,
+                  Role::kAddDomainAssetQty,
+                  ":creator",
+                  ":asset_id"))
                .str(),
            "AND (SELECT * from has_perm)",
            "WHEN NOT (SELECT * from has_perm) THEN 2"});
@@ -734,7 +734,7 @@ namespace iroha {
               )")
             % checkAccountRolePermission(Role::kSetDetail, ":creator")
             % checkAccountGrantablePermission(
-                Grantable::kSetMyAccountDetail, ":creator", ":target")
+                  Grantable::kSetMyAccountDetail, ":creator", ":target")
             % hasQueryPermission(":creator",
                                  ":target",
                                  Role::kGetMyAccDetail,
@@ -1135,7 +1135,7 @@ namespace iroha {
               )")
             % checkAccountRolePermission(Role::kSetDetail, ":creator")
             % checkAccountGrantablePermission(
-                Grantable::kSetMyAccountDetail, ":creator", ":target"))
+                  Grantable::kSetMyAccountDetail, ":creator", ":target"))
                .str(),
            R"( AND (SELECT * FROM has_perm))",
            R"( WHEN NOT (SELECT * FROM has_perm) THEN 2 )"});
@@ -1226,10 +1226,10 @@ namespace iroha {
           {(boost::format(R"(
                has_perm AS (%s),)")
             % checkAccountDomainRoleOrGlobalRolePermission(
-                Role::kSubtractAssetQty,
-                Role::kSubtractDomainAssetQty,
-                ":creator",
-                ":asset_id"))
+                  Role::kSubtractAssetQty,
+                  Role::kSubtractDomainAssetQty,
+                  ":creator",
+                  ":asset_id"))
                .str(),
            R"( AND (SELECT * FROM has_perm))",
            R"( WHEN NOT (SELECT * FROM has_perm) THEN 2 )"});
@@ -1333,8 +1333,9 @@ namespace iroha {
               ),
               )")
             % checkAccountRolePermission(Role::kTransfer, ":creator")
-            % checkAccountGrantablePermission(
-                Grantable::kTransferMyAssets, ":creator", ":source_account_id")
+            % checkAccountGrantablePermission(Grantable::kTransferMyAssets,
+                                              ":creator",
+                                              ":source_account_id")
             % checkAccountRolePermission(Role::kReceive, ":dest_account_id"))
                .str(),
            R"( AND (SELECT * FROM has_perm))",
