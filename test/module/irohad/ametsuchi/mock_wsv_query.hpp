@@ -23,11 +23,6 @@ namespace iroha {
           getPeers,
           boost::optional<
               std::vector<std::shared_ptr<shared_model::interface::Peer>>>());
-
-      MOCK_METHOD1(
-          getPeerByPublicKey,
-          boost::optional<std::shared_ptr<shared_model::interface::Peer>>(
-              const shared_model::interface::types::PubkeyType &public_key));
     };
 
   }  // namespace ametsuchi
