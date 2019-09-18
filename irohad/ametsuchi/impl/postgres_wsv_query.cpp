@@ -100,13 +100,6 @@ namespace iroha {
         return boost::make_optional(std::move(peers.front()));
       };
 
-      /*
-      peers = getPeers(result);
-      if (peers.empty()) {
-        return boost::none;
-      }
-      return peers.front();
-      */
     }
   }  // namespace ametsuchi
 }  // namespace iroha

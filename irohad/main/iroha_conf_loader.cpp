@@ -388,6 +388,8 @@ inline void JsonDeserializerImpl::getVal<IrohadConfig>(
   getValByKey(path, dest.block_store_path, obj, config_members::BlockStorePath);
   getValByKey(path, dest.torii_port, obj, config_members::ToriiPort);
   getValByKey(path, dest.torii_tls_params, obj, config_members::ToriiTlsParams);
+  getValByKey(
+      path, dest.p2p_tls_keypair_path, obj, config_members::P2PTlsKeyPairPath);
   getValByKey(path, dest.internal_port, obj, config_members::InternalPort);
   getValByKey(path, dest.pg_opt, obj, config_members::PgOpt);
   getValByKey(path, dest.database_config, obj, config_members::DbConfig);
