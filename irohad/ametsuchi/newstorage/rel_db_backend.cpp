@@ -63,7 +63,11 @@ namespace iroha {
       static const char *prepare_tables_sql[] = {
           "CREATE TABLE IF NOT EXISTS role (\
             role_id TEXT,\
-            PRIMARY KEY (role_id));",
+            PRIMARY KEY (role_id))",
+          "CREATE TABLE IF NOT EXISTS role_has_permissions (\
+            role_id TEXT NOT NULL,\
+            permission BLOB NOT NULL,\
+            PRIMARY KEY (role_id))",
           "CREATE TABLE IF NOT EXISTS domain (\
             domain_id TEXT,\
             default_role TEXT NOT NULL,\
@@ -94,10 +98,6 @@ namespace iroha {
             asset_id TEXT NOT NULL,\
             amount BLOB NOT NULL,\
             PRIMARY KEY (account_id, asset_id))",
-          "CREATE TABLE IF NOT EXISTS role_has_permissions (\
-            role_id TEXT NOT NULL,\
-            permission BLOB NOT NULL,\
-            PRIMARY KEY (role_id))",
           "CREATE TABLE IF NOT EXISTS account_has_roles (\
             account_id TEXT NOT NULL,\
             role_id TEXT NOT NULL,\

@@ -12,13 +12,27 @@ namespace iroha {
   namespace newstorage {
     class SqliteWrapper {
      public:
+      using StatementHandle = size_t;
+
       static std::shared_ptr<SqliteWrapper> create(const std::string &db_file) {
         return std::shared_ptr<SqliteWrapper>(new SqliteWrapper(db_file));
       }
 
+      ~SqliteWrapper() {
+        // to prevent them from execution while going out of scope
+        for (auto& st : statements_) {
+          st.used(true);
+        }
+      }
+
       template <typename T>
-      SqliteWrapper &operator<<(const T &t) {
-        db_ << t;
+      auto operator<<(const T &t) {
+        return (db_ << t);
+      }
+
+      template <typename T>
+      SqliteWrapper &operator>>(T &t) {
+        db_ >> t;
         return *this;
       }
 
@@ -37,10 +51,17 @@ namespace iroha {
         }
       }
 
-      sqlite::database_binder createStatement(const char *sql) {
-        auto binder = db_ << sql;
-        binder.used(true);  // TODO check that??
-        return binder;
+      StatementHandle createStatement(const char *sql) {
+        StatementHandle h = statements_.size();
+        statements_.emplace_back(db_ << sql);
+        return h;
+      }
+
+      sqlite::database_binder& getStatement(StatementHandle h) {
+        if (h >= statements_.size()) {
+          throw std::runtime_error("SqliteWrapper: invalid statement");
+        }
+        return statements_[h];
       }
 
       struct Transaction {
@@ -61,6 +82,7 @@ namespace iroha {
       {}
 
       sqlite::database db_;
+      std::vector<sqlite::database_binder> statements_;
     };
 
     class PreparedStatement {

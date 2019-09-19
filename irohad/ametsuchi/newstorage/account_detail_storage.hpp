@@ -13,7 +13,6 @@
 namespace iroha {
   namespace newstorage {
     class SqliteWrapper;
-    class PreparedStatement;
 
     class AccountDetailStorage {
      public:
@@ -79,19 +78,6 @@ namespace iroha {
       //    const ID& id1, const ID& id2, const ID& id3
       //);
 
-      enum Statements {
-        get_n_by_writer,
-        get_n_by_account,
-        get_n_by_writer_account,
-        get_n_by_account_key,
-        inc_writer,
-        inc_account,
-        inc_writer_account,
-        inc_account_key,
-
-        statements_count
-      };
-
       enum Buffers {
         akw_buffer,
         wa_buffer,
@@ -100,9 +86,18 @@ namespace iroha {
         buffers_count
       };
 
+      using StatementHandle = size_t;
+
       KeyValueDbBackend storage_;
       std::shared_ptr<SqliteWrapper> index_;
-      std::unique_ptr<PreparedStatement> statements_[statements_count];
+      StatementHandle get_n_by_writer_;
+      StatementHandle get_n_by_account_;
+      StatementHandle get_n_by_writer_account_;
+      StatementHandle get_n_by_account_key_;
+      StatementHandle inc_writer_;
+      StatementHandle inc_account_;
+      StatementHandle inc_writer_account_;
+      StatementHandle inc_account_key_;
       logger::LoggerPtr log_;
       std::string last_error_;
       std::string buffers_[buffers_count];

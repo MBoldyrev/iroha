@@ -19,6 +19,34 @@ namespace iroha {
           log_(std::move(log)) {
       createSchema();
     }
+
+    void WsvSqliteDB::loadRoles(
+        const std::function<void(const std::string& role, const std::string& permissions)>&
+        callback)
+    {
+      *db_ << "SELECT * from role" >> callback;
+    }
+
+    void WsvSqliteDB::loadDomains(
+        const std::function<
+            void(const std::string& role, const std::string& domain)>&
+        callback
+    ) {
+      *db_ << "SELECT * from domain" >> callback;
+    }
+
+    void WsvSqliteDB::loadSignatories(
+        const std::function<void(const std::string& signatory, size_t count)>& callback
+    ) {
+      *db_ << "SELECT * from signatory" >> callback;
+    }
+
+    void WsvSqliteDB::loadPeers(
+        const std::function<void(const std::string& pk, const std::string& address)>& callback
+    ) {
+      *db_ << "SELECT * from peer" >> callback;
+    }
+
 /*
     void WsvSqliteDB::getSignatories(
         const std::string &account_id,
@@ -63,15 +91,21 @@ namespace iroha {
     void WsvSqliteDB::createSchema() {
       static const char *prepare_tables_sql[] = {
           "CREATE TABLE IF NOT EXISTS role (\
-            role_id TEXT,\
-            PRIMARY KEY (role_id))",
+            role_id TEXT PRIMARY KEY,\
+            permission BLOB NOT NULL)",
           "CREATE TABLE IF NOT EXISTS domain (\
-            domain_id TEXT,\
-            default_role TEXT NOT NULL,\
-            PRIMARY KEY (domain_id))",
+            domain_id TEXT PRIMARY KEY,\
+            default_role TEXT NOT NULL)",
           "CREATE TABLE IF NOT EXISTS signatory (\
-            public_key TEXT NOT NULL,\
-            PRIMARY KEY (public_key))",
+            public_key TEXT PRIMARY KEY,\
+            count INTEGER NOT NULL)",
+          "CREATE TABLE IF NOT EXISTS peer (\
+            public_key TEXT PRIMARY KEY,\
+            address TEXT NOT NULL UNIQUE)",
+          "CREATE TABLE IF NOT EXISTS asset (\
+            asset_id TEXT PRIMARY KEY,\
+            domain_id TEXT NOT NULL,\
+            precision INTEGER NOT NULL)",
           "CREATE TABLE IF NOT EXISTS account (\
             account_id TEXT,\
             domain_id TEXT,\
@@ -81,24 +115,11 @@ namespace iroha {
             account_id TEXT,\
             public_key TEXT NOT NULL,\
             PRIMARY KEY (account_id, public_key))",
-          "CREATE TABLE IF NOT EXISTS peer (\
-            public_key TEXT NOT NULL,\
-            address TEXT NOT NULL UNIQUE,\
-            PRIMARY KEY (public_key))",
-          "CREATE TABLE IF NOT EXISTS asset (\
-            asset_id TEXT,\
-            domain_id TEXT NOT NULL,\
-            precision int NOT NULL,\
-            PRIMARY KEY (asset_id))",
           "CREATE TABLE IF NOT EXISTS account_has_asset (\
             account_id TEXT NOT NULL,\
             asset_id TEXT NOT NULL,\
             amount BLOB NOT NULL,\
             PRIMARY KEY (account_id, asset_id))",
-          "CREATE TABLE IF NOT EXISTS role_has_permissions (\
-            role_id TEXT NOT NULL,\
-            permission BLOB NOT NULL,\
-            PRIMARY KEY (role_id))",
           "CREATE TABLE IF NOT EXISTS account_has_roles (\
             account_id TEXT NOT NULL,\
             role_id TEXT NOT NULL,\
@@ -115,9 +136,6 @@ namespace iroha {
           "CREATE TABLE IF NOT EXISTS tx_status_by_hash (\
             hash TEXT NOT NULL,\
             status INTEGER)",
-          "CREATE INDEX IF NOT EXISTS tx_status_by_hash_hash_index\
-          ON tx_status_by_hash\
-          (hash)",
           "CREATE TABLE IF NOT EXISTS tx_position_by_creator (\
             creator_id TEXT,\
             height INTEGER,\

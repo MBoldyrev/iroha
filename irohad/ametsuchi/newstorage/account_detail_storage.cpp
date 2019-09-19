@@ -67,30 +67,22 @@ namespace iroha {
       *index_ << buf;
 
       snprintf(buf, BUF_SIZE, get_statement_fmt, kWRITER);
-      statements_[get_n_by_writer] = PreparedStatement::create(
-          index_->createStatement(buf));
+      get_n_by_writer_ = index_->createStatement(buf);
       snprintf(buf, BUF_SIZE, get_statement_fmt, kACCOUNT);
-      statements_[get_n_by_account] = PreparedStatement::create(
-          index_->createStatement(buf));
+      get_n_by_account_ = index_->createStatement(buf);
       snprintf(buf, BUF_SIZE, get_statement_fmt, kWRITERACCOUNT);
-      statements_[get_n_by_writer_account] = PreparedStatement::create(
-          index_->createStatement(buf));
+      get_n_by_writer_account_ = index_->createStatement(buf);
       snprintf(buf, BUF_SIZE, get_statement_fmt, kACCOUNTKEY);
-      statements_[get_n_by_account_key] = PreparedStatement::create(
-          index_->createStatement(buf));
+      get_n_by_account_key_ = index_->createStatement(buf);
 
       snprintf(buf, BUF_SIZE, inc_statement_fmt, kWRITER);
-      statements_[inc_writer] = PreparedStatement::create(
-          index_->createStatement(buf));
+      inc_writer_ = index_->createStatement(buf);
       snprintf(buf, BUF_SIZE, inc_statement_fmt, kACCOUNT);
-      statements_[inc_account] = PreparedStatement::create(
-          index_->createStatement(buf));
+      inc_account_ = index_->createStatement(buf);
       snprintf(buf, BUF_SIZE, inc_statement_fmt, kWRITERACCOUNT);
-      statements_[inc_writer_account] = PreparedStatement::create(
-          index_->createStatement(buf));
+      inc_writer_account_ = index_->createStatement(buf);
       snprintf(buf, BUF_SIZE, inc_statement_fmt, kACCOUNTKEY);
-      statements_[inc_account_key] = PreparedStatement::create(
-          index_->createStatement(buf));
+      inc_account_key_ = index_->createStatement(buf);
     }
 
     bool AccountDetailStorage::put(
@@ -117,15 +109,19 @@ namespace iroha {
 
         if (need_to_increment) {
           SqliteWrapper::Transaction tx(*index_);
-          statements_[inc_writer]->get() << writer;
-          statements_[inc_writer]->get()++;
-          statements_[inc_account]->get() << account;
-          statements_[inc_account]->get()++;
-          statements_[inc_writer_account]->get() << buffers_[wa_buffer];
-          statements_[inc_writer_account]->get()++;
+          auto& inc_writer_st = index_->getStatement(inc_writer_);
+          inc_writer_st << writer;
+          inc_writer_st++;
+          auto& inc_account_st = index_->getStatement(inc_account_);
+          inc_account_st << account;
+          inc_account_st++;
+          auto& inc_writer_account_st = index_->getStatement(inc_writer_account_);
+          inc_writer_account_st << buffers_[wa_buffer];
+          inc_writer_account_st++;
           buffers_[akw_buffer].resize(ak_bufsize);
-          statements_[inc_account_key]->get() << buffers_[akw_buffer];
-          statements_[inc_account_key]->get()++;
+          auto& inc_account_key_st = index_->getStatement(inc_account_key_);
+          inc_account_key_st << buffers_[akw_buffer];
+          inc_account_key_st++;
           tx.commit();
         }
       } catch (const std::exception& e) {
@@ -152,7 +148,7 @@ namespace iroha {
         const GetFunction& callback,
         size_t& total_rows
     ) {
-      statements_[get_n_by_account_key]->get() >> total_rows;
+      index_->getStatement(get_n_by_account_key_) >> total_rows;
       if (total_rows == 0) {
         return true;
       }
@@ -178,7 +174,7 @@ namespace iroha {
         const GetFunction& callback,
         size_t& total_rows
     ) {
-      statements_[get_n_by_writer_account]->get() >> total_rows;
+      index_->getStatement(get_n_by_writer_account_) >> total_rows;
       if (total_rows == 0) {
         return true;
       }
@@ -203,7 +199,7 @@ namespace iroha {
         const GetFunction& callback,
         size_t& total_rows
     ) {
-      statements_[get_n_by_writer]->get() >> total_rows;
+      index_->getStatement(get_n_by_writer_) >> total_rows;
       if (total_rows == 0) {
         return true;
       }
@@ -228,7 +224,7 @@ namespace iroha {
         const GetFunction& callback,
         size_t& total_rows
     ) {
-      statements_[get_n_by_account]->get() >> total_rows;
+      index_->getStatement(get_n_by_account_) >> total_rows;
       if (total_rows == 0) {
         return true;
       }
