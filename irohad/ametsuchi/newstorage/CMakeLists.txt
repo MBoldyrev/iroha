@@ -6,7 +6,7 @@
 add_library(new_storage
     wsv_sqlite_db.cpp
     storage_impl.cpp
-    wsv_sqlite_db.cpp
+    wsv_cache.cpp
     wsv_query_impl.cpp
     keyvalue_db_backend.cpp
     block_query_impl.cpp

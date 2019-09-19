@@ -41,6 +41,23 @@ namespace iroha {
           const std::function<void(const std::string& pk, const std::string& address)>& callback
       );
 
+      void loadAssets(
+          const std::function<
+              void(const std::string& id, const std::string& domain, uint8_t precision)>&
+          callback
+      );
+
+      void loadAccountAssets(
+          const std::string& account_id,
+          const std::function<
+              void(const std::string& asset_id, const std::string& balance, uint8_t precision)>&
+          callback
+      );
+
+      bool loadGrantablePermissions(
+          const std::string& from, const std::string& to, std::string& perm_string
+      );
+
       /*
       void getSignatories(const std::string &account_id,
                           std::function<void(const std::string &)> fn);
@@ -61,19 +78,7 @@ namespace iroha {
       void createSchema();
 
       std::shared_ptr<SqliteWrapper> db_;
-      enum Statements {
-        get_n_by_writer,
-        get_n_by_account,
-        get_n_by_writer_account,
-        get_n_by_account_key,
-        inc_writer,
-        inc_account,
-        inc_writer_account,
-        inc_account_key,
 
-        statements_count
-      };
-      std::unique_ptr<PreparedStatement> statements_[statements_count];
       std::string path_;
       std::vector<char> buffer_;
       logger::LoggerPtr log_;

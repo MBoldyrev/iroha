@@ -15,8 +15,7 @@ namespace iroha {
       db_(std::move(db)),
       acc_details_(std::move(detail_storage)),
       accounts_(db_),
-      gr_permissions_(db_),
-      acc_assets_(db_)
+      gr_permissions_(db_)
     {
       roles_.load(db_);
       domains_.load(db_, roles_);
@@ -101,7 +100,7 @@ namespace iroha {
         return result;
       }
 
-      return acc_assets_.getAccountAssets(account_id, assets);
+      return account->getAccountAssets(assets);
     }
 
     ResultCode ImmutableWsv::getRoles(

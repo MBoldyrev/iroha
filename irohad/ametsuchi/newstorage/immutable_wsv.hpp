@@ -114,7 +114,6 @@ namespace iroha {
       Assets assets_;
       Accounts accounts_;
       GrantablePermissions gr_permissions_;
-      AccountAssets acc_assets_;
     };
   }
 }

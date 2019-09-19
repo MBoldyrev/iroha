@@ -9,217 +9,176 @@
 namespace iroha {
   namespace newstorage {
 
-/*
-    class Roles {
-     public:
-      // return error if role already exists
-      ResultCode append(RoleID id, RolePermissionSet permissions) {
-        if (permissions_.count(id) != 0) {
-          return ResultCode::kRoleAlreadyExists;
-        }
-        permissions_[id] = permissions;
-        all_roles_.push_back(std::move(id));
-        return ResultCode::kOk;
-      }
-
-      // returns nulptr if no such a role
-      const RolePermissionSet* getRolePermissions(const RoleID& id) const {
-        const RolePermissionSet* obj = nullptr;
-        auto it = permissions_.find(id);
-        if (it != permissions_.end()) {
-          obj = &it->second;
-        }
-        return obj;
-      }
-
-      void getRoles(std::vector<RoleID>& out) const {
-        out = all_roles_;
-      }
-
-      void load(WsvSqliteDB& db) {
-        db.loadRoles(
-            [this](const std::string& role, const std::string& permissions) {
-              RolePermissionSet p(permissions);
-              if (append(role, p) != ResultCode::kOk) {
-                throw std::runtime_error("incinsistency in loadRoles");
-              }
+    void Roles::load(WsvSqliteDB &db) {
+      db.loadRoles(
+          [this](const std::string& role, const std::string& permissions) {
+            RolePermissionSet p(permissions);
+            if (!append(role, p)) {
+              throw std::runtime_error("inconsistency in loadRoles");
             }
-        );
-      }
-
-     private:
-      std::vector<RoleID> all_roles_;
-      std::unordered_map<RoleID, RolePermissionSet> permissions_;
-    };
-
-    class Domains {
-     public:
-      // returns false if domain already exists. Check role existence before
-      ResultCode append(DomainID id, RoleID default_role_id) {
-        if (table_.count(id)) {
-          return ResultCode::kDomainAlreadyExists;
-        }
-        table_.emplace(std::make_pair<DomainID,RoleID>(std::move(id), std::move(default_role_id)));
-        return ResultCode::kOk;
-      }
-
-      // returns nullptr if no such a domain
-      const RoleID* getDefaultRole(const DomainID& id) {
-        const ID* role_id = nullptr;
-        const auto it = table_.find(id);
-        if (it != table_.end()) {
-          role_id = &it->second;
-        }
-        return role_id;
-      }
-
-      void load(WsvSqliteDB& db, const Roles& roles) {
-        db.loadDomains(
-            [this, &roles](const std::string& domain, const std::string& def_role) {
-              if (roles.getRolePermissions(def_role) == nullptr) {
-                throw std::runtime_error("loadDomains: role not found");
-              }
-              if (append(domain, def_role) != ResultCode::kOk) {
-                throw std::runtime_error("inconsistency in loadDomains");
-              }
-            }
-        );
-      }
-
-     private:
-      // domain id -> default role id
-      std::unordered_map<DomainID, RoleID> table_;
-    };
-
-    class Signatories {
-     public:
-      bool hasSignatory(const PK& pk) const {
-        return table_.count(pk) > 0;
-      }
-
-      void append(const PK& pk) {
-        auto it = table_.find(pk);
-        if (it == table_.end()) {
-          table_[pk] = 1;
-        } else {
-          ++table_[pk];
-        }
-      }
-
-      void remove(const PK& pk) {
-        // TODO diff table
-
-        auto it = table_.find(pk);
-        if (it != table_.end()) {
-          if (--(it->second) == 0) {
-            table_.erase(it);
           }
-        }
-      }
+      );
+    }
 
-      void load(WsvSqliteDB& db) {
-        db.loadSignatories(
-            [this](const std::string& signatory, size_t count) {
-              if (count == 0)
-                throw std::runtime_error("inconsistency in loadSignatories");
-              table_[signatory] = count;
+    bool Roles::append(RoleID id, RolePermissionSet permissions) {
+      if (permissions_.count(id) != 0) {
+        return false;
+      }
+      permissions_[id] = permissions;
+      all_roles_.push_back(std::move(id));
+      return true;
+    }
+
+    const RolePermissionSet* Roles::getRolePermissions(const RoleID& id) const {
+      const RolePermissionSet* obj = nullptr;
+      auto it = permissions_.find(id);
+      if (it != permissions_.end()) {
+        obj = &it->second;
+      }
+      return obj;
+    }
+
+    void Roles::getRoles(std::vector<RoleID>& out) const {
+      out = all_roles_;
+    }
+
+    void Domains::load(WsvSqliteDB& db, const Roles& roles) {
+      db.loadDomains(
+          [this, &roles](const std::string& domain, const std::string& def_role) {
+            if (roles.getRolePermissions(def_role) == nullptr) {
+              throw std::runtime_error("loadDomains: role not found");
             }
-        );
-      }
-
-     private:
-      std::unordered_map<PK, size_t> table_;
-    };
-
-    struct Peer {
-      NetworkAddress address;
-      PK pub_key;
-      // TODO certificate
-
-      Peer(NetworkAddress a, PK pk) : address(std::move(a)), pub_key(std::move(pk))
-      {}
-    };
-
-    class Peers {
-     public:
-      //returns nullptr if no such a peer
-      const NetworkAddress* get(const PK& key) const {
-        const NetworkAddress* address = nullptr;
-        auto it = table_.find(key);
-        if (it != table_.end()) {
-          address = &it->second;
-        }
-        return address;
-      }
-
-      void get(std::vector<Peer>& peers) const {
-        peers.clear();
-        peers.reserve(table_.size());
-        for (const auto& kv : table_) {
-          peers.emplace_back(kv.second, kv.first);
-        }
-      }
-
-      ResultCode add(const PK& key, const NetworkAddress& address) {
-        if (addresses_.count(address) || table_.count(key) > 0) {
-          return ResultCode::kPeerAlreadyExists;
-        }
-        table_[key] = address;
-        addresses_.insert(address);
-        return ResultCode::kOk;
-      }
-
-      void load(WsvSqliteDB& db) {
-        db.loadPeers(
-            [this](const std::string& pk, const std::string& address) {
-              if (add(pk, address) != ResultCode::kOk)
-                throw std::runtime_error("inconsistency in getPeers");
+            if (!append(domain, def_role)) {
+              throw std::runtime_error("inconsistency in loadDomains");
             }
-        );
+          }
+      );
+    }
+
+    bool Domains::append(DomainID id, RoleID default_role_id) {
+      if (table_.count(id)) {
+        return false;
       }
+      table_.emplace(std::make_pair<DomainID,RoleID>(std::move(id), std::move(default_role_id)));
+      return true;
+    }
 
-      void clear() {
-        table_.clear();
-        addresses_.clear();
+    const RoleID* Domains::getDefaultRole(const DomainID& id) const {
+      const ID* role_id = nullptr;
+      const auto it = table_.find(id);
+      if (it != table_.end()) {
+        role_id = &it->second;
       }
-     private:
-      std::unordered_map<PK, NetworkAddress> table_;
-      std::unordered_set<NetworkAddress> addresses_;
-    };
+      return role_id;
+    }
 
+    void Signatories::load(WsvSqliteDB& db) {
+      db.loadSignatories(
+          [this](const std::string& signatory, size_t count) {
+            if (count == 0)
+              throw std::runtime_error("inconsistency in loadSignatories");
+            table_[signatory] = count;
+          }
+      );
+    }
 
-    class GrantablePermissions {
-     public:
-      void append(AccountID from, AccountID to, GrantablePermissionSet permissions) {
-        // TODO
+    bool Signatories::hasSignatory(const PK& pk) const {
+      return table_.count(pk) > 0;
+    }
+
+    void Peers::load(WsvSqliteDB& db) {
+      db.loadPeers(
+          [this](const std::string& pk, const std::string& address) {
+            if (!append(pk, address))
+              throw std::runtime_error("inconsistency in loadPeers");
+          }
+      );
+    }
+
+    bool Peers::append(const PK& key, const NetworkAddress& address) {
+      if (addresses_.count(address) || table_.count(key) > 0) {
+        return false;
       }
+      table_[key] = address;
+      addresses_.insert(address);
+      return true;
+    }
 
-      bool has(const AccountID& from, const AccountID& to, GrantablePermission perm) const {
-        auto it1 = table_.find(from);
-        if (it1 == table_.end()) {
-          return false; //load...
-        }
-        auto it2 = it1->second.find(to);
-        if (it2 == it1->second.end()) {
-          return false; //load...
-        }
-        return it2->second.isSet(perm);
+    const NetworkAddress* Peers::get(const PK& key) const {
+      const NetworkAddress* address = nullptr;
+      auto it = table_.find(key);
+      if (it != table_.end()) {
+        address = &it->second;
       }
+      return address;
+    }
 
-      // grant
+    void Peers::get(std::vector<Peer>& peers) const {
+      peers.clear();
+      peers.reserve(table_.size());
+      for (const auto& kv : table_) {
+        peers.emplace_back(kv.second, kv.first);
+      }
+    }
 
-      // revoke
+    GrantablePermissions::GrantablePermissions(WsvSqliteDB &db) :
+      db_(db)
+    {}
 
-      // get string
+    void GrantablePermissions::makeKey(
+        const AccountID& from, const AccountID& to
+    ) {
+      buffer_.clear();
+      buffer_.append(from);
+      buffer_.push_back(0x01);
+      buffer_.append(to);
+    }
 
-     private:
-      using GrantedTo = std::unordered_map<AccountID, GrantablePermissionSet>;
-      using GrantedFrom = std::unordered_map<AccountID, GrantedTo>;
-      GrantedFrom table_;
-    };
+    bool GrantablePermissions::hasPermission(
+        const AccountID& from, const AccountID& to,
+        GrantablePermission perm)
+    {
+      makeKey(from, to);
+      auto it = cache_.find(buffer_);
+      if (it != cache_.end()) {
+        return it->second.isSet(perm);
+      }
+      std::string perm_string;
+      if (db_.loadGrantablePermissions(from, to, perm_string)) {
+        GrantablePermissionSet p(perm_string);
+        cache_[buffer_] = p;
+        return p.isSet(perm);
+      }
+      cache_[buffer_] = GrantablePermissionSet();
+      return false;
+    }
+
+    void Assets::load(WsvSqliteDB &db, const Domains& domains) {
+      db.loadAssets(
+          [this, &domains](
+              const std::string& id, const std::string& domain, uint8_t precision
+          ) {
+            if (domains.getDefaultRole(domain) == nullptr) {
+              throw std::runtime_error("loadAssets: domain not found");
+            }
+            if (getAssetInfo(id) != nullptr) {
+              throw std::runtime_error("inconsistency in loadAssets");
+            }
+            table_[id] = { domain, precision };
+          }
+      );
+    }
+
+    const Assets::Info* Assets::getAssetInfo(const AssetID& id) {
+      auto it = table_.find(id);
+      if (it == table_.end()) {
+        return nullptr;
+      }
+      return &it->second;
+    }
 
 
-
+/*
     struct AccountAsset {
       AssetID asset_id;
       uint8_t precision = 0;

@@ -80,14 +80,7 @@ namespace iroha {
       void load(WsvSqliteDB& db, const Roles& roles);
 
       // returns nullptr if no such a domain
-      const RoleID* getDefaultRole(const DomainID& id) {
-        const ID* role_id = nullptr;
-        const auto it = table_.find(id);
-        if (it != table_.end()) {
-          role_id = &it->second;
-        }
-        return role_id;
-      }
+      const RoleID* getDefaultRole(const DomainID& id) const;
 
      private:
       // returns false if domain already exists. Check role existence before
@@ -99,9 +92,9 @@ namespace iroha {
 
     class Signatories {
      public:
-      bool hasSignatory(const PK& pk) const;
-
       void load(WsvSqliteDB& db);
+
+      bool hasSignatory(const PK& pk) const;
 
      private:
       std::unordered_map<PK, size_t> table_;
@@ -128,7 +121,7 @@ namespace iroha {
 
      private:
       // returns false if peer already exists (ether PK or address)
-      bool add(const PK& key, const NetworkAddress& address);
+      bool append(const PK& key, const NetworkAddress& address);
 
       std::unordered_map<PK, NetworkAddress> table_;
       std::unordered_set<NetworkAddress> addresses_;
@@ -142,16 +135,16 @@ namespace iroha {
       bool hasPermission(const AccountID& from, const AccountID& to, GrantablePermission perm);
 
      private:
-      using GrantedTo = std::unordered_map<AccountID, GrantablePermissionSet>;
-      using GrantedFrom = std::unordered_map<AccountID, GrantedTo>;
+      void makeKey(const AccountID& from, const AccountID& to);
 
-      WsvSqliteDB& db;
-      GrantedFrom table_;
+      WsvSqliteDB& db_;
+      std::unordered_map<ID, GrantablePermissionSet> cache_;
+      std::string buffer_;
     };
 
     class Assets {
      public:
-      void load(WsvSqliteDB& db);
+      void load(WsvSqliteDB& db, const Domains& domains);
 
       struct Info {
         DomainID domain_id;
@@ -166,66 +159,11 @@ namespace iroha {
       std::unordered_map<AssetID, Info> table_;
     };
 
-    struct AccountAsset {
-      AssetID asset_id;
-      uint8_t precision = 0;
-      uint256_t balance;
-    };
-
-    class AccountAssets {
-     public:
-      explicit AccountAssets(WsvSqliteDB& db);
-
-
-      const AccountAsset* getAcountAsset(const AssetID& asset, const AccountID& account);
-
-      ResultCode getAccountAssets(const AccountID& account, std::vector<AccountAsset>& assets);
-
-      // appends to cache
-      //void insertAccount(Account& account, uint256_t amount=uint256_t(0));
-
-      // returns nullptr if no record
-      //uint256_t* getBalance(Account& account);
-
-      //ResultCode appendAmount(Account& to, const uint256_t& amount);
-
-     private:
-      WsvSqliteDB& db;
-      // ???std::unordered_map<AccountID, AccountAsset> table_;
-    };
-
-    struct Account {
-      AccountID id;
-      DomainID domain_id;
-
-      std::unordered_set<RoleID> roles;
-      std::unordered_set<PK> signatories;
-      RolePermissionSet permissions; // recalc if role added
-      uint16_t quorum = 0;
-
-      void appendPermissions(const RoleID& role_id, const Roles& role_set);
-
-      bool hasPermission(RolePermission perm) const;
-
-      bool hasSignatory(const PK& pk) const;
-
-      //bool hasAsset(const AssetID& asset_id) const;
-
-      bool load(WsvSqliteDB& db);
-
-     private:
-      // returns false if role is already there
-      ResultCode appendRole(const RoleID& role_id, const Roles& role_set);
-      // returns false if account has no such a role
-      ResultCode detachRole(const RoleID& role_id, const Roles& role_set);
-
-    };
-
     template<typename Object> class IdTable {
      public:
       ~IdTable() {
         for (auto& kv: table_) {
-          delete kv.second;
+          if (kv.second) delete kv.second;
         }
       }
 
@@ -261,6 +199,45 @@ namespace iroha {
       bool loaded_ = false;
     };
 
+    struct AccountAsset {
+      AssetID asset_id;
+      uint8_t precision = 0;
+      uint256_t balance;
+    };
+
+    struct Account {
+      AccountID id;
+      DomainID domain_id;
+
+      std::unordered_set<RoleID> roles;
+      std::unordered_set<PK> signatories;
+      std::unordered_map<AssetID, AccountAsset> assets;
+      RolePermissionSet permissions; // recalc if role added
+      uint16_t quorum = 0;
+      bool assets_loaded = false;
+
+      const AccountAsset* getAccountAsset(const AssetID& asset);
+
+      ResultCode getAccountAssets(std::vector<AccountAsset>& assets);
+
+      void appendPermissions(const RoleID& role_id, const Roles& role_set);
+
+      bool hasPermission(RolePermission perm) const;
+
+      bool hasSignatory(const PK& pk) const;
+
+      //bool hasAsset(const AssetID& asset_id) const;
+
+      bool load(WsvSqliteDB& db);
+
+     private:
+      // returns false if role is already there
+      ResultCode appendRole(const RoleID& role_id, const Roles& role_set);
+      // returns false if account has no such a role
+      ResultCode detachRole(const RoleID& role_id, const Roles& role_set);
+
+    };
+
     class Accounts {
      public:
       explicit Accounts(WsvSqliteDB& db);
@@ -268,6 +245,7 @@ namespace iroha {
       // returns nullptr if no account with id
       Account* getAccount(const AccountID& id);
 
+      void loadAccountAssets(Account& account);
 
      private:
       WsvSqliteDB& db_;
