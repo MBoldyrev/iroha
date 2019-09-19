@@ -38,6 +38,14 @@ namespace iroha {
           const AccountID& writer,
           const ID& key
       );
+      bool get(
+          const ID& iterate_from,
+          const AccountID& account,
+          const ID& key,
+          const AccountID& writer,
+          const GetFunction& callback,
+          size_t& total_rows
+      );
       bool getByAccountAndKey(
           const ID& iterate_from,
           const AccountID& account,
@@ -63,6 +71,10 @@ namespace iroha {
           const AccountID& account,
           const GetFunction& callback,
           size_t& total_rows
+      );
+
+      ID makeCompositeKey(
+          const AccountID& account, const ID& key, const AccountID& writer
       );
 
      private:

@@ -12,7 +12,7 @@ add_library(new_storage
     block_query_impl.cpp
     block_storage_impl.cpp
     block_storage_factory.cpp
-    memory_wsv.cpp
+    immutable_wsv.cpp
     account_detail_storage.cpp)
 
 target_link_libraries(

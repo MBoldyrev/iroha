@@ -276,5 +276,36 @@ namespace iroha {
       return ak_size;
     }
 
+    ID AccountDetailStorage::makeCompositeKey(
+        const AccountID& account, const ID& key, const AccountID& writer
+    ) {
+      makeKey(account, key, writer);
+      return ID(buffers_[akw_buffer]);
+    }
+
+    bool AccountDetailStorage::get(
+        const ID& iterate_from,
+        const AccountID& account,
+        const ID& key,
+        const AccountID& writer,
+        const GetFunction& callback,
+        size_t& total_rows
+    ) {
+      if (account.empty()) return false;
+      if (key.empty()) {
+        if (!writer.empty()) {
+          return getByAccountAndWriter(
+              iterate_from, account, writer, callback, total_rows);
+        }
+      }
+      if (writer.empty()) {
+        if (!key.empty()) {
+          return getByAccountAndKey(
+              iterate_from, account, key, callback, total_rows);
+        }
+      }
+      return getByAccount(iterate_from, account, callback, total_rows);
+    }
+
   }
 }

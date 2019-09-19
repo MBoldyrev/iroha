@@ -14,7 +14,6 @@
 namespace iroha {
   namespace newstorage {
     class SqliteWrapper;
-    class PreparedStatement;
 
     using Blob = std::vector<char>;
 
