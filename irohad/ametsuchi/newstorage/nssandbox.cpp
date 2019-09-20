@@ -1,11 +1,21 @@
 #include "wsv_sqlite_db.hpp"
+#include "sqlite_wrapper.hpp"
 #include "keyvalue_db_backend.hpp"
 #include <iostream>
 
 using namespace iroha::newstorage;
 
 void rel_test_1() {
-  WsvSqliteDB db("sandbox/sandbox.db", nullptr);
+  using namespace std;
+  WsvSqliteDB db(SqliteWrapper::create("sandbox/sandbox.db"), nullptr);
+
+  db.addPeer("pk1", "ad1");
+  db.addPeer("pk2", "ad2");
+  db.addPeer("pk3", "ad3");
+  db.loadPeers([](const string& pk, const string& a) {
+    cout << pk << " : " << a << '\n';
+  });
+  //etc
 }
 
 void kv_test_1() {
