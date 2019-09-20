@@ -10,6 +10,8 @@
 #include "framework/test_logger.hpp"
 #include "main/server_runner.hpp"
 
+using iroha::network::ServerRunner;
+
 boost::format address{"0.0.0.0:%d"};
 auto port_visitor = iroha::make_visitor(
     [](iroha::expected::Value<int> x) { return x.value; },
@@ -22,7 +24,7 @@ auto port_visitor = iroha::make_visitor(
  */
 TEST(ServerRunnerTest, SamePortNoReuse) {
   ServerRunner first_runner(
-      (address % 0).str(), getTestLogger("ServerRunner1"), true);
+      (address % 0).str(), getTestLoggerManager("ServerRunner1"), true);
   auto first_query_service =
       std::make_shared<iroha::protocol::QueryService_v1::Service>();
   auto result = first_runner.append(first_query_service).run();
@@ -30,7 +32,7 @@ TEST(ServerRunnerTest, SamePortNoReuse) {
   ASSERT_NE(0, port);
 
   ServerRunner second_runner(
-      (address % port).str(), getTestLogger("ServerRunner2"), false);
+      (address % port).str(), getTestLoggerManager("ServerRunner2"), false);
   auto second_query_service =
       std::make_shared<iroha::protocol::QueryService_v1::Service>();
   result = second_runner.append(second_query_service).run();
@@ -45,7 +47,7 @@ TEST(ServerRunnerTest, SamePortNoReuse) {
  */
 TEST(ServerRunnerTest, SamePortWithReuse) {
   ServerRunner first_runner(
-      (address % 0).str(), getTestLogger("ServerRunner1"), true);
+      (address % 0).str(), getTestLoggerManager("ServerRunner1"), true);
   auto first_query_service =
       std::make_shared<iroha::protocol::QueryService_v1::Service>();
   auto result = first_runner.append(first_query_service).run();
@@ -53,7 +55,7 @@ TEST(ServerRunnerTest, SamePortWithReuse) {
   ASSERT_NE(0, port);
 
   ServerRunner second_runner(
-      (address % port).str(), getTestLogger("ServerRunner2"), true);
+      (address % port).str(), getTestLoggerManager("ServerRunner2"), true);
   auto second_query_service =
       std::make_shared<iroha::protocol::QueryService_v1::Service>();
   result = second_runner.append(second_query_service).run();

@@ -30,6 +30,7 @@
 
 #include "framework/common_constants.hpp"
 #include "main/server_runner.hpp"
+#include "network/impl/channel_factory.hpp"
 #include "torii/processor/query_processor_impl.hpp"
 #include "torii/query_client.hpp"
 #include "torii/query_service.hpp"
@@ -57,8 +58,8 @@ using ErrorQueryType =
 class ToriiQueriesTest : public testing::Test {
  public:
   virtual void SetUp() {
-    runner = std::make_unique<ServerRunner>(ip + ":0",
-                                            getTestLogger("ServerRunner"));
+    runner = std::make_unique<iroha::network::ServerRunner>(
+        ip + ":0", getTestLoggerManager("ServerRunner"));
     wsv_query = std::make_shared<MockWsvQuery>();
     block_query = std::make_shared<MockBlockQuery>();
     query_executor = std::make_shared<MockQueryExecutor>();
@@ -94,6 +95,10 @@ class ToriiQueriesTest : public testing::Test {
         .match([this](auto port) { this->port = port.value; },
                [](const auto &err) { FAIL() << err.error; });
 
+    stub_ = iroha::network::createInsecureClient<
+        torii_utils::QuerySyncClient::Service>(
+        ip, port, *iroha::network::getDefaultChannelParams());
+
     runner->waitForServersReady();
   }
 
@@ -126,11 +131,12 @@ class ToriiQueriesTest : public testing::Test {
             std::move(proto_blocks_query_validator));
   }
 
-  std::unique_ptr<ServerRunner> runner;
+  std::unique_ptr<iroha::network::ServerRunner> runner;
   shared_model::crypto::Keypair pair =
       shared_model::crypto::DefaultCryptoAlgorithmType::generateKeypair();
   std::vector<shared_model::interface::types::PubkeyType> signatories = {
       pair.publicKey()};
+  std::shared_ptr<torii_utils::QuerySyncClient::Service::StubInterface> stub_;
 
   std::shared_ptr<MockWsvQuery> wsv_query;
   std::shared_ptr<MockBlockQuery> block_query;
@@ -160,7 +166,7 @@ TEST_F(ToriiQueriesTest, QueryClient) {
                    .signAndAddSignature(pair)
                    .finish();
 
-  auto client1 = torii_utils::QuerySyncClient(ip, port);
+  auto client1 = torii_utils::QuerySyncClient(stub_);
   // Copy ctor
   torii_utils::QuerySyncClient client2(client1);
   // copy assignment
@@ -186,8 +192,8 @@ TEST_F(ToriiQueriesTest, FindWhenResponseInvalid) {
                    .signAndAddSignature(pair)
                    .finish();
 
-  auto stat = torii_utils::QuerySyncClient(ip, port).Find(query.getTransport(),
-                                                          response);
+  auto stat =
+      torii_utils::QuerySyncClient(stub_).Find(query.getTransport(), response);
   shared_model::proto::QueryResponse resp{
       iroha::protocol::QueryResponse{response}};
   ASSERT_TRUE(stat.ok());
@@ -230,7 +236,7 @@ TEST_F(ToriiQueriesTest, FindAccountWhenNoGrantPermissions) {
   EXPECT_CALL(*query_executor, validateAndExecute_(_))
       .WillRepeatedly(Return(r));
 
-  auto stat = torii_utils::QuerySyncClient(ip, port).Find(
+  auto stat = torii_utils::QuerySyncClient(stub_).Find(
       model_query.getTransport(), response);
 
   ASSERT_TRUE(stat.ok());
@@ -276,7 +282,7 @@ TEST_F(ToriiQueriesTest, FindAccountWhenHasReadPermissions) {
   EXPECT_CALL(*query_executor, validateAndExecute_(_))
       .WillRepeatedly(Return(r));
 
-  auto stat = torii_utils::QuerySyncClient(ip, port).Find(
+  auto stat = torii_utils::QuerySyncClient(stub_).Find(
       model_query.getTransport(), response);
   shared_model::proto::QueryResponse resp{
       iroha::protocol::QueryResponse{response}};
@@ -323,7 +329,7 @@ TEST_F(ToriiQueriesTest, FindAccountWhenHasRolePermission) {
   EXPECT_CALL(*query_executor, validateAndExecute_(_))
       .WillRepeatedly(Return(r));
 
-  auto stat = torii_utils::QuerySyncClient(ip, port).Find(
+  auto stat = torii_utils::QuerySyncClient(stub_).Find(
       model_query.getTransport(), response);
   shared_model::proto::QueryResponse resp{
       iroha::protocol::QueryResponse{response}};
@@ -373,7 +379,7 @@ TEST_F(ToriiQueriesTest, FindAccountAssetWhenNoGrantPermissions) {
   EXPECT_CALL(*query_executor, validateAndExecute_(_))
       .WillRepeatedly(Return(r));
 
-  auto stat = torii_utils::QuerySyncClient(ip, port).Find(
+  auto stat = torii_utils::QuerySyncClient(stub_).Find(
       model_query.getTransport(), response);
   shared_model::proto::QueryResponse resp{
       iroha::protocol::QueryResponse{response}};
@@ -421,7 +427,7 @@ TEST_F(ToriiQueriesTest, FindAccountAssetWhenHasRolePermissions) {
   EXPECT_CALL(*query_executor, validateAndExecute_(_))
       .WillRepeatedly(Return(r));
 
-  auto stat = torii_utils::QuerySyncClient(ip, port).Find(
+  auto stat = torii_utils::QuerySyncClient(stub_).Find(
       model_query.getTransport(), response);
 
   auto hash = response.query_hash();
@@ -478,7 +484,7 @@ TEST_F(ToriiQueriesTest, FindSignatoriesWhenNoGrantPermissions) {
   EXPECT_CALL(*query_executor, validateAndExecute_(_))
       .WillRepeatedly(Return(r));
 
-  auto stat = torii_utils::QuerySyncClient(ip, port).Find(
+  auto stat = torii_utils::QuerySyncClient(stub_).Find(
       model_query.getTransport(), response);
   ASSERT_TRUE(stat.ok());
   // Must be invalid due to failed stateful validation caused by no permission
@@ -522,7 +528,7 @@ TEST_F(ToriiQueriesTest, FindSignatoriesHasRolePermissions) {
   EXPECT_CALL(*query_executor, validateAndExecute_(_))
       .WillRepeatedly(Return(r));
 
-  auto stat = torii_utils::QuerySyncClient(ip, port).Find(
+  auto stat = torii_utils::QuerySyncClient(stub_).Find(
       model_query.getTransport(), response);
   shared_model::proto::QueryResponse shared_response{
       iroha::protocol::QueryResponse{response}};
@@ -589,7 +595,7 @@ TEST_F(ToriiQueriesTest, FindTransactionsWhenValid) {
   EXPECT_CALL(*query_executor, validateAndExecute_(_))
       .WillRepeatedly(Return(r));
 
-  auto stat = torii_utils::QuerySyncClient(ip, port).Find(
+  auto stat = torii_utils::QuerySyncClient(stub_).Find(
       model_query.getTransport(), response);
   ASSERT_TRUE(stat.ok());
   // Should not return Error Response because tx is stateless and stateful valid
@@ -610,7 +616,7 @@ TEST_F(ToriiQueriesTest, FindTransactionsWhenValid) {
 }
 
 TEST_F(ToriiQueriesTest, FindManyTimesWhereQueryServiceSync) {
-  auto client = torii_utils::QuerySyncClient(ip, port);
+  auto client = torii_utils::QuerySyncClient(stub_);
 
   for (size_t i = 0; i < TimesFind; ++i) {
     iroha::protocol::QueryResponse response;

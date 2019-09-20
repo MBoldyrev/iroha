@@ -20,7 +20,11 @@
 #include "network/impl/async_grpc_client.hpp"
 #include "ordering/impl/on_demand_os_client_grpc.hpp"
 
-class ServerRunner;
+namespace iroha {
+  namespace network {
+    class ServerRunner;
+  }
+}  // namespace iroha
 
 namespace integration_framework {
   namespace fake_peer {
@@ -95,7 +99,7 @@ namespace integration_framework {
       ProposalStorage &getProposalStorage();
 
       /// Start the fake peer.
-      std::unique_ptr<ServerRunner> run();
+      std::unique_ptr<iroha::network::ServerRunner> run();
 
       /// Get the address:port string of this peer.
       std::string getAddress() const;
@@ -235,6 +239,7 @@ namespace integration_framework {
           real_peer_;  ///< the real instance
 
       std::shared_ptr<AsyncCall> async_call_;
+      std::shared_ptr<iroha::network::GenericClientFactory> client_factory_;
 
       std::shared_ptr<MstTransport> mst_transport_;
       std::shared_ptr<YacTransport> yac_transport_;
@@ -248,8 +253,6 @@ namespace integration_framework {
       std::shared_ptr<OnDemandOsNetworkNotifier> od_os_network_notifier_;
 
       std::shared_ptr<iroha::consensus::yac::YacCryptoProvider> yac_crypto_;
-
-      std::shared_ptr<iroha::network::ClientFactory> client_factory_;
 
       std::shared_ptr<Behaviour> behaviour_;
       std::shared_ptr<BlockStorage> block_storage_;

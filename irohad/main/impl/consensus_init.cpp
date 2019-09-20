@@ -97,17 +97,17 @@ namespace iroha {
               async_call,
           ConsistencyModel consistency_model,
           const logger::LoggerManagerTreePtr &consensus_log_manager,
-          const std::shared_ptr<iroha::network::ClientFactory>
-              &client_factory) {
+          std::shared_ptr<iroha::network::GenericClientFactory>
+              client_factory) {
         auto peer_orderer = createPeerOrderer(peer_query_factory);
         auto peers = peer_query_factory->createPeerQuery() |
             [](auto &&peer_query) { return peer_query->getLedgerPeers(); };
 
         consensus_network_ = std::make_shared<NetworkImpl>(
             async_call,
-            [&client_factory](const shared_model::interface::Peer &peer) {
-              return client_factory->createClient<proto::Yac>(peer.address());
-            },
+            std::make_unique<
+                iroha::network::ClientFactoryImpl<NetworkImpl::Service>>(
+                std::move(client_factory)),
             consensus_log_manager->getChild("Network")->getLogger());
 
         auto yac = createYac(*ClusterOrdering::create(peers.value()),

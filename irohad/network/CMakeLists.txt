@@ -24,7 +24,6 @@ target_link_libraries(block_loader
     schema
     logger
     common
-    grpc_client_factory
     )
 
 add_library(block_loader_service
@@ -44,13 +43,48 @@ target_link_libraries(ordering_gate_common
 
 add_library(grpc_client_factory
     impl/client_factory.cpp
-    impl/channel_pool.cpp
+    )
+target_link_libraries(grpc_client_factory
+    PUBLIC
+    grpc++
     )
 
-target_link_libraries(grpc_client_factory
-    ametsuchi
-    loader_grpc
-    ordering_grpc
-    yac_grpc
-    endpoint
+add_library(grpc_channel_pool
+    impl/channel_pool.cpp
+    )
+target_link_libraries(grpc_channel_pool
+    PRIVATE
+    common
+    crypto_blob_hasher
+    grpc_channel_factory
+    shared_model_interfaces
+    PUBLIC
+    grpc++
+    )
+
+add_library(grpc_channel_factory
+    impl/channel_factory.cpp
+    )
+target_link_libraries(grpc_channel_factory
+    PUBLIC
+    grpc++
+    )
+
+add_library(tls_credentials
+    impl/tls_credentials.cpp
+    )
+target_link_libraries(tls_credentials
+    common
+    )
+
+add_library(grpc_channel_factory_tls
+    impl/channel_factory_tls.cpp
+    impl/peer_tls_certificates_provider_root.cpp
+    impl/peer_tls_certificates_provider_wsv.cpp
+    )
+target_link_libraries(grpc_channel_factory_tls
+    grpc_channel_factory
+    grpc++
+    logger
+    shared_model_interfaces
     )

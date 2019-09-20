@@ -11,20 +11,26 @@
 #include "model/converters/json_transaction_factory.hpp"
 #include "model/converters/pb_query_factory.hpp"
 #include "model/converters/pb_transaction_factory.hpp"
-#include "network/impl/client_factory.hpp"
+#include "network/impl/channel_factory.hpp"
+
+template <typename Service>
+std::shared_ptr<typename Service::StubInterface> makeStub(std::string target_ip,
+                                                          int port) {
+  using namespace iroha::network;
+  static const auto kChannelParams = getDefaultChannelParams();
+  return createInsecureClient<Service>(target_ip, port, *kChannelParams);
+}
 
 namespace iroha_cli {
 
-  CliClient::CliClient(
-      std::string target_ip,
-      int port,
-      logger::LoggerPtr pb_qry_factory_log,
-      const std::shared_ptr<iroha::network::ClientFactory> &client_factory)
+  CliClient::CliClient(std::string target_ip,
+                       int port,
+                       logger::LoggerPtr pb_qry_factory_log)
       : command_client_(
-      client_factory->createClient<iroha::protocol::CommandService_v1>(
-              target_ip + ":" + std::to_string(port)),
-          pb_qry_factory_log),
-        query_client_(target_ip, port),
+            makeStub<torii::CommandSyncClient::Service>(target_ip, port),
+            pb_qry_factory_log),
+        query_client_(
+            makeStub<torii_utils::QuerySyncClient::Service>(target_ip, port)),
         pb_qry_factory_log_(std::move(pb_qry_factory_log)) {}
 
   CliClient::Response<CliClient::TxStatus> CliClient::sendTx(

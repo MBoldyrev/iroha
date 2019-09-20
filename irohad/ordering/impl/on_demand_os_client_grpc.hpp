@@ -15,6 +15,10 @@
 #include "ordering.grpc.pb.h"
 
 namespace iroha {
+  namespace network {
+    template <typename Service>
+    class ClientFactory;
+  }
   namespace ordering {
     namespace transport {
 
@@ -35,7 +39,7 @@ namespace iroha {
          * stub interface
          */
         OnDemandOsClientGrpc(
-            std::unique_ptr<proto::OnDemandOrdering::StubInterface> stub,
+            std::shared_ptr<proto::OnDemandOrdering::StubInterface> stub,
             std::shared_ptr<network::AsyncGrpcClient<google::protobuf::Empty>>
                 async_call,
             std::shared_ptr<TransportFactoryType> proposal_factory,
@@ -50,7 +54,7 @@ namespace iroha {
 
        private:
         logger::LoggerPtr log_;
-        std::unique_ptr<proto::OnDemandOrdering::StubInterface> stub_;
+        std::shared_ptr<proto::OnDemandOrdering::StubInterface> stub_;
         std::shared_ptr<network::AsyncGrpcClient<google::protobuf::Empty>>
             async_call_;
         std::shared_ptr<TransportFactoryType> proposal_factory_;
@@ -60,6 +64,9 @@ namespace iroha {
 
       class OnDemandOsClientGrpcFactory : public OdOsNotificationFactory {
        public:
+        using Service = proto::OnDemandOrdering;
+        using ClientFactory = iroha::network::ClientFactory<Service>;
+
         using TransportFactoryType = OnDemandOsClientGrpc::TransportFactoryType;
         OnDemandOsClientGrpcFactory(
             std::shared_ptr<network::AsyncGrpcClient<google::protobuf::Empty>>
@@ -68,12 +75,10 @@ namespace iroha {
             std::function<OnDemandOsClientGrpc::TimepointType()> time_provider,
             OnDemandOsClientGrpc::TimeoutType proposal_request_timeout,
             logger::LoggerPtr client_log,
-            std::shared_ptr<iroha::network::ClientFactory> client_factory);
+            std::unique_ptr<ClientFactory> client_factory);
 
         /**
-         * Create connection with insecure gRPC channel defined by
-         * network::createClient method
-         * @see network/impl/grpc_channel_builder.hpp
+         * Create connection with insecure gRPC channel.
          * This factory method can be used in production code
          */
         std::unique_ptr<OdOsNotification> create(
@@ -86,7 +91,7 @@ namespace iroha {
         std::function<OnDemandOsClientGrpc::TimepointType()> time_provider_;
         std::chrono::milliseconds proposal_request_timeout_;
         logger::LoggerPtr client_log_;
-        std::shared_ptr<network::ClientFactory> client_factory_;
+        std::unique_ptr<ClientFactory> client_factory_;
       };
 
     }  // namespace transport

@@ -10,7 +10,7 @@
 #include "endpoint.grpc.pb.h"
 #include "framework/test_logger.hpp"
 #include "main/server_runner.hpp"
-#include "network/impl/grpc_channel_builder.hpp"
+#include "network/impl/channel_factory.hpp"
 #include "qry_responses.pb.h"
 #include "queries.pb.h"
 
@@ -44,8 +44,8 @@ namespace {
 
   auto makeRunner() {
     auto listen_addr = std::string(kListenIP) + ":0";
-    auto logger = getTestLogger("TestServerRunner");
-    return std::make_shared<ServerRunner>(listen_addr, logger, true);
+    auto logger_manager = getTestLoggerManager("TestServerRunner");
+    return std::make_shared<ServerRunner>(listen_addr, logger_manager, true);
   }
 
   std::shared_ptr<ServerRunner> makeServer(int max_attempts, int &port) {

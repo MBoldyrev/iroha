@@ -3,69 +3,80 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef IROHA_CLIENT_PROVIDER
-#define IROHA_CLIENT_PROVIDER
+#ifndef IROHA_CLIENT_FACTORY_HPP
+#define IROHA_CLIENT_FACTORY_HPP
 
-#include "network/impl/channel_pool.hpp"
+#include <memory>
 
-#include <string>
+#include "network/impl/channel_provider.hpp"
 
-#include <boost/optional.hpp>
+namespace shared_model {
+  namespace interface {
+    class Peer;
+  }
+}  // namespace shared_model
 
 namespace iroha {
   namespace network {
-    class ClientFactory {
+    class ChannelProvider;
+
+    class GenericClientFactory {
      public:
-      /**
-       * Constructor with TLS, fetching certificates from peer data
-       * @param peer_query peer query to fetch TLS certificates for peers
-       * @param keypair_path optional path to a pair of PEM-encoded key and
-       *        certificate for client authentication
-       */
-      ClientFactory(
-          std::shared_ptr<ametsuchi::PeerQuery> peer_query,
-          const boost::optional<std::string> &keypair_path = boost::none);
-
-      /**
-       * Constructor with TLS, fetching certificate from a file
-       * @param root_certificate_path path to the PEM-encoded root certificate
-       * @param keypair_path optional path to a pair of PEM-encoded key and
-       *        certificate for client authentication
-       */
-      ClientFactory(
-          const std::string &root_certificate_path,
-          const boost::optional<std::string> &keypair_path = boost::none);
-
-      /**
-       * Constructor without TLS
-       */
-      ClientFactory();
+      GenericClientFactory(std::unique_ptr<ChannelProvider> channel_provider);
 
       /**
        * Creates client which is capable of sending and receiving
        * messages of INT_MAX bytes size
-       * @tparam T type for gRPC stub, e.g. proto::Yac
+       * @tparam Service type for gRPC stub, e.g. proto::Yac
        * @param address ip address for connection, ipv4:port
        * @return gRPC stub of parametrized type
        */
-      template <typename T>
-      std::unique_ptr<typename T::Stub> createClient(
-          const std::string &address);
-
-      /**
-       * Is TLS enabled in this factory?
-       * @return whether TLS is enabled
-       */
-      bool isTLSEnabled();
+      template <typename Service>
+      std::unique_ptr<typename Service::StubInterface> createClient(
+          const shared_model::interface::Peer &peer) const {
+        auto channel =
+            channel_provider_->getChannel(Service::service_full_name(), peer);
+        return Service::NewStub(channel);
+      }
 
      private:
-      template <typename T>
-      auto createClientWithChannel(std::shared_ptr<grpc::Channel> channel);
-
-      ChannelPool channel_pool_;
-      bool tls_enabled_ = false;
+      std::unique_ptr<ChannelProvider> channel_provider_;
     };
+
+    template <typename Service>
+    class ClientFactory {
+     public:
+      virtual ~ClientFactory() = default;
+
+      virtual std::unique_ptr<typename Service::StubInterface> createClient(
+          const shared_model::interface::Peer &peer) const = 0;
+    };
+
+    template <typename Service>
+    class ClientFactoryImpl : public ClientFactory<Service> {
+     public:
+      ClientFactoryImpl(
+          std::shared_ptr<const GenericClientFactory> generic_factory)
+          : generic_factory_(std::move(generic_factory)) {}
+
+      std::unique_ptr<typename Service::StubInterface> createClient(
+          const shared_model::interface::Peer &peer) const override {
+        return generic_factory_->createClient<Service>(peer);
+      }
+
+     private:
+      std::shared_ptr<const GenericClientFactory> generic_factory_;
+    };
+
+    template <typename Transport>
+    auto makeTransportClientFactory(
+        std::shared_ptr<iroha::network::GenericClientFactory> generic_factory) {
+      return std::make_unique<
+          iroha::network::ClientFactoryImpl<typename Transport::Service>>(
+          std::move(generic_factory));
+    }
+
   }  // namespace network
 }  // namespace iroha
 
-#endif  // IROHA_CLIENT_PROVIDER
+#endif

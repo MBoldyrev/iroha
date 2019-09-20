@@ -5,94 +5,55 @@
 
 #include "network/impl/channel_pool.hpp"
 
-#include <fstream>
-#include <sstream>
+#include <shared_mutex>
+#include <unordered_map>
 
-#include "backend/protobuf/common_objects/peer.hpp"
+#include "cryptography/blob_hasher.hpp"
+#include "cryptography/public_key.hpp"
+#include "interfaces/common_objects/peer.hpp"
+#include "interfaces/common_objects/types.hpp"
+#include "network/impl/channel_provider.hpp"
 
-namespace iroha {
-  namespace network {
-    ChannelPool::ChannelPool(std::shared_ptr<ametsuchi::PeerQuery> peer_query,
-                             const boost::optional<std::string> &keypair_path)
-        : tls_enabled_(true), peer_query_(peer_query) {
-      readKeypair(keypair_path);
+using namespace iroha::network;
+
+class ChannelPool::Impl {
+ public:
+  Impl(std::unique_ptr<ChannelProvider> channel_provider)
+      : channel_provider_(std::move(channel_provider)) {}
+
+  std::shared_ptr<grpc::Channel> getOrCreate(
+      const std::string &service_full_name,
+      const shared_model::interface::Peer &peer) {
+    std::shared_lock<std::shared_timed_mutex> read_lock(mutex_);
+    auto i = channels_.find(peer.pubkey());
+    if (i != channels_.end()) {
+      return i->second;
     }
+    read_lock.unlock();
 
-    ChannelPool::ChannelPool(const std::string &root_certificate_path,
-                             const boost::optional<std::string> &keypair_path)
-        : tls_enabled_(true),
-          root_certificate_(readFile(root_certificate_path)) {
-      readKeypair(keypair_path);
-    }
+    auto new_channel = channel_provider_->getChannel(service_full_name, peer);
+    std::unique_lock<std::shared_timed_mutex> write_lock(mutex_);
+    channels_[peer.pubkey()] = new_channel;
+    return new_channel;
+  }
 
-    ChannelPool::ChannelPool() : tls_enabled_(false) {}
+ private:
+  std::unique_ptr<ChannelProvider> channel_provider_;
 
-    auto ChannelPool::createChannel(const std::string &address) {
-      // in order to bypass built-in limitation of gRPC message size
-      grpc::ChannelArguments args;
-      args.SetMaxSendMessageSize(INT_MAX);
-      args.SetMaxReceiveMessageSize(INT_MAX);
+  std::shared_timed_mutex mutex_;
+  std::unordered_map<shared_model::crypto::PublicKey,
+                     std::shared_ptr<grpc::Channel>,
+                     shared_model::crypto::BlobHasher>
+      channels_;
+};
 
-      return grpc::CreateCustomChannel(
-          address, getChannelCredentials(address), args);
-    }
+ChannelPool::ChannelPool(std::unique_ptr<ChannelProvider> channel_provider)
+    : impl_(std::make_unique<Impl>(std::move(channel_provider))) {}
 
-    std::shared_ptr<grpc::Channel> ChannelPool::getChannel(
-        const std::string &address) {
-      if (channels_.find(address) == channels_.end()) {
-        channels_[address] = createChannel(address);
-      }
-      return channels_[address];
-    }
+ChannelPool::~ChannelPool() = default;
 
-    boost::optional<std::string> ChannelPool::getCertificate(
-        const std::string &address) {
-      if (not tls_enabled_)
-        return boost::none;
-      auto peers = (*peer_query_)->getLedgerPeers();
-      for (const auto &peer : *peers) {
-        if (peer->address() == address) {
-          return peer->tlsCertificate();
-        }
-      }
-      return boost::none;
-    }
-
-    std::shared_ptr<grpc::ChannelCredentials>
-    ChannelPool::getChannelCredentials(const std::string &address) {
-      if (root_certificate_) {
-        auto options = grpc::SslCredentialsOptions();
-        options.pem_root_certs = *root_certificate_;
-        return grpc::SslCredentials(options);
-      }
-      if (tls_enabled_) {
-        auto options = grpc::SslCredentialsOptions();
-        auto cert = getCertificate(address);
-        options.pem_root_certs = *cert;
-        if (private_key_) {
-          options.pem_private_key = *private_key_;
-        }
-        if (certificate_) {
-          options.pem_cert_chain = *certificate_;
-        }
-        return grpc::SslCredentials(options);
-      } else {
-        return grpc::InsecureChannelCredentials();
-      }
-    }
-
-    std::string ChannelPool::readFile(const std::string &path) {
-      std::ifstream certificate_file(path);
-      std::stringstream ss;
-      ss << certificate_file.rdbuf();
-      return ss.str();
-    }
-
-    void ChannelPool::readKeypair(const boost::optional<std::string> &path) {
-      if (path) {
-        private_key_ = readFile(*path + ".key");
-        certificate_ = readFile(*path + ".crt");
-      }
-    }
-  }  // namespace network
-}  // namespace iroha
+std::shared_ptr<grpc::Channel> ChannelPool::getChannel(
+    const std::string &service_full_name,
+    const shared_model::interface::Peer &peer) {
+  return impl_->getOrCreate(service_full_name, peer);
+}

@@ -26,13 +26,14 @@
 #include "framework/integration_framework/fake_peer/network/yac_network_notifier.hpp"
 #include "framework/integration_framework/fake_peer/proposal_storage.hpp"
 #include "framework/result_fixture.hpp"
+#include "framework/test_client_factory.hpp"
 #include "interfaces/common_objects/common_objects_factory.hpp"
 #include "logger/logger.hpp"
 #include "logger/logger_manager.hpp"
 #include "main/server_runner.hpp"
 #include "multi_sig_transactions/transport/mst_transport_grpc.hpp"
 #include "network/impl/async_grpc_client.hpp"
-#include "network/impl/grpc_channel_builder.hpp"
+#include "network/impl/client_factory.hpp"
 #include "ordering/impl/on_demand_os_client_grpc.hpp"
 #include "ordering/impl/on_demand_os_server_grpc.hpp"
 
@@ -94,6 +95,8 @@ namespace integration_framework {
           real_peer_(std::move(real_peer)),
           async_call_(std::make_shared<AsyncCall>(
               log_manager_->getChild("AsyncNetworkClient")->getLogger())),
+          client_factory_(iroha::network::getTestInsecureClientFactory(
+              iroha::network::getDefaultTestChannelParams())),
           mst_transport_(std::make_shared<MstTransport>(
               async_call_,
               transaction_factory,
@@ -104,15 +107,13 @@ namespace integration_framework {
                   std::chrono::minutes(0)),
               keypair_->publicKey(),
               mst_log_manager_->getChild("State")->getLogger(),
-              mst_log_manager_->getChild("Transport")->getLogger())),
-          client_factory_(std::make_shared<iroha::network::ClientFactory>()),
+              mst_log_manager_->getChild("Transport")->getLogger(),
+              iroha::network::makeTransportClientFactory<MstTransport>(
+                  client_factory_))),
           yac_transport_(std::make_shared<YacTransport>(
               async_call_,
-              [this](const shared_model::interface::Peer &peer) {
-                return client_factory_
-                    ->createClient<iroha::consensus::yac::proto::Yac>(
-                        peer.address());
-              },
+              iroha::network::makeTransportClientFactory<YacTransport>(
+                  client_factory_),
               consensus_log_manager_->getChild("Transport")->getLogger())),
           mst_network_notifier_(std::make_shared<MstNetworkNotifier>()),
           yac_network_notifier_(std::make_shared<YacNetworkNotifier>()),
@@ -135,12 +136,12 @@ namespace integration_framework {
     FakePeer &FakePeer::initialize() {
       BOOST_VERIFY_MSG(not initialized_, "Already initialized!");
       // here comes the initialization of members requiring shared_from_this()
-      synchronizer_transport_ = std::make_shared<LoaderGrpc>(
-          shared_from_this(),
-          log_manager_->getChild("Synchronizer")
-              ->getChild("Transport")
-              ->getLogger(),
-          std::make_shared<iroha::network::ClientFactory>());
+      synchronizer_transport_ =
+          std::make_shared<LoaderGrpc>(shared_from_this(),
+                                       log_manager_->getChild("Synchronizer")
+                                           ->getChild("Transport")
+                                           ->getLogger(),
+                                       client_factory_);
       od_os_network_notifier_ =
           std::make_shared<OnDemandOsNetworkNotifier>(shared_from_this());
       od_os_transport_ = std::make_shared<OdOsTransport>(
@@ -191,14 +192,12 @@ namespace integration_framework {
       return proposal_storage_;
     }
 
-    std::unique_ptr<ServerRunner> FakePeer::run() {
+    std::unique_ptr<iroha::network::ServerRunner> FakePeer::run() {
       ensureInitialized();
       // start instance
       log_->info("starting listening server");
-      auto internal_server = std::make_unique<ServerRunner>(
-          getAddress(),
-          log_manager_->getChild("InternalServer")->getLogger(),
-          false);
+      auto internal_server = std::make_unique<iroha::network::ServerRunner>(
+          getAddress(), log_manager_->getChild("InternalServer"), false);
       internal_server->append(yac_transport_)
           .append(mst_transport_)
           .append(od_os_transport_)
@@ -344,13 +343,11 @@ namespace integration_framework {
     }
 
     bool FakePeer::sendBlockRequest(const LoaderBlockRequest &request) {
-      return synchronizer_transport_->sendBlockRequest(real_peer_->address(),
-                                                       request);
+      return synchronizer_transport_->sendBlockRequest(*real_peer_, request);
     }
 
     size_t FakePeer::sendBlocksRequest(const LoaderBlocksRequest &request) {
-      return synchronizer_transport_->sendBlocksRequest(real_peer_->address(),
-                                                        request);
+      return synchronizer_transport_->sendBlocksRequest(*real_peer_, request);
     }
 
     void FakePeer::proposeBatches(BatchesCollection batches) {
@@ -377,7 +374,7 @@ namespace integration_framework {
       auto client =
           client_factory_
               ->createClient<iroha::ordering::proto::OnDemandOrdering>(
-                  real_peer_->address());
+                  *real_peer_);
       grpc::ClientContext context;
       google::protobuf::Empty result;
       client->SendBatches(&context, request, &result);
@@ -386,14 +383,16 @@ namespace integration_framework {
     boost::optional<std::shared_ptr<const shared_model::interface::Proposal>>
     FakePeer::sendProposalRequest(iroha::consensus::Round round,
                                   std::chrono::milliseconds timeout) const {
+      using iroha::ordering::transport::OnDemandOsClientGrpcFactory;
       auto on_demand_os_transport =
-          iroha::ordering::transport::OnDemandOsClientGrpcFactory(
+          OnDemandOsClientGrpcFactory(
               async_call_,
               proposal_factory_,
               [] { return std::chrono::system_clock::now(); },
               timeout,
               ordering_log_manager_->getChild("NetworkClient")->getLogger(),
-              std::make_shared<iroha::network::ClientFactory>())
+              iroha::network::makeTransportClientFactory<
+                  OnDemandOsClientGrpcFactory>(client_factory_))
               .create(*real_peer_);
       return on_demand_os_transport->onRequestProposal(round);
     }

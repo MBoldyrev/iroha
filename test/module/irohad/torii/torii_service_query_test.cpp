@@ -15,6 +15,7 @@
 #include "module/irohad/common/validators_config.hpp"
 #include "module/irohad/torii/processor/mock_query_processor.hpp"
 #include "module/shared_model/builders/protobuf/test_query_builder.hpp"
+#include "network/impl/channel_factory.hpp"
 #include "torii/query_client.hpp"
 #include "torii/query_service.hpp"
 #include "validators/protobuf/proto_query_validator.hpp"
@@ -32,8 +33,8 @@ using ::testing::Truly;
 class ToriiQueryServiceTest : public ::testing::Test {
  public:
   virtual void SetUp() {
-    runner = std::make_unique<ServerRunner>(ip + ":0",
-                                            getTestLogger("ServerRunner"));
+    runner = std::make_unique<iroha::network::ServerRunner>(
+        ip + ":0", getTestLoggerManager("ServerRunner"));
 
     // ----------- Command Service --------------
     query_processor = std::make_shared<iroha::torii::MockQueryProcessor>();
@@ -49,6 +50,10 @@ class ToriiQueryServiceTest : public ::testing::Test {
         .run()
         .match([this](auto port) { this->port = port.value; },
                [](const auto &err) { FAIL() << err.error; });
+
+    stub_ = iroha::network::createInsecureClient<
+        torii_utils::QuerySyncClient::Service>(
+        ip, port, *iroha::network::getDefaultChannelParams());
 
     runner->waitForServersReady();
   }
@@ -81,11 +86,12 @@ class ToriiQueryServiceTest : public ::testing::Test {
             std::move(proto_blocks_query_validator));
   }
 
-  std::unique_ptr<ServerRunner> runner;
+  std::unique_ptr<iroha::network::ServerRunner> runner;
   std::shared_ptr<iroha::torii::MockQueryProcessor> query_processor;
   std::shared_ptr<iroha::torii::QueryService::QueryFactoryType> query_factory;
   std::shared_ptr<iroha::torii::QueryService::BlocksQueryFactoryType>
       blocks_query_factory;
+  std::shared_ptr<torii_utils::QuerySyncClient::Service::StubInterface> stub_;
 
   iroha::protocol::Block block;
 
@@ -128,7 +134,7 @@ TEST_F(ToriiQueryServiceTest, FetchBlocksWhenValidQuery) {
               })))
       .WillOnce(Return(rxcpp::observable<>::just(block_response)));
 
-  auto client = torii_utils::QuerySyncClient(ip, port);
+  auto client = torii_utils::QuerySyncClient(stub_);
   auto proto_blocks_query =
       std::static_pointer_cast<shared_model::proto::BlocksQuery>(blocks_query);
   auto responses = client.FetchCommits(proto_blocks_query->getTransport());
@@ -159,7 +165,7 @@ TEST_F(ToriiQueryServiceTest, FetchBlocksWhenInvalidQuery) {
                   generateKeypair())
           .finish());
 
-  auto client = torii_utils::QuerySyncClient(ip, port);
+  auto client = torii_utils::QuerySyncClient(stub_);
   auto proto_blocks_query =
       std::static_pointer_cast<shared_model::proto::BlocksQuery>(blocks_query);
   auto responses = client.FetchCommits(proto_blocks_query->getTransport());

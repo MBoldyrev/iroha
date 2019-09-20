@@ -504,18 +504,19 @@ namespace integration_framework {
         iroha::ordering::transport::OnDemandOsClientGrpc::TransportFactoryType>
         proposal_factory_;
     std::shared_ptr<iroha::ametsuchi::TxPresenceCache> tx_presence_cache_;
+
+    std::shared_ptr<iroha::network::GenericClientFactory> client_factory_;
     std::shared_ptr<iroha::network::MstTransportGrpc> mst_transport_;
     std::shared_ptr<iroha::consensus::yac::YacNetwork> yac_transport_;
 
     boost::optional<shared_model::crypto::Keypair> my_key_;
     std::shared_ptr<shared_model::interface::Peer> this_peer_;
 
-    std::shared_ptr<iroha::network::ClientFactory> client_factory_;
-
    private:
     bool cleanup_on_exit_;
     std::vector<std::shared_ptr<fake_peer::FakePeer>> fake_peers_;
-    std::vector<std::unique_ptr<ServerRunner>> fake_peers_servers_;
+    std::vector<std::unique_ptr<iroha::network::ServerRunner>>
+        fake_peers_servers_;
   };
 
 }  // namespace integration_framework

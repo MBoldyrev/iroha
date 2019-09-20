@@ -21,6 +21,7 @@
 #include "builders/protobuf/transaction.hpp"
 #include "builders/protobuf/transaction_sequence_builder.hpp"
 #include "consensus/yac/transport/impl/network_impl.hpp"
+#include "cryptography/blob.hpp"
 #include "cryptography/crypto_provider/crypto_defaults.hpp"
 #include "cryptography/default_hash_provider.hpp"
 #include "datetime/time.hpp"
@@ -31,6 +32,7 @@
 #include "framework/integration_framework/port_guard.hpp"
 #include "framework/integration_framework/test_irohad.hpp"
 #include "framework/result_fixture.hpp"
+#include "framework/test_client_factory.hpp"
 #include "framework/test_logger.hpp"
 #include "interfaces/iroha_internal/transaction_batch_factory_impl.hpp"
 #include "interfaces/iroha_internal/transaction_batch_parser_impl.hpp"
@@ -46,7 +48,7 @@
 #include "multi_sig_transactions/transport/mst_transport_grpc.hpp"
 #include "network/consensus_gate.hpp"
 #include "network/impl/async_grpc_client.hpp"
-#include "network/impl/grpc_channel_builder.hpp"
+#include "network/impl/client_factory.hpp"
 #include "ordering/impl/on_demand_os_client_grpc.hpp"
 #include "synchronizer/synchronizer_common.hpp"
 #include "torii/status_bus.hpp"
@@ -77,11 +79,15 @@ using AlwaysValidProtoProposalValidator =
 using AlwaysMissingTxPresenceCache = iroha::ametsuchi::TxPresenceCacheStub<
     iroha::ametsuchi::tx_cache_status_responses::Missing>;
 using FakePeer = integration_framework::fake_peer::FakePeer;
+using iroha::network::makeTransportClientFactory;
 
 namespace {
   std::string kLocalHost = "127.0.0.1";
   constexpr size_t kDefaultToriiPort = 11501;
   constexpr size_t kDefaultInternalPort = 50541;
+
+  static const std::shared_ptr<iroha::network::GrpcChannelParams>
+      kChannelParams = iroha::network::getDefaultTestChannelParams();
 
   std::string format_address(std::string ip,
                              integration_framework::PortGuard::PortType port) {
@@ -157,12 +163,13 @@ namespace integration_framework {
                                             log_manager_->getChild("Irohad"),
                                             log_,
                                             dbname)),
-        client_factory_(std::make_shared<iroha::network::ClientFactory>()),
-        command_client_(
-            client_factory_->createClient<iroha::protocol::CommandService_v1>(
-                format_address(kLocalHost, torii_port_)),
-            log_manager_->getChild("CommandClient")->getLogger()),
-        query_client_(kLocalHost, torii_port_),
+        command_client_(iroha::network::createInsecureClient<
+                            torii::CommandSyncClient::Service>(
+                            kLocalHost, torii_port_, *kChannelParams),
+                        log_manager_->getChild("CommandClient")->getLogger()),
+        query_client_(iroha::network::createInsecureClient<
+                      torii_utils::QuerySyncClient::Service>(
+            kLocalHost, torii_port_, *kChannelParams)),
         async_call_(std::make_shared<AsyncCall>(
             log_manager_->getChild("AsyncCall")->getLogger())),
         tx_response_waiting(tx_response_waiting),
@@ -203,12 +210,12 @@ namespace integration_framework {
               std::move(proto_proposal_validator));
         }()),
         tx_presence_cache_(std::make_shared<AlwaysMissingTxPresenceCache>()),
+        client_factory_(
+            iroha::network::getTestInsecureClientFactory(kChannelParams)),
         yac_transport_(std::make_shared<iroha::consensus::yac::NetworkImpl>(
             async_call_,
-            [this](const shared_model::interface::Peer &peer) {
-              return client_factory_->createClient<
-                  iroha::consensus::yac::proto::Yac>(peer.address());
-            },
+            makeTransportClientFactory<iroha::consensus::yac::NetworkImpl>(
+                client_factory_),
             log_manager_->getChild("ConsensusTransport")->getLogger())),
         cleanup_on_exit_(cleanup_on_exit) {}
 
@@ -654,7 +661,9 @@ namespace integration_framework {
                                            // for a proposal request, which our
                                            // client does not do
             log_manager_->getChild("OrderingClientTransport")->getLogger(),
-            std::make_shared<iroha::network::ClientFactory>())
+            makeTransportClientFactory<
+                iroha::ordering::transport::OnDemandOsClientGrpcFactory>(
+                client_factory_))
             .create(*this_peer_);
     on_demand_os_transport->onBatches(batches);
     return *this;
@@ -670,7 +679,9 @@ namespace integration_framework {
             [] { return std::chrono::system_clock::now(); },
             timeout,
             log_manager_->getChild("OrderingClientTransport")->getLogger(),
-            std::make_shared<iroha::network::ClientFactory>())
+            makeTransportClientFactory<
+                iroha::ordering::transport::OnDemandOsClientGrpcFactory>(
+                client_factory_))
             .create(*this_peer_);
     return on_demand_os_transport->onRequestProposal(round);
   }
@@ -679,7 +690,12 @@ namespace integration_framework {
       const shared_model::crypto::PublicKey &src_key,
       const iroha::MstState &mst_state) {
     iroha::network::sendStateAsync(
-        *this_peer_, mst_state, src_key, *async_call_);
+        mst_state,
+        shared_model::crypto::toBinaryString(src_key),
+        *makeTransportClientFactory<iroha::network::MstTransportGrpc>(
+             client_factory_)
+             ->createClient(*this_peer_),
+        *async_call_);
     return *this;
   }
 

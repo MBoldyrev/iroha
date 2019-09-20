@@ -10,22 +10,60 @@
 #include <grpc/impl/codegen/grpc_types.h>
 #include <boost/format.hpp>
 #include "logger/logger.hpp"
+#include "logger/logger_manager.hpp"
 #include "main/server_runner_auth.hpp"
+#include "network/impl/peer_tls_certificates_provider.hpp"
+#include "network/impl/tls_credentials.hpp"
 
-const auto kPortBindError = "Cannot bind server to address %s";
+using namespace iroha::network;
+
+namespace {
+
+  const auto kPortBindError = "Cannot bind server to address %s";
+
+  std::shared_ptr<grpc::ServerCredentials> createCredentials(
+      const boost::optional<std::shared_ptr<const TlsCredentials>>
+          &my_tls_creds,
+      const boost::optional<std::shared_ptr<const PeerTlsCertificatesProvider>>
+          &peer_tls_certificates_provider,
+      logger::LoggerPtr log) {
+    std::shared_ptr<grpc::ServerCredentials> credentials;
+    if (my_tls_creds) {
+      grpc::SslServerCredentialsOptions::PemKeyCertPair keypair = {
+          my_tls_creds.value()->private_key, my_tls_creds.value()->certificate};
+      auto options = grpc::SslServerCredentialsOptions(
+          peer_tls_certificates_provider
+              ? GRPC_SSL_REQUEST_AND_REQUIRE_CLIENT_CERTIFICATE_BUT_DONT_VERIFY
+              : GRPC_SSL_DONT_REQUEST_CLIENT_CERTIFICATE);
+      options.pem_key_cert_pairs.push_back(keypair);
+      credentials = grpc::SslServerCredentials(options);
+    } else {
+      credentials = grpc::InsecureServerCredentials();
+    }
+    if (peer_tls_certificates_provider) {
+      credentials->SetAuthMetadataProcessor(
+          std::make_shared<PeerCertificateAuthMetadataProcessor>(
+              peer_tls_certificates_provider.value(), std::move(log)));
+    }
+    return credentials;
+  }
+
+}  // namespace
 
 ServerRunner::ServerRunner(
     const std::string &address,
-    logger::LoggerPtr log,
+    logger::LoggerManagerTreePtr log_manager,
     bool reuse,
-    const boost::optional<TlsKeypair> &tls_keypair,
-    const boost::optional<std::shared_ptr<iroha::ametsuchi::PeerQuery>>
-        &peer_query)
-    : log_(std::move(log)),
+    const boost::optional<std::shared_ptr<const TlsCredentials>> &my_tls_creds,
+    const boost::optional<std::shared_ptr<const PeerTlsCertificatesProvider>>
+        &peer_tls_certificates_provider)
+    : log_(log_manager->getLogger()),
       server_address_(address),
-      reuse_(reuse),
-      tls_keypair_(tls_keypair),
-      peer_query_(peer_query) {}
+      credentials_(createCredentials(
+          my_tls_creds,
+          peer_tls_certificates_provider,
+          log_manager->getChild("AuthMetaProcessor")->getLogger())),
+      reuse_(reuse) {}
 
 ServerRunner::~ServerRunner() {
   shutdown(std::chrono::system_clock::now());
@@ -44,7 +82,7 @@ iroha::expected::Result<int, std::string> ServerRunner::run() {
     builder.AddChannelArgument(GRPC_ARG_ALLOW_REUSEPORT, 0);
   }
 
-  addListeningPortToBuilder(builder, &selected_port);
+  builder.AddListeningPort(server_address_, credentials_, &selected_port);
 
   for (auto &service : services_) {
     builder.RegisterService(service.get());
@@ -72,36 +110,6 @@ void ServerRunner::waitForServersReady() {
   std::unique_lock<std::mutex> lock(wait_for_server_);
   while (not server_instance_) {
     server_instance_cv_.wait(lock);
-  }
-}
-
-std::shared_ptr<grpc::ServerCredentials>
-ServerRunner::createSecureCredentials() {
-  grpc::SslServerCredentialsOptions::PemKeyCertPair keypair = {
-      tls_keypair_->pem_private_key, tls_keypair_->pem_certificate};
-  auto options = grpc::SslServerCredentialsOptions();
-  options.pem_key_cert_pairs.push_back(keypair);
-  if (peer_query_) {  // client verification is only enabled if using peer_query
-    options.pem_root_certs = tls_keypair_->pem_certificate;  // dummy value
-    options.client_certificate_request =
-        GRPC_SSL_REQUEST_AND_REQUIRE_CLIENT_CERTIFICATE_BUT_DONT_VERIFY;
-  }
-  auto credentials = grpc::SslServerCredentials(options);
-  if (peer_query_) {
-    credentials->SetAuthMetadataProcessor(
-        std::make_shared<PeerCertificateAuthMetadataProcessor>(*peer_query_));
-  }
-  return credentials;
-}
-
-void ServerRunner::addListeningPortToBuilder(grpc::ServerBuilder &builder,
-                                             int *selected_port) {
-  if (tls_keypair_) {  // if specified, requested to enable TLS
-    auto credentials = createSecureCredentials();
-    builder.AddListeningPort(server_address_, credentials, selected_port);
-  } else {  // tls is disabled
-    builder.AddListeningPort(
-        server_address_, grpc::InsecureServerCredentials(), selected_port);
   }
 }
 

@@ -31,11 +31,11 @@ BlockLoaderImpl::BlockLoaderImpl(
     std::shared_ptr<PeerQueryFactory> peer_query_factory,
     shared_model::proto::ProtoBlockFactory factory,
     logger::LoggerPtr log,
-    std::shared_ptr<iroha::network::ClientFactory> client_factory)
+    std::unique_ptr<ClientFactory> client_factory)
     : peer_query_factory_(std::move(peer_query_factory)),
       block_factory_(std::move(factory)),
-      log_(std::move(log)),
-      client_factory_(client_factory) {}
+      client_factory_(std::move(client_factory)),
+      log_(std::move(log)) {}
 
 rxcpp::observable<std::shared_ptr<Block>> BlockLoaderImpl::retrieveBlocks(
     const shared_model::interface::types::HeightType height,
@@ -60,8 +60,8 @@ rxcpp::observable<std::shared_ptr<Block>> BlockLoaderImpl::retrieveBlocks(
         // request next block to our top
         request.set_height(height + 1);
 
-        auto reader =
-            this->getPeerStub(**peer).retrieveBlocks(&context, request);
+        auto reader = this->client_factory_->createClient(*peer.value())
+                          ->retrieveBlocks(&context, request);
         while (subscriber.is_subscribed() and reader->Read(&block)) {
           block_factory_.createBlock(std::move(block))
               .match(
@@ -93,7 +93,8 @@ boost::optional<std::shared_ptr<Block>> BlockLoaderImpl::retrieveBlock(
   // request block with specified height
   request.set_height(block_height);
 
-  auto status = getPeerStub(**peer).retrieveBlock(&context, request, &block);
+  auto status = this->client_factory_->createClient(*peer.value())
+                    ->retrieveBlock(&context, request, &block);
   if (not status.ok()) {
     log_->warn("{}", status.error_message());
     return boost::none;
@@ -130,17 +131,4 @@ BlockLoaderImpl::findPeer(const shared_model::crypto::PublicKey &pubkey) {
     return boost::none;
   }
   return *it;
-}
-
-proto::Loader::StubInterface &BlockLoaderImpl::getPeerStub(
-    const shared_model::interface::Peer &peer) {
-  auto it = peer_connections_.find(peer.address());
-  if (it == peer_connections_.end()) {
-    it = peer_connections_
-             .insert(std::make_pair(
-                 peer.address(),
-                 client_factory_->createClient<proto::Loader>(peer.address())))
-             .first;
-  }
-  return *it->second;
 }
