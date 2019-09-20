@@ -27,19 +27,18 @@ namespace {
       const boost::optional<std::shared_ptr<const PeerTlsCertificatesProvider>>
           &peer_tls_certificates_provider,
       logger::LoggerPtr log) {
-    std::shared_ptr<grpc::ServerCredentials> credentials;
-    if (my_tls_creds) {
-      grpc::SslServerCredentialsOptions::PemKeyCertPair keypair = {
-          my_tls_creds.value()->private_key, my_tls_creds.value()->certificate};
-      auto options = grpc::SslServerCredentialsOptions(
-          peer_tls_certificates_provider
-              ? GRPC_SSL_REQUEST_AND_REQUIRE_CLIENT_CERTIFICATE_BUT_DONT_VERIFY
-              : GRPC_SSL_DONT_REQUEST_CLIENT_CERTIFICATE);
-      options.pem_key_cert_pairs.push_back(keypair);
-      credentials = grpc::SslServerCredentials(options);
-    } else {
-      credentials = grpc::InsecureServerCredentials();
+    if (not my_tls_creds) {
+      return grpc::InsecureServerCredentials();
     }
+    auto options = grpc::SslServerCredentialsOptions(
+        peer_tls_certificates_provider
+            ? GRPC_SSL_REQUEST_AND_REQUIRE_CLIENT_CERTIFICATE_BUT_DONT_VERIFY
+            : GRPC_SSL_DONT_REQUEST_CLIENT_CERTIFICATE);
+    grpc::SslServerCredentialsOptions::PemKeyCertPair keypair = {
+        my_tls_creds.value()->private_key, my_tls_creds.value()->certificate};
+    options.pem_key_cert_pairs.push_back(keypair);
+    std::shared_ptr<grpc::ServerCredentials> credentials =
+        grpc::SslServerCredentials(options);
     if (peer_tls_certificates_provider) {
       credentials->SetAuthMetadataProcessor(
           std::make_shared<PeerCertificateAuthMetadataProcessor>(
