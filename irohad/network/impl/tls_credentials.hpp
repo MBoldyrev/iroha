@@ -14,6 +14,8 @@ namespace iroha {
   namespace network {
 
     struct TlsCredentials {
+      TlsCredentials(std::string private_key, std::string certificate);
+
       std::string private_key;
       std::string certificate;
 
