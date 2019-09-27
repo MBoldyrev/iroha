@@ -9,6 +9,8 @@
 #include "sqlite_modern_cpp.h"
 //#include "logger/logger.hpp"
 
+#include <iostream>
+
 namespace iroha {
   namespace newstorage {
 
@@ -44,13 +46,21 @@ namespace iroha {
     void WsvSqliteDB::loadSignatories(
         const std::function<void(const std::string& signatory, size_t count)>& callback
     ) {
-      *db_ << "SELECT * from signatory" >> callback;
+      *db_ << R"(SELECT DISTINCT(public_key) FROM peer
+          UNION SELECT DISTINCT(public_key) from account_has_signatory)"
+          >> callback;
     }
 
     void WsvSqliteDB::loadPeers(
         const std::function<void(const std::string& pk, const std::string& address)>& callback
     ) {
       *db_ << "SELECT * from peer" >> callback;
+    }
+
+    bool WsvSqliteDB::peerExists(const std::string &pk) {
+      int count = -1;
+      db_->getStatement(peer_exists_) << pk >> count;
+      return (count > 0);
     }
 
     void WsvSqliteDB::loadAssets(
@@ -70,6 +80,19 @@ namespace iroha {
       try {
         db_->getStatement(load_account_assets_) << account_id
           >> callback;
+        return true;
+      } catch (const std::exception& e) {
+        // TODO log
+      }
+      return false;
+    }
+
+    bool WsvSqliteDB::loadAccountPermissions(
+        const std::string& account_id, std::string& perm_string
+    ) {
+      try {
+        db_->getStatement(load_account_permissions_)
+          << account_id >> perm_string;
         return true;
       } catch (const std::exception& e) {
         // TODO log
@@ -131,175 +154,184 @@ namespace iroha {
       return false;
     }
 
-    void WsvSqliteDB::dropPeers() {
-      *db_ << "delete from peer";
+    int WsvSqliteDB::dropPeers() {
+      int rows_affected = -1;
+      *db_ << "delete from peer" >> rows_affected;
+      return rows_affected;
     }
 
-    void WsvSqliteDB::updateAccountAsset(
+    namespace {
+      inline sqlite::database_binder &bindArgs(
+          sqlite::database_binder &stmt) {
+        return stmt;
+      }
+
+      template <typename Arg, typename... Args>
+      inline sqlite::database_binder &bindArgs(
+          sqlite::database_binder &stmt, const Arg &arg, const Args &... args) {
+        stmt << arg;
+        return bindArgs(stmt, args...);
+      }
+
+      template <typename... Args>
+      inline int execCommand(std::shared_ptr<SqliteWrapper> &db,
+                                    StatementHandle st_handle,
+                                    const Args &... args) {
+        int rows_affected = -1;
+        auto &stmt = db->getStatement(st_handle);
+        bindArgs(stmt, args...);
+        stmt >> rows_affected;
+        return rows_affected;
+      }
+    } //namespace
+
+    int WsvSqliteDB::updateAccountAsset(
         const std::string &account_id, const std::string &asset_id,
         const std::string& balance, uint8_t precision
     ) {
-      auto& stmt = db_->getStatement(update_account_asset_);
-      stmt << account_id << asset_id << balance << precision;
-      stmt++; // execute and reset
+      return execCommand(db_, update_account_asset_,
+          account_id, asset_id, balance, precision);
     }
 
-    void WsvSqliteDB::addPeer(
-        const std::string &private_key, const std::string &address
+    int WsvSqliteDB::addPeer(
+        const std::string &public_key, const std::string &address
     ) {
-      auto& stmt = db_->getStatement(add_peer_);
-      stmt << private_key << address;
-      stmt++; // execute and reset
+      return execCommand(db_, add_peer_, public_key, address);
     }
 
-    void WsvSqliteDB::removePeer(const std::string &private_key) {
-      auto& stmt = db_->getStatement(remove_peer_);
-      stmt << private_key;
-      stmt++; // execute and reset
+    int WsvSqliteDB::removePeer(const std::string &public_key) {
+      return execCommand(db_, remove_peer_, public_key);
     }
 
-    void WsvSqliteDB::updateSignatory(
-        const std::string &private_key, size_t count
+    int WsvSqliteDB::addAccountSignatory(
+        const std::string &account_id, const std::string &public_key
     ) {
-      auto& stmt = db_->getStatement(update_signatory_);
-      stmt << private_key << count;
-      stmt++; // execute and reset
+      return execCommand(db_, add_account_signatory_,
+          account_id, public_key);
     }
 
-    void WsvSqliteDB::removeSignatory(const std::string &private_key) {
-      auto& stmt = db_->getStatement(remove_signatory_);
-      stmt << private_key;
-      stmt++; // execute and reset
-    }
-
-    void WsvSqliteDB::addAccountSignatory(
-        const std::string &account_id, const std::string &private_key
+    int WsvSqliteDB::removeAccountSignatory(
+        const std::string &account_id, const std::string &public_key
     ) {
-      auto& stmt = db_->getStatement(add_account_signatory_);
-      stmt << account_id << private_key;
-      stmt++; // execute and reset
+      return execCommand(db_, remove_account_signatory_,
+                         account_id, public_key);
     }
 
-    void WsvSqliteDB::removeAccountSignatory(
-        const std::string &account_id, const std::string &private_key
-    ) {
-      auto& stmt = db_->getStatement(remove_account_signatory_);
-      stmt << account_id << private_key;
-      stmt++; // execute and reset
-    }
-
-    void WsvSqliteDB::appendRole(
+    int WsvSqliteDB::createRole(
         const std::string &role_id, const std::string &permissions
     ) {
-      auto& stmt = db_->getStatement(append_role_);
-      stmt << role_id << permissions;
-      stmt++; // execute and reset
+      return execCommand(db_, create_role_,
+                         role_id, permissions);
     }
 
-    void WsvSqliteDB::createAccount(
+    int WsvSqliteDB::createAccount(
         const std::string &account_id, const std::string &domain_id,
         uint16_t quorum
     ) {
-      auto& stmt = db_->getStatement(create_account_);
-      stmt << account_id << domain_id << quorum;
-      stmt++; // execute and reset
+      return execCommand(db_, create_account_,
+                        account_id, domain_id, quorum, domain_id);
     }
 
-    void WsvSqliteDB::createAsset(
+    int WsvSqliteDB::createAsset(
         const std::string &asset_id,
         const std::string& domain_id, uint8_t precision
     ) {
-      auto& stmt = db_->getStatement(create_asset_);
-      stmt << asset_id << domain_id << precision;
-      stmt++; // execute and reset
+      return execCommand(db_, create_asset_,
+          asset_id, domain_id, precision);
     }
 
-    void WsvSqliteDB::createDomain(
+    int WsvSqliteDB::createDomain(
         const std::string &domain_id, const std::string &role_id
     ) {
-      auto& stmt = db_->getStatement(create_domain_);
-      stmt << domain_id << role_id;
-      stmt++; // execute and reset
+      return execCommand(db_, create_domain_,
+                         domain_id, role_id);
     }
 
-    void WsvSqliteDB::attachAccountRole(
+    int WsvSqliteDB::attachAccountRole(
         const std::string &account_id, const std::string &role_id
     ) {
-      auto& stmt = db_->getStatement(attach_account_role_);
-      stmt << account_id << role_id;
-      stmt++; // execute and reset
+      return execCommand(db_, attach_account_role_,
+          account_id, role_id);
     }
 
-    void WsvSqliteDB::detachAccountRole(
+    int WsvSqliteDB::detachAccountRole(
         const std::string &account_id, const std::string &role_id
     ) {
-      auto& stmt = db_->getStatement(detach_account_role_);
-      stmt << account_id << role_id;
-      stmt++; // execute and reset
+      return execCommand(db_, detach_account_role_,
+          account_id, role_id);
     }
 
-    void WsvSqliteDB::updateGrantablePermissions(
+    int WsvSqliteDB::updateGrantablePermissions(
         const std::string& from, const std::string& to,
         const std::string& permissions
     ) {
-      auto& stmt = db_->getStatement(update_grantable_permissions_);
-      stmt << from << to << permissions;
-      stmt++; // execute and reset
+      return execCommand(db_, update_grantable_permissions_,
+          from, to, permissions);
     }
 
-    void WsvSqliteDB::setQuorum(
+    int WsvSqliteDB::setQuorum(
         const std::string& account_id, uint16_t quorum
     ) {
-      auto& stmt = db_->getStatement(set_quorum_);
-      stmt << account_id << quorum;
-      stmt++; // execute and reset
+      return execCommand(db_, set_quorum_, quorum, account_id);
     }
-    
+
+    int WsvSqliteDB::updateAccountPermissions(
+        const std::string& account_id, const std::string& permissions
+    ) {
+      return execCommand(db_, update_permissions_, permissions, account_id);
+    }
+
     void WsvSqliteDB::createSchema() {
       static const char *prepare_tables_sql[] = {
-          "CREATE TABLE IF NOT EXISTS ledger_state (\
-            height INTEGER PRIMARY KEY,\
-            hash TEXT NOT NULL)",
-          "CREATE TABLE IF NOT EXISTS role (\
-            role_id TEXT PRIMARY KEY,\
-            permission BLOB NOT NULL)",
-          "CREATE TABLE IF NOT EXISTS domain (\
-            domain_id TEXT PRIMARY KEY,\
-            default_role TEXT NOT NULL)",
-          "CREATE TABLE IF NOT EXISTS signatory (\
-            public_key TEXT PRIMARY KEY,\
-            count INTEGER NOT NULL)" ,
-          "CREATE TABLE IF NOT EXISTS peer (\
-            public_key TEXT PRIMARY KEY,\
-            address TEXT NOT NULL UNIQUE)",
-          "CREATE TABLE IF NOT EXISTS asset (\
-            asset_id TEXT PRIMARY KEY,\
-            domain_id TEXT NOT NULL,\
-            precision INTEGER NOT NULL)",
-          "CREATE TABLE IF NOT EXISTS account (\
-            account_id TEXT,\
-            domain_id TEXT,\
-            quorum INTEGER NOT NULL,\
-            PRIMARY KEY (account_id))",
-          "CREATE TABLE IF NOT EXISTS account_has_signatory (\
-            account_id TEXT PRIMARY KEY,\
-            public_key TEXT NOT NULL,\
-            UNIQUE (account_id, public_key))",
-          "CREATE TABLE IF NOT EXISTS account_has_asset (\
-            account_id TEXT PRIMARY KEY,\
-            asset_id TEXT NOT NULL,\
-            amount TEXT NOT NULL,\
-            precision INTEGER NOT NULL, \
-            UNIQUE (account_id, asset_id))",
-          "CREATE TABLE IF NOT EXISTS account_has_role (\
-            account_id TEXT PRIMARY KEY,\
-            role_id TEXT NOT NULL,\
-            UNIQUE (account_id, role_id))",
-          "CREATE TABLE IF NOT EXISTS account_has_grantable_permissions (\
-            permittee_account_id TEXT NOT NULL,\
-            account_id TEXT NOT NULL,\
-            permission BLOB NOT NULL,\
-            PRIMARY KEY (permittee_account_id, account_id))",
+          "PRAGMA foreign_keys = ON",
+          "PRAGMA count_changes = ON",
+          R"(CREATE TABLE IF NOT EXISTS ledger_state (
+            height INTEGER PRIMARY KEY,
+            hash TEXT NOT NULL))",
+          R"(CREATE TABLE IF NOT EXISTS role (
+            role_id TEXT PRIMARY KEY,
+            permission TEXT NOT NULL))",
+          R"(CREATE TABLE IF NOT EXISTS domain (
+            domain_id TEXT PRIMARY KEY,
+            default_role TEXT REFERENCES role(role_id)))",
+          R"(CREATE TABLE IF NOT EXISTS peer (
+            public_key TEXT PRIMARY KEY,
+            address TEXT NOT NULL UNIQUE))",
+          R"(CREATE TABLE IF NOT EXISTS asset (
+            asset_id TEXT PRIMARY KEY,
+            domain_id TEXT REFERENCES domain(domain_id),
+            precision INTEGER NOT NULL))",
+          R"(CREATE TABLE IF NOT EXISTS account (
+            account_id TEXT PRIMARY KEY,
+            domain_id TEXT REFERENCES domain(domain_id),
+            quorum INTEGER NOT NULL,
+            permission TEXT NOT NULL))",
+          R"(CREATE TABLE IF NOT EXISTS account_has_signatory (
+            account_id TEXT REFERENCES account(account_id),
+            public_key TEXT NOT NULL,
+            UNIQUE (account_id, public_key)))",
+          R"(CREATE INDEX IF NOT EXISTS acc_i1 on account_has_signatory
+            (account_id))",
+          R"(CREATE INDEX IF NOT EXISTS sig_i1 on account_has_signatory
+            (public_key))",
+          R"(CREATE TABLE IF NOT EXISTS account_has_asset (
+            account_id TEXT REFERENCES account(account_id),
+            asset_id TEXT,
+            amount TEXT NOT NULL,
+            precision INTEGER NOT NULL,
+            UNIQUE (account_id, asset_id)))",
+          R"(CREATE INDEX IF NOT EXISTS acc_a2 on account_has_asset
+            (account_id))",
+          R"(CREATE TABLE IF NOT EXISTS account_has_role (
+            account_id TEXT REFERENCES account(account_id),
+            role_id TEXT REFERENCES role(role_id),
+            UNIQUE (account_id, role_id)))",
+          R"(CREATE TABLE IF NOT EXISTS account_has_grantable_permissions (
+            permittee_account_id TEXT REFERENCES account(account_id),
+            account_id TEXT REFERENCES account(account_id),
+            permission TEXT NOT NULL,
+            PRIMARY KEY (permittee_account_id, account_id)))"
+            /*,
           "CREATE TABLE IF NOT EXISTS position_by_hash (\
             hash TEXT NOT NULL,\
             height INTEGER,\
@@ -318,92 +350,92 @@ namespace iroha {
             idx INTEGER)",
           "CREATE INDEX IF NOT EXISTS position_by_account_asset_index \
           ON position_by_account_asset\
-          (account_id, asset_id, height, idx ASC)"};
+          (account_id, asset_id, height, idx ASC)"*/};
 
-      for (const char* sql : prepare_tables_sql) {
-        *db_ << sql;
+      try {
+        for (const char *sql : prepare_tables_sql) {
+          *db_ << sql;
+        }
+
+        get_ledger_state_ = db_->createStatement(
+            R"(SELECT height, hash FROM ledger_state
+            ORDER BY height DESC LIMIT 1)");
+
+        load_account_assets_ = db_->createStatement(
+            R"(SELECT asset_id, amount, precision FROM account_has_asset
+           WHERE account_id = ?)");
+
+        load_grantable_permissions_ = db_->createStatement(
+            R"(SELECT permission FROM account_has_grantable_permissions
+                WHERE permittee_account_id = ? AND account_id = ?)");
+
+        load_account_ = db_->createStatement(
+            R"(SELECT domain_id, quorum, permission FROM account
+               WHERE account_id = ?)");
+
+        load_account_permissions_ = db_->createStatement(
+            R"(SELECT permission FROM account WHERE account_id = ?)");
+
+        load_account_signatories_ = db_->createStatement(
+            R"(SELECT public_key FROM account_has_signatory
+            WHERE account_id = ?)");
+
+        load_account_roles_ = db_->createStatement(
+            R"(SELECT role_id FROM account_has_role
+            WHERE account_id = ?)");
+
+        peer_exists_ = db_->createStatement(
+            R"(SELECT count(*) FROM peer WHERE public_key = ?)");
+
+        add_peer_ = db_->createStatement("INSERT INTO peer VALUES(?, ?)");
+
+        remove_peer_ =
+            db_->createStatement("DELETE FROM peer WHERE public_key = ?");
+
+        add_account_signatory_ = db_->createStatement(
+            R"(INSERT INTO account_has_signatory VALUES(?, ?))");
+
+        remove_account_signatory_ = db_->createStatement(
+            R"(DELETE FROM account_has_signatory
+            WHERE account_id = ? AND public_key = ?)");
+
+        create_role_ = db_->createStatement("INSERT INTO role VALUES(?, ?)");
+
+        create_account_ = db_->createStatement(
+            R"(INSERT INTO account VALUES(
+                ?, ?, ?,
+                (SELECT permission FROM role WHERE role_id =
+                (SELECT default_role FROM domain WHERE domain_id = ?))))");
+
+        create_asset_ =
+            db_->createStatement("INSERT INTO asset VALUES(?, ?, ?)");
+
+        create_domain_ =
+            db_->createStatement("INSERT INTO domain VALUES(?, ?)");
+
+        attach_account_role_ =
+            db_->createStatement("INSERT INTO account_has_role VALUES(?, ?)");
+
+        detach_account_role_ = db_->createStatement(
+            R"(DELETE FROM account_has_role
+            WHERE account_id = ? AND role_id = ?)");
+
+        update_grantable_permissions_ = db_->createStatement(
+            R"(INSERT OR REPLACE INTO account_has_grantable_permissions
+            VALUES(?, ?, ?))");
+
+        set_quorum_ = db_->createStatement(
+            "UPDATE account SET quorum = ? WHERE account_id = ?");
+
+        update_permissions_ = db_->createStatement(
+            "UPDATE account SET permission = ? WHERE account_id = ?");
+
+      } catch (sqlite::sqlite_exception& e) {
+        std::cerr  << e.get_code() << ": " << e.what()
+                << " : " << db_->getErrMsg() << " during "
+                 << e.get_sql() << "\n";
       }
-
-      get_ledger_state_ = db_->createStatement(
-          "SELECT height, hash FROM ledger_state \
-          ORDER BY height DESC LIMIT 1"
-      );
-
-      load_account_assets_ = db_->createStatement(
-         "SELECT asset_id, amount, precision FROM account_has_asset \
-         WHERE account_id = ?"
-      );
-
-      load_grantable_permissions_ = db_->createStatement(
-          "SELECT permission FROM account_has_grantable_permissions \
-              WHERE permittee_account_id = ? AND account_id = ?"
-      );
-      load_account_ = db_->createStatement(
-          "SELECT domain_id, quorum FROM account \
-             WHERE account_id = ?"
-      );
-
-      load_account_signatories_ = db_->createStatement(
-         "SELECT public_key FROM account_has_signatory \
-          WHERE account_id = ?"
-      );
-      load_account_roles_ = db_->createStatement(
-          "SELECT role_id FROM account_has_role \
-          WHERE account_id = ?"
-       );
-       update_account_asset_ = db_->createStatement(
-          "INSERT OR REPLACE INTO account_has_asset \
-          VALUES(?, ?, ?, ?)"
-       );
-       add_peer_ = db_->createStatement(
-          "INSERT INTO peer VALUES(?, ?)"
-       );
-       remove_peer_ = db_->createStatement(
-          "DELETE FROM peer WHERE public_key = ?"
-       );
-       update_signatory_ = db_->createStatement(
-          "INSERT OR REPLACE INTO signatory \
-          VALUES(?, ?)"
-       );
-       remove_signatory_ = db_->createStatement(
-          "DELETE FROM signatory WHERE public_key = ?"
-       );
-       add_account_signatory_ = db_->createStatement(
-          "INSERT OR REPLACE INTO account_has_signatory \
-          VALUES(?, ?)"
-       );
-       remove_account_signatory_ = db_->createStatement(
-          "DELETE FROM account_has_signatory \
-          WHERE account_id = ? AND public_key = ?"
-       );
-       append_role_ = db_->createStatement(
-          "INSERT INTO role VALUES(?, ?)"
-       );
-       create_account_ = db_->createStatement(
-          "INSERT INTO account VALUES(?, ?, ?)"
-       );
-       create_asset_ = db_->createStatement(
-          "INSERT INTO asset VALUES(?, ?, ?)"
-       );
-       create_domain_ = db_->createStatement(
-          "INSERT INTO domain VALUES(?, ?)"
-       );
-       attach_account_role_ = db_->createStatement(
-          "INSERT INTO account_has_role VALUES(?, ?)"
-       );
-       detach_account_role_ = db_->createStatement(
-          "DELETE FROM account_has_role \
-          WHERE account_id = ? AND role_id = ?"
-       );
-       update_grantable_permissions_ = db_->createStatement(
-          "INSERT OR REPLACE INTO account_has_grantable_permissions \
-          VALUES(?, ?, ?)"
-       );
-       set_quorum_ = db_->createStatement(
-          "UPDATE account SET quorum = ? WHERE account_id = ?"
-       );
-
-    }
+     }
 
   }  // namespace newstorage
 }  // namespace iroha

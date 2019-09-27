@@ -51,6 +51,7 @@ namespace iroha {
       kNotEnoughBalance,
       kAmountOverflow,
       kPeerAlreadyExists,
+      kPeerDoesntExist,
       kNoPermission,
       kNoCreatorAccount,
       kDataIntegrityError

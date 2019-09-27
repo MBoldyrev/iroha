@@ -51,6 +51,10 @@ namespace iroha {
         }
       }
 
+      const char* getErrMsg() {
+        return sqlite3_errmsg(db_.connection().get());
+      }
+
       StatementHandle createStatement(const char *sql) {
         StatementHandle h = statements_.size();
         statements_.emplace_back(db_ << sql);

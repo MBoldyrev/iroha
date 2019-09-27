@@ -44,6 +44,8 @@ namespace iroha {
           const std::function<void(const std::string& pk, const std::string& address)>& callback
       );
 
+      bool peerExists(const std::string& pk);
+
       void loadAssets(
           const std::function<
               void(const std::string& id, const std::string& domain, uint8_t precision)>&
@@ -56,6 +58,8 @@ namespace iroha {
               void(const std::string& asset_id, const std::string& balance, uint8_t precision)>&
           callback
       );
+
+      bool loadAccountPermissions(const std::string& account_id, std::string& perm_string);
 
       bool loadGrantablePermissions(
           const std::string& from, const std::string& to, std::string& perm_string
@@ -75,80 +79,78 @@ namespace iroha {
           const std::function<void(const std::string &)>& callback
       );
 
-      // modifying requests throw on errors
+      // modifying requests throw on errors, return rows affected
 
-      void updateAccountAsset(
+      int updateAccountAsset(
           const std::string &account_id, const std::string &asset_id,
           const std::string& balance, uint8_t precision
       );
 
-      void addPeer(const std::string &private_key, const std::string &address);
+      int addPeer(const std::string &public_key, const std::string &address);
 
-      void removePeer(const std::string &private_key);
+      int removePeer(const std::string &public_key);
 
-      void dropPeers();
+      int dropPeers();
 
-      void updateSignatory(const std::string &private_key, size_t count);
-
-      void removeSignatory(const std::string &private_key);
-
-      void addAccountSignatory(
-          const std::string &account_id, const std::string &private_key
+      int addAccountSignatory(
+          const std::string &account_id, const std::string &public_key
       );
 
-      void removeAccountSignatory(
-          const std::string &account_id, const std::string &private_key
+      int removeAccountSignatory(
+          const std::string &account_id, const std::string &public_key
       );
 
-      void appendRole(const std::string &role_id, const std::string &permissions);
+      int createRole(const std::string &role_id, const std::string &permissions);
 
-      void createAccount(
+      int createAccount(
           const std::string &account_id, const std::string &domain_id,
           uint16_t quorum
       );
 
-      void createAsset(
+      int createAsset(
           const std::string &asset_id,
           const std::string& domain_id, uint8_t precision
       );
 
-      void createDomain(const std::string &domain_id, const std::string &role_id);
+      int createDomain(const std::string &domain_id, const std::string &role_id);
 
-      void attachAccountRole(const std::string &account_id, const std::string &role_id);
+      int attachAccountRole(const std::string &account_id, const std::string &role_id);
 
-      void detachAccountRole(const std::string &account_id, const std::string &role_id);
+      int detachAccountRole(const std::string &account_id, const std::string &role_id);
 
-      void updateGrantablePermissions(const std::string& from, const std::string& to,
+      int updateGrantablePermissions(const std::string& from, const std::string& to,
           const std::string& permissions);
 
-      void setQuorum(const std::string& account_id, uint16_t quorum);
+      int setQuorum(const std::string& account_id, uint16_t quorum);
 
-
+      int updateAccountPermissions(const std::string& account_id,
+                                      const std::string& permissions);
      private:
       void createSchema();
 
       std::shared_ptr<SqliteWrapper> db_;
-      StatementHandle get_ledger_state_;
-      StatementHandle load_account_assets_;
-      StatementHandle load_grantable_permissions_;
-      StatementHandle load_account_;
-      StatementHandle load_account_signatories_;
-      StatementHandle load_account_roles_;
-      StatementHandle update_account_asset_;
-      StatementHandle add_peer_;
-      StatementHandle remove_peer_;
-      StatementHandle update_signatory_;
-      StatementHandle remove_signatory_;
-      StatementHandle add_account_signatory_;
-      StatementHandle remove_account_signatory_;
-      StatementHandle append_role_;
-      StatementHandle create_account_;
-      StatementHandle create_asset_;
-      StatementHandle create_domain_;
-      StatementHandle attach_account_role_;
-      StatementHandle detach_account_role_;
-      StatementHandle update_grantable_permissions_;
-      StatementHandle set_quorum_;
+      StatementHandle get_ledger_state_ = 0;
+      StatementHandle load_account_assets_ = 0;
+      StatementHandle load_grantable_permissions_ = 0;
+      StatementHandle load_account_ = 0;
+      StatementHandle load_account_permissions_ = 0;
+      StatementHandle load_account_signatories_ = 0;
+      StatementHandle load_account_roles_ = 0;
+      StatementHandle peer_exists_ = 0;
+      StatementHandle add_peer_ = 0;
+      StatementHandle remove_peer_ = 0;
+      StatementHandle add_account_signatory_ = 0;
+      StatementHandle remove_account_signatory_ = 0;
+      StatementHandle create_role_ = 0;
+      StatementHandle create_account_ = 0;
+      StatementHandle create_asset_ = 0;
+      StatementHandle update_account_asset_ = 0;
+      StatementHandle create_domain_ = 0;
+      StatementHandle attach_account_role_ = 0;
+      StatementHandle detach_account_role_ = 0;
+      StatementHandle update_grantable_permissions_ = 0;
+      StatementHandle set_quorum_ = 0;
+      StatementHandle update_permissions_ = 0;
       std::vector<char> buffer_;
       logger::LoggerPtr log_;
     };

@@ -10,7 +10,7 @@
 namespace iroha {
   namespace newstorage {
     namespace {
-      const char kDELIMITER = 0x01;
+      const char kDELIMITER = 0x01; ///TODO ??
       const char kWRITER_PREFIX = 0x02;
 
       const char* kWRITER = "writer";

@@ -13,6 +13,8 @@
 namespace iroha {
   namespace newstorage {
 
+    class ChangeSet;
+
     class ImmutableWsv {
      public:
       ImmutableWsv(WsvSqliteDB&& db, AccountDetailStorage&& detail_storage);
@@ -89,6 +91,17 @@ namespace iroha {
       ResultCode getPendingTransactions(
           const AccountID& query_initiator_id
       );
+
+      // drops or reloads caches
+      void applyChangeSet(const ChangeSet& change_set);
+
+      ResultCode loadAccountPermission(const AccountID& account_id, RolePermissionSet* perm);
+
+      const std::unordered_set<RoleID>& loadAccountRolesAndPermission(
+          const AccountID& account_id, RolePermissionSet* perm);
+
+      bool peerExists(const PK& pk);
+      bool accountExists(const AccountID& account_id);
 
      private:
       ResultCode loadAccounts(
