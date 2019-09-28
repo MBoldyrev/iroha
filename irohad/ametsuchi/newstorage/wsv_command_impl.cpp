@@ -4,9 +4,8 @@
  */
 
 #include "wsv_command_impl.hpp"
-
+#include "mutable_wsv.hpp"
 #include <numeric>
-
 #include <boost/format.hpp>
 #include "backend/protobuf/permissions.hpp"
 #include "cryptography/public_key.hpp"
@@ -19,18 +18,7 @@
 namespace iroha {
   namespace newstorage {
 
-//    template <typename Function>
-//    WsvCommandResult execute(soci::statement &st, Function &&error) {
-//      st.define_and_bind();
-//      try {
-//        st.execute(true);
-//        return {};
-//      } catch (const std::exception &e) {
-//        return expected::makeError(error());
-//      }
-//    }
-
-    WsvCommandImpl::WsvCommandImpl(RelDbBackend &db) : db_(db) {}
+    WsvCommandImpl::WsvCommandImpl(MutableWsv &db) : db_(db) {}
 
     WsvCommandResult WsvCommandImpl::insertRole(
         const shared_model::interface::types::RoleIdType &role_name) {

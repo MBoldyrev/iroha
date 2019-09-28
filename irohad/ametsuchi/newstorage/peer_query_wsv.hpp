@@ -12,10 +12,11 @@
 #include <vector>
 
 namespace iroha {
-  namespace newstorage {
-
+  namespace ametsuchi {
     class WsvQuery;
+  }
 
+  namespace newstorage {
     /**
      * Implementation of PeerQuery interface based on WsvQuery fetching
      */
@@ -30,7 +31,7 @@ namespace iroha {
       boost::optional<std::vector<wPeer>> getLedgerPeers() override;
 
      private:
-      std::shared_ptr<WsvQuery> wsv_;
+      std::shared_ptr<ametsuchi::WsvQuery> wsv_;
     };
 
   }  // namespace newstorage

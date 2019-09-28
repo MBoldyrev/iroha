@@ -10,12 +10,12 @@
 #include "ametsuchi/wsv_query.hpp"
 
 namespace iroha {
-  namespace ametsuchi {
+  namespace newstorage {
 
     PeerQueryWsv::PeerQueryWsv(std::shared_ptr<ametsuchi::WsvQuery> wsv)
         : wsv_(std::move(wsv)) {}
 
-    boost::optional<std::vector<PeerQuery::wPeer>>
+    boost::optional<std::vector<ametsuchi::PeerQuery::wPeer>>
     PeerQueryWsv::getLedgerPeers() {
       return wsv_->getPeers();
     }

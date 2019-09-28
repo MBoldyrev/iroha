@@ -11,11 +11,13 @@
 namespace iroha {
   namespace newstorage {
 
-      class RelDbBackend;
+    using ametsuchi::WsvCommandResult;
+    class MutableWsv;
 
-    class WsvCommandImpl : public WsvCommand {
+   class WsvCommandImpl : public ametsuchi::WsvCommand {
      public:
-      explicit WsvCommandImpl(RelDbBackend &db);
+      explicit WsvCommandImpl(MutableWsv &db);
+
       WsvCommandResult insertRole(
           const shared_model::interface::types::RoleIdType &role_name) override;
 
@@ -74,7 +76,7 @@ namespace iroha {
           shared_model::interface::permissions::Grantable permission) override;
 
      private:
-        RelDbBackend &db_;
+        MutableWsv &db_;
     };
   }  // namespace newstorage
 }  // namespace iroha

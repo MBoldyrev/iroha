@@ -13,7 +13,9 @@ add_library(new_storage
     block_storage_impl.cpp
     block_storage_factory.cpp
     immutable_wsv.cpp
+    peer_query_wsv.cpp
     #mutable_wsv.cpp
+    #wsv_command_impl.cpp
     account_detail_storage.cpp)
 
 target_link_libraries(
