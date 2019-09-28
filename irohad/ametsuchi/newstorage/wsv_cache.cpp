@@ -99,11 +99,12 @@ namespace iroha {
       return address;
     }
 
-    void Peers::get(std::vector<Peer>& peers) const {
-      peers.clear();
-      peers.reserve(table_.size());
+    void Peers::get(
+        const std::function<void(const std::string&, const std::string&)>&
+        callback) const
+     {
       for (const auto& kv : table_) {
-        peers.emplace_back(kv.second, kv.first);
+        callback(kv.second, kv.first);
       }
     }
 

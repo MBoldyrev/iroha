@@ -12,11 +12,11 @@
 namespace iroha {
   namespace newstorage {
 
-  class RelDbBackend;
+  class ImmutableWsv;
 
   class WsvQueryImpl : public ametsuchi::WsvQuery {
      public:
-      WsvQueryImpl(RelDbBackend &db, logger::LoggerPtr log);
+      WsvQueryImpl(ImmutableWsv &wsv, logger::LoggerPtr log);
 
       boost::optional<std::vector<shared_model::interface::types::PubkeyType>>
       getSignatories(const shared_model::interface::types::AccountIdType
@@ -28,10 +28,10 @@ namespace iroha {
 
      private:
 
-      RelDbBackend &db_;
+      ImmutableWsv &wsv_;
       logger::LoggerPtr log_;
     };
   }  // namespace newstorage
 }  // namespace iroha
 
-#endif  // IROHA_POSTGRES_WSV_QUERY_HPP
+#endif  // IROHA_WSV_QUERY_IMPL_HPP

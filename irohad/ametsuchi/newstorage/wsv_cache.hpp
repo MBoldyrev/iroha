@@ -108,7 +108,7 @@ namespace iroha {
       const NetworkAddress* get(const PK& key) const;
 
       // returns all peers
-      void get(std::vector<Peer>& peers) const;
+      void get(const std::function<void(const std::string&, const std::string&)>& callback) const;
 
      private:
       // returns false if peer already exists (ether PK or address)

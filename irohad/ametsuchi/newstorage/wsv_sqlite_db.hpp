@@ -52,6 +52,8 @@ namespace iroha {
           callback
       );
 
+      // query functions dont throw
+
       bool getLedgerState(uint64_t& height, std::string& hash);
 
       bool peerExists(const std::string& pk);

@@ -31,7 +31,7 @@ namespace iroha {
       ResultCode getSignatories(
           const AccountID& query_initiator_id,
           const AccountID& account_id,
-          std::vector<PK>& signatories
+          const std::function<void(const std::string&)>& callback
       );
 
       ResultCode getAccountAssets(
@@ -60,7 +60,7 @@ namespace iroha {
 
       ResultCode getPeers(
           const AccountID& query_initiator_id,
-          std::vector<Peer>& peers
+          const std::function<void(const std::string&, const std::string&)>& callback
       );
 
       ResultCode getAccountDetail(

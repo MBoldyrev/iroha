@@ -56,7 +56,7 @@ namespace iroha {
     ResultCode ImmutableWsv::getSignatories(
         const AccountID& query_initiator_id,
         const AccountID& account_id,
-        std::vector<PK>& signatories
+        const std::function<void(const std::string&)>& callback
     ) {
       Account* query_initiator = nullptr;
       Account* account = nullptr;
@@ -71,10 +71,8 @@ namespace iroha {
         return result;
       }
 
-      signatories.clear();
-      signatories.reserve(account->signatories.size());
       for (const auto& s : account->signatories) {
-        signatories.push_back(s);
+        callback(s);
       }
 
       return ResultCode::kOk;
@@ -159,14 +157,14 @@ namespace iroha {
 
     ResultCode ImmutableWsv::getPeers(
         const AccountID& query_initiator_id,
-        std::vector<Peer>& peers
+        const std::function<void(const std::string&, const std::string&)>& callback
     ) {
       Account* query_initiator = nullptr;
       ResultCode rc = loadAccount(
           query_initiator_id,
           RolePermission::kGetPeers, query_initiator);
       if (rc == ResultCode::kOk) {
-        peers_.get(peers);
+        peers_.get(callback);
       }
       return rc;
     }
@@ -256,9 +254,15 @@ namespace iroha {
         Account*& account)
     {
       account = nullptr;
-      query_initiator = accounts_.getAccount(query_initiator_id);
+      query_initiator = nullptr;
+      if (!query_initiator_id.empty()) {
+        query_initiator = accounts_.getAccount(query_initiator_id);
         if (!query_initiator) {
-        return ResultCode::kNoCreatorAccount;
+          return ResultCode::kNoCreatorAccount;
+        }
+      } else {
+        account = accounts_.getAccount(account_id);
+        return account ? ResultCode::kOk : ResultCode::kAccountDoesntExist;
       }
       if (query_initiator_id == account_id) {
         account = query_initiator;
@@ -284,12 +288,14 @@ namespace iroha {
         RolePermission perm,
         Account*& query_initiator)
     {
-      query_initiator = accounts_.getAccount(query_initiator_id);
-      if (!query_initiator) {
-        return ResultCode::kNoCreatorAccount;
-      }
-      if (!query_initiator->hasPermission(perm)) {
-        return ResultCode::kNoPermission;
+      if (!query_initiator_id.empty()) {
+        query_initiator = accounts_.getAccount(query_initiator_id);
+        if (!query_initiator) {
+          return ResultCode::kNoCreatorAccount;
+        }
+        if (!query_initiator->hasPermission(perm)) {
+          return ResultCode::kNoPermission;
+        }
       }
       return ResultCode::kOk;
     }
