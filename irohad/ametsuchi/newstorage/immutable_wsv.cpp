@@ -14,12 +14,10 @@ namespace iroha {
     ) :
       db_(std::move(db)),
       acc_details_(std::move(detail_storage)),
-      accounts_(db_),
-      gr_permissions_(db_)
+      accounts_(db_)
     {
       roles_.load(db_);
       domains_.load(db_, roles_);
-      signatories_.load(db_);
       peers_.load(db_);
     }
 

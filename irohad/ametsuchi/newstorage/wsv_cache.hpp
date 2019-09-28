@@ -91,16 +91,6 @@ namespace iroha {
       std::unordered_map<DomainID, RoleID> table_;
     };
 
-    class Signatories {
-     public:
-      void load(WsvSqliteDB& db);
-
-      bool hasSignatory(const PK& pk) const;
-
-     private:
-      std::unordered_map<PK, size_t> table_;
-    };
-
     struct Peer {
       NetworkAddress address;
       PK pub_key;

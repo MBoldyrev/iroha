@@ -51,8 +51,16 @@ namespace iroha {
         }
       }
 
-      const char* getErrMsg() {
-        return sqlite3_errmsg(db_.connection().get());
+      int getErrCode() {
+        return sqlite3_extended_errcode(db_.connection().get());
+      }
+
+      std::string getErrMsg() {
+        int ec = getErrCode();
+        return (ec == 0) ?
+          std::string() :
+          std::string(sqlite3_errstr(ec))
+            + ": " + sqlite3_errmsg(db_.connection().get());
       }
 
       StatementHandle createStatement(const char *sql) {

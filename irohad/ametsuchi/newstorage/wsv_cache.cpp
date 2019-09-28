@@ -72,20 +72,6 @@ namespace iroha {
       return role_id;
     }
 
-    void Signatories::load(WsvSqliteDB& db) {
-      db.loadSignatories(
-          [this](const std::string& signatory, size_t count) {
-            if (count == 0)
-              throw std::runtime_error("inconsistency in loadSignatories");
-            table_[signatory] = count;
-          }
-      );
-    }
-
-    bool Signatories::hasSignatory(const PK& pk) const {
-      return table_.count(pk) > 0;
-    }
-
     void Peers::load(WsvSqliteDB& db) {
       db.loadPeers(
           [this](const std::string& pk, const std::string& address) {

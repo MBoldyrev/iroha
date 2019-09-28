@@ -122,11 +122,9 @@ namespace iroha {
       AccountDetailStorage acc_details_;
       Roles roles_;
       Domains domains_;
-      Signatories signatories_;
       Peers peers_;
       Assets assets_;
       Accounts accounts_;
-      GrantablePermissions gr_permissions_;
     };
   }
 }

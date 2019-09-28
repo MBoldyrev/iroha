@@ -22,7 +22,9 @@ namespace iroha {
      public:
       WsvSqliteDB(std::shared_ptr<SqliteWrapper> db, logger::LoggerPtr log);
 
-      bool getLedgerState(uint64_t& height, std::string& hash);
+      std::string getLastError();
+
+      // these functions throw on error
 
       void loadRoles(
           const std::function<
@@ -36,21 +38,23 @@ namespace iroha {
           callback
       );
 
-      void loadSignatories(
-           const std::function<void(const std::string& signatory, size_t count)>& callback
+      void loadAllSignatories(
+           const std::function<void(const std::string& signatory)>& callback
       );
 
       void loadPeers(
           const std::function<void(const std::string& pk, const std::string& address)>& callback
       );
 
-      bool peerExists(const std::string& pk);
-
       void loadAssets(
           const std::function<
               void(const std::string& id, const std::string& domain, uint8_t precision)>&
           callback
       );
+
+      bool getLedgerState(uint64_t& height, std::string& hash);
+
+      bool peerExists(const std::string& pk);
 
       bool loadAccountAssets(
           const std::string& account_id,
@@ -66,7 +70,8 @@ namespace iroha {
       );
 
       bool loadAccount(
-          const std::string& account_id, std::string& domain_id, uint16_t& quorum
+          const std::string& account_id, std::string& domain_id, uint16_t& quorum,
+          std::string& perm_string
       );
 
       bool loadAccountSignatories(
@@ -79,12 +84,9 @@ namespace iroha {
           const std::function<void(const std::string &)>& callback
       );
 
-      // modifying requests throw on errors, return rows affected
+      // modifying requests return rows affected or -1 on error
 
-      int updateAccountAsset(
-          const std::string &account_id, const std::string &asset_id,
-          const std::string& balance, uint8_t precision
-      );
+      int setLedgerState(uint64_t height, const std::string& hash);
 
       int addPeer(const std::string &public_key, const std::string &address);
 
@@ -112,6 +114,11 @@ namespace iroha {
           const std::string& domain_id, uint8_t precision
       );
 
+      int updateAccountAsset(
+          const std::string &account_id, const std::string &asset_id,
+          const std::string& balance, uint8_t precision
+      );
+
       int createDomain(const std::string &domain_id, const std::string &role_id);
 
       int attachAccountRole(const std::string &account_id, const std::string &role_id);
@@ -130,6 +137,11 @@ namespace iroha {
 
       std::shared_ptr<SqliteWrapper> db_;
       StatementHandle get_ledger_state_ = 0;
+      StatementHandle load_roles_ = 0;
+      StatementHandle load_domains_ = 0;
+      StatementHandle load_all_signatories_ = 0;
+      StatementHandle load_peers_ = 0;
+      StatementHandle load_assets_ = 0;
       StatementHandle load_account_assets_ = 0;
       StatementHandle load_grantable_permissions_ = 0;
       StatementHandle load_account_ = 0;
@@ -137,8 +149,10 @@ namespace iroha {
       StatementHandle load_account_signatories_ = 0;
       StatementHandle load_account_roles_ = 0;
       StatementHandle peer_exists_ = 0;
+      StatementHandle set_ledger_state_ = 0;
       StatementHandle add_peer_ = 0;
       StatementHandle remove_peer_ = 0;
+      StatementHandle drop_peers_ = 0;
       StatementHandle add_account_signatory_ = 0;
       StatementHandle remove_account_signatory_ = 0;
       StatementHandle create_role_ = 0;
@@ -151,7 +165,6 @@ namespace iroha {
       StatementHandle update_grantable_permissions_ = 0;
       StatementHandle set_quorum_ = 0;
       StatementHandle update_permissions_ = 0;
-      std::vector<char> buffer_;
       logger::LoggerPtr log_;
     };
   }  // namespace newstorage
