@@ -15,12 +15,11 @@ namespace iroha {
   namespace newstorage {
     class SqliteWrapper;
 
-    using Blob = std::vector<char>;
     using StatementHandle = size_t;
 
     class WsvSqliteDB {
      public:
-      WsvSqliteDB(std::shared_ptr<SqliteWrapper> db, logger::LoggerPtr log);
+      WsvSqliteDB(std::shared_ptr<SqliteWrapper> db);
 
       std::string getLastError();
 
@@ -167,7 +166,6 @@ namespace iroha {
       StatementHandle update_grantable_permissions_ = 0;
       StatementHandle set_quorum_ = 0;
       StatementHandle update_permissions_ = 0;
-      logger::LoggerPtr log_;
     };
   }  // namespace newstorage
 }  // namespace iroha

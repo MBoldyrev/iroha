@@ -9,7 +9,7 @@ using namespace iroha::newstorage;
 
 void rel_test_1() {
   using namespace std;
-  WsvSqliteDB db(SqliteWrapper::create("sandbox/sandbox.db"), nullptr);
+  WsvSqliteDB db(SqliteWrapper::create(SqliteWrapper::Options("sandbox/sandbox.db", "sb "), nullptr));
 
   db.addPeer("pk1", "ad1");
   db.addPeer("pk2", "ad2");
@@ -23,7 +23,7 @@ void rel_test_1() {
 void rel_test_2() {
   using namespace std;
   remove("rel_test_2.db");
-  WsvSqliteDB db(SqliteWrapper::create("rel_test_2.db"), nullptr);
+  WsvSqliteDB db(SqliteWrapper::create(SqliteWrapper::Options("rel_test_2.db", "sb "), nullptr));
 
   db.addPeer("pk1", "ad1");
   db.addPeer("pk2", "ad2");

@@ -35,10 +35,10 @@ namespace shared_model {
 namespace iroha {
   namespace newstorage {
 
-    class CommandExecutorImpl final : public CommandExecutor {
+   class CommandExecutorImpl final : public ametsuchi::CommandExecutor {
      public:
       CommandExecutorImpl(
-          std::unique_ptr<soci::session> sql,
+          // db
           std::shared_ptr<shared_model::interface::PermissionToString>
               perm_converter);
 
@@ -49,7 +49,7 @@ namespace iroha {
                                 &creator_account_id,
                             bool do_validation) override;
 
-      soci::session &getSession();
+      //??? &getSession();
 
       CommandResult operator()(
           const shared_model::interface::AddAssetQuantity &command,
@@ -160,40 +160,7 @@ namespace iroha {
           bool do_validation);
 
      private:
-      class CommandStatements;
-      class StatementExecutor;
 
-      void initStatements();
-
-      std::unique_ptr<CommandStatements> makeCommandStatements(
-          const std::unique_ptr<soci::session> &session,
-          const std::string &base_statement,
-          const std::vector<std::string> &permission_checks);
-
-      std::unique_ptr<soci::session> sql_;
-
-      std::shared_ptr<shared_model::interface::PermissionToString>
-          perm_converter_;
-
-      std::unique_ptr<CommandStatements> add_asset_quantity_statements_;
-      std::unique_ptr<CommandStatements> add_peer_statements_;
-      std::unique_ptr<CommandStatements> add_signatory_statements_;
-      std::unique_ptr<CommandStatements> append_role_statements_;
-      std::unique_ptr<CommandStatements>
-          compare_and_set_account_detail_statements_;
-      std::unique_ptr<CommandStatements> create_account_statements_;
-      std::unique_ptr<CommandStatements> create_asset_statements_;
-      std::unique_ptr<CommandStatements> create_domain_statements_;
-      std::unique_ptr<CommandStatements> create_role_statements_;
-      std::unique_ptr<CommandStatements> detach_role_statements_;
-      std::unique_ptr<CommandStatements> grant_permission_statements_;
-      std::unique_ptr<CommandStatements> remove_peer_statements_;
-      std::unique_ptr<CommandStatements> remove_signatory_statements_;
-      std::unique_ptr<CommandStatements> revoke_permission_statements_;
-      std::unique_ptr<CommandStatements> set_account_detail_statements_;
-      std::unique_ptr<CommandStatements> set_quorum_statements_;
-      std::unique_ptr<CommandStatements> subtract_asset_quantity_statements_;
-      std::unique_ptr<CommandStatements> transfer_asset_statements_;
     };
   }  // namespace newstorage
 }  // namespace iroha

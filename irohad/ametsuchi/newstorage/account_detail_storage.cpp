@@ -49,10 +49,13 @@ namespace iroha {
         logger::LoggerPtr log)
       : log_(std::move(log))
     {
-      KeyValueDbBackend::Options options;
-      options.path = path;
-      storage_.create(std::move(options));
-      index_ = SqliteWrapper::create(path + "/index.db");
+      KeyValueDbBackend::Options kv_options;
+      kv_options.path = path;
+      storage_.create(std::move(kv_options));
+      SqliteWrapper::Options sql_options;
+      sql_options.db_file = path + "/index.db";
+      sql_options.log_prefix = "Account detail DB: ";
+      index_ = SqliteWrapper::create(sql_options, log_);
 
       static const size_t BUF_SIZE = 1024;
       char buf[BUF_SIZE];

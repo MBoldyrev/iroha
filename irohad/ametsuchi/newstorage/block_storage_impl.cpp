@@ -8,7 +8,7 @@
 #include "common/hexutils.hpp"
 #include "logger/logger.hpp"
 
-namespace iroha::newstorage {
+namespace iroha { namespace newstorage {
 
   BlockStorageImpl::BlockStorageImpl(
       std::shared_ptr<BlockTransportFactory> block_factory,
@@ -108,4 +108,4 @@ namespace iroha::newstorage {
       );
   }
 
-} //namespace
+}} //namespace

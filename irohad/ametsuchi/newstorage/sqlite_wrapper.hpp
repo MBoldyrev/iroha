@@ -7,6 +7,7 @@
 #define IROHA_SQLITE_WRAPPER_HPP
 
 #include "sqlite_modern_cpp.h"
+#include "logger/logger.hpp"
 
 namespace iroha {
   namespace newstorage {
@@ -14,8 +15,26 @@ namespace iroha {
      public:
       using StatementHandle = size_t;
 
-      static std::shared_ptr<SqliteWrapper> create(const std::string &db_file) {
-        return std::shared_ptr<SqliteWrapper>(new SqliteWrapper(db_file));
+      struct Options {
+        std::string db_file;
+        std::string log_prefix;
+        logger::LogLevel log_level = logger::LogLevel::kDebug;
+
+        Options() = default;
+        Options(std::string _db_file, std::string _log_prefix,
+                logger::LogLevel _log_level = logger::LogLevel::kDebug) :
+          db_file(std::move(_db_file)),
+          log_prefix(std::move(_log_prefix)),
+          log_level(_log_level)
+        {}
+      };
+
+      static std::shared_ptr<SqliteWrapper> create(
+          const Options& options, logger::LoggerPtr log
+      ) {
+        return std::shared_ptr<SqliteWrapper>(
+            new SqliteWrapper(options, std::move(log))
+        );
       }
 
       ~SqliteWrapper() {
@@ -59,8 +78,20 @@ namespace iroha {
         int ec = getErrCode();
         return (ec == 0) ?
           std::string() :
-          std::string(sqlite3_errstr(ec))
+          log_prefix_ + std::string(sqlite3_errstr(ec))
             + ": " + sqlite3_errmsg(db_.connection().get());
+      }
+
+      template <typename... Args>
+      void log(const std::string &format, const Args &... args) {
+        if (log_) log_->log(
+              log_level_,
+              format, args...
+        );
+      }
+
+      void logErrMsg() {
+        if (log_) log(getErrMsg());
       }
 
       StatementHandle createStatement(const char *sql) {
@@ -76,39 +107,93 @@ namespace iroha {
         return statements_[h];
       }
 
+      void beginTx() { db_ << "begin"; }
+      void commitTx() { db_ << "commit"; }
+      void rollbackTx() { db_ << "rollback"; }
+
       struct Transaction {
-        explicit Transaction(SqliteWrapper &db) : db_(db) {}
-        void commit() {
-          db_ << "commit;";
+        explicit Transaction(SqliteWrapper &db) : db_(&db) {
+          db_->beginTx();
         }
-        ~Transaction() {
-          db_ << "rollback;";
-        }
+        void commit() { db_->commitTx(); db_ = nullptr; }
+        ~Transaction() { if (db_) db_->rollbackTx(); }
 
        private:
-        SqliteWrapper &db_;
+        SqliteWrapper *db_;
       };
 
      private:
-      explicit SqliteWrapper(const std::string &db_file) : db_(db_file)
-      {}
+      explicit SqliteWrapper(const Options& options, logger::LoggerPtr logger) :
+        db_(options.db_file),
+        log_prefix_(options.log_prefix),
+        log_level_(options.log_level),
+        log_(std::move(logger))
+      {
+        db_ << "PRAGMA count_changes = ON";
+      }
 
       sqlite::database db_;
+      std::string log_prefix_;
+      logger::LogLevel log_level_;
+      logger::LoggerPtr log_;
       std::vector<sqlite::database_binder> statements_;
     };
 
-    class PreparedStatement {
-     public:
-      static std::unique_ptr<PreparedStatement> create(sqlite::database_binder&& binder) {
-        return std::make_unique<PreparedStatement>(std::move(binder));
-      }
-      explicit PreparedStatement(sqlite::database_binder&& binder) : binder_(std::move(binder))
-      {}
+    inline sqlite::database_binder &bindArgs(
+        sqlite::database_binder &stmt) {
+      return stmt;
+    }
 
-      sqlite::database_binder& get() { return binder_; }
-     private:
-      sqlite::database_binder binder_;
-    };
+    template <typename Arg, typename... Args>
+    inline sqlite::database_binder &bindArgs(
+        sqlite::database_binder &stmt, const Arg &arg, const Args &... args) {
+      stmt << arg;
+      return bindArgs(stmt, args...);
+    }
+
+    template <typename... Args>
+    inline int execCommand(std::shared_ptr<SqliteWrapper> &db,
+                           SqliteWrapper::StatementHandle st_handle,
+                           const Args &... args) {
+      try {
+        // DB must have  "PRAGMA count_changes = ON",
+        int rows_affected = -1;
+        auto &stmt = db->getStatement(st_handle);
+        bindArgs(stmt, args...);
+        stmt >> rows_affected;
+        return rows_affected;
+      } catch (...) {
+        db->logErrMsg();
+      }
+      return -1;
+    }
+
+    template <typename Sink, typename... Args>
+    inline bool execQueryNoThrow(std::shared_ptr<SqliteWrapper> &db,
+                                 SqliteWrapper::StatementHandle st_handle,
+                                 Sink&& sink,
+                                 const Args &... args) {
+      try {
+        auto &stmt = db->getStatement(st_handle);
+        bindArgs(stmt, args...);
+        stmt >> sink;
+        return true;
+      } catch (...) {
+        db->logErrMsg();
+      }
+      return false;
+    }
+
+    template <typename Sink, typename... Args>
+    inline void execQuery(std::shared_ptr<SqliteWrapper> &db,
+                          SqliteWrapper::StatementHandle st_handle,
+                          Sink&& sink,
+                          const Args &... args) {
+      if (!execQueryNoThrow(db, st_handle, sink, args...)) {
+        throw std::runtime_error(db->getErrMsg());
+      }
+    }
+
   }
 }
 

@@ -29,7 +29,7 @@ namespace iroha {
       boost::optional<std::shared_ptr<const shared_model::interface::Block>>
       fetch(shared_model::interface::types::HeightType height) const override;
 
-      // TODO leveldb doesnt provide...
+      // TODO returns height
       size_t size() const override;
 
       void clear() override;

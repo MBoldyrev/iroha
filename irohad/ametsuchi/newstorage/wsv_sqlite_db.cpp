@@ -14,91 +14,16 @@
 namespace iroha {
   namespace newstorage {
 
-    namespace {
-      constexpr logger::LogLevel kLogLevel = logger::LogLevel::kDebug;
-      const char* kLogPrefix = "WSV DB: ";
-
-      template <typename... Args>
-      void log(
-          const logger::LoggerPtr& logger,
-          const std::string &format, const Args &... args) {
-        if (logger) logger->log(
-              kLogLevel,
-              std::string(kLogPrefix) + format, args...
-          );
-      }
-
-      inline sqlite::database_binder &bindArgs(
-          sqlite::database_binder &stmt) {
-        return stmt;
-      }
-
-      template <typename Arg, typename... Args>
-      inline sqlite::database_binder &bindArgs(
-          sqlite::database_binder &stmt, const Arg &arg, const Args &... args) {
-        stmt << arg;
-        return bindArgs(stmt, args...);
-      }
-
-      template <typename... Args>
-      inline int execCommand(std::shared_ptr<SqliteWrapper> &db,
-                             const logger::LoggerPtr &logger,
-                             StatementHandle st_handle,
-                             const Args &... args) {
-        try {
-          int rows_affected = -1;
-          auto &stmt = db->getStatement(st_handle);
-          bindArgs(stmt, args...);
-          stmt >> rows_affected;
-          return rows_affected;
-        } catch (...) {
-          log(logger, db->getErrMsg());
-        }
-        return -1;
-      }
-
-      template <typename Sink, typename... Args>
-      inline bool execQueryNoThrow(std::shared_ptr<SqliteWrapper> &db,
-                             const logger::LoggerPtr &logger,
-                             StatementHandle st_handle,
-                             Sink&& sink,
-                             const Args &... args) {
-        try {
-          auto &stmt = db->getStatement(st_handle);
-          bindArgs(stmt, args...);
-          stmt >> sink;
-          return true;
-        } catch (...) {
-          log(logger, db->getErrMsg());
-        }
-        return false;
-      }
-
-      template <typename Sink, typename... Args>
-      inline void execQuery(std::shared_ptr<SqliteWrapper> &db,
-                                   const logger::LoggerPtr &logger,
-                                   StatementHandle st_handle,
-                                   Sink&& sink,
-                                   const Args &... args) {
-        if (!execQueryNoThrow(db, logger, st_handle, sink, args...)) {
-          throw std::runtime_error(std::string(kLogPrefix) + db->getErrMsg());
-        }
-      }
-
-    } //namespace
-
-    WsvSqliteDB::WsvSqliteDB(std::shared_ptr<SqliteWrapper> db,
-                               logger::LoggerPtr logger)
-        : db_(std::move(db)),
-          log_(std::move(logger))
+     WsvSqliteDB::WsvSqliteDB(std::shared_ptr<SqliteWrapper> db)
+        : db_(std::move(db))
     {
       createSchema();
       uint64_t height = 0;
       std::string hash;
       if (getLedgerState(height, hash)) {
-        log(logger, "ledger state: {} - {}", height, hash);
+        db_->log("Wsv DB opened, ledger state: {} - {}", height, hash);
       } else {
-        log(logger, "zero ledger state");
+        db_->log("Wsv DB opened, zero ledger state");
       }
     }
 
@@ -110,7 +35,7 @@ namespace iroha {
         const std::function<void(const std::string& role, const std::string& permissions)>&
         callback)
     {
-      execQuery(db_, log_, load_roles_, callback);
+      execQuery(db_, load_roles_, callback);
     }
 
     void WsvSqliteDB::loadDomains(
@@ -118,19 +43,19 @@ namespace iroha {
             void(const std::string& domain, const std::string& role)>&
         callback
     ) {
-      execQuery(db_, log_, load_domains_, callback);
+      execQuery(db_, load_domains_, callback);
     }
 
     void WsvSqliteDB::loadAllSignatories(
         const std::function<void(const std::string& signatory)>& callback
     ) {
-      execQuery(db_, log_, load_all_signatories_, callback);
+      execQuery(db_, load_all_signatories_, callback);
     }
 
     void WsvSqliteDB::loadPeers(
         const std::function<void(const std::string& pk, const std::string& address)>& callback
     ) {
-      execQuery(db_, log_, load_peers_, callback);
+      execQuery(db_, load_peers_, callback);
     }
 
     void WsvSqliteDB::loadAssets(
@@ -138,7 +63,7 @@ namespace iroha {
             void(const std::string& id, const std::string& domain, uint8_t precision)>&
         callback
     ) {
-      execQuery(db_, log_, load_assets_, callback);
+      execQuery(db_, load_assets_, callback);
     }
 
     bool WsvSqliteDB::getLedgerState(uint64_t &height, std::string &hash) {
@@ -147,14 +72,14 @@ namespace iroha {
       auto callback = [&](const uint64_t &_height, const std::string &_hash) {
         height = _height; hash = _hash;
       };
-      return execQueryNoThrow(db_, log_,
+      return execQueryNoThrow(db_,
           get_ledger_state_, callback)
           && height > 0;
     }
 
     bool WsvSqliteDB::peerExists(const std::string &pk) {
       int count = -1;
-      return execQueryNoThrow(db_, log_, peer_exists_,
+      return execQueryNoThrow(db_, peer_exists_,
           count, pk) && (count > 0);
     }
 
@@ -164,7 +89,7 @@ namespace iroha {
             void(const std::string& asset_id, const std::string& balance, uint8_t precision)>&
         callback
     ) {
-      return execQueryNoThrow(db_, log_,
+      return execQueryNoThrow(db_,
           load_account_assets_, callback, account_id);
     }
 
@@ -172,7 +97,7 @@ namespace iroha {
         const std::string& account_id, std::string& perm_string
     ) {
       perm_string.clear();
-      return execQueryNoThrow(db_, log_,
+      return execQueryNoThrow(db_,
                               load_account_permissions_,
                               perm_string, account_id) && !perm_string.empty();
     }
@@ -181,7 +106,7 @@ namespace iroha {
         const std::string& from, const std::string& to, std::string& perm_string
     ) {
       perm_string.clear();
-      return execQueryNoThrow(db_, log_,
+      return execQueryNoThrow(db_,
           load_grantable_permissions_,
           perm_string, from, to) && !perm_string.empty();
     }
@@ -195,7 +120,7 @@ namespace iroha {
                           const std::string& _perm_string) {
         domain_id = _domain_id; quorum = _quorum; perm_string = _perm_string;
       };
-      return execQueryNoThrow(db_, log_,
+      return execQueryNoThrow(db_,
           load_account_,
           callback, account_id)
           && !domain_id.empty();
@@ -205,7 +130,7 @@ namespace iroha {
         const std::string& account_id,
         const std::function<void(const std::string &pk)>& callback
     ) {
-      return execQueryNoThrow(db_, log_,
+      return execQueryNoThrow(db_,
           load_account_signatories_, callback, account_id);
     }
 
@@ -213,54 +138,54 @@ namespace iroha {
         const std::string& account_id,
         const std::function<void(const std::string &role_id)>& callback
     ) {
-      return execQueryNoThrow(db_, log_,
+      return execQueryNoThrow(db_,
           load_account_roles_, callback, account_id);
     }
 
     int WsvSqliteDB::dropPeers() {
-      return execCommand(db_, log_, drop_peers_);
+      return execCommand(db_, drop_peers_);
     }
 
     int WsvSqliteDB::updateAccountAsset(
         const std::string &account_id, const std::string &asset_id,
         const std::string& balance, uint8_t precision
     ) {
-      return execCommand(db_, log_, update_account_asset_,
+      return execCommand(db_, update_account_asset_,
           account_id, asset_id, balance, precision);
     }
 
     int WsvSqliteDB::setLedgerState(uint64_t height, const std::string& hash) {
-      return execCommand(db_, log_, set_ledger_state_, height, hash);
+      return execCommand(db_, set_ledger_state_, height, hash);
     }
 
     int WsvSqliteDB::addPeer(
         const std::string &public_key, const std::string &address
     ) {
-      return execCommand(db_, log_, add_peer_, public_key, address);
+      return execCommand(db_, add_peer_, public_key, address);
     }
 
     int WsvSqliteDB::removePeer(const std::string &public_key) {
-      return execCommand(db_, log_, remove_peer_, public_key);
+      return execCommand(db_, remove_peer_, public_key);
     }
 
     int WsvSqliteDB::addAccountSignatory(
         const std::string &account_id, const std::string &public_key
     ) {
-      return execCommand(db_, log_, add_account_signatory_,
+      return execCommand(db_, add_account_signatory_,
           account_id, public_key);
     }
 
     int WsvSqliteDB::removeAccountSignatory(
         const std::string &account_id, const std::string &public_key
     ) {
-      return execCommand(db_, log_, remove_account_signatory_,
+      return execCommand(db_, remove_account_signatory_,
                          account_id, public_key);
     }
 
     int WsvSqliteDB::createRole(
         const std::string &role_id, const std::string &permissions
     ) {
-      return execCommand(db_, log_, create_role_,
+      return execCommand(db_, create_role_,
                          role_id, permissions);
     }
 
@@ -268,7 +193,7 @@ namespace iroha {
         const std::string &account_id, const std::string &domain_id,
         uint16_t quorum
     ) {
-      return execCommand(db_, log_, create_account_,
+      return execCommand(db_, create_account_,
                         account_id, domain_id, quorum, domain_id);
     }
 
@@ -276,28 +201,28 @@ namespace iroha {
         const std::string &asset_id,
         const std::string& domain_id, uint8_t precision
     ) {
-      return execCommand(db_, log_, create_asset_,
+      return execCommand(db_, create_asset_,
           asset_id, domain_id, precision);
     }
 
     int WsvSqliteDB::createDomain(
         const std::string &domain_id, const std::string &role_id
     ) {
-      return execCommand(db_, log_, create_domain_,
+      return execCommand(db_, create_domain_,
                          domain_id, role_id);
     }
 
     int WsvSqliteDB::attachAccountRole(
         const std::string &account_id, const std::string &role_id
     ) {
-      return execCommand(db_, log_, attach_account_role_,
+      return execCommand(db_, attach_account_role_,
           account_id, role_id);
     }
 
     int WsvSqliteDB::detachAccountRole(
         const std::string &account_id, const std::string &role_id
     ) {
-      return execCommand(db_, log_, detach_account_role_,
+      return execCommand(db_, detach_account_role_,
           account_id, role_id);
     }
 
@@ -305,26 +230,24 @@ namespace iroha {
         const std::string& from, const std::string& to,
         const std::string& permissions
     ) {
-      return execCommand(db_, log_, update_grantable_permissions_,
+      return execCommand(db_, update_grantable_permissions_,
           from, to, permissions);
     }
 
     int WsvSqliteDB::setQuorum(
         const std::string& account_id, uint16_t quorum
     ) {
-      return execCommand(db_, log_, set_quorum_, quorum, account_id);
+      return execCommand(db_, set_quorum_, quorum, account_id);
     }
 
     int WsvSqliteDB::updateAccountPermissions(
         const std::string& account_id, const std::string& permissions
     ) {
-      return execCommand(db_, log_, update_permissions_, permissions, account_id);
+      return execCommand(db_, update_permissions_, permissions, account_id);
     }
 
     void WsvSqliteDB::createSchema() {
       static const char *prepare_tables_sql[] = {
-          "PRAGMA foreign_keys = ON",
-          "PRAGMA count_changes = ON",
           R"(CREATE TABLE IF NOT EXISTS ledger_state (
             height INTEGER PRIMARY KEY,
             hash TEXT NOT NULL))",
@@ -370,32 +293,13 @@ namespace iroha {
             permittee_account_id TEXT REFERENCES account(account_id),
             account_id TEXT REFERENCES account(account_id),
             permission TEXT NOT NULL,
-            PRIMARY KEY (permittee_account_id, account_id)))",
-          R"(CREATE TABLE IF NOT EXISTS tx_position_by_hash (
-            hash TEXT PRIMARY KEY,
-            height INTEGER NOT NULL,
-            idx INTEGER NOT NULL))",
-          R"(CREATE INDEX IF NOT EXISTS hash2pos ON tx_position_by_hash
-            (hash, height, idx ASC))",
-          R"(CREATE TABLE IF NOT EXISTS tx_status_by_hash (
-            hash TEXT PRIMARY KEY,
-            status INTEGER NOT NULL))",
-          R"(CREATE TABLE IF NOT EXISTS tx_position_by_creator (
-            creator_id TEXT NOT NULL,
-            height INTEGER NOT NULL,
-            idx INTEGER NOT NULL))",
-          R"(CREATE INDEX IF NOT EXISTS creator2pos on tx_position_by_creator
-            (creator_id, height, idx ASC))",
-          R"(CREATE TABLE IF NOT EXISTS tx_position_by_account_asset (
-            account_id TEXT NOT NULL,
-            asset_id TEXT NOT NULL,
-            height INTEGER NOT NULL,
-            idx INTEGER NOT NULL))",
-          R"(CREATE INDEX IF NOT EXISTS aa2pos ON tx_position_by_account_asset
-            (account_id, asset_id, height, idx ASC))"
-      };
+            PRIMARY KEY (permittee_account_id, account_id)))"};
 
       try {
+        *db_ << "PRAGMA foreign_keys = ON";
+
+        SqliteWrapper::Transaction tx(*db_);
+
         for (const char *sql : prepare_tables_sql) {
           *db_ << sql;
         }
@@ -409,9 +313,8 @@ namespace iroha {
         load_domains_ = db_->createStatement("SELECT * FROM domain");
 
         load_all_signatories_ = db_->createStatement(
-          R"(SELECT DISTINCT(public_key) FROM peer
-            UNION SELECT DISTINCT(public_key) from account_has_signatory)"
-        );
+            R"(SELECT DISTINCT(public_key) FROM peer
+            UNION SELECT DISTINCT(public_key) from account_has_signatory)");
 
         load_peers_ = db_->createStatement("SELECT * FROM peer");
 
@@ -443,8 +346,8 @@ namespace iroha {
         peer_exists_ = db_->createStatement(
             R"(SELECT count(*) FROM peer WHERE public_key = ?)");
 
-        set_ledger_state_ = db_->createStatement(
-            "INSERT INTO ledger_state VALUES(?, ?)");
+        set_ledger_state_ =
+            db_->createStatement("INSERT INTO ledger_state VALUES(?, ?)");
 
         add_peer_ = db_->createStatement("INSERT INTO peer VALUES(?, ?)");
 
@@ -491,12 +394,12 @@ namespace iroha {
         update_permissions_ = db_->createStatement(
             "UPDATE account SET permission = ? WHERE account_id = ?");
 
-      } catch (sqlite::sqlite_exception& e) {
-        std::cerr  << e.get_code() << ": " << e.what()
-                << " : " << db_->getErrMsg() << " during "
-                 << e.get_sql() << "\n";
+        tx.commit();
+      } catch (sqlite::sqlite_exception &e) {
+        db_->log("Wsv DB: error in createSchema, sql={}", e.get_sql());
+        throw;
       }
-     }
+    }
 
   }  // namespace newstorage
 }  // namespace iroha

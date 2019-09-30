@@ -4,9 +4,6 @@
  */
 
 #include "ametsuchi/newstorage/peer_query_wsv.hpp"
-
-#include <numeric>
-
 #include "ametsuchi/wsv_query.hpp"
 
 namespace iroha {
