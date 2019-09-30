@@ -29,7 +29,7 @@ namespace iroha {
      */
     class BlockIndexImpl : public BlockIndex {
      public:
-      PostgresBlockIndex(std::unique_ptr<Indexer> indexer,
+      BlockIndexImpl(std::unique_ptr<ametsuchi::Indexer> indexer,
                          logger::LoggerPtr log);
 
       /// Index a block.
@@ -39,10 +39,10 @@ namespace iroha {
       /// Index a transaction.
       void makeAccountAssetIndex(
           const shared_model::interface::types::AccountIdType &account_id,
-          Indexer::TxPosition position,
+          ametsuchi::Indexer::TxPosition position,
           const shared_model::interface::Transaction::CommandsType &commands);
 
-      std::unique_ptr<Indexer> indexer_;
+      std::unique_ptr<ametsuchi::Indexer> indexer_;
       logger::LoggerPtr log_;
     };
   }  // namespace ametsuchi
