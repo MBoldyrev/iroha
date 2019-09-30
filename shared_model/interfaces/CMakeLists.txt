@@ -46,6 +46,7 @@ add_library(shared_model_interfaces
     queries/impl/account_detail_pagination_meta.cpp
     queries/impl/account_detail_record_id.cpp
     queries/impl/get_peers.cpp
+    queries/impl/get_engine_response.cpp
     common_objects/impl/amount.cpp
     common_objects/impl/signature.cpp
     common_objects/impl/peer.cpp
