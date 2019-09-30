@@ -60,7 +60,7 @@ namespace iroha {
           const shared_model::interface::types::AccountIdType
               &creator_account_id,
           const shared_model::interface::types::HashType &tx_hash,
-          size_t cmd_index,
+          shared_model::interface::types::CommandIndexType cmd_index,
           bool do_validation) override;
 
       soci::session &getSession();
@@ -70,7 +70,7 @@ namespace iroha {
           const shared_model::interface::types::AccountIdType
               &creator_account_id,
           const shared_model::interface::types::HashType &tx_hash,
-          size_t cmd_index,
+          shared_model::interface::types::CommandIndexType cmd_index,
           bool do_validation);
 
       CommandResult operator()(
@@ -78,7 +78,7 @@ namespace iroha {
           const shared_model::interface::types::AccountIdType
               &creator_account_id,
           const shared_model::interface::types::HashType &tx_hash,
-          size_t cmd_index,
+          shared_model::interface::types::CommandIndexType cmd_index,
           bool do_validation);
 
       CommandResult operator()(
@@ -86,7 +86,7 @@ namespace iroha {
           const shared_model::interface::types::AccountIdType
               &creator_account_id,
           const shared_model::interface::types::HashType &tx_hash,
-          size_t cmd_index,
+          shared_model::interface::types::CommandIndexType cmd_index,
           bool do_validation);
 
       CommandResult operator()(
@@ -94,7 +94,7 @@ namespace iroha {
           const shared_model::interface::types::AccountIdType
               &creator_account_id,
           const shared_model::interface::types::HashType &tx_hash,
-          size_t cmd_index,
+          shared_model::interface::types::CommandIndexType cmd_index,
           bool do_validation);
 
       CommandResult operator()(
@@ -102,7 +102,7 @@ namespace iroha {
           const shared_model::interface::types::AccountIdType
               &creator_account_id,
           const shared_model::interface::types::HashType &tx_hash,
-          size_t cmd_index,
+          shared_model::interface::types::CommandIndexType cmd_index,
           bool do_validation);
 
       CommandResult operator()(
@@ -110,7 +110,7 @@ namespace iroha {
           const shared_model::interface::types::AccountIdType
               &creator_account_id,
           const shared_model::interface::types::HashType &tx_hash,
-          size_t cmd_index,
+          shared_model::interface::types::CommandIndexType cmd_index,
           bool do_validation);
 
       CommandResult operator()(
@@ -118,7 +118,7 @@ namespace iroha {
           const shared_model::interface::types::AccountIdType
               &creator_account_id,
           const shared_model::interface::types::HashType &tx_hash,
-          size_t cmd_index,
+          shared_model::interface::types::CommandIndexType cmd_index,
           bool do_validation);
 
       CommandResult operator()(
@@ -126,7 +126,7 @@ namespace iroha {
           const shared_model::interface::types::AccountIdType
               &creator_account_id,
           const shared_model::interface::types::HashType &tx_hash,
-          size_t cmd_index,
+          shared_model::interface::types::CommandIndexType cmd_index,
           bool do_validation);
 
       CommandResult operator()(
@@ -134,7 +134,7 @@ namespace iroha {
           const shared_model::interface::types::AccountIdType
               &creator_account_id,
           const shared_model::interface::types::HashType &tx_hash,
-          size_t cmd_index,
+          shared_model::interface::types::CommandIndexType cmd_index,
           bool do_validation);
 
       CommandResult operator()(
@@ -142,7 +142,7 @@ namespace iroha {
           const shared_model::interface::types::AccountIdType
               &creator_account_id,
           const shared_model::interface::types::HashType &tx_hash,
-          size_t cmd_index,
+          shared_model::interface::types::CommandIndexType cmd_index,
           bool do_validation);
 
       CommandResult operator()(
@@ -150,7 +150,7 @@ namespace iroha {
           const shared_model::interface::types::AccountIdType
               &creator_account_id,
           const shared_model::interface::types::HashType &tx_hash,
-          size_t cmd_index,
+          shared_model::interface::types::CommandIndexType cmd_index,
           bool do_validation);
 
       CommandResult operator()(
@@ -158,7 +158,7 @@ namespace iroha {
           const shared_model::interface::types::AccountIdType
               &creator_account_id,
           const shared_model::interface::types::HashType &tx_hash,
-          size_t cmd_index,
+          shared_model::interface::types::CommandIndexType cmd_index,
           bool do_validation);
 
       CommandResult operator()(
@@ -166,7 +166,7 @@ namespace iroha {
           const shared_model::interface::types::AccountIdType
               &creator_account_id,
           const shared_model::interface::types::HashType &tx_hash,
-          size_t cmd_index,
+          shared_model::interface::types::CommandIndexType cmd_index,
           bool do_validation);
 
       CommandResult operator()(
@@ -174,7 +174,7 @@ namespace iroha {
           const shared_model::interface::types::AccountIdType
               &creator_account_id,
           const shared_model::interface::types::HashType &tx_hash,
-          size_t cmd_index,
+          shared_model::interface::types::CommandIndexType cmd_index,
           bool do_validation);
 
       CommandResult operator()(
@@ -182,7 +182,7 @@ namespace iroha {
           const shared_model::interface::types::AccountIdType
               &creator_account_id,
           const shared_model::interface::types::HashType &tx_hash,
-          size_t cmd_index,
+          shared_model::interface::types::CommandIndexType cmd_index,
           bool do_validation);
 
       CommandResult operator()(
@@ -190,7 +190,7 @@ namespace iroha {
           const shared_model::interface::types::AccountIdType
               &creator_account_id,
           const shared_model::interface::types::HashType &tx_hash,
-          size_t cmd_index,
+          shared_model::interface::types::CommandIndexType cmd_index,
           bool do_validation);
 
       CommandResult operator()(
@@ -198,7 +198,7 @@ namespace iroha {
           const shared_model::interface::types::AccountIdType
               &creator_account_id,
           const shared_model::interface::types::HashType &tx_hash,
-          size_t cmd_index,
+          shared_model::interface::types::CommandIndexType cmd_index,
           bool do_validation);
 
       CommandResult operator()(
@@ -206,7 +206,7 @@ namespace iroha {
           const shared_model::interface::types::AccountIdType
               &creator_account_id,
           const shared_model::interface::types::HashType &tx_hash,
-          size_t cmd_index,
+          shared_model::interface::types::CommandIndexType cmd_index,
           bool do_validation);
 
       CommandResult operator()(
@@ -214,7 +214,7 @@ namespace iroha {
           const shared_model::interface::types::AccountIdType
               &creator_account_id,
           const shared_model::interface::types::HashType &tx_hash,
-          size_t cmd_index,
+          shared_model::interface::types::CommandIndexType cmd_index,
           bool do_validation);
 
      private:
