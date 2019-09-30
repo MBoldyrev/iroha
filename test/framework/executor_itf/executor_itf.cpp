@@ -71,6 +71,10 @@ CreateResult ExecutorItf::create(ExecutorItfTarget target) {
 CommandResult ExecutorItf::executeCommandAsAccount(
     const shared_model::interface::Command &cmd,
     const std::string &account_id) const {
+  last_executed_cmd_meta_ = ExecutedCommandMeta{};
+  last_executed_cmd_meta_->creator_account_id = account_id;
+  last_executed_cmd_meta_->tx_hash = std::to_string(command_counter_++);
+  last_executed_cmd_meta_->cmd_index = 0;
   return cmd_executor_->execute(cmd, account_id, true);
 }
 
@@ -83,6 +87,15 @@ Result<void, TxExecutionError> ExecutorItf::executeTransaction(
 iroha::ametsuchi::QueryExecutorResult ExecutorItf::executeQuery(
     const shared_model::interface::Query &query) const {
   return query_executor_->execute(query);
+}
+
+SpecificQueryResult<shared_model::interface::EngineResponse>
+ExecutorItf::getLastEngineResultResponce() const {
+  assert(last_executed_cmd_meta_);
+  executeQuery(getMockQueryFactory()->constructGetEngineResponse(
+                   last_executed_cmd_meta_->tx_hash),
+               last_executed_cmd_meta_->creator_account_id,
+               boost::none);
 }
 
 const std::unique_ptr<shared_model::interface::MockCommandFactory>
