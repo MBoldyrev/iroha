@@ -7,7 +7,7 @@
 
 using namespace shared_model::proto;
 
-EngineResponseRecord::EngineResponseRecord(TransportType &proto)
+EngineResponseRecord::EngineResponseRecord(const TransportType &proto)
     : proto_(proto) {}
 
 EngineResponseRecord::EngineResponseRecord(const EngineResponseRecord &o)

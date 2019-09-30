@@ -18,7 +18,7 @@ namespace shared_model {
      public:
       using TransportType = iroha::protocol::EngineResponseRecord;
 
-      explicit EngineResponseRecord(TransportType &proto);
+      explicit EngineResponseRecord(const TransportType &proto);
 
       explicit EngineResponseRecord(const EngineResponseRecord &o);
 
@@ -29,7 +29,7 @@ namespace shared_model {
           const override;
 
      private:
-      TransportType &proto_;
+      const TransportType &proto_;
     };
   }  // namespace proto
 }  // namespace shared_model
