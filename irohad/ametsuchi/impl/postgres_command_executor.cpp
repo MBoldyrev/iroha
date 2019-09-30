@@ -1329,10 +1329,14 @@ namespace iroha {
     CommandResult PostgresCommandExecutor::execute(
         const shared_model::interface::Command &cmd,
         const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::interface::types::HashType &tx_hash,
+        size_t cmd_index,
         bool do_validation) {
       return boost::apply_visitor(
-          [this, &creator_account_id, do_validation](const auto &command) {
-            return (*this)(command, creator_account_id, do_validation);
+          [this, &creator_account_id, &tx_hash, cmd_index, do_validation](
+              const auto &command) {
+            return (*this)(
+                command, creator_account_id, tx_hash, cmd_index, do_validation);
           },
           cmd.get());
     }
@@ -1344,6 +1348,8 @@ namespace iroha {
     CommandResult PostgresCommandExecutor::operator()(
         const shared_model::interface::AddAssetQuantity &command,
         const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::interface::types::HashType &tx_hash,
+        size_t cmd_index,
         bool do_validation) {
       auto &asset_id = command.assetId();
       auto quantity = command.amount().toStringRepr();
@@ -1364,6 +1370,8 @@ namespace iroha {
     CommandResult PostgresCommandExecutor::operator()(
         const shared_model::interface::AddPeer &command,
         const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::interface::types::HashType &tx_hash,
+        size_t cmd_index,
         bool do_validation) {
       auto &peer = command.peer();
 
@@ -1379,6 +1387,8 @@ namespace iroha {
     CommandResult PostgresCommandExecutor::operator()(
         const shared_model::interface::AddSignatory &command,
         const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::interface::types::HashType &tx_hash,
+        size_t cmd_index,
         bool do_validation) {
       auto &target = command.accountId();
       const auto &pubkey = command.pubkey().hex();
@@ -1397,6 +1407,8 @@ namespace iroha {
     CommandResult PostgresCommandExecutor::operator()(
         const shared_model::interface::AppendRole &command,
         const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::interface::types::HashType &tx_hash,
+        size_t cmd_index,
         bool do_validation) {
       auto &target = command.accountId();
       auto &role = command.roleName();
@@ -1415,6 +1427,8 @@ namespace iroha {
     CommandResult PostgresCommandExecutor::operator()(
         const shared_model::interface::EngineCall &command,
         const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::interface::types::HashType &tx_hash,
+        size_t cmd_index,
         bool do_validation) {
       // need to use const cast to call vm
       // inside VmCall this strings are copied
@@ -1422,8 +1436,8 @@ namespace iroha {
       char *caller = const_cast<char *>(creator_account_id.c_str());
       char *callee = const_cast<char *>(command.callee().c_str());
       char *input = const_cast<char *>(command.input().c_str());
-      VmCall_return res = VmCall(
-          input, caller, callee, this, specific_query_executor_.get());
+      VmCall_return res =
+          VmCall(input, caller, callee, this, specific_query_executor_.get());
       if (res.r1 == 0) {
         // TODO(IvanTyulyandin): need to set appropriate error value, 5 used to
         // pass compilation
@@ -1438,6 +1452,8 @@ namespace iroha {
     CommandResult PostgresCommandExecutor::operator()(
         const shared_model::interface::CompareAndSetAccountDetail &command,
         const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::interface::types::HashType &tx_hash,
+        size_t cmd_index,
         bool do_validation) {
       std::string new_json_value = makeJsonString(command.value());
       const std::string expected_json_value =
@@ -1463,6 +1479,8 @@ namespace iroha {
     CommandResult PostgresCommandExecutor::operator()(
         const shared_model::interface::CreateAccount &command,
         const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::interface::types::HashType &tx_hash,
+        size_t cmd_index,
         bool do_validation) {
       auto &account_name = command.accountName();
       auto &domain_id = command.domainId();
@@ -1485,6 +1503,8 @@ namespace iroha {
     CommandResult PostgresCommandExecutor::operator()(
         const shared_model::interface::CreateAsset &command,
         const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::interface::types::HashType &tx_hash,
+        size_t cmd_index,
         bool do_validation) {
       auto &domain_id = command.domainId();
       auto asset_id = command.assetName() + "#" + domain_id;
@@ -1505,6 +1525,8 @@ namespace iroha {
     CommandResult PostgresCommandExecutor::operator()(
         const shared_model::interface::CreateDomain &command,
         const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::interface::types::HashType &tx_hash,
+        size_t cmd_index,
         bool do_validation) {
       auto &domain_id = command.domainId();
       auto &default_role = command.userDefaultRole();
@@ -1523,6 +1545,8 @@ namespace iroha {
     CommandResult PostgresCommandExecutor::operator()(
         const shared_model::interface::CreateRole &command,
         const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::interface::types::HashType &tx_hash,
+        size_t cmd_index,
         bool do_validation) {
       auto &role_id = command.roleName();
       auto &permissions = command.rolePermissions();
@@ -1542,6 +1566,8 @@ namespace iroha {
     CommandResult PostgresCommandExecutor::operator()(
         const shared_model::interface::DetachRole &command,
         const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::interface::types::HashType &tx_hash,
+        size_t cmd_index,
         bool do_validation) {
       auto &account_id = command.accountId();
       auto &role_name = command.roleName();
@@ -1560,6 +1586,8 @@ namespace iroha {
     CommandResult PostgresCommandExecutor::operator()(
         const shared_model::interface::GrantPermission &command,
         const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::interface::types::HashType &tx_hash,
+        size_t cmd_index,
         bool do_validation) {
       auto &permittee_account_id = command.accountId();
       auto granted_perm = command.permissionName();
@@ -1581,6 +1609,8 @@ namespace iroha {
     CommandResult PostgresCommandExecutor::operator()(
         const shared_model::interface::RemovePeer &command,
         const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::interface::types::HashType &tx_hash,
+        size_t cmd_index,
         bool do_validation) {
       auto pubkey = command.pubkey().hex();
 
@@ -1597,6 +1627,8 @@ namespace iroha {
     CommandResult PostgresCommandExecutor::operator()(
         const shared_model::interface::RemoveSignatory &command,
         const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::interface::types::HashType &tx_hash,
+        size_t cmd_index,
         bool do_validation) {
       auto &account_id = command.accountId();
       auto &pubkey = command.pubkey().hex();
@@ -1615,6 +1647,8 @@ namespace iroha {
     CommandResult PostgresCommandExecutor::operator()(
         const shared_model::interface::RevokePermission &command,
         const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::interface::types::HashType &tx_hash,
+        size_t cmd_index,
         bool do_validation) {
       auto &permittee_account_id = command.accountId();
       auto revoked_perm = command.permissionName();
@@ -1633,6 +1667,8 @@ namespace iroha {
     CommandResult PostgresCommandExecutor::operator()(
         const shared_model::interface::SetAccountDetail &command,
         const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::interface::types::HashType &tx_hash,
+        size_t cmd_index,
         bool do_validation) {
       auto &account_id = command.accountId();
       auto &key = command.key();
@@ -1660,6 +1696,8 @@ namespace iroha {
     CommandResult PostgresCommandExecutor::operator()(
         const shared_model::interface::SetQuorum &command,
         const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::interface::types::HashType &tx_hash,
+        size_t cmd_index,
         bool do_validation) {
       auto &account_id = command.accountId();
       int quorum = command.newQuorum();
@@ -1676,6 +1714,8 @@ namespace iroha {
     CommandResult PostgresCommandExecutor::operator()(
         const shared_model::interface::SubtractAssetQuantity &command,
         const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::interface::types::HashType &tx_hash,
+        size_t cmd_index,
         bool do_validation) {
       auto &asset_id = command.assetId();
       auto quantity = command.amount().toStringRepr();
@@ -1696,6 +1736,8 @@ namespace iroha {
     CommandResult PostgresCommandExecutor::operator()(
         const shared_model::interface::TransferAsset &command,
         const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::interface::types::HashType &tx_hash,
+        size_t cmd_index,
         bool do_validation) {
       auto &src_account_id = command.srcAccountId();
       auto &dest_account_id = command.destAccountId();
