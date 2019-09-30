@@ -8,6 +8,7 @@ add_library(new_storage
     block_index_db.cpp
     indexer_impl.cpp
     block_index_impl.cpp
+    block_query_impl.cpp
 #    storage_impl.cpp
     wsv_cache.cpp
     wsv_query_impl.cpp

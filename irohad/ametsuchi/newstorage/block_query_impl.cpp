@@ -4,7 +4,7 @@
  */
 
 #include "ametsuchi/newstorage/block_query_impl.hpp"
-
+#include "ametsuchi/newstorage/block_index_db.hpp"
 #include <boost/format.hpp>
 #include "common/byteutils.hpp"
 #include "common/cloneable.hpp"
@@ -12,7 +12,7 @@
 
 namespace iroha {
   namespace newstorage {
-    BlockQueryImpl::BlockQueryImpl(RelDbBackend &db,
+    BlockQueryImpl::BlockQueryImpl(BlockIndexDB &db,
         ametsuchi::BlockStorage &block_storage,
         logger::LoggerPtr log)
         : db_(db), block_storage_(block_storage), log_(std::move(log)) {}
@@ -41,11 +41,8 @@ namespace iroha {
 
       int res = -1;
       const auto &hash_str = hash.hex();
-
-      try {
-        res = db_.getTxStatusByHash(hash_str);
-      } catch (const std::exception &e) {
-        log_->error("Failed to execute query: {}", e.what());
+      if (!db_.getTxStatusByHash(hash_str, res)) {
+        log_->error("Failed to execute query: {}", db_.getLastError());
         return boost::none;
       }
 

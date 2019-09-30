@@ -15,12 +15,14 @@
 namespace iroha {
   namespace newstorage {
 
+    class BlockIndexDB;
+
     /**
      * Class which implements BlockQuery
      */
    class BlockQueryImpl : public ametsuchi::BlockQuery {
      public:
-      BlockQueryImpl(RelDbBackend &db,
+      BlockQueryImpl(BlockIndexDB &db,
                      ametsuchi::BlockStorage &block_storage,
                          logger::LoggerPtr log);
 
@@ -33,7 +35,7 @@ namespace iroha {
           const shared_model::crypto::Hash &hash) override;
 
      private:
-      RelDbBackend& db_;
+      BlockIndexDB& db_;
       ametsuchi::BlockStorage &block_storage_;
       logger::LoggerPtr log_;
     };

@@ -30,7 +30,7 @@ namespace iroha {
 
       bool getLedgerState(uint64_t& height, std::string& hash);
 
-
+      bool getTxStatusByHash(const std::string& hash, int& status);
 
       // modifying requests return rows affected or -1 on error
 
