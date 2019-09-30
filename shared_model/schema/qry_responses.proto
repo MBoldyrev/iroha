@@ -113,6 +113,10 @@ message PeersResponse {
   repeated Peer peers = 1;
 }
 
+message EngineResponse {
+  repeated EngineResponseRecord engine_response_records = 1;
+}
+
 message QueryResponse {
   oneof response {
     AccountAssetResponse account_assets_response = 1;
