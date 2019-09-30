@@ -5,6 +5,7 @@
 
 #include "interfaces/query_responses/engine_response.hpp"
 
+#include "interfaces/query_responses/engine_response_record.hpp"
 #include "utils/string_builder.hpp"
 
 namespace shared_model {

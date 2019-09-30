@@ -76,6 +76,8 @@ if (IROHA_ROOT_PROJECT)
       query_responses/impl/proto_get_block_response.cpp
       query_responses/impl/proto_peers_response.cpp
       transaction_responses/impl/proto_tx_response.cpp
+      query_responses/impl/proto_engine_response_record.cpp
+      query_responses/impl/proto_engine_response.cpp
       )
 endif ()
 
