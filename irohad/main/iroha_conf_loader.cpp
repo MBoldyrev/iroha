@@ -287,7 +287,7 @@ inline void JsonDeserializerImpl::getVal<logger::LogLevel>(
     BOOST_THROW_EXCEPTION(std::runtime_error(
         "Wrong log level at " + path + ": must be one of '"
         + boost::algorithm::join(
-              config_members::LogLevels | boost::adaptors::map_keys, "', '")
+            config_members::LogLevels | boost::adaptors::map_keys, "', '")
         + "'."));
   }
   dest = it->second;
@@ -360,6 +360,16 @@ inline void JsonDeserializerImpl::getVal<iroha::torii::TlsParams>(
 }
 
 template <>
+inline void JsonDeserializerImpl::getVal<IrohadConfig::InterPeerTls>(
+    const std::string &path,
+    IrohadConfig::InterPeerTls &dest,
+    const rapidjson::Value &src) {
+  assert_fatal(src.IsObject(), path + " must be a dictionary");
+  const auto obj = src.GetObject();
+  getValByKey(path, dest.my_tls_creds_path, obj, config_members::KeyPairPath);
+}
+
+template <>
 inline void JsonDeserializerImpl::getVal<IrohadConfig::DbConfig>(
     const std::string &path,
     IrohadConfig::DbConfig &dest,
@@ -385,6 +395,7 @@ inline void JsonDeserializerImpl::getVal<IrohadConfig>(
   getValByKey(path, dest.block_store_path, obj, config_members::BlockStorePath);
   getValByKey(path, dest.torii_port, obj, config_members::ToriiPort);
   getValByKey(path, dest.torii_tls_params, obj, config_members::ToriiTlsParams);
+  getValByKey(path, dest.inter_peer_tls, obj, config_members::InterPeerTls);
   getValByKey(path, dest.internal_port, obj, config_members::InternalPort);
   getValByKey(path, dest.pg_opt, obj, config_members::PgOpt);
   getValByKey(path, dest.database_config, obj, config_members::DbConfig);
