@@ -7,6 +7,7 @@
 #define IROHA_COMMAND_EXECUTOR_IMPL_HPP
 
 #include "ametsuchi/command_executor.hpp"
+#include "utils/string_builder.hpp"
 
 namespace shared_model {
   namespace interface {
@@ -35,10 +36,14 @@ namespace shared_model {
 namespace iroha {
   namespace newstorage {
 
-   class CommandExecutorImpl final : public ametsuchi::CommandExecutor {
+    class MutableWsv;
+
+    class CommandExecutorImpl final : public ametsuchi::CommandExecutor {
      public:
+      using CommandResult = iroha::ametsuchi::CommandResult;
+
       CommandExecutorImpl(
-          // db
+          MutableWsv &db_,
           std::shared_ptr<shared_model::interface::PermissionToString>
               perm_converter);
 
@@ -160,7 +165,9 @@ namespace iroha {
           bool do_validation);
 
      private:
-
+      MutableWsv &db_;
+      std::shared_ptr<shared_model::interface::PermissionToString> perm_converter_;
+      shared_model::detail::PrettyStringBuilder string_builder_;
     };
   }  // namespace newstorage
 }  // namespace iroha

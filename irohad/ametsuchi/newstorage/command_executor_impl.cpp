@@ -3,7 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "command_executor_impl.hpp"
+#include "ametsuchi/newstorage/command_executor_impl.hpp"
+#include "ametsuchi/newstorage/mutable_wsv.hpp"
 
 #include <forward_list>
 
@@ -32,7 +33,7 @@
 #include "interfaces/commands/transfer_asset.hpp"
 #include "interfaces/common_objects/types.hpp"
 #include "interfaces/permission_to_string.hpp"
-#include "utils/string_builder.hpp"
+
 
 using shared_model::interface::permissions::Grantable;
 using shared_model::interface::permissions::Role;
@@ -49,9 +50,9 @@ namespace {
 
   iroha::expected::Error<iroha::ametsuchi::CommandError> makeCommandError(
       std::string command_name,
-      const iroha::newstorage::CommandError::ErrorCodeType code,
+      const iroha::ametsuchi::CommandError::ErrorCodeType code,
       std::string &&query_args) noexcept {
-    return iroha::expected::makeError(iroha::newstorage::CommandError{
+    return iroha::expected::makeError(iroha::ametsuchi::CommandError{
         std::move(command_name), code, std::move(query_args)});
   }
 
@@ -108,7 +109,7 @@ namespace {
    * @param command_name of the failed command
    * @return real error code
    */
-  boost::optional<iroha::newstorage::CommandError::ErrorCodeType>
+  boost::optional<iroha::ametsuchi::CommandError::ErrorCodeType>
   getRealErrorCode(size_t fake_error_code, const std::string &command_name) {
     auto fake_to_real_code = kCmdNameToErrorCode.find(command_name);
     if (fake_to_real_code == kCmdNameToErrorCode.end()) {
@@ -132,7 +133,7 @@ namespace {
    * @param query_args - a string representation of query arguments
    * @return command_error structure
    */
-  iroha::newstorage::CommandResult getCommandError(
+  iroha::ametsuchi::CommandResult getCommandError(
       std::string command_name,
       const std::string &error,
       std::string &&query_args) noexcept {
@@ -167,232 +168,74 @@ namespace {
     return res.at(1);
   }
 
-  /**
-   * Generate an SQL subquery which checks if creator has corresponding
-   * permissions for target account
-   * It verifies individual, domain, and global permissions, and returns true if
-   * any of listed permissions is present
-   */
-  auto hasQueryPermission(
-      const shared_model::interface::types::AccountIdType &creator,
-      const shared_model::interface::types::AccountIdType &target_account,
-      Role indiv_permission_id,
-      Role all_permission_id,
-      Role domain_permission_id,
-      const shared_model::interface::types::DomainIdType &creator_domain,
-      const shared_model::interface::types::DomainIdType
-          &target_account_domain) {
-    const auto bits = shared_model::interface::RolePermissionSet::size();
-    const auto perm_str =
-        shared_model::interface::RolePermissionSet({indiv_permission_id})
-            .toBitstring();
-    const auto all_perm_str =
-        shared_model::interface::RolePermissionSet({all_permission_id})
-            .toBitstring();
-    const auto domain_perm_str =
-        shared_model::interface::RolePermissionSet({domain_permission_id})
-            .toBitstring();
 
-    boost::format cmd(R"(
-    has_indiv_perm AS (
-      SELECT (COALESCE(bit_or(rp.permission), '0'::bit(%1%))
-      & '%3%') = '%3%' FROM role_has_permissions AS rp
-          JOIN account_has_roles AS ar on ar.role_id = rp.role_id
-          WHERE ar.account_id = %2%
-    ),
-    has_all_perm AS (
-      SELECT (COALESCE(bit_or(rp.permission), '0'::bit(%1%))
-      & '%4%') = '%4%' FROM role_has_permissions AS rp
-          JOIN account_has_roles AS ar on ar.role_id = rp.role_id
-          WHERE ar.account_id = %2%
-    ),
-    has_domain_perm AS (
-      SELECT (COALESCE(bit_or(rp.permission), '0'::bit(%1%))
-      & '%5%') = '%5%' FROM role_has_permissions AS rp
-          JOIN account_has_roles AS ar on ar.role_id = rp.role_id
-          WHERE ar.account_id = %2%
-    ),
-    has_query_perm AS (
-      SELECT (%2% = %6% AND (SELECT * FROM has_indiv_perm))
-          OR (SELECT * FROM has_all_perm)
-          OR (%7% = %8% AND (SELECT * FROM has_domain_perm)) AS perm
-    )
-    )");
 
-    return (cmd % bits % creator % perm_str % all_perm_str % domain_perm_str
-            % target_account % creator_domain % target_account_domain)
-        .str();
-  }
 
-  std::string checkAccountDomainRoleOrGlobalRolePermission(
-      Role global_permission,
-      Role domain_permission,
-      const shared_model::interface::types::AccountIdType &creator_id,
-      const shared_model::interface::types::AssetIdType
-          &id_with_target_domain) {
-    std::string query = (boost::format(R"(WITH
-          has_global_role_perm AS (%1%),
-          has_domain_role_perm AS (%2%)
-          SELECT CASE
-                           WHEN (SELECT * FROM has_global_role_perm) THEN true
-                           WHEN ((split_part(%3%, '@', 2) = split_part(%4%, '#', 2))) THEN
-                               CASE
-                                   WHEN (SELECT * FROM has_domain_role_perm) THEN true
-                                   ELSE false
-                                END
-                           ELSE false END
-          )") % checkAccountRolePermission(global_permission, creator_id)
-                         % checkAccountRolePermission(domain_permission,
-                                                      creator_id)
-                         % creator_id % id_with_target_domain)
-                            .str();
-    return query;
-  }
-
-  std::string checkAccountHasRoleOrGrantablePerm(
-      Role role,
-      Grantable grantable,
-      const shared_model::interface::types::AccountIdType &creator_id,
-      const shared_model::interface::types::AccountIdType &account_id) {
-    return (boost::format(R"(WITH
-          has_role_perm AS (%s),
-          has_grantable_perm AS (%s)
-          SELECT CASE
-                           WHEN (SELECT * FROM has_grantable_perm) THEN true
-                           WHEN (%s = %s) THEN
-                               CASE
-                                   WHEN (SELECT * FROM has_role_perm) THEN true
-                                   ELSE false
-                                END
-                           ELSE false END
-          )")
-            % checkAccountRolePermission(role, creator_id)
-            % checkAccountGrantablePermission(grantable, creator_id, account_id)
-            % creator_id % account_id)
-        .str();
-  }
 }  // namespace
 
 namespace iroha {
-  namespace newstorage {
-
-/*
-    class CommandExecutorImpl::StatementExecutor {
-     public:
-      StatementExecutor(
-          std::unique_ptr<CommandStatements> &statements,
-          bool enable_validation,
-          std::string command_name,
-          std::shared_ptr<shared_model::interface::PermissionToString>
-              perm_converter)
-          : statement_(statements->getStatement(enable_validation)),
-            command_name_(std::move(command_name)),
-            perm_converter_(std::move(perm_converter)) {
-        arguments_string_builder_.init(command_name_)
-            .append("Validation", std::to_string(enable_validation));
-      }
-
-      template <typename T,
-                typename = decltype(soci::use(std::declval<T>(),
-                                              std::string{}))>
-      void use(const std::string &argument_name, const T &value) {
-        statement_.exchange(soci::use(value, argument_name));
-        addArgumentToString(argument_name, value);
-      }
-
-      void use(const std::string &argument_name, const Role &permission) {
-        temp_values_.emplace_front(
-            shared_model::interface::RolePermissionSet({permission})
-                .toBitstring());
-        statement_.exchange(soci::use(temp_values_.front(), argument_name));
-        addArgumentToString(argument_name,
-                            perm_converter_->toString(permission));
-      }
-
-      void use(const std::string &argument_name, const Grantable &permission) {
-        temp_values_.emplace_front(
-            shared_model::interface::GrantablePermissionSet({permission})
-                .toBitstring());
-        statement_.exchange(soci::use(temp_values_.front(), argument_name));
-        addArgumentToString(argument_name,
-                            perm_converter_->toString(permission));
-      }
-
-      void use(
-          const std::string &argument_name,
-          const shared_model::interface::RolePermissionSet &permission_set) {
-        temp_values_.emplace_front(permission_set.toBitstring());
-        statement_.exchange(soci::use(temp_values_.front(), argument_name));
-        addArgumentToString(
-            argument_name,
-            boost::algorithm::join(perm_converter_->toString(permission_set),
-                                   ", "));
-      }
-
-      void use(const std::string &argument_name, bool value) {
-        statement_.exchange(
-            soci::use(value ? kPgTrue : kPgFalse, argument_name));
-        addArgumentToString(argument_name, std::to_string(value));
-      }
-
-      // TODO IR-597 mboldyrev 2019.08.10: build args string on demand
-      void addArgumentToString(const std::string &argument_name,
-                               const std::string &value) {
-        arguments_string_builder_.append(argument_name, value);
-      }
-
-      template <typename T>
-      std::enable_if_t<std::is_arithmetic<T>::value> addArgumentToString(
-          const std::string &argument_name, const T &value) {
-        addArgumentToString(argument_name, std::to_string(value));
-      }
-
-      iroha::newstorage::CommandResult execute() noexcept {
-        try {
-          soci::row r;
-          statement_.define_and_bind();
-          statement_.exchange_for_rowset(soci::into(r));
-          statement_.execute();
-          auto result = statement_.fetch() ? r.get<int>(0) : 1;
-          statement_.bind_clean_up();
-          temp_values_.clear();
-          if (result != 0) {
-            return makeCommandError(
-                command_name_, result, arguments_string_builder_.finalize());
-          }
-          return {};
-        } catch (const std::exception &e) {
-          statement_.bind_clean_up();
-          temp_values_.clear();
-          return getCommandError(
-              command_name_, e.what(), arguments_string_builder_.finalize());
-        }
-      }
-
-     private:
-      soci::statement &statement_;
-      std::string command_name_;
-      std::shared_ptr<shared_model::interface::PermissionToString>
-          perm_converter_;
-      shared_model::detail::PrettyStringBuilder arguments_string_builder_;
-      std::forward_list<std::string> temp_values_;
-    };
-
-*/
-
+  namespace ametsuchi {
     std::string CommandError::toString() const {
       return (boost::format("%s: %d with extra info '%s'") % command_name
               % error_code % error_extra)
           .str();
     }
+  }
+
+  namespace newstorage {
+
+    using ametsuchi::CommandError;
+    using ametsuchi::CommandResult;
+
+    CommandError::ErrorCodeType fromResultCode(ResultCode res) {
+      switch (res) {
+        //case TODO
+      }
+      return 1; // general error code for command responses
+    }
+
+    namespace {
+      struct ErrorBuilder {
+        using SB = shared_model::detail::PrettyStringBuilder;
+        SB &sb;
+        CommandError err;
+
+        ErrorBuilder(
+            SB& string_builder, const char* command_name, ResultCode res,
+            std::string error_str, bool validation
+        ) :
+          sb(string_builder)
+        {
+          err.command_name = std::move(command_name);
+          err.error_code = fromResultCode(res);
+          sb.init(command_name);
+          sb.append("Error", std::move(error_str));
+          sb.append("Validation", validation ? "1" : "0");
+        }
+
+        template<typename Arg>
+        ErrorBuilder& append(const char* arg_name, const Arg& value) {
+          sb.append(arg_name, value);
+          return *this;
+        }
+
+        CommandResult finalize() {
+          err.error_extra = sb.finalize();
+          return iroha::expected::makeError(std::move(err));
+        }
+      };
+    } //namespace
+
+
+
 
     CommandExecutorImpl::CommandExecutorImpl(
-        //std::unique_ptr<soci::session> sql,
+        MutableWsv& db,
         std::shared_ptr<shared_model::interface::PermissionToString>
             perm_converter)
-    {}/*    : sql_(std::move(sql)), perm_converter_{std::move(perm_converter)} {
-      initStatements();
-    }*/
+    : db_(db), perm_converter_{std::move(perm_converter)} {
+
+    }
 
     CommandExecutorImpl::~CommandExecutorImpl() = default;
 
@@ -433,91 +276,134 @@ namespace iroha {
     }
      */
 
+
     CommandResult CommandExecutorImpl::operator()(
         const shared_model::interface::AddPeer &command,
         const shared_model::interface::types::AccountIdType &creator_account_id,
-        bool do_validation) {
+        bool do_validation)
+    {
       auto &peer = command.peer();
 
-      StatementExecutor executor(
-          add_peer_statements_, do_validation, "AddPeer", perm_converter_);
-      executor.use("creator", creator_account_id);
-      executor.use("address", peer.address());
-      executor.use("pubkey", peer.pubkey().hex());
+      ResultCode res = db_.addPeer(creator_account_id, do_validation,
+                  peer.pubkey().hex(), peer.address());
+      if (res != ResultCode::kOk) {
+        return ErrorBuilder(
+            string_builder_, "AddPeer", res,
+            db_.getLastError(), do_validation)
+          .append("creator", creator_account_id)
+          .append("address", peer.address())
+          .append("pubkey", peer.pubkey().hex())
+          .finalize();
+      }
 
-      return executor.execute();
+      return {};
     }
 
     CommandResult CommandExecutorImpl::operator()(
         const shared_model::interface::AddSignatory &command,
         const shared_model::interface::types::AccountIdType &creator_account_id,
-        bool do_validation) {
-      auto &target = command.accountId();
-      const auto &pubkey = command.pubkey().hex();
+        bool do_validation)
+    {
+      ResultCode res = db_.addSignatory(creator_account_id, do_validation,
+                                   command.accountId(), command.pubkey().hex());
+      if (res != ResultCode::kOk) {
+        return ErrorBuilder(
+            string_builder_, "AddSignatory", res,
+            db_.getLastError(), do_validation)
+            .append("creator", creator_account_id)
+            .append("target", command.accountId())
+            .append("pubkey", command.pubkey().hex())
+            .finalize();
+      }
 
-      StatementExecutor executor(add_signatory_statements_,
-                                 do_validation,
-                                 "AddSignatory",
-                                 perm_converter_);
-      executor.use("creator", creator_account_id);
-      executor.use("target", target);
-      executor.use("pubkey", pubkey);
-
-      return executor.execute();
+      return {};
     }
 
     CommandResult CommandExecutorImpl::operator()(
         const shared_model::interface::AppendRole &command,
         const shared_model::interface::types::AccountIdType &creator_account_id,
         bool do_validation) {
-      auto &target = command.accountId();
-      auto &role = command.roleName();
 
-      StatementExecutor executor(append_role_statements_,
-                                 do_validation,
-                                 "AppendRole",
-                                 perm_converter_);
-      executor.use("creator", creator_account_id);
-      executor.use("target", target);
-      executor.use("role", role);
+      ResultCode res = db_.appendRole(creator_account_id, do_validation,
+                                        command.accountId(), command.roleName());
 
-      return executor.execute();
+      if (res != ResultCode::kOk) {
+        return ErrorBuilder(
+            string_builder_, "AppendRole", res,
+            db_.getLastError(), do_validation)
+            .append("creator", creator_account_id)
+            .append("target", command.accountId())
+            .append("role", command.roleName())
+            .finalize();
+      }
+
+      return {};
     }
 
     CommandResult CommandExecutorImpl::operator()(
         const shared_model::interface::CompareAndSetAccountDetail &command,
         const shared_model::interface::types::AccountIdType &creator_account_id,
-        bool do_validation) {
-      std::string new_json_value = makeJsonString(command.value());
-      const std::string expected_json_value =
-          makeJsonString(command.oldValue().value_or(""));
+        bool do_validation)
+    {
+      const std::string expected_value = command.oldValue().value_or("");
 
-      StatementExecutor executor(compare_and_set_account_detail_statements_,
-                                 do_validation,
-                                 "CompareAndSetAccountDetail",
-                                 perm_converter_);
-      executor.use("creator", creator_account_id);
-      executor.use("target", command.accountId());
-      executor.use("key", command.key());
-      executor.use("new_value", new_json_value);
-      executor.use("have_expected_value",
-                   static_cast<bool>(command.oldValue()));
-      executor.use("expected_value", expected_json_value);
-      executor.use("creator_domain", getDomainFromName(creator_account_id));
-      executor.use("target_domain", getDomainFromName(command.accountId()));
+      ResultCode res = db_.compareAndSetAccountDetail(
+          creator_account_id, do_validation,
+          command.accountId(), command.key(),
+          command.oldValue().value_or(""), command.value());
 
-      return executor.execute();
+      if (res != ResultCode::kOk) {
+        return ErrorBuilder(
+            string_builder_, "CompareAndSetAccountDetail", res,
+            db_.getLastError(), do_validation)
+            .append("creator", creator_account_id)
+            .append("target", command.accountId())
+            .append("key", command.key())
+            .append("new_value", command.value())
+            .append("have_expected_value",
+                         static_cast<bool>(command.oldValue()))
+            .append("expected_value", expected_value)
+            .append("creator_domain",
+                getDomainFromName(creator_account_id))
+            .append("target_domain",
+                getDomainFromName(command.accountId()))
+            .finalize();
+      }
+
+      return {};
     }
 
     CommandResult CommandExecutorImpl::operator()(
         const shared_model::interface::CreateAccount &command,
         const shared_model::interface::types::AccountIdType &creator_account_id,
-        bool do_validation) {
-      auto &account_name = command.accountName();
-      auto &domain_id = command.domainId();
-      auto &pubkey = command.pubkey().hex();
+        bool do_validation)
+    {
       shared_model::interface::types::AccountIdType account_id =
-          account_name + "@" + domain_id;
+          command.accountName() + "@" + command.domainId();
+
+      ResultCode res = db_.createAccount(
+          creator_account_id, do_validation,
+          account_id, command.domainId(), 0);
+
+      if (res != ResultCode::kOk) {
+        return ErrorBuilder(
+            string_builder_, "CreateAccount", res,
+            db_.getLastError(), do_validation)
+            .append("creator", creator_account_id)
+            .append("account_id", account_id)
+            .append("key", command.key())
+            .append("new_value", command.value())
+            .append("have_expected_value",
+                    static_cast<bool>(command.oldValue()))
+            .append("expected_value", expected_value)
+            .append("creator_domain",
+                    getDomainFromName(creator_account_id))
+            .append("target_domain",
+                    getDomainFromName(command.accountId()))
+            .finalize();
+      }
+
+      return {};
 
       StatementExecutor executor(create_account_statements_,
                                  do_validation,
@@ -530,7 +416,7 @@ namespace iroha {
 
       return executor.execute();
     }
-
+/*
     CommandResult CommandExecutorImpl::operator()(
         const shared_model::interface::CreateAsset &command,
         const shared_model::interface::types::AccountIdType &creator_account_id,
@@ -765,6 +651,6 @@ namespace iroha {
 
       return executor.execute();
     }
-
+*/
   }  // namespace newstorage
 }  // namespace iroha
