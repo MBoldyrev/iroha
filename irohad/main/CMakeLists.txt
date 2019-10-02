@@ -47,7 +47,7 @@ add_library(application
     )
 target_link_libraries(application
     PRIVATE
-    peer_tls_certificates_providers
+    grpc_channel_factory_tls
     tls_credentials
     yac
     yac_transport

@@ -41,6 +41,35 @@ target_link_libraries(ordering_gate_common
     boost
     )
 
+add_library(grpc_client_factory
+    impl/client_factory.cpp
+    )
+target_link_libraries(grpc_client_factory
+    PUBLIC
+    grpc++
+    )
+
+add_library(grpc_channel_pool
+    impl/channel_pool.cpp
+    )
+target_link_libraries(grpc_channel_pool
+    PRIVATE
+    common
+    crypto_blob_hasher
+    grpc_channel_factory
+    shared_model_interfaces
+    PUBLIC
+    grpc++
+    )
+
+add_library(grpc_channel_factory
+    impl/channel_factory.cpp
+    )
+target_link_libraries(grpc_channel_factory
+    PUBLIC
+    grpc++
+    )
+
 add_library(tls_credentials
     impl/tls_credentials.cpp
     )
@@ -48,11 +77,14 @@ target_link_libraries(tls_credentials
     common
     )
 
-add_library(peer_tls_certificates_providers
+add_library(grpc_channel_factory_tls
+    impl/channel_factory_tls.cpp
     impl/peer_tls_certificates_provider_root.cpp
     impl/peer_tls_certificates_provider_wsv.cpp
     )
-target_link_libraries(peer_tls_certificates_providers
+target_link_libraries(grpc_channel_factory_tls
+    grpc_channel_factory
+    grpc++
     logger
     shared_model_interfaces
     )
