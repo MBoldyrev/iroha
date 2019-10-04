@@ -6,7 +6,6 @@
 #ifndef IROHA_BLOCK_QUERY_IMPL_HPP
 #define IROHA_BLOCK_QUERY_IMPL_HPP
 
-#include "ametsuchi/newstorage/rel_db_backend.hpp"
 #include "ametsuchi/block_query.hpp"
 #include <boost/optional.hpp>
 #include "ametsuchi/block_storage.hpp"
