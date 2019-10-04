@@ -35,15 +35,14 @@ namespace iroha {
 
     const char *kCommandExecutorError = "Cannot create CommandExecutorFactory";
     const char *kTmpWsv = "TemporaryWsv";
-
+/*
     StorageImpl::StorageImpl(
-        std::unique_ptr<ametsuchi::BlockStorage> block_store,
+        const std::string& location,
         std::shared_ptr<shared_model::interface::PermissionToString>
-            perm_converter,
+        perm_converter,
         std::shared_ptr<PendingTransactionStorage> pending_txs_storage,
         std::shared_ptr<shared_model::interface::QueryResponseFactory>
-            query_response_factory,
-        std::unique_ptr<ametsuchi::BlockStorageFactory> temporary_block_storage_factory,
+        query_response_factory,
         logger::LoggerManagerTreePtr log_manager)
         : block_store_(std::move(block_store)),
           notifier_(notifier_lifetime_),
@@ -81,8 +80,8 @@ namespace iroha {
                           std::move(temporary_block_storage_factory),
                           std::move(log_manager))));
     }
+*/
 
-/*
     std::unique_ptr<ametsuchi::TemporaryWsv> StorageImpl::createTemporaryWsv(
         std::shared_ptr<ametsuchi::CommandExecutor> command_executor) {
       auto command_executor_impl =
@@ -98,7 +97,9 @@ namespace iroha {
           std::move(postgres_command_executor),
           log_manager_->getChild("TemporaryWorldStateView"));
     }
-*/
+
+
+
     std::unique_ptr<ametsuchi::MutableStorage> StorageImpl::createMutableStorage(
         std::shared_ptr<ametsuchi::CommandExecutor> command_executor) {
       return createMutableStorage(std::move(command_executor),

@@ -7,6 +7,7 @@
 #define IROHA_NEWSTORAGE_IMPL_HPP
 
 #include "ametsuchi/storage.hpp"
+#include "ametsuchi/newstorage/mutable_wsv.hpp"
 
 #include <atomic>
 #include <shared_mutex>
@@ -19,8 +20,6 @@
 #include "interfaces/permission_to_string.hpp"
 #include "logger/logger_fwd.hpp"
 #include "logger/logger_manager_fwd.hpp"
-
-#include "ametsuchi/newstorage/rel_db_backend.hpp"
 
 namespace shared_model {
   namespace interface {
@@ -105,7 +104,7 @@ namespace iroha {
 
      protected:
       StorageImpl(
-          std::unique_ptr<ametsuchi::BlockStorage> block_store,
+          const std::string& location,
           std::shared_ptr<shared_model::interface::PermissionToString>
               perm_converter,
           std::shared_ptr<PendingTransactionStorage> pending_txs_storage,
@@ -152,7 +151,7 @@ namespace iroha {
 
       boost::optional<std::shared_ptr<const iroha::LedgerState>> ledger_state_;
 
-
+      MutableWsv mutable_wsv_;
     };
   }  // namespace newstorage
 }  // namespace iroha
