@@ -7,24 +7,19 @@
 #define IROHA_MUTABLE_WSV_HPP
 
 #include "ametsuchi/newstorage/immutable_wsv.hpp"
+#include "ametsuchi/newstorage/db_tx.hpp"
 
 namespace iroha {
   namespace newstorage {
 
-    class MutableWsv {
+    class MutableWsv : public ImmutableWsv {
      public:
-      MutableWsv(WsvSqliteDB &&db, ImmutableWsv &imm_wsv);
+      explicit MutableWsv(WsvSqliteDB &&db);
 
       std::string getLastError();
 
-      void beginTx();
-
-      // ... and apply changeset
-      void commitTx();
-      void rollbackTx();
-      void createSavepoint();
-      void releaseToSavepoint();
-      void rollbackToSavepoint();
+      DbTransaction createTx();
+      DbSavepoint createSavepoint(std::string name);
 
       ResultCode addPeer(const AccountID &creator_id,
                          bool do_validation,
@@ -105,6 +100,12 @@ namespace iroha {
                            const AccountID &account_id,
                            uint16_t quorum);
 
+      ResultCode addAssetQuantity(const AccountID &creator_id,
+                           bool do_validation,
+                           const AssetID &asset_id,
+                           const uint256_t& amount,
+                           uint8_t precision);
+
       // ResultCode addAssetQuantity(const AccountID& creator_id, bool
       // do_validation, ); ResultCode subtractAssetQuantity(const AccountID&
       // creator_id, bool do_validation, ); ResultCode transferAsset(const
@@ -129,7 +130,6 @@ namespace iroha {
       bool roleExists(const RoleID &role);
 
       WsvSqliteDB db_;
-      ImmutableWsv &imm_wsv_;
       std::unique_ptr<ChangeSet> change_set_;
       std::string savepoint_;
       bool inside_tx_ = false;

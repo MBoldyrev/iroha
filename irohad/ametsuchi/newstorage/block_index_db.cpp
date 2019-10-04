@@ -5,6 +5,7 @@
 
 #include "ametsuchi/newstorage/block_index_db.hpp"
 #include "ametsuchi/newstorage/sqlite_wrapper.hpp"
+#include "ametsuchi/newstorage/db_tx.hpp"
 //#include <boost/filesystem/operations.hpp>
 #include "sqlite_modern_cpp.h"
 
@@ -105,7 +106,7 @@ namespace iroha {
       };
 
       try {
-        SqliteWrapper::Transaction tx(*db_);
+        DbTransaction tx(*db_);
 
         for (const char *sql : prepare_tables_sql) {
           *db_ << sql;

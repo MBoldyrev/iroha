@@ -19,7 +19,7 @@ namespace iroha {
 
     class WsvSqliteDB {
      public:
-      WsvSqliteDB(std::shared_ptr<SqliteWrapper> db);
+      explicit WsvSqliteDB(std::shared_ptr<SqliteWrapper> db);
 
       std::string getLastError();
 

@@ -6,8 +6,8 @@
 #ifndef IROHA_SQLITE_WRAPPER_HPP
 #define IROHA_SQLITE_WRAPPER_HPP
 
-#include "sqlite_modern_cpp.h"
 #include "logger/logger.hpp"
+#include "sqlite_modern_cpp.h"
 
 namespace iroha {
   namespace newstorage {
@@ -21,25 +21,23 @@ namespace iroha {
         logger::LogLevel log_level = logger::LogLevel::kDebug;
 
         Options() = default;
-        Options(std::string _db_file, std::string _log_prefix,
-                logger::LogLevel _log_level = logger::LogLevel::kDebug) :
-          db_file(std::move(_db_file)),
-          log_prefix(std::move(_log_prefix)),
-          log_level(_log_level)
-        {}
+        Options(std::string _db_file,
+                std::string _log_prefix,
+                logger::LogLevel _log_level = logger::LogLevel::kDebug)
+            : db_file(std::move(_db_file)),
+              log_prefix(std::move(_log_prefix)),
+              log_level(_log_level) {}
       };
 
-      static std::shared_ptr<SqliteWrapper> create(
-          const Options& options, logger::LoggerPtr log
-      ) {
+      static std::shared_ptr<SqliteWrapper> create(const Options &options,
+                                                   logger::LoggerPtr log) {
         return std::shared_ptr<SqliteWrapper>(
-            new SqliteWrapper(options, std::move(log))
-        );
+            new SqliteWrapper(options, std::move(log)));
       }
 
       ~SqliteWrapper() {
         // to prevent them from execution while going out of scope
-        for (auto& st : statements_) {
+        for (auto &st : statements_) {
           st.used(true);
         }
       }
@@ -76,22 +74,20 @@ namespace iroha {
 
       std::string getErrMsg() {
         int ec = getErrCode();
-        return (ec == 0) ?
-          std::string() :
-          log_prefix_ + std::string(sqlite3_errstr(ec))
-            + ": " + sqlite3_errmsg(db_.connection().get());
+        return (ec == 0) ? std::string()
+                         : log_prefix_ + std::string(sqlite3_errstr(ec)) + ": "
+                + sqlite3_errmsg(db_.connection().get());
       }
 
       template <typename... Args>
       void log(const std::string &format, const Args &... args) {
-        if (log_) log_->log(
-              log_level_,
-              format, args...
-        );
+        if (log_)
+          log_->log(log_level_, format, args...);
       }
 
       void logErrMsg() {
-        if (log_) log(getErrMsg());
+        if (log_)
+          log(getErrMsg());
       }
 
       StatementHandle createStatement(const char *sql) {
@@ -100,35 +96,39 @@ namespace iroha {
         return h;
       }
 
-      sqlite::database_binder& getStatement(StatementHandle h) {
+      sqlite::database_binder &getStatement(StatementHandle h) {
         if (h >= statements_.size()) {
           throw std::runtime_error("SqliteWrapper: invalid statement");
         }
         return statements_[h];
       }
 
-      void beginTx() { db_ << "begin"; }
-      void commitTx() { db_ << "commit"; }
-      void rollbackTx() { db_ << "rollback"; }
+      void beginTx() {
+        db_ << "begin";
+      }
+      void commitTx() {
+        db_ << "commit";
+      }
+      void rollbackTx() {
+        db_ << "rollback";
+      }
 
-      struct Transaction {
-        explicit Transaction(SqliteWrapper &db) : db_(&db) {
-          db_->beginTx();
-        }
-        void commit() { db_->commitTx(); db_ = nullptr; }
-        ~Transaction() { if (db_) db_->rollbackTx(); }
-
-       private:
-        SqliteWrapper *db_;
-      };
+      void createSavepoint(const std::string &name) {
+        db_ << std::string("savepoint ") + name;
+      }
+      void releaseSavepoint(const std::string &name) {
+        db_ << std::string("release savepoint ") + name;
+      }
+      void rollbackToSavepoint(const std::string &name) {
+        db_ << std::string("rollback to savepoint ") + name;
+      }
 
      private:
-      explicit SqliteWrapper(const Options& options, logger::LoggerPtr logger) :
-        db_(options.db_file),
-        log_prefix_(options.log_prefix),
-        log_level_(options.log_level),
-        log_(std::move(logger))
-      {
+      explicit SqliteWrapper(const Options &options, logger::LoggerPtr logger)
+          : db_(options.db_file),
+            log_prefix_(options.log_prefix),
+            log_level_(options.log_level),
+            log_(std::move(logger)) {
         db_ << "PRAGMA count_changes = ON";
       }
 
@@ -139,14 +139,14 @@ namespace iroha {
       std::vector<sqlite::database_binder> statements_;
     };
 
-    inline sqlite::database_binder &bindArgs(
-        sqlite::database_binder &stmt) {
+    inline sqlite::database_binder &bindArgs(sqlite::database_binder &stmt) {
       return stmt;
     }
 
     template <typename Arg, typename... Args>
-    inline sqlite::database_binder &bindArgs(
-        sqlite::database_binder &stmt, const Arg &arg, const Args &... args) {
+    inline sqlite::database_binder &bindArgs(sqlite::database_binder &stmt,
+                                             const Arg &arg,
+                                             const Args &... args) {
       stmt << arg;
       return bindArgs(stmt, args...);
     }
@@ -171,7 +171,7 @@ namespace iroha {
     template <typename Sink, typename... Args>
     inline bool execQueryNoThrow(std::shared_ptr<SqliteWrapper> &db,
                                  SqliteWrapper::StatementHandle st_handle,
-                                 Sink&& sink,
+                                 Sink &&sink,
                                  const Args &... args) {
       try {
         auto &stmt = db->getStatement(st_handle);
@@ -187,14 +187,14 @@ namespace iroha {
     template <typename Sink, typename... Args>
     inline void execQuery(std::shared_ptr<SqliteWrapper> &db,
                           SqliteWrapper::StatementHandle st_handle,
-                          Sink&& sink,
+                          Sink &&sink,
                           const Args &... args) {
       if (!execQueryNoThrow(db, st_handle, sink, args...)) {
         throw std::runtime_error(db->getErrMsg());
       }
     }
 
-  }
-}
+  }  // namespace newstorage
+}  // namespace iroha
 
 #endif  // IROHA_SQLITE_WRAPPER_HPP

@@ -5,6 +5,7 @@
 
 #include "ametsuchi/newstorage/account_detail_storage.hpp"
 #include "ametsuchi/newstorage/sqlite_wrapper.hpp"
+#include "ametsuchi/newstorage/db_tx.hpp"
 #include <cstdio>
 
 namespace iroha {
@@ -111,7 +112,7 @@ namespace iroha {
         }
 
         if (need_to_increment) {
-          SqliteWrapper::Transaction tx(*index_);
+          DbTransaction tx(*index_);
           auto& inc_writer_st = index_->getStatement(inc_writer_);
           inc_writer_st << writer;
           inc_writer_st++;

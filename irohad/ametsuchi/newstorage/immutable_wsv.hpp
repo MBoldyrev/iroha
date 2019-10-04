@@ -97,6 +97,9 @@ namespace iroha {
 
       ResultCode loadAccountPermission(const AccountID& account_id, RolePermissionSet* perm);
 
+      const std::unordered_set<std::string>& loadAccountSignatoriesAndQuorum(
+          const AccountID& account_id, uint16_t& quorum);
+
       const std::unordered_set<RoleID>& loadAccountRolesAndPermission(
           const AccountID& account_id, RolePermissionSet* perm);
 

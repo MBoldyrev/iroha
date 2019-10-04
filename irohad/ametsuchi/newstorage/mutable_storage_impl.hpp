@@ -6,31 +6,33 @@
 #ifndef IROHA_MUTABLE_NEWSTORAGE_IMPL_HPP
 #define IROHA_MUTABLE_NEWSTORAGE_IMPL_HPP
 
-#include "ametsuchi/mutable_storage.hpp"
 #include "ametsuchi/block_storage.hpp"
-#include "ametsuchi/newstorage/rel_db_backend.hpp"
+#include "ametsuchi/mutable_storage.hpp"
+#include "ametsuchi/newstorage/mutable_wsv.hpp"
 #include "interfaces/common_objects/types.hpp"
 #include "logger/logger_fwd.hpp"
 #include "logger/logger_manager_fwd.hpp"
 
 namespace iroha {
   namespace ametsuchi {
-    class BlockIndex;
-    class PeerQuery;
     class TransactionExecutor;
-  }
+    class CommandExecutor;
+  }  // namespace ametsuchi
 
   namespace newstorage {
+    class MutableWsv;
+    class BlockIndexDB;
+    class BlockIndex;
+    class WsvQueryImpl;
 
-
-   class MutableStorageImpl : public ametsuchi::MutableStorage {
-      friend class StorageImpl;
-
+    class MutableStorageImpl : public ametsuchi::MutableStorage {
      public:
       MutableStorageImpl(
           boost::optional<std::shared_ptr<const iroha::LedgerState>>
               ledger_state,
-          RelDbBackend& db,
+          std::shared_ptr<ametsuchi::CommandExecutor> command_executor,
+          MutableWsv &db,
+          std::shared_ptr<BlockIndexDB> index_db,
           std::unique_ptr<ametsuchi::BlockStorage> block_storage,
           logger::LoggerManagerTreePtr log_manager);
 
@@ -45,6 +47,8 @@ namespace iroha {
       getLedgerState() const;
 
       ~MutableStorageImpl() override;
+
+      void commit();
 
      private:
       /**
@@ -63,16 +67,13 @@ namespace iroha {
                  MutableStoragePredicate predicate);
 
       boost::optional<std::shared_ptr<const iroha::LedgerState>> ledger_state_;
-
-      RelDbBackend& db_;
-      std::unique_ptr<ametsuchi::PeerQuery> peer_query_;
-      std::unique_ptr<ametsuchi::BlockIndex> block_index_;
-      std::shared_ptr<ametsuchi::TransactionExecutor> transaction_executor_;
-      std::unique_ptr<ametsuchi::BlockStorage> block_storage_;
-
-      bool committed;
-
+      MutableWsv &db_;
       logger::LoggerPtr log_;
+      std::unique_ptr<ametsuchi::BlockStorage> block_storage_;
+      std::unique_ptr<WsvQueryImpl> peer_query_;
+      std::unique_ptr<BlockIndex> block_index_;
+      std::unique_ptr<ametsuchi::TransactionExecutor> transaction_executor_;
+      DbTransaction db_tx_;
     };
   }  // namespace newstorage
 }  // namespace iroha

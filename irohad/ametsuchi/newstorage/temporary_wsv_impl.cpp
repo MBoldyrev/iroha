@@ -3,11 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "ametsuchi/impl/temporary_wsv_impl.hpp"
-
-#include <boost/format.hpp>
-#include <boost/range/adaptor/transformed.hpp>
-#include "ametsuchi/impl/postgres_command_executor.hpp"
+#include "ametsuchi/newstorage/temporary_wsv_impl.hpp"
+#include "ametsuchi/newstorage/command_executor_impl.hpp"
+#include "ametsuchi/newstorage/mutable_wsv.hpp"
 #include "ametsuchi/tx_executor.hpp"
 #include "cryptography/public_key.hpp"
 #include "interfaces/commands/command.hpp"
@@ -17,122 +15,96 @@
 #include "logger/logger_manager.hpp"
 
 namespace iroha {
-  namespace ametsuchi {
+  namespace newstorage {
     TemporaryWsvImpl::TemporaryWsvImpl(
-        std::shared_ptr<PostgresCommandExecutor> command_executor,
+        MutableWsv& db,
+        std::shared_ptr<ametsuchi::CommandExecutor> command_executor,
         logger::LoggerManagerTreePtr log_manager)
-        : sql_(command_executor->getSession()),
-          transaction_executor_(std::make_unique<TransactionExecutor>(
+        : db_(db),
+          transaction_executor_(std::make_unique<ametsuchi::TransactionExecutor>(
               std::move(command_executor))),
           log_manager_(std::move(log_manager)),
           log_(log_manager_->getLogger()) {
-      sql_ << "BEGIN";
+      db_tx_ = db_.createTx();
     }
 
     expected::Result<void, validation::CommandError>
     TemporaryWsvImpl::validateSignatures(
         const shared_model::interface::Transaction &transaction) {
-      auto keys_range = transaction.signatures()
-          | boost::adaptors::transformed(
-                            [](const auto &s) { return s.publicKey().hex(); });
-      auto keys = std::accumulate(
-          std::next(std::begin(keys_range)),
-          std::end(keys_range),
-          keys_range.front(),
-          [](auto acc, const auto &val) { return acc + "'), ('" + val; });
-      // not using bool since it is not supported by SOCI
-      boost::optional<uint8_t> signatories_valid;
 
-      boost::format query(R"(SELECT sum(count) = :signatures_count
-                          AND sum(quorum) <= :signatures_count
-                  FROM
-                      (SELECT count(public_key)
-                      FROM ( VALUES ('%s') ) AS CTE1(public_key)
-                      WHERE public_key IN
-                          (SELECT public_key
-                          FROM account_has_signatory
-                          WHERE account_id = :account_id ) ) AS CTE2(count),
-                          (SELECT quorum
-                          FROM account
-                          WHERE account_id = :account_id) AS CTE3(quorum))");
+      uint16_t quorum = 0;
+      const auto& signatories = db_.loadAccountSignatoriesAndQuorum(
+          transaction.creatorAccountId(), quorum);
 
-      try {
-        auto keys_range_size = boost::size(keys_range);
-        sql_ << (query % keys).str(), soci::into(signatories_valid),
-            soci::use(keys_range_size, "signatures_count"),
-            soci::use(transaction.creatorAccountId(), "account_id");
-      } catch (const std::exception &e) {
+      if (quorum == 0 || signatories.empty()) {
         auto error_str = "Transaction " + transaction.toString()
-            + " failed signatures validation with db error: " + e.what();
-        // TODO [IR-1816] Akvinikym 29.10.18: substitute error code magic number
-        // with named constant
+            + " failed signatures validation with db error"; // TODO: verbose
         return expected::makeError(validation::CommandError{
-            "signatures validation", 1, error_str, false});
+            "signatures validation", 2, error_str, false});
       }
 
-      if (signatories_valid and *signatories_valid) {
-        return {};
-      } else {
+      uint16_t count = 0;
+      for (const auto& s : transaction.signatures()) {
+        if (signatories.count(s.publicKey().hex())) ++count;
+      }
+
+      if (count < quorum) {
         auto error_str = "Transaction " + transaction.toString()
-            + " failed signatures validation";
+                         + " failed signatures validation";
         // TODO [IR-1816] Akvinikym 29.10.18: substitute error code magic number
         // with named constant
         return expected::makeError(validation::CommandError{
             "signatures validation", 2, error_str, false});
       }
+
+      return {};
     }
 
     expected::Result<void, validation::CommandError> TemporaryWsvImpl::apply(
         const shared_model::interface::Transaction &transaction) {
-      auto savepoint_wrapper = createSavepoint("savepoint_temp_wsv");
+      auto savepoint = db_.createSavepoint("savepoint_temp_wsv");
 
-      return validateSignatures(transaction) |
-                 [this,
-                  savepoint = std::move(savepoint_wrapper),
-                  &transaction]()
-                 -> expected::Result<void, validation::CommandError> {
-        if (auto error = expected::resultToOptionalError(
-                transaction_executor_->execute(transaction, true))) {
-          return expected::makeError(
-              validation::CommandError{error->command_error.command_name,
-                                       error->command_error.error_code,
-                                       error->command_error.error_extra,
-                                       true,
-                                       error->command_index});
-        }
+      auto result = validateSignatures(transaction);
+      if (hasError(result)) {
+        return result;
+      }
+
+      if (auto error = expected::resultToOptionalError(
+          transaction_executor_->execute(transaction, true))) {
+        return expected::makeError(
+            validation::CommandError{error->command_error.command_name,
+                                     error->command_error.error_code,
+                                     error->command_error.error_extra,
+                                     true,
+                                     error->command_index});
+      }
         // success
-        savepoint->release();
+        savepoint.release();
         return {};
-      };
     }
 
-    std::unique_ptr<TemporaryWsv::SavepointWrapper>
+    std::unique_ptr<ametsuchi::TemporaryWsv::SavepointWrapper>
     TemporaryWsvImpl::createSavepoint(const std::string &name) {
       return std::make_unique<TemporaryWsvImpl::SavepointWrapperImpl>(
-          SavepointWrapperImpl(
-              *this,
-              name,
-              log_manager_->getChild("SavepointWrapper")->getLogger()));
+          std::move(db_.createSavepoint(name)),
+              log_manager_->getChild("SavepointWrapper")->getLogger());
     }
 
     TemporaryWsvImpl::~TemporaryWsvImpl() {
       try {
-        sql_ << "ROLLBACK";
+        db_tx_.rollback();
       } catch (std::exception &e) {
         log_->error("Rollback did not happen: {}", e.what());
       }
     }
 
     TemporaryWsvImpl::SavepointWrapperImpl::SavepointWrapperImpl(
-        const iroha::ametsuchi::TemporaryWsvImpl &wsv,
-        std::string savepoint_name,
+        DbSavepoint savepoint,
         logger::LoggerPtr log)
-        : sql_{wsv.sql_},
-          savepoint_name_{std::move(savepoint_name)},
+        : savepoint_(std::move(savepoint)),
           is_released_{false},
-          log_(std::move(log)) {
-      sql_ << "SAVEPOINT " + savepoint_name_ + ";";
-    }
+          log_(std::move(log))
+    {}
 
     void TemporaryWsvImpl::SavepointWrapperImpl::release() {
       is_released_ = true;
@@ -141,9 +113,9 @@ namespace iroha {
     TemporaryWsvImpl::SavepointWrapperImpl::~SavepointWrapperImpl() {
       try {
         if (not is_released_) {
-          sql_ << "ROLLBACK TO SAVEPOINT " + savepoint_name_ + ";";
+          savepoint_.rollback();
         } else {
-          sql_ << "RELEASE SAVEPOINT " + savepoint_name_ + ";";
+          savepoint_.release();
         }
       } catch (std::exception &e) {
         log_->error("SQL error. Reason: {}", e.what());

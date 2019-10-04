@@ -9,8 +9,11 @@ add_library(new_storage
     indexer_impl.cpp
     block_index_impl.cpp
     block_query_impl.cpp
-#    storage_impl.cpp
+ #   storage_impl.cpp
+    mutable_storage_impl.cpp
     wsv_cache.cpp
+    temporary_wsv_impl.cpp
+    db_tx.cpp
     wsv_query_impl.cpp
     keyvalue_db_backend.cpp
     block_query_impl.cpp

@@ -4,45 +4,45 @@
  */
 
 #include "ametsuchi/newstorage/mutable_storage_impl.hpp"
-
 #include <boost/variant/apply_visitor.hpp>
 #include "ametsuchi/command_executor.hpp"
-//#include "ametsuchi/impl/peer_query_wsv.hpp"
-//#include "ametsuchi/impl/postgres_block_index.hpp"
-//#include "ametsuchi/impl/postgres_command_executor.hpp"
-//#include "ametsuchi/impl/postgres_indexer.hpp"
-//#include "ametsuchi/impl/postgres_wsv_command.hpp"
-//#include "ametsuchi/impl/postgres_wsv_query.hpp"
 #include "ametsuchi/ledger_state.hpp"
+#include "ametsuchi/newstorage/block_index.hpp"
+#include "ametsuchi/newstorage/block_index_impl.hpp"
+#include "ametsuchi/newstorage/indexer_impl.hpp"
+#include "ametsuchi/newstorage/mutable_wsv.hpp"
+#include "ametsuchi/newstorage/wsv_query_impl.hpp"
 #include "ametsuchi/tx_executor.hpp"
-#include "interfaces/commands/command.hpp"
 #include "interfaces/iroha_internal/block.hpp"
 #include "logger/logger.hpp"
 #include "logger/logger_manager.hpp"
 
 namespace iroha {
   namespace newstorage {
-    using namespace ametsuchi;
 
     MutableStorageImpl::MutableStorageImpl(
         boost::optional<std::shared_ptr<const iroha::LedgerState>> ledger_state,
-        RelDbBackend& db,
-        std::unique_ptr<BlockStorage> block_storage,
+        std::shared_ptr<ametsuchi::CommandExecutor> command_executor,
+        MutableWsv& db,
+        std::shared_ptr<BlockIndexDB> index_db,
+        std::unique_ptr<ametsuchi::BlockStorage> block_storage,
         logger::LoggerManagerTreePtr log_manager)
         : ledger_state_(std::move(ledger_state)),
           db_(db),
-          peer_query_(
-              std::make_unique<PeerQueryWsv>(std::make_shared<PostgresWsvQuery>(
-                  sql_, log_manager->getChild("WsvQuery")->getLogger()))),
-          block_index_(std::make_unique<PostgresBlockIndex>(
-              std::make_unique<PostgresIndexer>(sql_),
-              log_manager->getChild("PostgresBlockIndex")->getLogger())),
-          transaction_executor_(std::make_unique<TransactionExecutor>(
-              std::move(command_executor))),
-          block_storage_(std::move(block_storage)),
-          committed(false),
-          log_(log_manager->getLogger()) {
-      sql_ << "BEGIN";
+          log_(log_manager->getLogger()),
+          block_storage_(std::move(block_storage))
+    {
+      peer_query_ = std::make_unique<WsvQueryImpl>(
+              db_, log_manager->getChild("WsvQuery")->getLogger());
+
+      block_index_ = std::make_unique<BlockIndexImpl>(
+              std::make_unique<IndexerImpl>(std::move(index_db)),
+              log_manager->getChild("BlockIndex")->getLogger());
+
+      transaction_executor_ = std::make_unique<ametsuchi::TransactionExecutor>(
+          std::move(command_executor));
+
+      db_tx_ = db_.createTx();
     }
 
     bool MutableStorageImpl::apply(
@@ -66,7 +66,7 @@ namespace iroha {
         block_storage_->insert(block);
         block_index_->index(*block);
 
-        auto opt_ledger_peers = peer_query_->getLedgerPeers();
+        auto opt_ledger_peers = peer_query_->getPeers();
         if (not opt_ledger_peers) {
           log_->error("Failed to get ledger peers!");
           return false;
@@ -82,20 +82,19 @@ namespace iroha {
     template <typename Function>
     bool MutableStorageImpl::withSavepoint(Function &&function) {
       try {
-        sql_ << "SAVEPOINT savepoint_";
+        auto savepoint = db_.createSavepoint("savepoint_");
 
         auto function_executed = std::forward<Function>(function)();
 
         if (function_executed) {
-          sql_ << "RELEASE SAVEPOINT savepoint_";
-        } else {
-          sql_ << "ROLLBACK TO SAVEPOINT savepoint_";
+          savepoint.release();
         }
         return function_executed;
+
       } catch (std::exception &e) {
         log_->warn("Apply has failed. Reason: {}", e.what());
-        return false;
       }
+      return false;
     }
 
     bool MutableStorageImpl::apply(
@@ -123,13 +122,16 @@ namespace iroha {
     }
 
     MutableStorageImpl::~MutableStorageImpl() {
-      if (not committed) {
-        try {
-          sql_ << "ROLLBACK";
-        } catch (std::exception &e) {
-          log_->warn("Apply has been failed. Reason: {}", e.what());
-        }
+      try {
+        db_tx_.rollback();
+      } catch (std::exception &e) {
+        log_->warn("Apply has been failed. Reason: {}", e.what());
       }
     }
-  }  // namespace ametsuchi
+
+    void MutableStorageImpl::commit() {
+      db_tx_.commit();
+    }
+
+  }  // namespace newstorage
 }  // namespace iroha

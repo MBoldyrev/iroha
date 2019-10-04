@@ -42,8 +42,6 @@ namespace iroha {
           std::shared_ptr<PendingTransactionStorage> pending_txs_storage,
           std::shared_ptr<shared_model::interface::QueryResponseFactory>
               query_response_factory,
-          std::unique_ptr<ametsuchi::BlockStorageFactory> temporary_block_storage_factory,
-          std::unique_ptr<ametsuchi::BlockStorage> persistent_block_storage,
           logger::LoggerManagerTreePtr log_manager);
 
       expected::Result<std::unique_ptr<ametsuchi::CommandExecutor>, std::string>
@@ -113,7 +111,6 @@ namespace iroha {
           std::shared_ptr<PendingTransactionStorage> pending_txs_storage,
           std::shared_ptr<shared_model::interface::QueryResponseFactory>
               query_response_factory,
-          std::unique_ptr<ametsuchi::BlockStorageFactory> temporary_block_storage_factory,
           logger::LoggerManagerTreePtr log_manager);
 
 
@@ -155,7 +152,7 @@ namespace iroha {
 
       boost::optional<std::shared_ptr<const iroha::LedgerState>> ledger_state_;
 
-      mutable RelDbBackend db_;
+
     };
   }  // namespace newstorage
 }  // namespace iroha
