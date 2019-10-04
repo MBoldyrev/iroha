@@ -19,17 +19,18 @@ namespace iroha {
   namespace ametsuchi {class SpecificQueryExecutor;}
 
   namespace newstorage {
+    class ImmutableWsv;
 
-  class QueryExecutorImpl : public QueryExecutor {
+   class QueryExecutorImpl : public ametsuchi::QueryExecutor {
      public:
         QueryExecutorImpl(
-          //std::unique_ptr<soci::session> sql,
+            ImmutableWsv &db,
           std::shared_ptr<shared_model::interface::QueryResponseFactory>
               response_factory,
-          std::shared_ptr<SpecificQueryExecutor> specific_query_executor,
+          std::shared_ptr<ametsuchi::SpecificQueryExecutor> specific_query_executor,
           logger::LoggerPtr log);
 
-      QueryExecutorResult validateAndExecute(
+      ametsuchi::QueryExecutorResult validateAndExecute(
           const shared_model::interface::Query &query,
           const bool validate_signatories) override;
 
@@ -40,7 +41,7 @@ namespace iroha {
       template <class Q>
       bool validateSignatures(const Q &query);
 
-      //std::unique_ptr<soci::session> sql_;
+      ImmutableWsv &db_;
       std::shared_ptr<ametsuchi::SpecificQueryExecutor> specific_query_executor_;
       std::shared_ptr<shared_model::interface::QueryResponseFactory>
           query_response_factory_;

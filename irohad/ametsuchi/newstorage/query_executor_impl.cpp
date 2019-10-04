@@ -4,10 +4,10 @@
  */
 
 #include "query_executor_impl.hpp"
-
+#include "immutable_wsv.hpp"
 #include <boost/range/adaptor/transformed.hpp>
 #include <boost/range/size.hpp>
-#include "newstorage/specific_query_executor.hpp"
+#include "ametsuchi/specific_query_executor.hpp"
 #include "cryptography/public_key.hpp"
 #include "interfaces/iroha_internal/query_response_factory.hpp"
 #include "interfaces/queries/blocks_query.hpp"
@@ -20,48 +20,31 @@ namespace iroha {
   namespace newstorage {
 
     QueryExecutorImpl::QueryExecutorImpl(
-        std::unique_ptr<soci::session> sql,
+        ImmutableWsv &db,
         std::shared_ptr<shared_model::interface::QueryResponseFactory>
             response_factory,
-        std::shared_ptr<SpecificQueryExecutor> specific_query_executor,
+        std::shared_ptr<ametsuchi::SpecificQueryExecutor> specific_query_executor,
         logger::LoggerPtr log)
-        : sql_(std::move(sql)),
+        : db_(db),
           specific_query_executor_(std::move(specific_query_executor)),
           query_response_factory_{std::move(response_factory)},
           log_(std::move(log)) {}
 
     template <class Q>
     bool QueryExecutorImpl::validateSignatures(const Q &query) {
-      auto keys_range =
-          query.signatures() | boost::adaptors::transformed([](const auto &s) {
-            return s.publicKey().hex();
-          });
-
-      if (boost::size(keys_range) != 1) {
-        return false;
-      }
-      std::string keys = *std::begin(keys_range);
-      boost::optional<uint8_t> signatories_valid;
-
-      auto qry = R"(
-        SELECT count(public_key) = 1
-        FROM account_has_signatory
-        WHERE account_id = :account_id AND public_key = :pk
-        )";
-
-      try {
-        *sql_ << qry, soci::into(signatories_valid),
-            soci::use(query.creatorAccountId(), "account_id"),
-            soci::use(keys, "pk");
-      } catch (const std::exception &e) {
-        log_->error("{}", e.what());
+      if (boost::size(query.signatures()) != 1) {
         return false;
       }
 
-      return signatories_valid and *signatories_valid;
+      uint16_t quorum = 0;
+      const auto& signatories = db_.loadAccountSignatoriesAndQuorum(
+          query.creatorAccountId(), quorum);
+
+      return !signatories.empty() &&
+        signatories.count((*std::begin(query.signatures())).publicKey().hex());
     }
 
-    QueryExecutorResult QueryExecutorImpl::validateAndExecute(
+    ametsuchi::QueryExecutorResult QueryExecutorImpl::validateAndExecute(
         const shared_model::interface::Query &query,
         const bool validate_signatories = true) {
       if (validate_signatories and not validateSignatures(query)) {
