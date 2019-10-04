@@ -24,7 +24,7 @@ namespace iroha {
           const AccountID& account_id,
           DomainID& domain_id,
           uint16_t& quorum,
-          //interface::types::JsonType jsonData, //TODO
+          std::string& jsonData,
           std::vector<RoleID>& roles
       );
 
@@ -95,13 +95,13 @@ namespace iroha {
       // drops or reloads caches
       void applyChangeSet(const ChangeSet& change_set);
 
-      ResultCode loadAccountPermission(const AccountID& account_id, RolePermissionSet* perm);
+      const RolePermissionSet* loadAccountPermission(const AccountID& account_id);
 
       const std::unordered_set<std::string>& loadAccountSignatoriesAndQuorum(
           const AccountID& account_id, uint16_t& quorum);
 
-      const std::unordered_set<RoleID>& loadAccountRolesAndPermission(
-          const AccountID& account_id, RolePermissionSet* perm);
+      const std::unordered_set<RoleID>& loadAccountRoles(
+          const AccountID& account_id);
 
       bool peerExists(const PK& pk);
       bool accountExists(const AccountID& account_id);

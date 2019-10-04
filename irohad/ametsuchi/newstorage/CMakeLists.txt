@@ -10,6 +10,7 @@ add_library(new_storage
     block_index_impl.cpp
     block_query_impl.cpp
  #   storage_impl.cpp
+    specific_query_executor_impl.cpp
     mutable_storage_impl.cpp
     wsv_cache.cpp
     temporary_wsv_impl.cpp

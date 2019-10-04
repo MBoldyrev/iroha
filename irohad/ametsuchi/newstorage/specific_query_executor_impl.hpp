@@ -7,7 +7,7 @@
 #define IROHA_SPECIFIC_QUERY_EXECUTOR_IMPL_HPP
 
 #include "ametsuchi/specific_query_executor.hpp"
-#include "ametsuchi/newstorage/rel_db_backend.hpp"
+#include "ametsuchi/newstorage/result_code.hpp"
 #include "interfaces/iroha_internal/query_response_factory.hpp"
 #include "logger/logger_fwd.hpp"
 
@@ -39,17 +39,20 @@ namespace iroha {
   }
 
   namespace newstorage {
+    class ImmutableWsv;
+
     using QueryErrorType =
         shared_model::interface::QueryResponseFactory::ErrorQueryType;
 
     using ErrorQueryResponse = shared_model::interface::ErrorQueryResponse;
     using QueryErrorMessageType = ErrorQueryResponse::ErrorMessageType;
     using QueryErrorCodeType = ErrorQueryResponse::ErrorCodeType;
+    using QueryExecutorResult = ametsuchi::QueryExecutorResult;
 
    class SpecificQueryExecutorImpl : public ametsuchi::SpecificQueryExecutor {
      public:
         SpecificQueryExecutorImpl(
-          RelDbBackend& db,
+          ImmutableWsv& db,
           ametsuchi::BlockStorage &block_store,
           std::shared_ptr<PendingTransactionStorage> pending_txs_storage,
           std::shared_ptr<shared_model::interface::QueryResponseFactory>
@@ -180,7 +183,14 @@ namespace iroha {
           iroha::newstorage::QueryErrorType error_type,
           QueryErrorMessageType error_body,
           QueryErrorCodeType error_code,
-          const shared_model::interface::types::HashType &query_hash) const;
+          const shared_model::interface::types::HashType &query_hash);
+
+      QueryExecutorResult logAndReturnErrorResponse(
+          ResultCode res,
+          QueryErrorMessageType error_body,
+          const shared_model::interface::types::HashType &query_hash
+      );
+
 
       /**
        * Execute query which returns list of transactions
@@ -252,8 +262,8 @@ namespace iroha {
             error_message = "";
       };
 
-      RelDbBackend &db_;
-      BlockStorage &block_store_;
+      ImmutableWsv &db_;
+      ametsuchi::BlockStorage &block_store_;
       std::shared_ptr<PendingTransactionStorage> pending_txs_storage_;
       std::shared_ptr<shared_model::interface::QueryResponseFactory>
           query_response_factory_;

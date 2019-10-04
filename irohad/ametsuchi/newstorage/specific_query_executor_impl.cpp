@@ -4,7 +4,7 @@
  */
 
 #include "ametsuchi/newstorage/specific_query_executor_impl.hpp"
-
+#include "ametsuchi/newstorage/immutable_wsv.hpp"
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/format.hpp>
@@ -54,104 +54,13 @@ namespace {
     return res.at(1);
   }
 
-  std::string getAccountRolePermissionCheckSql(
-      shared_model::interface::permissions::Role permission,
-      const std::string &account_alias = "role_account_id") {
-    const auto perm_str =
-        shared_model::interface::RolePermissionSet({permission}).toBitstring();
-    const auto bits = shared_model::interface::RolePermissionSet::size();
-    // TODO 14.09.18 andrei: IR-1708 Load SQL from separate files
-    std::string query = (boost::format(R"(
-          SELECT (COALESCE(bit_or(rp.permission), '0'::bit(%1%))
-          & '%2%') = '%2%' AS perm FROM role_has_permissions AS rp
-              JOIN account_has_roles AS ar on ar.role_id = rp.role_id
-              WHERE ar.account_id = :%3%)")
-                         % bits % perm_str % account_alias)
-                            .str();
-    return query;
-  }
 
-  /**
-   * Generate an SQL subquery which checks if creator has corresponding
-   * permissions for target account
-   * It verifies individual, domain, and global permissions, and returns true if
-   * any of listed permissions is present
-   */
-  auto hasQueryPermission(
-      const shared_model::interface::types::AccountIdType &creator,
-      const shared_model::interface::types::AccountIdType &target_account,
-      Role indiv_permission_id,
-      Role all_permission_id,
-      Role domain_permission_id) {
-    const auto bits = shared_model::interface::RolePermissionSet::size();
-    const auto perm_str =
-        shared_model::interface::RolePermissionSet({indiv_permission_id})
-            .toBitstring();
-    const auto all_perm_str =
-        shared_model::interface::RolePermissionSet({all_permission_id})
-            .toBitstring();
-    const auto domain_perm_str =
-        shared_model::interface::RolePermissionSet({domain_permission_id})
-            .toBitstring();
 
-    boost::format cmd(R"(
-    WITH
-        has_indiv_perm AS (
-          SELECT (COALESCE(bit_or(rp.permission), '0'::bit(%1%))
-          & '%3%') = '%3%' FROM role_has_permissions AS rp
-              JOIN account_has_roles AS ar on ar.role_id = rp.role_id
-              WHERE ar.account_id = '%2%'
-        ),
-        has_all_perm AS (
-          SELECT (COALESCE(bit_or(rp.permission), '0'::bit(%1%))
-          & '%4%') = '%4%' FROM role_has_permissions AS rp
-              JOIN account_has_roles AS ar on ar.role_id = rp.role_id
-              WHERE ar.account_id = '%2%'
-        ),
-        has_domain_perm AS (
-          SELECT (COALESCE(bit_or(rp.permission), '0'::bit(%1%))
-          & '%5%') = '%5%' FROM role_has_permissions AS rp
-              JOIN account_has_roles AS ar on ar.role_id = rp.role_id
-              WHERE ar.account_id = '%2%'
-        )
-    SELECT ('%2%' = '%6%' AND (SELECT * FROM has_indiv_perm))
-        OR (SELECT * FROM has_all_perm)
-        OR ('%7%' = '%8%' AND (SELECT * FROM has_domain_perm)) AS perm
-    )");
 
-    return (cmd % bits % creator % perm_str % all_perm_str % domain_perm_str
-            % target_account % getDomainFromName(creator)
-            % getDomainFromName(target_account))
-        .str();
-  }
 
-  /// Query result is a tuple of optionals, since there could be no entry
-  template <typename... Value>
-  using QueryType = boost::tuple<boost::optional<Value>...>;
-
-  /**
-   * Create an error response in case user does not have permissions to perform
-   * a query
-   * @tparam Roles - type of roles
-   * @param roles, which user lacks
-   * @return lambda returning the error response itself
-   */
-  template <typename... Roles>
-  auto notEnoughPermissionsResponse(
-      std::shared_ptr<shared_model::interface::PermissionToString>
-          perm_converter,
-      Roles... roles) {
-    return [perm_converter, roles...] {
-      std::string error = "user must have at least one of the permissions: ";
-      for (auto role : {roles...}) {
-        error += perm_converter->toString(role) + ", ";
-      }
-      return error;
-    };
-  }
 
   static const std::string kEmptyDetailsResponse{"{}"};
-
+/*
   template <typename T>
   auto resultWithoutNulls(T range) {
     return range | boost::adaptors::transformed([](auto &&t) {
@@ -161,14 +70,14 @@ namespace {
                [](const auto &t) { return static_cast<bool>(t); })
         | boost::adaptors::transformed([](auto t) { return *t; });
   }
-
+*/
 }  // namespace
 
 namespace iroha {
   namespace newstorage {
 
     SpecificQueryExecutorImpl::SpecificQueryExecutorImpl(
-        RelDbBackend &db,
+        ImmutableWsv &db,
         ametsuchi::BlockStorage &block_store,
         std::shared_ptr<PendingTransactionStorage> pending_txs_storage,
         std::shared_ptr<shared_model::interface::QueryResponseFactory>
@@ -183,8 +92,7 @@ namespace iroha {
           perm_converter_(std::move(perm_converter)),
           log_(std::move(log)) {}
 
-          /*
-    QueryExecutorResult PostgresSpecificQueryExecutor::execute(
+    QueryExecutorResult SpecificQueryExecutorImpl::execute(
         const shared_model::interface::Query &qry) {
       return boost::apply_visitor(
           [this, &qry](const auto &query) {
@@ -195,7 +103,7 @@ namespace iroha {
 
     template <typename RangeGen, typename Pred>
     std::vector<std::unique_ptr<shared_model::interface::Transaction>>
-    PostgresSpecificQueryExecutor::getTransactionsFromBlock(
+    SpecificQueryExecutorImpl::getTransactionsFromBlock(
         uint64_t block_id, RangeGen &&range_gen, Pred &&pred) {
       std::vector<std::unique_ptr<shared_model::interface::Transaction>> result;
       auto block = block_store_.fetch(block_id);
@@ -216,6 +124,7 @@ namespace iroha {
       return result;
     }
 
+ /*
     template <typename QueryTuple,
               typename PermissionTuple,
               typename QueryExecutor,
@@ -263,20 +172,12 @@ namespace iroha {
     bool SpecificQueryExecutorImpl::hasAccountRolePermission(
         shared_model::interface::permissions::Role permission,
         const std::string &account_id) const {
-      using T = boost::tuple<int>;
-      boost::format cmd(R"(%s)");
-      try {
-        soci::rowset<T> st =
-            (sql_.prepare
-                 << (cmd % getAccountRolePermissionCheckSql(permission)).str(),
-             soci::use(account_id, "role_account_id"));
-        return st.begin()->get<0>();
-      } catch (const std::exception &e) {
-        log_->error("Failed to validate query: {}", e.what());
-        return false;
-      }
+
+      const RolePermissionSet* perms = db_.loadAccountPermission(account_id);
+      return perms && perms->isSet(permission);
     }
 
+    /*
     std::unique_ptr<shared_model::interface::QueryResponse>
     PostgresSpecificQueryExecutor::logAndReturnErrorResponse(
         QueryErrorType error_type,
@@ -313,7 +214,8 @@ namespace iroha {
       return query_response_factory_->createErrorQueryResponse(
           error_type, error, error_code, query_hash);
     }
-
+     */
+/*
     template <typename Query,
               typename QueryChecker,
               typename QueryApplier,
@@ -443,82 +345,68 @@ namespace iroha {
           },
           notEnoughPermissionsResponse(perm_converter_, perms...));
     }
+*/
+    template <typename... Roles>
+    static std::string notEnoughPermissionsError(
+        shared_model::interface::PermissionToString& perm_converter,
+        Roles... roles)
+    {
+        std::string error = "user must have at least one of the permissions: ";
+        for (auto role : {roles...}) {
+          error += perm_converter.toString(role) + ", ";
+        }
+        return error;
+    }
 
-    QueryExecutorResult PostgresSpecificQueryExecutor::operator()(
+    QueryExecutorResult SpecificQueryExecutorImpl::logAndReturnErrorResponse(
+        ResultCode res,
+        QueryErrorMessageType error_body,
+        const shared_model::interface::types::HashType &query_hash
+    ) {
+
+    }
+
+    QueryExecutorResult SpecificQueryExecutorImpl::operator()(
         const shared_model::interface::GetAccount &q,
         const shared_model::interface::types::AccountIdType &creator_id,
         const shared_model::interface::types::HashType &query_hash) {
-      using QueryTuple =
-          QueryType<shared_model::interface::types::AccountIdType,
-                    shared_model::interface::types::DomainIdType,
-                    shared_model::interface::types::QuorumType,
-                    shared_model::interface::types::DetailType,
-                    std::string>;
-      using PermissionTuple = boost::tuple<int>;
+      DomainID domain_id;
+      uint16_t quorum = 0;
+      std::string json_data;
+      std::vector<RoleID> roles;
+      ResultCode res = db_.getAccount(
+          creator_id, q.accountId(), domain_id, quorum, json_data, roles);
 
-      auto cmd = (boost::format(R"(WITH has_perms AS (%s),
-      t AS (
-          SELECT a.account_id, a.domain_id, a.quorum, a.data, ARRAY_AGG(ar.role_id) AS roles
-          FROM account AS a, account_has_roles AS ar
-          WHERE a.account_id = :target_account_id
-          AND ar.account_id = a.account_id
-          GROUP BY a.account_id
-      )
-      SELECT account_id, domain_id, quorum, data, roles, perm
-      FROM t RIGHT OUTER JOIN has_perms AS p ON TRUE
-      )")
-                  % hasQueryPermission(creator_id,
-                                       q.accountId(),
-                                       Role::kGetMyAccount,
-                                       Role::kGetAllAccounts,
-                                       Role::kGetDomainAccounts))
-                     .str();
-
-      auto query_apply = [this, &query_hash](auto &account_id,
-                                             auto &domain_id,
-                                             auto &quorum,
-                                             auto &data,
-                                             auto &roles_str) {
-        std::vector<shared_model::interface::types::RoleIdType> roles;
-        auto roles_str_no_brackets = roles_str.substr(1, roles_str.size() - 2);
-        boost::split(
-            roles, roles_str_no_brackets, [](char c) { return c == ','; });
-        return query_response_factory_->createAccountResponse(
-            account_id, domain_id, quorum, data, std::move(roles), query_hash);
-      };
-
-      return executeQuery<QueryTuple, PermissionTuple>(
-          [&] {
-            return (sql_.prepare << cmd,
-                    soci::use(q.accountId(), "target_account_id"));
-          },
-          query_hash,
-          [this, &q, &query_apply, &query_hash](auto range, auto &) {
-            auto range_without_nulls = resultWithoutNulls(std::move(range));
-            if (range_without_nulls.empty()) {
-              return this->logAndReturnErrorResponse(
-                  QueryErrorType::kNoAccount, q.accountId(), 0, query_hash);
-            }
-
-            return apply(range_without_nulls.front(), query_apply);
-          },
-          notEnoughPermissionsResponse(perm_converter_,
-                                       Role::kGetMyAccount,
-                                       Role::kGetAllAccounts,
-                                       Role::kGetDomainAccounts));
+      if (res == ResultCode::kOk) {
+        return query_response_factory_->createAccountResponse(q.accountId(),
+                                                              domain_id,
+                                                              quorum,
+                                                              json_data,
+                                                              std::move(roles),
+                                                              query_hash);
+      }
+      if (res == ResultCode::kNoPermission) {
+        return logAndReturnErrorResponse(
+            res,
+            notEnoughPermissionsError(*perm_converter_,
+                                      Role::kGetMyAccount,
+                                      Role::kGetAllAccounts,
+                                      Role::kGetDomainAccounts),
+            query_hash);
+      }
+      return logAndReturnErrorResponse(res, "", query_hash);
     }
 
-    QueryExecutorResult PostgresSpecificQueryExecutor::operator()(
+    QueryExecutorResult SpecificQueryExecutorImpl::operator()(
         const shared_model::interface::GetBlock &q,
         const shared_model::interface::types::AccountIdType &creator_id,
         const shared_model::interface::types::HashType &query_hash) {
       if (not hasAccountRolePermission(Role::kGetBlocks, creator_id)) {
         // no permission
-        return query_response_factory_->createErrorQueryResponse(
-            shared_model::interface::QueryResponseFactory::ErrorQueryType::
-                kStatefulFailed,
-            notEnoughPermissionsResponse(perm_converter_, Role::kGetBlocks)(),
-            2,
+        return logAndReturnErrorResponse(
+            ResultCode::kNoPermission,
+            notEnoughPermissionsError(*perm_converter_,
+                                      Role::kGetBlocks),
             query_hash);
       }
 
@@ -550,57 +438,48 @@ namespace iroha {
                                                           query_hash);
     }
 
-    QueryExecutorResult PostgresSpecificQueryExecutor::operator()(
+    QueryExecutorResult SpecificQueryExecutorImpl::operator()(
         const shared_model::interface::GetSignatories &q,
         const shared_model::interface::types::AccountIdType &creator_id,
         const shared_model::interface::types::HashType &query_hash) {
-      using QueryTuple = QueryType<std::string>;
-      using PermissionTuple = boost::tuple<int>;
 
-      auto cmd = (boost::format(R"(WITH has_perms AS (%s),
-      t AS (
-          SELECT public_key FROM account_has_signatory
-          WHERE account_id = :account_id
-      )
-      SELECT public_key, perm FROM t
-      RIGHT OUTER JOIN has_perms ON TRUE
-      )")
-                  % hasQueryPermission(creator_id,
-                                       q.accountId(),
-                                       Role::kGetMySignatories,
-                                       Role::kGetAllSignatories,
-                                       Role::kGetDomainSignatories))
-                     .str();
+      std::vector<shared_model::interface::types::PubkeyType> signatories;
+      ResultCode res = db_.getSignatories(
+          creator_id, q.accountId(),
+          [&signatories](const std::string& key) {
+            // TODO where errors handled...
+            signatories.emplace_back(
+               // shared_model::interface::types::PubkeyType(
+                 shared_model::crypto::Blob::fromHexString(key)
+               // )
+            );
+          }
+      );
 
-      return executeQuery<QueryTuple, PermissionTuple>(
-          [&] { return (sql_.prepare << cmd, soci::use(q.accountId())); },
-          query_hash,
-          [this, &q, &query_hash](auto range, auto &) {
-            auto range_without_nulls = resultWithoutNulls(std::move(range));
-            if (range_without_nulls.empty()) {
-              return this->logAndReturnErrorResponse(
-                  QueryErrorType::kNoSignatories, q.accountId(), 0, query_hash);
-            }
+      if (res == ResultCode::kOk) {
+        if (signatories.empty()) {
+          return logAndReturnErrorResponse(
+              QueryErrorType::kNoSignatories, q.accountId(),
+              0, query_hash);
+        }
 
-            auto pubkeys = boost::copy_range<
-                std::vector<shared_model::interface::types::PubkeyType>>(
-                range_without_nulls | boost::adaptors::transformed([](auto t) {
-                  return apply(t, [&](auto &public_key) {
-                    return shared_model::interface::types::PubkeyType{
-                        shared_model::crypto::Blob::fromHexString(public_key)};
-                  });
-                }));
+        return query_response_factory_->createSignatoriesResponse(
+            std::move(signatories), query_hash);
+      }
 
-            return query_response_factory_->createSignatoriesResponse(
-                pubkeys, query_hash);
-          },
-          notEnoughPermissionsResponse(perm_converter_,
-                                       Role::kGetMySignatories,
-                                       Role::kGetAllSignatories,
-                                       Role::kGetDomainSignatories));
+      if (res == ResultCode::kNoPermission) {
+        return logAndReturnErrorResponse(
+            res,
+            notEnoughPermissionsError(*perm_converter_,
+                                      Role::kGetMySignatories,
+                                      Role::kGetAllSignatories,
+                                      Role::kGetDomainSignatories),
+            query_hash);
+      }
+      return logAndReturnErrorResponse(res, "", query_hash);
     }
-
-    QueryExecutorResult PostgresSpecificQueryExecutor::operator()(
+/*
+    QueryExecutorResult SpecificQueryExecutorImpl::operator()(
         const shared_model::interface::GetAccountTransactions &q,
         const shared_model::interface::types::AccountIdType &creator_id,
         const shared_model::interface::types::HashType &query_hash) {
@@ -787,7 +666,7 @@ namespace iroha {
                                       Role::kGetDomainAccAstTxs);
     }
 
-    QueryExecutorResult PostgresSpecificQueryExecutor::operator()(
+    QueryExecutorResult SpecificQueryExecutorImpl::operator()(
         const shared_model::interface::GetAccountAssets &q,
         const shared_model::interface::types::AccountIdType &creator_id,
         const shared_model::interface::types::HashType &query_hash) {
@@ -1121,129 +1000,77 @@ namespace iroha {
                                        Role::kGetAllAccDetail,
                                        Role::kGetDomainAccDetail));
     }
-
-    QueryExecutorResult PostgresSpecificQueryExecutor::operator()(
+*/
+    QueryExecutorResult SpecificQueryExecutorImpl::operator()(
         const shared_model::interface::GetRoles &q,
         const shared_model::interface::types::AccountIdType &creator_id,
         const shared_model::interface::types::HashType &query_hash) {
-      using QueryTuple = QueryType<shared_model::interface::types::RoleIdType>;
-      using PermissionTuple = boost::tuple<int>;
 
-      auto cmd = (boost::format(
-                      R"(WITH has_perms AS (%s)
-      SELECT role_id, perm FROM role
-      RIGHT OUTER JOIN has_perms ON TRUE
-      )") % getAccountRolePermissionCheckSql(Role::kGetRoles))
-                     .str();
+      std::vector<RoleID> roles;
+      ResultCode res = db_.getRoles(creator_id, roles);
 
-      return executeQuery<QueryTuple, PermissionTuple>(
-          [&] {
-            return (sql_.prepare << cmd,
-                    soci::use(creator_id, "role_account_id"));
-          },
-          query_hash,
-          [&](auto range, auto &) {
-            auto range_without_nulls = resultWithoutNulls(std::move(range));
-            auto roles = boost::copy_range<
-                std::vector<shared_model::interface::types::RoleIdType>>(
-                range_without_nulls | boost::adaptors::transformed([](auto t) {
-                  return apply(t, [](auto &role_id) { return role_id; });
-                }));
+      if (res == ResultCode::kOk) {
+        return query_response_factory_->createRolesResponse(
+            std::move(roles), query_hash);
+      }
 
-            return query_response_factory_->createRolesResponse(roles,
-                                                                query_hash);
-          },
-          notEnoughPermissionsResponse(perm_converter_, Role::kGetRoles));
+      if (res == ResultCode::kNoPermission) {
+        return logAndReturnErrorResponse(
+            res,
+            notEnoughPermissionsError(*perm_converter_,
+                                      Role::kGetRoles),
+            query_hash);
+      }
+      return logAndReturnErrorResponse(res, "", query_hash);
     }
 
-    QueryExecutorResult PostgresSpecificQueryExecutor::operator()(
+    QueryExecutorResult SpecificQueryExecutorImpl::operator()(
         const shared_model::interface::GetRolePermissions &q,
         const shared_model::interface::types::AccountIdType &creator_id,
         const shared_model::interface::types::HashType &query_hash) {
-      using QueryTuple = QueryType<std::string>;
-      using PermissionTuple = boost::tuple<int>;
 
-      auto cmd = (boost::format(
-                      R"(WITH has_perms AS (%s),
-      perms AS (SELECT permission FROM role_has_permissions
-                WHERE role_id = :role_name)
-      SELECT permission, perm FROM perms
-      RIGHT OUTER JOIN has_perms ON TRUE
-      )") % getAccountRolePermissionCheckSql(Role::kGetRoles))
-                     .str();
+      RolePermissionSet permissions;
+      ResultCode res = db_.getRolePermissions(creator_id, q.roleId(),
+          permissions);
 
-      return executeQuery<QueryTuple, PermissionTuple>(
-          [&] {
-            return (sql_.prepare << cmd,
-                    soci::use(creator_id, "role_account_id"),
-                    soci::use(q.roleId(), "role_name"));
-          },
-          query_hash,
-          [this, &q, &creator_id, &query_hash](auto range, auto &) {
-            auto range_without_nulls = resultWithoutNulls(std::move(range));
-            if (range_without_nulls.empty()) {
-              return this->logAndReturnErrorResponse(
-                  QueryErrorType::kNoRoles,
-                  "{" + q.roleId() + ", " + creator_id + "}",
-                  0,
-                  query_hash);
-            }
+      if (res == ResultCode::kOk) {
+        return query_response_factory_->createRolePermissionsResponse(
+            std::move(permissions), query_hash);
+      }
 
-            return apply(
-                range_without_nulls.front(),
-                [this, &query_hash](auto &permission) {
-                  return query_response_factory_->createRolePermissionsResponse(
-                      shared_model::interface::RolePermissionSet(permission),
-                      query_hash);
-                });
-          },
-          notEnoughPermissionsResponse(perm_converter_, Role::kGetRoles));
+      if (res == ResultCode::kNoPermission) {
+        return logAndReturnErrorResponse(
+            res,
+            notEnoughPermissionsError(*perm_converter_,
+                                      Role::kGetRoles),
+            query_hash);
+      }
+      return logAndReturnErrorResponse(res, q.roleId(), query_hash);
     }
 
-    QueryExecutorResult PostgresSpecificQueryExecutor::operator()(
+    QueryExecutorResult SpecificQueryExecutorImpl::operator()(
         const shared_model::interface::GetAssetInfo &q,
         const shared_model::interface::types::AccountIdType &creator_id,
         const shared_model::interface::types::HashType &query_hash) {
-      using QueryTuple =
-          QueryType<shared_model::interface::types::DomainIdType, uint32_t>;
-      using PermissionTuple = boost::tuple<int>;
+      DomainID domain_id;
+      uint8_t precision = 0;
+      ResultCode res =
+          db_.getAssetInfo(creator_id, q.assetId(), domain_id, precision);
 
-      auto cmd = (boost::format(
-                      R"(WITH has_perms AS (%s),
-      perms AS (SELECT domain_id, precision FROM asset
-                WHERE asset_id = :asset_id)
-      SELECT domain_id, precision, perm FROM perms
-      RIGHT OUTER JOIN has_perms ON TRUE
-      )") % getAccountRolePermissionCheckSql(Role::kReadAssets))
-                     .str();
+      if (res == ResultCode::kOk) {
+        return query_response_factory_->createAssetResponse(
+            q.assetId(), domain_id, precision, query_hash);
+      }
 
-      return executeQuery<QueryTuple, PermissionTuple>(
-          [&] {
-            return (sql_.prepare << cmd,
-                    soci::use(creator_id, "role_account_id"),
-                    soci::use(q.assetId(), "asset_id"));
-          },
-          query_hash,
-          [this, &q, &creator_id, &query_hash](auto range, auto &) {
-            auto range_without_nulls = resultWithoutNulls(std::move(range));
-            if (range_without_nulls.empty()) {
-              return this->logAndReturnErrorResponse(
-                  QueryErrorType::kNoAsset,
-                  "{" + q.assetId() + ", " + creator_id + "}",
-                  0,
-                  query_hash);
-            }
-
-            return apply(
-                range_without_nulls.front(),
-                [this, &q, &query_hash](auto &domain_id, auto &precision) {
-                  return query_response_factory_->createAssetResponse(
-                      q.assetId(), domain_id, precision, query_hash);
-                });
-          },
-          notEnoughPermissionsResponse(perm_converter_, Role::kReadAssets));
+      if (res == ResultCode::kNoPermission) {
+        return logAndReturnErrorResponse(
+            res,
+            notEnoughPermissionsError(*perm_converter_, Role::kReadAssets),
+            query_hash);
+      }
+      return logAndReturnErrorResponse(res, q.assetId(), query_hash);
     }
-
+/*
     QueryExecutorResult PostgresSpecificQueryExecutor::operator()(
         const shared_model::interface::GetPendingTransactions &q,
         const shared_model::interface::types::AccountIdType &creator_id,
@@ -1309,60 +1136,41 @@ namespace iroha {
             std::move(response_txs), query_hash);
       }
     }
-
-    QueryExecutorResult PostgresSpecificQueryExecutor::operator()(
+*/
+    QueryExecutorResult SpecificQueryExecutorImpl::operator()(
         const shared_model::interface::GetPeers &q,
         const shared_model::interface::types::AccountIdType &creator_id,
         const shared_model::interface::types::HashType &query_hash) {
-      using QueryTuple =
-          QueryType<std::string, shared_model::interface::types::AddressType>;
-      using PermissionTuple = boost::tuple<int>;
 
-      auto cmd = (boost::format(
-                      R"(WITH has_perms AS (%s)
-      SELECT public_key, address, perm FROM peer
-      RIGHT OUTER JOIN has_perms ON TRUE
-      )") % getAccountRolePermissionCheckSql(Role::kGetPeers))
-                     .str();
-
-      return executeQuery<QueryTuple, PermissionTuple>(
-          [&] {
-            return (sql_.prepare << cmd,
-                    soci::use(creator_id, "role_account_id"));
-          },
-          query_hash,
-          [&](auto range, auto &) {
-            auto range_without_nulls = resultWithoutNulls(std::move(range));
-            shared_model::interface::types::PeerList peers;
-            for (const auto &row : range_without_nulls) {
-              apply(row, [&peers](auto &peer_key, auto &address) {
-                peers.push_back(std::make_shared<shared_model::plain::Peer>(
-                    address,
-                    shared_model::interface::types::PubkeyType{
-                        shared_model::crypto::Blob::fromHexString(peer_key)}));
-              });
+      std::vector<std::shared_ptr<shared_model::interface::Peer>> peers;
+      ResultCode res = db_.getPeers(creator_id,
+          [&peers](const std::string& pk, const std::string& address) {
+            auto blob = shared_model::crypto::Blob::fromHexString(pk);
+            if (blob.size() > 0 && !address.empty()) {
+              peers.emplace_back(
+                  std::make_shared<shared_model::plain::Peer>(
+                      address,
+                      shared_model::crypto::PublicKey{
+                          shared_model::crypto::Blob::fromHexString(pk)}
+                  )
+              );
             }
-            return query_response_factory_->createPeersResponse(peers,
-                                                                query_hash);
-          },
-          notEnoughPermissionsResponse(perm_converter_, Role::kGetPeers));
-    }
+          }
+      );
 
-    template <typename ReturnValueType>
-    bool PostgresSpecificQueryExecutor::existsInDb(
-        const std::string &table_name,
-        const std::string &key_name,
-        const std::string &value_name,
-        const std::string &value) const {
-      auto cmd = (boost::format(R"(SELECT %s
-                                   FROM %s
-                                   WHERE %s = '%s'
-                                   LIMIT 1)")
-                  % value_name % table_name % key_name % value)
-                     .str();
-      soci::rowset<ReturnValueType> result = this->sql_.prepare << cmd;
-      return result.begin() != result.end();
-    }
+      if (res == ResultCode::kOk) {
+        return query_response_factory_->createPeersResponse(
+            std::move(peers), query_hash);
+      }
 
+      if (res == ResultCode::kNoPermission) {
+        return logAndReturnErrorResponse(
+            res,
+            notEnoughPermissionsError(*perm_converter_,
+                                      Role::kGetPeers),
+            query_hash);
+      }
+      return logAndReturnErrorResponse(res, "", query_hash);
+    }
   }  // namespace newstorage
 }  // namespace iroha

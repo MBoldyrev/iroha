@@ -6,6 +6,7 @@
 #ifndef IROHA_WSV_CACHE_HPP
 #define IROHA_WSV_CACHE_HPP
 
+#include "result_code.hpp"
 #include "interfaces/permissions.hpp"
 #include <boost/multiprecision/cpp_int.hpp>
 #include <unordered_map>
@@ -30,32 +31,6 @@ namespace iroha {
     using PK = std::string;
     using NetworkAddress = std::string;
     using uint256_t = boost::multiprecision::uint256_t;
-
-    enum class ResultCode {
-      kOk,
-      kBadRequestPaginationMeta,
-      kAccountDoesntExist,
-      kNoAccountDetail,
-      kPermitteeAccountDoesntExist,
-      kRoleDoesntExist,
-      kDefaultRoleDoesntExist,
-      kDomainDoesntExist,
-      kDomainAlreadyExists,
-      kAssetAlreadyExists,
-      kAssetDoesntExist,
-      kRoleAlreadyExists,
-      kSignatoryAlreadyExists,
-      kAccountAlreadyExists,
-      kAccountHasNoRole,
-      kNoAccountAsset,
-      kNotEnoughBalance,
-      kAmountOverflow,
-      kPeerAlreadyExists,
-      kPeerDoesntExist,
-      kNoPermission,
-      kNoCreatorAccount,
-      kDataIntegrityError
-    };
 
     class Roles {
      public:

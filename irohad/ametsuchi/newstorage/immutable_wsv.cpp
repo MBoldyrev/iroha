@@ -26,7 +26,7 @@ namespace iroha {
         const AccountID& account_id,
         DomainID& domain_id,
         uint16_t& quorum,
-        //interface::types::JsonType jsonData,
+        std::string& jsonData,
         std::vector<RoleID>& roles
     ) {
       Account* query_initiator = nullptr;
@@ -49,6 +49,8 @@ namespace iroha {
       for (const auto& r : account->roles) {
         roles.push_back(r);
       }
+
+      // TODO json data generate
 
       return ResultCode::kOk;
     }
