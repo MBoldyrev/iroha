@@ -74,10 +74,10 @@ target_link_libraries(application
     common
     pg_connection_init
     generator
-    new_storage
+#    new_storage
     )
 
-add_dependencies(application new_storage)
+#add_dependencies(application new_storage)
 
 add_executable(irohad irohad.cpp)
 target_link_libraries(irohad

@@ -56,6 +56,8 @@ namespace iroha {
       std::unique_ptr<TemporaryWsv::SavepointWrapper> createSavepoint(
           const std::string &name) override;
 
+      bool rollback() override;
+
       ~TemporaryWsvImpl() override;
 
      private:

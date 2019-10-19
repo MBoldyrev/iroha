@@ -11,7 +11,7 @@
 
 #include <boost/optional.hpp>
 #include <rxcpp/rx-lite.hpp>
-#include "ametsuchi/temporary_factory.hpp"
+#include "ametsuchi/storage.hpp"
 #include "cryptography/crypto_provider/abstract_crypto_model_signer.hpp"
 #include "interfaces/iroha_internal/unsafe_block_factory.hpp"
 #include "logger/logger_fwd.hpp"
@@ -31,12 +31,9 @@ namespace iroha {
           shared_model::interface::Block>;
 
       Simulator(
-          // TODO IR-598 mboldyrev 2019.08.10: remove command_executor from
-          // Simulator
-          std::unique_ptr<iroha::ametsuchi::CommandExecutor> command_executor,
           std::shared_ptr<network::OrderingGate> ordering_gate,
           std::shared_ptr<validation::StatefulValidator> statefulValidator,
-          std::shared_ptr<ametsuchi::TemporaryFactory> factory,
+          std::shared_ptr<ametsuchi::Storage> storage,
           std::shared_ptr<CryptoSignerType> crypto_signer,
           std::unique_ptr<shared_model::interface::UnsafeBlockFactory>
               block_factory,
@@ -60,7 +57,6 @@ namespace iroha {
 
      private:
       // internal
-      std::shared_ptr<iroha::ametsuchi::CommandExecutor> command_executor_;
 
       rxcpp::composite_subscription notifier_lifetime_;
       rxcpp::subjects::subject<VerifiedProposalCreatorEvent> notifier_;
@@ -71,7 +67,7 @@ namespace iroha {
       rxcpp::composite_subscription verified_proposal_subscription_;
 
       std::shared_ptr<validation::StatefulValidator> validator_;
-      std::shared_ptr<ametsuchi::TemporaryFactory> ametsuchi_factory_;
+      std::shared_ptr<ametsuchi::Storage> ametsuchi_storage_;
       std::shared_ptr<CryptoSignerType> crypto_signer_;
       std::unique_ptr<shared_model::interface::UnsafeBlockFactory>
           block_factory_;

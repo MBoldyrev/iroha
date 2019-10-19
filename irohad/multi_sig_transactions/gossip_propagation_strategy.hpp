@@ -11,7 +11,7 @@
 #include <mutex>
 
 #include <rxcpp/rx-lite.hpp>
-#include "ametsuchi/peer_query_factory.hpp"
+#include "ametsuchi/peer_query.hpp"
 #include "multi_sig_transactions/gossip_propagation_strategy_params.hpp"
 #include "multi_sig_transactions/mst_propagation_strategy.hpp"
 
@@ -27,7 +27,7 @@ namespace iroha {
    */
   class GossipPropagationStrategy : public PropagationStrategy {
    public:
-    using PeerProviderFactory = std::shared_ptr<ametsuchi::PeerQueryFactory>;
+    using PeerProvider = std::shared_ptr<ametsuchi::PeerQuery>;
     using OptPeer = boost::optional<PropagationData::value_type>;
     /**
      * Initialize strategy with
@@ -37,7 +37,7 @@ namespace iroha {
      */
     GossipPropagationStrategy(
         // TODO 30.01.2019 lebdron: IR-266 Remove PeerQueryFactory
-        PeerProviderFactory peer_factory,
+        PeerProvider peer_factory,
         rxcpp::observe_on_one_worker emit_worker,
         const GossipPropagationStrategyParams &params);
 
@@ -52,7 +52,7 @@ namespace iroha {
     /**
      * Source of peers for propagation
      */
-    PeerProviderFactory peer_factory;
+    PeerProvider peer_query;
 
     /**
      * Cache of peer provider's data

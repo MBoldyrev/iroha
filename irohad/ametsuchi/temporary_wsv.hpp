@@ -55,6 +55,9 @@ namespace iroha {
       virtual std::unique_ptr<TemporaryWsv::SavepointWrapper> createSavepoint(
           const std::string &name) = 0;
 
+      // explicit rollback is needed to reuse the object
+      virtual bool rollback(bool block_is_prepared) = 0;
+
       virtual ~TemporaryWsv() = default;
     };
   }  // namespace ametsuchi

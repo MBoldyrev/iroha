@@ -16,8 +16,8 @@ namespace iroha {
   namespace consensus {
     namespace yac {
       PeerOrdererImpl::PeerOrdererImpl(
-          std::shared_ptr<ametsuchi::PeerQueryFactory> peer_query_factory)
-          : peer_query_factory_(peer_query_factory) {}
+          std::shared_ptr<ametsuchi::PeerQuery> peer_query)
+          : peer_query_(std::move(peer_query)) {}
 
       boost::optional<ClusterOrdering> PeerOrdererImpl::getOrdering(
           const YacHash &hash,

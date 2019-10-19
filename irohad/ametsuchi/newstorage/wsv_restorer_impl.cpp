@@ -10,7 +10,7 @@
 #include "ametsuchi/block_storage_factory.hpp"
 #include "ametsuchi/command_executor.hpp"
 #include "ametsuchi/mutable_storage.hpp"
-#include "ametsuchi/impl/storage_impl.hpp"
+#include "ametsuchi/storage.hpp"
 #include "interfaces/iroha_internal/block.hpp"
 
 namespace {
@@ -99,27 +99,22 @@ namespace {
 namespace iroha {
   namespace ametsuchi {
     CommitResult WsvRestorerImpl::restoreWsv(Storage &storage) {
-      StorageImpl& storage_impl =
-          static_cast<StorageImpl&>(storage);
+      return storage.createCommandExecutor() |
+                 [&storage](auto &&command_executor) -> CommitResult {
+        BlockStorageStubFactory storage_factory;
 
-      auto command_executor = storage_impl.createCommandExecutor();
-      if (!command_executor) {
-        return expected::makeError("Cannot create command executor");
-      }
+        auto mutable_storage = storage.createMutableStorage(
+            std::move(command_executor), storage_factory);
+        auto block_query = storage.getBlockQuery();
+        if (not block_query) {
+          return expected::makeError("Cannot create BlockQuery");
+        }
 
-      BlockStorageStubFactory storage_factory;
-
-      auto mutable_storage = storage_impl.createMutableStorage(
-          std::move(command_executor), storage_factory);
-      auto block_query = storage_impl.getBlockQuery();
-      if (not block_query) {
-        return expected::makeError("Cannot create BlockQuery");
-      }
-
-      return storage_impl.resetWsv() |
-             [&storage_impl, &mutable_storage, &block_query]() {
-               return reindexBlocks(storage_impl, mutable_storage, block_query);
-             };
-     }
+        return storage.resetWsv() |
+            [&storage, &mutable_storage, &block_query]() {
+              return reindexBlocks(storage, mutable_storage, block_query);
+            };
+      };
+    }
   }  // namespace ametsuchi
 }  // namespace iroha

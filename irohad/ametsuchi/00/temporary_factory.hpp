@@ -24,8 +24,10 @@ namespace iroha {
        * Temporary state might be used for transaction validation.
        * @return Created temporary wsv.
        */
-      virtual std::unique_ptr<TemporaryWsv> createTemporaryWsv(
-          std::shared_ptr<CommandExecutor> command_executor) = 0;
+      //virtual std::unique_ptr<TemporaryWsv> createTemporaryWsv(
+      //    std::shared_ptr<CommandExecutor> command_executor) = 0;
+
+      virtual std::unique_ptr<TemporaryWsv> createTemporaryWsv() = 0;
 
       /**
        * Prepare state which was accumulated in temporary WSV.

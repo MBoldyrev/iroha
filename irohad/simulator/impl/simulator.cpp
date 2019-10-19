@@ -16,19 +16,19 @@ namespace iroha {
   namespace simulator {
 
     Simulator::Simulator(
-        std::unique_ptr<iroha::ametsuchi::CommandExecutor> command_executor,
+
         std::shared_ptr<network::OrderingGate> ordering_gate,
         std::shared_ptr<validation::StatefulValidator> statefulValidator,
-        std::shared_ptr<ametsuchi::TemporaryFactory> factory,
+        std::shared_ptr<ametsuchi::Storage> storage,
         std::shared_ptr<CryptoSignerType> crypto_signer,
         std::unique_ptr<shared_model::interface::UnsafeBlockFactory>
             block_factory,
         logger::LoggerPtr log)
-        : command_executor_(std::move(command_executor)),
+        :
           notifier_(notifier_lifetime_),
           block_notifier_(block_notifier_lifetime_),
           validator_(std::move(statefulValidator)),
-          ametsuchi_factory_(std::move(factory)),
+          ametsuchi_storage_(std::move(storage)),
           crypto_signer_(std::move(crypto_signer)),
           block_factory_(std::move(block_factory)),
           log_(std::move(log)) {
@@ -85,12 +85,12 @@ namespace iroha {
         const shared_model::interface::Proposal &proposal) {
       log_->info("process proposal");
 
-      auto storage = ametsuchi_factory_->createTemporaryWsv(command_executor_);
+      auto storage = ametsuchi_storage_->createTemporaryWsv();
 
       std::shared_ptr<iroha::validation::VerifiedProposalAndErrors>
           validated_proposal_and_errors =
               validator_->validate(proposal, *storage);
-      ametsuchi_factory_->prepareBlock(std::move(storage));
+      ametsuchi_storage_->prepareBlock(std::move(storage));
 
       return validated_proposal_and_errors;
     }

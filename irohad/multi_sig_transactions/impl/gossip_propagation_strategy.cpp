@@ -17,14 +17,14 @@ namespace iroha {
 
   using PropagationData = PropagationStrategy::PropagationData;
   using OptPeer = GossipPropagationStrategy::OptPeer;
-  using PeerProviderFactory = GossipPropagationStrategy::PeerProviderFactory;
+  using PeerProvider = GossipPropagationStrategy::PeerProvider;
   using std::chrono::steady_clock;
 
   GossipPropagationStrategy::GossipPropagationStrategy(
-      PeerProviderFactory peer_factory,
+      PeerProvider peer_query,
       rxcpp::observe_on_one_worker emit_worker,
       const GossipPropagationStrategyParams &params)
-      : peer_factory(peer_factory),
+      : peer_query(peer_query),
         non_visited({}),
         emit_worker(emit_worker),
         emitent(rxcpp::observable<>::interval(
@@ -50,11 +50,11 @@ namespace iroha {
   GossipPropagationStrategy::~GossipPropagationStrategy() {
     // Make sure that emitent callback have finish and haven't started yet
     std::lock_guard<std::mutex> lock(m);
-    peer_factory.reset();
+    peer_query.reset();
   }
 
   bool GossipPropagationStrategy::initQueue() {
-    return peer_factory->createPeerQuery() | [](const auto &query) {
+    return boost::make_optional(peer_query) | [](const auto &query) {
       return query->getLedgerPeers();
     } | [](auto &&data) -> boost::optional<PropagationData> {
       if (data.size() == 0) {
@@ -74,7 +74,7 @@ namespace iroha {
 
   OptPeer GossipPropagationStrategy::visit() {
     std::lock_guard<std::mutex> lock(m);
-    if (not peer_factory or (non_visited.empty() and not initQueue())) {
+    if (not peer_query or (non_visited.empty() and not initQueue())) {
       // either PeerProvider doesn't gives peers / dtor have been called
       return {};
     }

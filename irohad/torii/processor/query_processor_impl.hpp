@@ -23,9 +23,7 @@ namespace iroha {
      public:
       QueryProcessorImpl(
           std::shared_ptr<ametsuchi::Storage> storage,
-          std::shared_ptr<ametsuchi::QueryExecutorFactory> qry_exec,
-          std::shared_ptr<iroha::PendingTransactionStorage>
-              pending_transactions,
+          std::shared_ptr<ametsuchi::QueryExecutor> qry_exec,
           std::shared_ptr<shared_model::interface::QueryResponseFactory>
               response_factory,
           logger::LoggerPtr log);
@@ -43,8 +41,7 @@ namespace iroha {
           std::shared_ptr<shared_model::interface::BlockQueryResponse>>
           blocks_query_subject_;
       std::shared_ptr<ametsuchi::Storage> storage_;
-      std::shared_ptr<ametsuchi::QueryExecutorFactory> qry_exec_;
-      std::shared_ptr<iroha::PendingTransactionStorage> pending_transactions_;
+      std::shared_ptr<ametsuchi::QueryExecutor> qry_exec_;
       std::shared_ptr<shared_model::interface::QueryResponseFactory>
           response_factory_;
 

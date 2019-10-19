@@ -4,7 +4,7 @@
  */
 
 #include "ametsuchi/impl/tx_presence_cache_impl.hpp"
-
+#include "ametsuchi/block_query.hpp"
 #include "common/bind.hpp"
 #include "common/visitor.hpp"
 #include "interfaces/iroha_internal/transaction_batch.hpp"

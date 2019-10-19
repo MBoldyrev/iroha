@@ -8,7 +8,7 @@
 
 #include <memory>
 
-#include "ametsuchi/peer_query_factory.hpp"
+#include "ametsuchi/peer_query.hpp"
 #include "consensus/yac/yac_peer_orderer.hpp"
 
 namespace iroha {
@@ -23,7 +23,7 @@ namespace iroha {
        public:
         // TODO 30.01.2019 lebdron: IR-262 Remove PeerQueryFactory
         explicit PeerOrdererImpl(
-            std::shared_ptr<ametsuchi::PeerQueryFactory> peer_query_factory);
+            std::shared_ptr<ametsuchi::PeerQuery> peer_query);
 
         boost::optional<ClusterOrdering> getOrdering(
             const YacHash &hash,
@@ -31,7 +31,7 @@ namespace iroha {
             override;
 
        private:
-        std::shared_ptr<ametsuchi::PeerQueryFactory> peer_query_factory_;
+        std::shared_ptr<ametsuchi::PeerQuery> peer_query_;
       };
 
     }  // namespace yac

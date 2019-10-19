@@ -4,7 +4,6 @@
  */
 
 #include "ametsuchi/newstorage/mutable_storage_impl.hpp"
-#include <boost/variant/apply_visitor.hpp>
 #include "ametsuchi/command_executor.hpp"
 #include "ametsuchi/ledger_state.hpp"
 #include "ametsuchi/newstorage/block_index.hpp"

@@ -10,7 +10,7 @@
 
 #include <unordered_map>
 
-#include "ametsuchi/peer_query_factory.hpp"
+#include "ametsuchi/peer_query.hpp"
 #include "backend/protobuf/proto_block_factory.hpp"
 #include "loader.grpc.pb.h"
 #include "logger/logger_fwd.hpp"
@@ -21,7 +21,7 @@ namespace iroha {
      public:
       // TODO 30.01.2019 lebdron: IR-264 Remove PeerQueryFactory
       BlockLoaderImpl(
-          std::shared_ptr<ametsuchi::PeerQueryFactory> peer_query_factory,
+          std::shared_ptr<ametsuchi::PeerQuery> peer_query,
           shared_model::proto::ProtoBlockFactory factory,
           logger::LoggerPtr log);
 
@@ -55,7 +55,7 @@ namespace iroha {
       std::unordered_map<shared_model::interface::types::AddressType,
                          std::unique_ptr<proto::Loader::StubInterface>>
           peer_connections_;
-      std::shared_ptr<ametsuchi::PeerQueryFactory> peer_query_factory_;
+      std::shared_ptr<ametsuchi::PeerQuery> peer_query_;
       shared_model::proto::ProtoBlockFactory block_factory_;
 
       logger::LoggerPtr log_;

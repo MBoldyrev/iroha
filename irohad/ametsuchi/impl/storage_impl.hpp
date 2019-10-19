@@ -36,6 +36,8 @@ namespace iroha {
   class PendingTransactionStorage;
 
   namespace ametsuchi {
+    class CommandExecutor;
+
     class StorageImpl : public Storage {
      public:
       static expected::Result<std::shared_ptr<StorageImpl>, std::string> create(
@@ -51,48 +53,38 @@ namespace iroha {
           logger::LoggerManagerTreePtr log_manager,
           size_t pool_size = 10);
 
-      expected::Result<std::unique_ptr<CommandExecutor>, std::string>
-      createCommandExecutor() override;
+      std::shared_ptr<CommandExecutor> createCommandExecutor();
 
-      std::unique_ptr<TemporaryWsv> createTemporaryWsv(
-          std::shared_ptr<CommandExecutor> command_executor) override;
+      std::unique_ptr<TemporaryWsv> createTemporaryWsv();
 
-      std::unique_ptr<MutableStorage> createMutableStorage(
-          std::shared_ptr<CommandExecutor> command_executor) override;
+      std::unique_ptr<MutableStorage> createMutableStorage();
 
-      boost::optional<std::shared_ptr<PeerQuery>> createPeerQuery()
-          const override;
-
-      boost::optional<std::shared_ptr<BlockQuery>> createBlockQuery()
-          const override;
+      std::shared_ptr<PeerQuery> getPeerQuery() const override;
 
       boost::optional<std::unique_ptr<SettingQuery>> createSettingQuery()
           const override;
 
-      boost::optional<std::shared_ptr<QueryExecutor>> createQueryExecutor(
-          std::shared_ptr<PendingTransactionStorage> pending_txs_storage,
-          std::shared_ptr<shared_model::interface::QueryResponseFactory>
-              response_factory) const override;
+      std::shared_ptr<QueryExecutor> createQueryExecutor() const override;
 
       bool insertBlock(
-          std::shared_ptr<const shared_model::interface::Block> block) override;
+          std::shared_ptr<const shared_model::interface::Block> block);
 
       expected::Result<void, std::string> insertPeer(
-          const shared_model::interface::Peer &peer) override;
+          const shared_model::interface::Peer &peer);
 
       std::unique_ptr<MutableStorage> createMutableStorage(
           std::shared_ptr<CommandExecutor> command_executor,
-          BlockStorageFactory &storage_factory) override;
+          BlockStorageFactory &storage_factory);
 
-      void reset() override;
+      void reset();
 
-      expected::Result<void, std::string> resetWsv() override;
+      expected::Result<void, std::string> resetWsv();
 
-      void resetPeers() override;
+      void resetPeers();
 
-      void dropStorage() override;
+      void dropStorage();
 
-      void freeConnections() override;
+      void freeConnections();
 
       CommitResult commit(
           std::unique_ptr<MutableStorage> mutable_storage) override;
@@ -182,6 +174,10 @@ namespace iroha {
       std::string prepared_block_name_;
 
       boost::optional<std::shared_ptr<const iroha::LedgerState>> ledger_state_;
+
+      // reused object with heavy creation times
+      std::unique_ptr<TemporaryWsv> temp_wsv_;
+      std::unique_ptr<MutableStorage> mutable_storage_;
     };
   }  // namespace ametsuchi
 }  // namespace iroha

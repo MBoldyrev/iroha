@@ -29,10 +29,10 @@ namespace {
 }  // namespace
 
 BlockLoaderImpl::BlockLoaderImpl(
-    std::shared_ptr<PeerQueryFactory> peer_query_factory,
+    std::shared_ptr<PeerQuery> peer_query,
     shared_model::proto::ProtoBlockFactory factory,
     logger::LoggerPtr log)
-    : peer_query_factory_(std::move(peer_query_factory)),
+    : peer_query_(std::move(peer_query)),
       block_factory_(std::move(factory)),
       log_(std::move(log)) {}
 
@@ -112,8 +112,7 @@ boost::optional<std::shared_ptr<Block>> BlockLoaderImpl::retrieveBlock(
 
 boost::optional<std::shared_ptr<shared_model::interface::Peer>>
 BlockLoaderImpl::findPeer(const shared_model::crypto::PublicKey &pubkey) {
-  auto peers = peer_query_factory_->createPeerQuery() |
-      [](const auto &query) { return query->getLedgerPeers(); };
+  auto peers = peer_query_->getLedgerPeers();
   if (not peers) {
     log_->error("{}", kPeerRetrieveFail);
     return boost::none;

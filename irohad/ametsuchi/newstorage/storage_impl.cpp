@@ -17,11 +17,11 @@
 //#include "newstorage/impl/postgres_block_storage_factory.hpp"
 //#include "newstorage/impl/postgres_command_executor.hpp"
 //#include "newstorage/impl/postgres_indexer.hpp"
-//#include "newstorage/impl/postgres_query_executor.hpp"
-//#include "newstorage/impl/postgres_specific_query_executor.hpp"
+#include "ametsuchi/newstorage/query_executor_impl.hpp"
+#include "ametsuchi/newstorage/specific_query_executor_impl.hpp"
 //#include "newstorage/impl/postgres_wsv_command.hpp"
 #include "ametsuchi/newstorage/wsv_query_impl.hpp"
-//#include "ametsuchi/newstorage/temporary_wsv_impl.hpp"
+#include "ametsuchi/newstorage/temporary_wsv_impl.hpp"
 //#include "newstorage/tx_executor.hpp"
 #include "backend/protobuf/permissions.hpp"
 #include "common/bind.hpp"
@@ -33,10 +33,24 @@
 namespace iroha {
   namespace newstorage {
 
-    const char *kCommandExecutorError = "Cannot create CommandExecutorFactory";
-    const char *kTmpWsv = "TemporaryWsv";
 /*
     StorageImpl::StorageImpl(
+
+          /*
+       * std::string path;
+        std::shared_ptr<shared_model::interface::PermissionToString>
+            perm_converter;
+        std::shared_ptr<PendingTransactionStorage> pending_txs_storage;
+        std::shared_ptr<shared_model::interface::QueryResponseFactory>
+            query_response_factory;
+        logger::LoggerManagerTreePtr log_manager;
+        std::shared_ptr<shared_model::interface::Block>
+            genesis_block;
+        std::vector<shared_model::interface::Peer> alternative_peers;
+        bool overwrite_ledger = false;
+        bool reset_wsv = false;
+       */
+
         const std::string& location,
         std::shared_ptr<shared_model::interface::PermissionToString>
         perm_converter,
@@ -82,43 +96,22 @@ namespace iroha {
     }
 */
 
-    std::unique_ptr<ametsuchi::TemporaryWsv> StorageImpl::createTemporaryWsv(
-        std::shared_ptr<ametsuchi::CommandExecutor> command_executor) {
-      auto command_executor_impl =
-          std::dynamic_pointer_cast<CommandExecutorImpl>(command_executor);
-      if (command_executor_impl == nullptr) {
-        throw std::runtime_error("Bad CommandExecutor cast!");
-      }
-      // if we create temporary storage, then we intend to validate a new
-      // proposal. this means that any state prepared before that moment is
-      // not needed and must be removed to prevent locking
-      tryRollback(postgres_command_executor->getSession());
+    std::unique_ptr<ametsuchi::TemporaryWsv> StorageImpl::createTemporaryWsv() {
       return std::make_unique<TemporaryWsvImpl>(
-          std::move(postgres_command_executor),
+          mutable_wsv_,
           log_manager_->getChild("TemporaryWorldStateView"));
     }
 
-
-
-    std::unique_ptr<ametsuchi::MutableStorage> StorageImpl::createMutableStorage(
-        std::shared_ptr<ametsuchi::CommandExecutor> command_executor) {
-      return createMutableStorage(std::move(command_executor),
-                                  *temporary_block_storage_factory_);
+    std::unique_ptr<ametsuchi::MutableStorage> StorageImpl::createMutableStorage() {
+      return createMutableStorage(*temporary_block_storage_factory_);
     }
 
     std::unique_ptr<ametsuchi::MutableStorage> StorageImpl::createMutableStorage(
-        std::shared_ptr<ametsuchi::CommandExecutor> command_executor,
         ametsuchi::BlockStorageFactory &storage_factory) {
-
-      // if we create mutable storage, then we intend to mutate wsv
-      // this means that any state prepared before that moment is not needed
-      // and must be removed to prevent locking
-      // TODO tryRollback(postgres_command_executor->getSession());
-
 
       return std::make_unique<MutableStorageImpl>(
           ledger_state_,
-          db_,
+          mutable_wsv_,
           storage_factory.create(),
           log_manager_->getChild("MutableStorageImpl"));
     }
@@ -144,36 +137,29 @@ namespace iroha {
 
     std::shared_ptr<ametsuchi::WsvQuery> StorageImpl::getWsvQuery() const {
       return std::make_shared<WsvQueryImpl>(
-          db_,
+          immutable_wsv_,
           log_manager_->getChild("WsvQuery")->getLogger());
     }
 
     std::shared_ptr<ametsuchi::BlockQuery> StorageImpl::getBlockQuery() const {
       return std::make_shared<BlockQueryImpl>(
-          db_,
+          index_db_,
           *block_store_,
-          log_manager_->getChild("PostgresBlockQuery")->getLogger());
+          log_manager_->getChild("BlockQuery")->getLogger());
     }
-/*
-    boost::optional<std::shared_ptr<QueryExecutor>>
+
+    boost::optional<std::shared_ptr<ametsuchi::QueryExecutor>>
     StorageImpl::createQueryExecutor(
         std::shared_ptr<PendingTransactionStorage> pending_txs_storage,
         std::shared_ptr<shared_model::interface::QueryResponseFactory>
             response_factory) const {
-      std::shared_lock<std::shared_timed_mutex> lock(drop_mutex_);
-      if (not connection_) {
-        log_->info(
-            "createQueryExecutor: connection to database is not initialised");
-        return boost::none;
-      }
-      auto sql = std::make_unique<soci::session>(*connection_);
       auto log_manager = log_manager_->getChild("QueryExecutor");
-      return boost::make_optional<std::shared_ptr<QueryExecutor>>(
-          std::make_shared<PostgresQueryExecutor>(
-              std::move(sql),
+      return boost::make_optional<std::shared_ptr<ametsuchi::QueryExecutor>>(
+          std::make_shared<QueryExecutorImpl>(
+              immutable_wsv_,
               response_factory,
-              std::make_shared<PostgresSpecificQueryExecutor>(
-                  *sql,
+              std::make_shared<SpecificQueryExecutorImpl>(
+                  immutable_wsv_,
                   *block_store_,
                   std::move(pending_txs_storage),
                   response_factory,
@@ -181,26 +167,19 @@ namespace iroha {
                   log_manager->getChild("SpecificQueryExecutor")->getLogger()),
               log_manager->getLogger()));
     }
-*/
 
     bool StorageImpl::insertBlock(
         std::shared_ptr<const shared_model::interface::Block> block) {
       log_->info("create mutable storage");
-      return createCommandExecutor().match(
-          [&, this](auto &&command_executor) {
-            auto mutable_storage =
-                this->createMutableStorage(std::move(command_executor).value);
-            bool is_inserted = mutable_storage->apply(block);
-            log_->info("Block {}inserted", is_inserted ? "" : "not ");
-            this->commit(std::move(mutable_storage));
-            return is_inserted;
-          },
-          [&](const auto &error) {
-            log_->error("Block insertion failed: {}", error.error);
-            return false;
-          });
+      auto mutable_storage = createMutableStorage();
+      bool is_inserted = mutable_storage->apply(block);
+      log_->info("Block {}inserted", is_inserted ? "" : "not ");
+      commit(std::move(mutable_storage));
+      return is_inserted;
     }
 
+
+    /*
     expected::Result<void, std::string> StorageImpl::insertPeer(
         const shared_model::interface::Peer &peer) {
       log_->info("Insert peer {}", peer.pubkey().hex());
@@ -224,8 +203,6 @@ namespace iroha {
     void StorageImpl::dropStorage() {
       log_->info("drop storage");
 
-      std::unique_lock<std::shared_timed_mutex> lock(drop_mutex_);
-
       // erase blocks
       log_->info("drop block store");
       block_store_->clear();
@@ -237,7 +214,7 @@ namespace iroha {
         log_->error(e.what());
       }
     }
-
+*/
     void StorageImpl::freeConnections() {}
 
     StorageImpl::~StorageImpl() {
@@ -264,7 +241,7 @@ namespace iroha {
             log_->warn("Failed to drop WSV. Reason: {}", e.error);
           });
     }
-
+/*
     expected::Result<void, std::string> StorageImpl::resetWsv() {
       log_->debug("drop wsv records from db tables");
       try {
@@ -276,26 +253,14 @@ namespace iroha {
       }
       return {};
     }
-
+*/
     rxcpp::observable<std::shared_ptr<const shared_model::interface::Block>>
     StorageImpl::on_commit() {
       return notifier_.get_observable();
     }
+
+
 /*
-    expected::Result<std::unique_ptr<CommandExecutor>, std::string>
-    StorageImpl::createCommandExecutor() {
-      std::shared_lock<std::shared_timed_mutex> lock(drop_mutex_);
-      if (connection_ == nullptr) {
-        return expected::makeError("Connection was closed");
-      }
-      auto sql = std::make_unique<soci::session>(*connection_);
-      return std::make_unique<PostgresCommandExecutor>(std::move(sql),
-                                                       perm_converter_);
-    }
-
-
-
-
 
 
 

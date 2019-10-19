@@ -6,7 +6,7 @@
 #include "main/application.hpp"
 
 #include <boost/filesystem.hpp>
-#include <rxcpp/operators/rx-map.hpp>
+
 #include "ametsuchi/impl/flat_file_block_storage.hpp"
 #include "ametsuchi/impl/k_times_reconnection_strategy.hpp"
 #include "ametsuchi/impl/pool_wrapper.hpp"
@@ -21,7 +21,6 @@
 #include "backend/protobuf/proto_transport_factory.hpp"
 #include "backend/protobuf/proto_tx_status_factory.hpp"
 #include "common/bind.hpp"
-#include "common/files.hpp"
 #include "consensus/yac/consistency_model.hpp"
 #include "cryptography/crypto_provider/crypto_model_signer.hpp"
 #include "generator/generator.hpp"
@@ -42,9 +41,6 @@
 #include "multi_sig_transactions/transport/mst_transport_stub.hpp"
 #include "network/impl/block_loader_impl.hpp"
 #include "network/impl/peer_communication_service_impl.hpp"
-#include "network/impl/peer_tls_certificates_provider_root.hpp"
-#include "network/impl/peer_tls_certificates_provider_wsv.hpp"
-#include "network/impl/tls_credentials.hpp"
 #include "ordering/impl/kick_out_proposal_creation_strategy.hpp"
 #include "ordering/impl/on_demand_common.hpp"
 #include "ordering/impl/on_demand_ordering_gate.hpp"
@@ -67,6 +63,9 @@
 #include "validators/protobuf/proto_query_validator.hpp"
 #include "validators/protobuf/proto_transaction_validator.hpp"
 
+// TODO #include "ametsuchi/newstorage/storage_impl.hpp"
+#include "ametsuchi/newstorage/block_storage_factory.hpp"
+
 using namespace iroha;
 using namespace iroha::ametsuchi;
 using namespace iroha::simulator;
@@ -80,31 +79,29 @@ using namespace std::chrono_literals;
 
 /// Consensus consistency model type.
 static constexpr iroha::consensus::yac::ConsistencyModel
-    kConsensusConsistencyModel = iroha::consensus::yac::ConsistencyModel::kCft;
+    kConsensusConsistencyModel = iroha::consensus::yac::ConsistencyModel::kBft;
 
 /**
  * Configuring iroha daemon
  */
-Irohad::Irohad(
-    const boost::optional<std::string> &block_store_dir,
-    std::unique_ptr<ametsuchi::PostgresOptions> pg_opt,
-    const std::string &listen_ip,
-    size_t torii_port,
-    size_t internal_port,
-    size_t max_proposal_size,
-    std::chrono::milliseconds proposal_delay,
-    std::chrono::milliseconds vote_delay,
-    std::chrono::minutes mst_expiration_time,
-    const shared_model::crypto::Keypair &keypair,
-    std::chrono::milliseconds max_rounds_delay,
-    size_t stale_stream_max_rounds,
-    boost::optional<shared_model::interface::types::PeerList>
-        opt_alternative_peers,
-    logger::LoggerManagerTreePtr logger_manager,
-    const boost::optional<GossipPropagationStrategyParams>
-        &opt_mst_gossip_params,
-    const boost::optional<iroha::torii::TlsParams> &torii_tls_params,
-    boost::optional<IrohadConfig::InterPeerTls> inter_peer_tls_config)
+Irohad::Irohad(const boost::optional<std::string> &block_store_dir,
+               std::unique_ptr<ametsuchi::PostgresOptions> pg_opt,
+               const std::string &listen_ip,
+               size_t torii_port,
+               size_t internal_port,
+               size_t max_proposal_size,
+               std::chrono::milliseconds proposal_delay,
+               std::chrono::milliseconds vote_delay,
+               std::chrono::minutes mst_expiration_time,
+               const shared_model::crypto::Keypair &keypair,
+               std::chrono::milliseconds max_rounds_delay,
+               size_t stale_stream_max_rounds,
+               boost::optional<shared_model::interface::types::PeerList>
+                   opt_alternative_peers,
+               logger::LoggerManagerTreePtr logger_manager,
+               const boost::optional<GossipPropagationStrategyParams>
+                   &opt_mst_gossip_params,
+               const boost::optional<iroha::torii::TlsParams> &torii_tls_params)
     : block_store_dir_(block_store_dir),
       listen_ip_(listen_ip),
       torii_port_(torii_port),
@@ -119,7 +116,6 @@ Irohad::Irohad(
       stale_stream_max_rounds_(stale_stream_max_rounds),
       opt_alternative_peers_(std::move(opt_alternative_peers)),
       opt_mst_gossip_params_(opt_mst_gossip_params),
-      inter_peer_tls_config_(std::move(inter_peer_tls_config)),
       pending_txs_storage_init(
           std::make_unique<PendingTransactionStorageInit>()),
       keypair(keypair),
@@ -129,6 +125,15 @@ Irohad::Irohad(
       log_manager_(std::move(logger_manager)),
       log_(log_manager_->getLogger()) {
   log_->info("created");
+  validators_config_ =
+      std::make_shared<shared_model::validation::ValidatorsConfig>(
+          max_proposal_size_);
+  block_validators_config_ =
+      std::make_shared<shared_model::validation::ValidatorsConfig>(
+          max_proposal_size_, true);
+  proposal_validators_config_ =
+      std::make_shared<shared_model::validation::ValidatorsConfig>(
+          max_proposal_size_, false, true);
   // TODO: rework in a more C++11+ - ish way luckychess 29.06.2019 IR-575
   std::srand(std::time(0));
   // Initializing storage at this point in order to insert genesis block before
@@ -150,16 +155,19 @@ Irohad::~Irohad() {
  * Initializing iroha daemon
  */
 Irohad::RunResult Irohad::init() {
+  auto peers_updater = [&]() -> RunResult {
+    if (opt_alternative_peers_) {
+      return resetPeers(*opt_alternative_peers_);
+    } else {
+      return {};
+    }
+  };
+
   // clang-format off
-  return initSettings()
-  | [this]{ return initValidatorsConfigs();}
-  | [this]{ return initWsvRestorer(); // Recover WSV from the existing ledger
-                                      // to be sure it is consistent
-  }
+  return initWsvRestorer() // Recover WSV from the existing ledger
+                           // to be sure it is consistent
   | [this]{ return restoreWsv();}
-  | [this]{ return validateKeypair();}
-  | [this]{ return initTlsCredentials();}
-  | [this]{ return initPeerCertProvider();}
+  | peers_updater
   | [this]{ return initCryptoProvider();}
   | [this]{ return initBatchParser();}
   | [this]{ return initValidators();}
@@ -190,41 +198,15 @@ void Irohad::dropStorage() {
 }
 
 /**
- * Initializing setting query
+ * Initializing iroha daemon storage
  */
-Irohad::RunResult Irohad::initSettings() {
-  auto settingsQuery = storage->createSettingQuery();
-  if (not settingsQuery) {
-    return expected::makeError("Unable to create Settings");
-  }
-
-  return settingsQuery.get()->get() | [this](auto &&settings) -> RunResult {
-    this->settings_ = std::move(settings);
-
-    log_->info("[Init] => settings");
-    return {};
-  };
-}
-
-/**
- * Initializing validators' configs
- */
-Irohad::RunResult Irohad::initValidatorsConfigs() {
-  validators_config_ =
-      std::make_shared<shared_model::validation::ValidatorsConfig>(
-          max_proposal_size_, settings_);
-  block_validators_config_ =
-      std::make_shared<shared_model::validation::ValidatorsConfig>(
-          max_proposal_size_, settings_, true);
-  proposal_validators_config_ =
-      std::make_shared<shared_model::validation::ValidatorsConfig>(
-          max_proposal_size_, settings_, false, true);
-  log_->info("[Init] => validators configs");
-  return {};
-}
-
 Irohad::RunResult Irohad::initStorage(
     std::unique_ptr<ametsuchi::PostgresOptions> pg_opt) {
+
+  if (!block_store_dir_) {
+    return expected::makeError("Block store dir not specified. Cannot init storage");
+  }
+
   query_response_factory_ =
       std::make_shared<shared_model::proto::ProtoQueryResponseFactory>();
 
@@ -235,7 +217,7 @@ Irohad::RunResult Irohad::initStorage(
   auto block_transport_factory =
       std::make_shared<shared_model::proto::ProtoBlockFactory>(
           std::make_unique<shared_model::validation::AlwaysValidValidator<
-              shared_model::interface::Block>>(),
+              shared_model::interface::Block>>(block_validators_config_),
           std::make_unique<shared_model::validation::ProtoBlockValidator>());
 
   boost::optional<std::string> string_res = boost::none;
@@ -260,7 +242,84 @@ Irohad::RunResult Irohad::initStorage(
     return expected::makeError(std::move(*error));
   }
 
-  pool_wrapper_ = std::move(pool).assumeValue();
+  pool_wrapper_ = std::move(resultToOptionalValue(pool).value());
+
+  std::unique_ptr<BlockStorageFactory> temporary_block_storage_factory =
+      std::make_unique<PostgresBlockStorageFactory>(
+          pool_wrapper_,
+          block_transport_factory,
+          []() { return generator::randomString(20); },
+          log_manager_->getChild("TemporaryBlockStorage")->getLogger());
+
+  std::unique_ptr<BlockStorage> persistent_block_storage;
+  if (block_store_dir_) {
+    std::unique_ptr<BlockStorageFactory> persistent_block_storage_factory =
+        std::make_unique<newstorage::BlockStorageFactory>(
+            block_transport_factory,
+            *block_store_dir_ ,
+            log_manager_->getChild("PersistentBlockStorage")->getLogger());
+
+    persistent_block_storage =
+        persistent_block_storage_factory->create();
+  }
+  return StorageImpl::create(std::move(pg_opt),
+                             pool_wrapper_,
+                             perm_converter,
+                             pending_txs_storage_,
+                             query_response_factory_,
+                             std::move(temporary_block_storage_factory),
+                             std::move(persistent_block_storage),
+                             log_manager_->getChild("Storage"))
+             | [&](auto &&v) -> RunResult {
+    storage = std::move(v);
+    log_->info("[Init] => storage");
+    return {};
+  };
+}
+/*
+
+Irohad::RunResult Irohad::initStorage(
+    std::unique_ptr<ametsuchi::PostgresOptions> pg_opt) {
+  query_response_factory_ =
+      std::make_shared<shared_model::proto::ProtoQueryResponseFactory>();
+
+  if (!pg_opt) {
+    return initStorage2();
+  }
+
+  auto perm_converter =
+      std::make_shared<shared_model::proto::ProtoPermissionToString>();
+
+  // TODO: luckychess IR-308 05.08.2019 stateless validation for genesis block
+  auto block_transport_factory =
+      std::make_shared<shared_model::proto::ProtoBlockFactory>(
+          std::make_unique<shared_model::validation::AlwaysValidValidator<
+              shared_model::interface::Block>>(block_validators_config_),
+          std::make_unique<shared_model::validation::ProtoBlockValidator>());
+
+  boost::optional<std::string> string_res = boost::none;
+
+  // create database if it does not exist
+  PgConnectionInit::createDatabaseIfNotExist(*pg_opt).match(
+      [](auto &&val) {},
+      [&string_res](auto &&error) { string_res = error.error; });
+
+  if (string_res) {
+    return expected::makeError(string_res.value());
+  }
+
+  const int pool_size = 10;
+  auto pool = PgConnectionInit::prepareConnectionPool(
+      iroha::ametsuchi::KTimesReconnectionStrategyFactory{10},
+      *pg_opt,
+      pool_size,
+      log_manager_);
+
+  if (auto error = resultToOptionalError(pool)) {
+    return expected::makeError(std::move(*error));
+  }
+
+  pool_wrapper_ = std::move(resultToOptionalValue(pool).value());
 
   std::unique_ptr<BlockStorageFactory> temporary_block_storage_factory =
       std::make_unique<PostgresBlockStorageFactory>(
@@ -312,6 +371,54 @@ Irohad::RunResult Irohad::initStorage(
   };
 }
 
+
+Irohad::RunResult Irohad::initStorage2() {
+  if (!block_store_dir_) {
+    return expected::makeError("Block store dir not specified. Cannot init storage");
+  }
+
+  auto perm_converter =
+      std::make_shared<shared_model::proto::ProtoPermissionToString>();
+
+  // TODO: luckychess IR-308 05.08.2019 stateless validation for genesis block
+  auto block_transport_factory =
+      std::make_shared<shared_model::proto::ProtoBlockFactory>(
+          std::make_unique<shared_model::validation::AlwaysValidValidator<
+              shared_model::interface::Block>>(block_validators_config_),
+          std::make_unique<shared_model::validation::ProtoBlockValidator>());
+
+  boost::optional<std::string> string_res = boost::none;
+
+  std::unique_ptr<BlockStorageFactory> temporary_block_storage_factory =
+      std::make_unique<newstorage::BlockStorageFactory>(
+          block_transport_factory,
+          *block_store_dir_ + "/tmp",
+          log_manager_->getChild("TemporaryBlockStorage")->getLogger());
+
+  std::unique_ptr<BlockStorageFactory> persistent_block_storage_factory =
+      std::make_unique<newstorage::BlockStorageFactory>(
+          block_transport_factory,
+          *block_store_dir_ + "/block",
+          log_manager_->getChild("PersistentBlockStorage")->getLogger());
+
+  std::unique_ptr<BlockStorage> persistent_block_storage =
+      persistent_block_storage_factory->create();
+
+  return newstorage::StorageImpl::create(
+                             perm_converter,
+                             pending_txs_storage_,
+                             query_response_factory_,
+                             std::move(temporary_block_storage_factory),
+                             std::move(persistent_block_storage),
+                             log_manager_->getChild("Storage"))
+         | [&](auto &&v) -> RunResult {
+    storage = std::move(v);
+    log_->info("[Init] => storage 2");
+    return {};
+  };
+}
+ */
+
 Irohad::RunResult Irohad::restoreWsv() {
   return wsv_restorer_->restoreWsv(*storage) |
              [](const auto &ledger_state) -> RunResult {
@@ -324,100 +431,17 @@ Irohad::RunResult Irohad::restoreWsv() {
   };
 }
 
-Irohad::RunResult Irohad::validateKeypair() {
-  auto peers = storage->createPeerQuery() | [this](auto &&peer_query) {
-    return peer_query->getLedgerPeerByPublicKey(keypair.publicKey());
-  };
-  if (not peers) {
-    log_->warn("There is no peer in the ledger with my public key!");
-  }
+Irohad::RunResult Irohad::resetPeers(
+    const shared_model::interface::types::PeerList &alternative_peers) {
+  storage->resetPeers();
 
-  return {};
-}
-
-/**
- * Initializing own TLS credentials.
- */
-Irohad::RunResult Irohad::initTlsCredentials() {
-  const auto &p2p_path = inter_peer_tls_config_ |
-      [](const auto &p2p_config) { return p2p_config.my_tls_creds_path; };
-  const auto &torii_path = torii_tls_params_ | [](const auto &torii_config) {
-    return boost::make_optional(torii_config.key_path);
-  };
-
-  auto load_tls_creds = [this](const auto &opt_path,
-                               const auto &description,
-                               auto &destination) -> RunResult {
-    if (opt_path) {
-      return TlsCredentials::load(opt_path.value()) |
-                 [&](auto &&tls_creds) -> RunResult {
-        destination = std::move(tls_creds);
-        return {};
-        log_->debug("Loaded my {} TLS credentials from '{}'.",
-                    description,
-                    opt_path.value());
-      };
+  for (const auto &peer : alternative_peers) {
+    auto result = storage->insertPeer(*peer);
+    if (boost::get<expected::Error<std::string>>(&result)) {
+      return result;
     }
-    return {};
-  };
-
-  return load_tls_creds(p2p_path, "inter peer", my_inter_peer_tls_creds_) |
-      [&, this] {
-        return load_tls_creds(torii_path, "torii", this->torii_tls_creds_);
-      };
-}
-
-/**
- * Initializing peers' certificates provider.
- */
-Irohad::RunResult Irohad::initPeerCertProvider() {
-  using namespace iroha::expected;
-
-  if (not inter_peer_tls_config_) {
-    return {};
   }
-
-  using OptionalPeerCertProvider =
-      boost::optional<std::unique_ptr<const PeerTlsCertificatesProvider>>;
-  using PeerCertProviderResult = Result<OptionalPeerCertProvider, std::string>;
-
-  return iroha::visit_in_place(
-             inter_peer_tls_config_->peer_certificates,
-             [this](const IrohadConfig::InterPeerTls::RootCert &root)
-                 -> PeerCertProviderResult {
-               return readTextFile(root.path) |
-                   [&root, this](std::string &&root_cert) {
-                     log_->debug("Loaded root TLS certificate from '{}'.",
-                                 root.path);
-                     return OptionalPeerCertProvider{
-                         std::make_unique<PeerTlsCertificatesProviderRoot>(
-                             root_cert)};
-                   };
-             },
-             [this](const IrohadConfig::InterPeerTls::FromWsv &)
-                 -> PeerCertProviderResult {
-               auto opt_peer_query = this->storage->createPeerQuery();
-               if (not opt_peer_query) {
-                 return makeError(std::string{"Failed to get peer query."});
-               }
-               log_->debug("Prepared WSV peer certificate provider.");
-               return boost::make_optional(
-                   std::make_unique<PeerTlsCertificatesProviderWsv>(
-                       std::move(opt_peer_query).value()));
-             },
-             [this](const IrohadConfig::InterPeerTls::None &)
-                 -> PeerCertProviderResult {
-               log_->debug("Peer certificate provider not initialized.");
-               return OptionalPeerCertProvider{};
-             },
-             [](const auto &) -> PeerCertProviderResult {
-               return makeError("Unimplemented peer certificate provider.");
-             })
-             | [this](OptionalPeerCertProvider &&opt_peer_cert_provider)
-             -> RunResult {
-    this->peer_tls_certificates_provider_ = std::move(opt_peer_cert_provider);
-    return {};
-  };
+  return {};
 }
 
 /**
@@ -491,7 +515,7 @@ Irohad::RunResult Irohad::initFactories() {
                                           std::move(proto_proposal_validator));
 
   auto batch_validator =
-      std::make_shared<shared_model::validation::DefaultBatchValidator>(
+      std::make_shared<shared_model::validation::BatchValidator>(
           validators_config_);
   // transaction factories
   transaction_batch_factory_ =
@@ -638,7 +662,7 @@ Irohad::RunResult Irohad::initOrderingGate() {
                                      delay,
                                      log_manager_->getChild("Ordering"));
   log_->info("[Init] => init ordering gate - [{}]",
-             logger::boolRepr(bool(ordering_gate)));
+             logger::logBool(ordering_gate));
   return {};
 }
 
@@ -721,7 +745,6 @@ Irohad::RunResult Irohad::initConsensusGate() {
   consensus_gate = yac_init->initConsensusGate(
       {block->height(), ordering::kFirstRejectRound},
       storage,
-      opt_alternative_peers_,
       simulator,
       block_loader,
       keypair,
@@ -952,20 +975,27 @@ Irohad::RunResult Irohad::run() {
       | make_port_logger("Torii");
 
   // Run torii TLS server
-  torii_tls_creds_ | [&, this](const auto &tls_creds) {
+  if (torii_tls_params_) {
+    auto tls_keypair =
+        TlsKeypairFactory().readFromFiles(torii_tls_params_->key_path);
+    if (not tls_keypair) {
+      return expected::makeError("Failed to read TLS keypair from "
+                                 + torii_tls_params_->key_path);
+    }
+
     run_result |= [&, this] {
       torii_tls_server = std::make_unique<ServerRunner>(
           listen_ip_ + ":" + std::to_string(torii_tls_params_->port),
           log_manager_->getChild("ToriiTlsServerRunner")->getLogger(),
           false,
-          tls_creds);
+          tls_keypair);
       return (*torii_tls_server)
                  ->append(command_service_transport)
                  .append(query_service)
                  .run()
           | make_port_logger("Torii TLS");
     };
-  };
+  }
 
   // Run internal server
   run_result |= [&, this] {

@@ -46,6 +46,7 @@ namespace iroha {
       };
 
       TemporaryWsvImpl(
+          std::string prepared_block_name,
           std::shared_ptr<PostgresCommandExecutor> command_executor,
           logger::LoggerManagerTreePtr log_manager);
 
@@ -54,6 +55,10 @@ namespace iroha {
 
       std::unique_ptr<TemporaryWsv::SavepointWrapper> createSavepoint(
           const std::string &name) override;
+
+      bool rollback(bool block_is_prepared) override;
+
+      soci::session& getSession() { return sql_; }
 
       ~TemporaryWsvImpl() override;
 
@@ -65,6 +70,7 @@ namespace iroha {
       expected::Result<void, validation::CommandError> validateSignatures(
           const shared_model::interface::Transaction &transaction);
 
+      std::string prepared_block_name_;
       soci::session &sql_;
       std::unique_ptr<TransactionExecutor> transaction_executor_;
 

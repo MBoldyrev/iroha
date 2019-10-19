@@ -47,14 +47,12 @@ namespace iroha {
           std::shared_ptr<shared_model::interface::PermissionToString>
               perm_converter);
 
-      ~CommandExecutorImpl();
+      ~CommandExecutorImpl() override;
 
       CommandResult execute(const shared_model::interface::Command &cmd,
                             const shared_model::interface::types::AccountIdType
                                 &creator_account_id,
                             bool do_validation) override;
-
-      //??? &getSession();
 
       CommandResult operator()(
           const shared_model::interface::AddAssetQuantity &command,

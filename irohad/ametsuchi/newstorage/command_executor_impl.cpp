@@ -246,10 +246,6 @@ namespace iroha {
           cmd.get());
     }
 
-    // soci::session &CommandExecutorImpl::getSession() {
-    //  return *sql_;
-    //}
-
     CommandResult CommandExecutorImpl::operator()(
         const shared_model::interface::AddAssetQuantity &command,
         const shared_model::interface::types::AccountIdType &creator_account_id,

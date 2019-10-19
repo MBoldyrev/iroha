@@ -16,13 +16,16 @@
 #include "interfaces/transaction.hpp"
 #include "logger/logger.hpp"
 #include "logger/logger_manager.hpp"
+#include "main/impl/pg_connection_init.hpp"
 
 namespace iroha {
   namespace ametsuchi {
     TemporaryWsvImpl::TemporaryWsvImpl(
+        std::string prepared_block_name,
         std::shared_ptr<PostgresCommandExecutor> command_executor,
         logger::LoggerManagerTreePtr log_manager)
-        : sql_(command_executor->getSession()),
+        : prepared_block_name_(std::move(prepared_block_name)),
+          sql_(command_executor->getSession()),
           transaction_executor_(std::make_unique<TransactionExecutor>(
               std::move(command_executor))),
           log_manager_(std::move(log_manager)),
@@ -112,12 +115,29 @@ namespace iroha {
               log_manager_->getChild("SavepointWrapper")->getLogger()));
     }
 
-    TemporaryWsvImpl::~TemporaryWsvImpl() {
+    bool TemporaryWsvImpl::rollback(bool block_is_prepared) {
       try {
         sql_ << "ROLLBACK";
+        // TODO 17.06.2019 luckychess IR-568 split connection and schema
+        // initialisation
+        bool ok = false;
+        if (block_is_prepared) {
+          PgConnectionInit::rollbackPrepared(sql_, prepared_block_name_)
+              .match([&ok](auto &&v) { ok = true; },
+                     [this](auto &&e) {
+                       log_->info("Block rollback  error: {}",
+                                  std::move(e.error));
+                     });
+        }
+        return ok;
       } catch (std::exception &e) {
         log_->error("Rollback did not happen: {}", e.what());
       }
+      return false;
+    }
+
+    TemporaryWsvImpl::~TemporaryWsvImpl() {
+      rollback(false);
     }
 
     TemporaryWsvImpl::SavepointWrapperImpl::SavepointWrapperImpl(
