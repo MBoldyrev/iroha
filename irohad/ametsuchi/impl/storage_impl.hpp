@@ -55,9 +55,9 @@ namespace iroha {
 
       std::shared_ptr<CommandExecutor> createCommandExecutor();
 
-      std::unique_ptr<TemporaryWsv> createTemporaryWsv();
+      std::unique_ptr<TemporaryWsv> createTemporaryWsv() override;
 
-      std::unique_ptr<MutableStorage> createMutableStorage();
+      std::unique_ptr<MutableStorage> createMutableStorage() override;
 
       std::shared_ptr<PeerQuery> getPeerQuery() const override;
 
@@ -73,8 +73,7 @@ namespace iroha {
           const shared_model::interface::Peer &peer);
 
       std::unique_ptr<MutableStorage> createMutableStorage(
-          std::shared_ptr<CommandExecutor> command_executor,
-          BlockStorageFactory &storage_factory);
+          BlockStorageFactory &storage_factory) override;
 
       void reset();
 
@@ -85,6 +84,8 @@ namespace iroha {
       void dropStorage();
 
       void freeConnections();
+
+      void releaseMutableStorage(std::unique_ptr<MutableStorage> st) override;
 
       CommitResult commit(
           std::unique_ptr<MutableStorage> mutable_storage) override;

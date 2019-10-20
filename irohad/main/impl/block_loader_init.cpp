@@ -14,17 +14,17 @@ using namespace iroha::ametsuchi;
 using namespace iroha::network;
 
 auto BlockLoaderInit::createService(
-    std::shared_ptr<BlockQueryFactory> block_query_factory,
+    std::shared_ptr<BlockQuery> block_query,
     std::shared_ptr<consensus::ConsensusResultCache> consensus_result_cache,
     const logger::LoggerManagerTreePtr &loader_log_manager) {
   return std::make_shared<BlockLoaderService>(
-      std::move(block_query_factory),
+      std::move(block_query),
       std::move(consensus_result_cache),
       loader_log_manager->getChild("Network")->getLogger());
 }
 
 auto BlockLoaderInit::createLoader(
-    std::shared_ptr<PeerQueryFactory> peer_query_factory,
+    std::shared_ptr<PeerQuery> peer_query,
     std::shared_ptr<shared_model::validation::ValidatorsConfig>
         validators_config,
     logger::LoggerPtr loader_log) {
@@ -33,20 +33,20 @@ auto BlockLoaderInit::createLoader(
           validators_config),
       std::make_unique<shared_model::validation::ProtoBlockValidator>());
   return std::make_shared<BlockLoaderImpl>(
-      std::move(peer_query_factory), std::move(factory), std::move(loader_log));
+      std::move(peer_query), std::move(factory), std::move(loader_log));
 }
 
 std::shared_ptr<BlockLoader> BlockLoaderInit::initBlockLoader(
-    std::shared_ptr<PeerQueryFactory> peer_query_factory,
-    std::shared_ptr<BlockQueryFactory> block_query_factory,
+    std::shared_ptr<PeerQuery> peer_query,
+    std::shared_ptr<BlockQuery> block_query,
     std::shared_ptr<consensus::ConsensusResultCache> consensus_result_cache,
     std::shared_ptr<shared_model::validation::ValidatorsConfig>
         validators_config,
     const logger::LoggerManagerTreePtr &loader_log_manager) {
-  service = createService(std::move(block_query_factory),
+  service = createService(std::move(block_query),
                           std::move(consensus_result_cache),
                           loader_log_manager);
-  loader = createLoader(std::move(peer_query_factory),
+  loader = createLoader(std::move(peer_query),
                         std::move(validators_config),
                         loader_log_manager->getLogger());
   return loader;

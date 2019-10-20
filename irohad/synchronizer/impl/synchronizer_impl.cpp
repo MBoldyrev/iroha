@@ -8,7 +8,7 @@
 #include <utility>
 
 #include <rxcpp/operators/rx-tap.hpp>
-#include "ametsuchi/block_query_factory.hpp"
+#include "ametsuchi/block_query.hpp"
 #include "ametsuchi/command_executor.hpp"
 #include "ametsuchi/mutable_storage.hpp"
 #include "common/bind.hpp"
@@ -20,17 +20,14 @@ namespace iroha {
   namespace synchronizer {
 
     SynchronizerImpl::SynchronizerImpl(
-        std::unique_ptr<iroha::ametsuchi::CommandExecutor> command_executor,
         std::shared_ptr<network::ConsensusGate> consensus_gate,
         std::shared_ptr<validation::ChainValidator> validator,
-        std::shared_ptr<ametsuchi::MutableFactory> mutable_factory,
-        std::shared_ptr<ametsuchi::BlockQueryFactory> block_query_factory,
+        std::shared_ptr<ametsuchi::Storage> storage,
         std::shared_ptr<network::BlockLoader> block_loader,
         logger::LoggerPtr log)
-        : command_executor_(std::move(command_executor)),
-          validator_(std::move(validator)),
-          mutable_factory_(std::move(mutable_factory)),
-          block_query_factory_(std::move(block_query_factory)),
+        : validator_(std::move(validator)),
+          storage_(std::move(storage)),
+          block_query_(storage_->getBlockQuery()),
           block_loader_(std::move(block_loader)),
           notifier_(notifier_lifetime_),
           log_(std::move(log)) {
@@ -100,7 +97,7 @@ namespace iroha {
 
         if (validator_->validateAndApply(network_chain, *storage)
             and my_height >= target_height) {
-          return mutable_factory_->commit(std::move(storage));
+          return storage->commit(std::move(storage));
         }
       }
       return expected::makeError(
@@ -108,7 +105,7 @@ namespace iroha {
     }
 
     std::unique_ptr<ametsuchi::MutableStorage> SynchronizerImpl::getStorage() {
-      return mutable_factory_->createMutableStorage(command_executor_);
+      return storage_->createMutableStorage();
     }
 
     void SynchronizerImpl::processNext(const consensus::PairValid &msg) {
@@ -121,8 +118,8 @@ namespace iroha {
                                      msg.round,
                                      std::move(ledger_state)});
           };
-      const bool committed_prepared = mutable_factory_->preparedCommitEnabled()
-          and mutable_factory_->commitPrepared(msg.block).match(
+      const bool committed_prepared = storage_->preparedCommitEnabled()
+          and storage_->commitPrepared(msg.block).match(
                   [&notify](auto &&value) {
                     notify(std::move(value.value));
                     return true;
@@ -135,7 +132,7 @@ namespace iroha {
       if (not committed_prepared) {
         auto storage = getStorage();
         if (storage->apply(msg.block)) {
-          mutable_factory_->commit(std::move(storage))
+          storage_->commit(std::move(storage))
               .match(
                   [&notify](auto &&value) { notify(std::move(value.value)); },
                   [this](const auto &error) {

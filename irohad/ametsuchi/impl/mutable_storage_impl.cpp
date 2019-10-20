@@ -25,11 +25,11 @@ namespace iroha {
   namespace ametsuchi {
     MutableStorageImpl::MutableStorageImpl(
         boost::optional<std::shared_ptr<const iroha::LedgerState>> ledger_state,
-        std::shared_ptr<PostgresCommandExecutor> command_executor,
+        std::shared_ptr<CommandExecutor> command_executor,
         std::unique_ptr<BlockStorage> block_storage,
         logger::LoggerManagerTreePtr log_manager)
         : ledger_state_(std::move(ledger_state)),
-          sql_(command_executor->getSession()),
+          sql_(static_cast<PostgresCommandExecutor&>(*command_executor).getSession()),
           peer_query_(
               std::make_unique<PeerQueryWsv>(std::make_shared<PostgresWsvQuery>(
                   sql_, log_manager->getChild("WsvQuery")->getLogger()))),

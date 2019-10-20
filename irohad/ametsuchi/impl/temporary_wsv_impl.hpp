@@ -47,7 +47,7 @@ namespace iroha {
 
       TemporaryWsvImpl(
           std::string prepared_block_name,
-          std::shared_ptr<PostgresCommandExecutor> command_executor,
+          std::shared_ptr<CommandExecutor> command_executor,
           logger::LoggerManagerTreePtr log_manager);
 
       expected::Result<void, validation::CommandError> apply(

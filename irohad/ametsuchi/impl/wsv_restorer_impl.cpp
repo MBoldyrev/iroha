@@ -102,15 +102,10 @@ namespace iroha {
       StorageImpl& storage_impl =
           static_cast<StorageImpl&>(storage);
 
-      auto command_executor = storage_impl.createCommandExecutor();
-      if (!command_executor) {
-        return expected::makeError("Cannot create command executor");
-      }
-
       BlockStorageStubFactory storage_factory;
 
       auto mutable_storage = storage_impl.createMutableStorage(
-          std::move(command_executor), storage_factory);
+          storage_factory);
       auto block_query = storage_impl.getBlockQuery();
       if (not block_query) {
         return expected::makeError("Cannot create BlockQuery");

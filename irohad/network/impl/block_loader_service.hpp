@@ -6,7 +6,7 @@
 #ifndef IROHA_BLOCK_LOADER_SERVICE_HPP
 #define IROHA_BLOCK_LOADER_SERVICE_HPP
 
-#include "ametsuchi/block_query_factory.hpp"
+#include "ametsuchi/block_query.hpp"
 #include "consensus/consensus_block_cache.hpp"
 #include "loader.grpc.pb.h"
 #include "logger/logger_fwd.hpp"
@@ -16,7 +16,7 @@ namespace iroha {
     class BlockLoaderService : public proto::Loader::Service {
      public:
       BlockLoaderService(
-          std::shared_ptr<ametsuchi::BlockQueryFactory> block_query_factory,
+          std::shared_ptr<ametsuchi::BlockQuery> block_query,
           std::shared_ptr<iroha::consensus::ConsensusResultCache>
               consensus_result_cache,
           logger::LoggerPtr log);
@@ -31,7 +31,7 @@ namespace iroha {
                                  protocol::Block *response) override;
 
      private:
-      std::shared_ptr<ametsuchi::BlockQueryFactory> block_query_factory_;
+      std::shared_ptr<ametsuchi::BlockQuery> block_query_;
       std::shared_ptr<iroha::consensus::ConsensusResultCache>
           consensus_result_cache_;
       logger::LoggerPtr log_;

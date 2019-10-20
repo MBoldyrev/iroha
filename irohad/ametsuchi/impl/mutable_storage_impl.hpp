@@ -18,7 +18,7 @@ namespace iroha {
   namespace ametsuchi {
     class BlockIndex;
     class PeerQuery;
-    class PostgresCommandExecutor;
+    class CommandExecutor;
     class TransactionExecutor;
 
     class MutableStorageImpl : public MutableStorage {
@@ -28,7 +28,7 @@ namespace iroha {
       MutableStorageImpl(
           boost::optional<std::shared_ptr<const iroha::LedgerState>>
               ledger_state,
-          std::shared_ptr<PostgresCommandExecutor> command_executor,
+          std::shared_ptr<CommandExecutor> command_executor,
           std::unique_ptr<BlockStorage> block_storage,
           logger::LoggerManagerTreePtr log_manager);
 
@@ -43,6 +43,8 @@ namespace iroha {
       getLedgerState() const;
 
       ~MutableStorageImpl() override;
+
+      soci::session & getSession() { return sql_; }
 
      private:
       /**

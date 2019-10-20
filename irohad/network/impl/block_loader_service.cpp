@@ -33,11 +33,11 @@ static grpc::Status handleGetBlockError(const BlockQuery::GetBlockError &error,
 }
 
 BlockLoaderService::BlockLoaderService(
-    std::shared_ptr<BlockQueryFactory> block_query_factory,
+    std::shared_ptr<BlockQuery> block_query,
     std::shared_ptr<iroha::consensus::ConsensusResultCache>
         consensus_result_cache,
     logger::LoggerPtr log)
-    : block_query_factory_(std::move(block_query_factory)),
+    : block_query_(std::move(block_query)),
       consensus_result_cache_(std::move(consensus_result_cache)),
       log_(std::move(log)) {}
 
@@ -45,15 +45,14 @@ grpc::Status BlockLoaderService::retrieveBlocks(
     ::grpc::ServerContext *context,
     const proto::BlockRequest *request,
     ::grpc::ServerWriter<::iroha::protocol::Block> *writer) {
-  auto block_query = block_query_factory_->createBlockQuery();
-  if (not block_query) {
+  if (not block_query_) {
     log_->error("Could not create block query to retrieve block from storage");
     return grpc::Status(grpc::StatusCode::INTERNAL, "internal error happened");
   }
 
-  auto top_height = (*block_query)->getTopBlockHeight();
+  auto top_height = block_query_->getTopBlockHeight();
   for (decltype(top_height) i = request->height(); i <= top_height; ++i) {
-    auto block_result = (*block_query)->getBlock(i);
+    auto block_result = block_query_->getBlock(i);
 
     if (auto e = expected::resultToOptionalError(block_result)) {
       return handleGetBlockError(e.value(), log_);
@@ -105,13 +104,12 @@ grpc::Status BlockLoaderService::retrieveBlock(
   }
 
   // cache missed: notify and try to fetch the block from block storage itself
-  auto block_query = block_query_factory_->createBlockQuery();
-  if (not block_query) {
+  if (not block_query_) {
     log_->error("Could not create block query to retrieve block from storage");
     return grpc::Status(grpc::StatusCode::INTERNAL, "internal error happened");
   }
 
-  auto block_result = (*block_query)->getBlock(height);
+  auto block_result = block_query_->getBlock(height);
 
   if (auto e = expected::resultToOptionalError(block_result)) {
     return handleGetBlockError(e.value(), log_);

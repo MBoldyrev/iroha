@@ -6,7 +6,6 @@
 #ifndef IROHA_BLOCK_LOADER_INIT_HPP
 #define IROHA_BLOCK_LOADER_INIT_HPP
 
-#include "ametsuchi/block_query_factory.hpp"
 #include "consensus/consensus_block_cache.hpp"
 #include "logger/logger_fwd.hpp"
 #include "logger/logger_manager_fwd.hpp"
@@ -29,7 +28,7 @@ namespace iroha {
        * @return initialized service
        */
       auto createService(
-          std::shared_ptr<ametsuchi::BlockQueryFactory> block_query_factory,
+          std::shared_ptr<ametsuchi::BlockQuery> block_query,
           std::shared_ptr<consensus::ConsensusResultCache> block_cache,
           const logger::LoggerManagerTreePtr &loader_log_manager);
 
@@ -42,7 +41,7 @@ namespace iroha {
        * @return initialized loader
        */
       auto createLoader(
-          std::shared_ptr<ametsuchi::PeerQueryFactory> peer_query_factory,
+          std::shared_ptr<ametsuchi::PeerQuery> peer_query,
           std::shared_ptr<shared_model::validation::ValidatorsConfig>
               validators_config,
           logger::LoggerPtr loader_log);
@@ -59,8 +58,8 @@ namespace iroha {
        */
       std::shared_ptr<BlockLoader> initBlockLoader(
           // TODO 30.01.2019 lebdron: IR-264 Remove PeerQueryFactory
-          std::shared_ptr<ametsuchi::PeerQueryFactory> peer_query_factory,
-          std::shared_ptr<ametsuchi::BlockQueryFactory> block_query_factory,
+          std::shared_ptr<ametsuchi::PeerQuery> peer_query,
+          std::shared_ptr<ametsuchi::BlockQuery> block_query,
           std::shared_ptr<consensus::ConsensusResultCache> block_cache,
           std::shared_ptr<shared_model::validation::ValidatorsConfig>
               validators_config,

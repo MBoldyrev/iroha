@@ -10,6 +10,7 @@
 #include <gflags/gflags.h>
 #include <grpc++/grpc++.h>
 #include "ametsuchi/storage.hpp"
+#include "ametsuchi/mutable_storage.hpp"
 #include "backend/protobuf/common_objects/proto_common_objects_factory.hpp"
 #include "common/bind.hpp"
 #include "common/files.hpp"
@@ -226,7 +227,7 @@ int main(int argc, char *argv[]) {
       config.torii_tls_params);
 
   // Check if iroha daemon storage was successfully initialized
-  if (not irohad.storage) {
+  if (not irohad.getStorage()) {
     // Abort execution if not
     log->error("Failed to initialize storage");
     return EXIT_FAILURE;
@@ -251,7 +252,7 @@ int main(int argc, char *argv[]) {
    */
 
   /// if there are any blocks in blockstore, then true
-  bool blockstore = irohad.storage->getBlockQuery()->getTopBlockHeight() != 0;
+  bool blockstore = irohad.getStorage()->getBlockQuery()->getTopBlockHeight() != 0;
 
   /// genesis block file is specified as launch parameter
   bool genesis = not FLAGS_genesis_block.empty();
@@ -285,8 +286,12 @@ int main(int argc, char *argv[]) {
       // clear previous storage if any
       irohad.dropStorage();
 
-      const auto txs_num = block->transactions().size();
-      if (not irohad.storage->insertBlock(std::move(block))) {
+      log->info("create mutable storage");
+      auto mutable_storage = irohad.getStorage()->createMutableStorage();
+      bool is_inserted = mutable_storage->apply(std::move(block));
+      irohad.getStorage()->commit(std::move(mutable_storage));
+
+      if (not is_inserted) {
         log->critical("Could not apply genesis block!");
         return EXIT_FAILURE;
       }
@@ -310,7 +315,7 @@ int main(int argc, char *argv[]) {
   }
 
   // check if at least one block is available in the ledger
-  auto block_query = irohad.storage->getBlockQuery();
+  auto block_query = irohad.getStorage()->getBlockQuery();
   if (not block_query) {
     log->error("Cannot create BlockQuery");
     return EXIT_FAILURE;

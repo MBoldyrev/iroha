@@ -22,10 +22,10 @@ namespace iroha {
   namespace ametsuchi {
     TemporaryWsvImpl::TemporaryWsvImpl(
         std::string prepared_block_name,
-        std::shared_ptr<PostgresCommandExecutor> command_executor,
+        std::shared_ptr<CommandExecutor> command_executor,
         logger::LoggerManagerTreePtr log_manager)
         : prepared_block_name_(std::move(prepared_block_name)),
-          sql_(command_executor->getSession()),
+          sql_(static_cast<PostgresCommandExecutor&>(*command_executor).getSession()),
           transaction_executor_(std::make_unique<TransactionExecutor>(
               std::move(command_executor))),
           log_manager_(std::move(log_manager)),

@@ -8,7 +8,7 @@
 
 #include <memory>
 
-#include "ametsuchi/peer_query_factory.hpp"
+#include "ametsuchi/peer_query.hpp"
 #include "consensus/consensus_block_cache.hpp"
 #include "consensus/yac/consistency_model.hpp"
 #include "consensus/yac/outcome_messages.hpp"
@@ -32,7 +32,7 @@ namespace iroha {
         std::shared_ptr<YacGate> initConsensusGate(
             Round initial_round,
             // TODO 30.01.2019 lebdron: IR-262 Remove PeerQueryFactory
-            std::shared_ptr<ametsuchi::PeerQueryFactory> peer_query_factory,
+            std::shared_ptr<ametsuchi::PeerQuery> peer_query,
             boost::optional<shared_model::interface::types::PeerList>
                 alternative_peers,
             std::shared_ptr<simulator::BlockCreator> block_creator,

@@ -28,7 +28,7 @@ namespace iroha {
   namespace ametsuchi {
     class WsvRestorer;
     class TxPresenceCache;
-    class Storage;
+    class StorageImpl;
     class ReconnectionStrategyFactory;
     class PostgresOptions;
     struct PoolWrapper;
@@ -256,9 +256,12 @@ class Irohad {
   // ------------------------| internal dependencies |-------------------------
  public:
   shared_model::crypto::Keypair keypair;
-  std::shared_ptr<iroha::ametsuchi::Storage> storage;
+
+  iroha::ametsuchi::Storage* getStorage();
 
  protected:
+  std::shared_ptr<iroha::ametsuchi::StorageImpl> storage;
+
   // initialization objects
   iroha::network::OnDemandOrderingInit ordering_init;
   std::unique_ptr<iroha::consensus::yac::YacInit> yac_init;

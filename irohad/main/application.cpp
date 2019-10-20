@@ -146,6 +146,10 @@ Irohad::~Irohad() {
   consensus_gate_events_subscription.unsubscribe();
 }
 
+iroha::ametsuchi::Storage* Irohad::getStorage() {
+  return storage.get();
+}
+
 /**
  * Initializing iroha daemon
  */
@@ -556,7 +560,7 @@ Irohad::RunResult Irohad::initPersistentCache() {
  * Initializing ordering gate
  */
 Irohad::RunResult Irohad::initOrderingGate() {
-  auto block_query = storage->createBlockQuery();
+  auto block_query = storage->getBlockQuery();
   if (not block_query) {
     return iroha::expected::makeError<std::string>(
         "Failed to create block query");
@@ -564,7 +568,7 @@ Irohad::RunResult Irohad::initOrderingGate() {
   // since delay is 2, it is required to get two more hashes from block store,
   // in addition to top block
   const size_t kNumBlocks = 3;
-  auto top_height = (*block_query)->getTopBlockHeight();
+  auto top_height = block_query->getTopBlockHeight();
   decltype(top_height) block_hashes =
       top_height > kNumBlocks ? kNumBlocks : top_height;
 
@@ -575,7 +579,7 @@ Irohad::RunResult Irohad::initOrderingGate() {
 
   for (decltype(top_height) i = top_height - block_hashes + 1; i <= top_height;
        ++i) {
-    auto block_result = (*block_query)->getBlock(i);
+    auto block_result = block_query->getBlock(i);
 
     if (auto e = expected::resultToOptionalError(block_result)) {
       return iroha::expected::makeError(std::move(e->message));
@@ -662,7 +666,6 @@ Irohad::RunResult Irohad::initSimulator() {
             std::make_unique<shared_model::validation::ProtoBlockValidator>());
 
     simulator = std::make_shared<Simulator>(
-        std::move(command_executor),
         ordering_gate,
         stateful_validator,
         storage,
@@ -690,8 +693,8 @@ Irohad::RunResult Irohad::initConsensusCache() {
  */
 Irohad::RunResult Irohad::initBlockLoader() {
   block_loader =
-      loader_init.initBlockLoader(storage,
-                                  storage,
+      loader_init.initBlockLoader(storage->getPeerQuery(),
+                                  storage->getBlockQuery(),
                                   consensus_result_cache_,
                                   block_validators_config_,
                                   log_manager_->getChild("BlockLoader"));
@@ -704,13 +707,13 @@ Irohad::RunResult Irohad::initBlockLoader() {
  * Initializing consensus gate
  */
 Irohad::RunResult Irohad::initConsensusGate() {
-  auto block_query = storage->createBlockQuery();
+  auto block_query = storage->getBlockQuery();
   if (not block_query) {
     return iroha::expected::makeError<std::string>(
         "Failed to create block query");
   }
   auto block_var =
-      (*block_query)->getBlock((*block_query)->getTopBlockHeight());
+      block_query->getBlock(block_query->getTopBlockHeight());
   if (auto e = expected::resultToOptionalError(block_var)) {
     return iroha::expected::makeError<std::string>(
         "Failed to get the top block: " + e->message);
@@ -720,7 +723,7 @@ Irohad::RunResult Irohad::initConsensusGate() {
       boost::get<expected::ValueOf<decltype(block_var)>>(&block_var)->value;
   consensus_gate = yac_init->initConsensusGate(
       {block->height(), ordering::kFirstRejectRound},
-      storage,
+      storage->getPeerQuery(),
       opt_alternative_peers_,
       simulator,
       block_loader,
@@ -744,10 +747,8 @@ Irohad::RunResult Irohad::initSynchronizer() {
   return storage->createCommandExecutor() |
              [this](auto &&command_executor) -> RunResult {
     synchronizer = std::make_shared<SynchronizerImpl>(
-        std::move(command_executor),
         consensus_gate,
         chain_validator,
-        storage,
         storage,
         block_loader,
         log_manager_->getChild("Synchronizer")->getLogger());
@@ -822,7 +823,7 @@ Irohad::RunResult Irohad::initMstProcessor() {
         std::move(mst_state_logger),
         mst_logger_manager->getChild("Transport")->getLogger());
     mst_propagation = std::make_shared<GossipPropagationStrategy>(
-        storage, rxcpp::observe_on_new_thread(), *opt_mst_gossip_params_);
+        storage->getPeerQuery(), rxcpp::observe_on_new_thread(), *opt_mst_gossip_params_);
   } else {
     mst_transport = std::make_shared<iroha::network::MstTransportStub>();
     mst_propagation = std::make_shared<iroha::PropagationStrategyStub>();
@@ -899,8 +900,7 @@ Irohad::RunResult Irohad::initQueryService() {
   auto query_service_log_manager = log_manager_->getChild("QueryService");
   auto query_processor = std::make_shared<QueryProcessorImpl>(
       storage,
-      storage,
-      pending_txs_storage_,
+      storage->createQueryExecutor(),
       query_response_factory_,
       query_service_log_manager->getChild("Processor")->getLogger());
 
@@ -983,12 +983,12 @@ Irohad::RunResult Irohad::run() {
   return run_result | [&]() -> RunResult {
     log_->info("===> iroha initialized");
     // initiate first round
-    auto block_query = storage->createBlockQuery();
+    auto block_query = storage->getBlockQuery();
     if (not block_query) {
       return expected::makeError("Failed to create block query");
     }
     auto block_var =
-        (*block_query)->getBlock((*block_query)->getTopBlockHeight());
+        block_query->getBlock(block_query->getTopBlockHeight());
     if (auto e = expected::resultToOptionalError(block_var)) {
       return expected::makeError("Failed to get the top block: " + e->message);
     }
@@ -997,8 +997,7 @@ Irohad::RunResult Irohad::run() {
         boost::get<expected::ValueOf<decltype(block_var)>>(&block_var)->value;
     auto block_height = block->height();
 
-    auto peers = storage->createPeerQuery() |
-        [](auto &&peer_query) { return peer_query->getLedgerPeers(); };
+    auto peers = storage->getPeerQuery()->getLedgerPeers();
     if (not peers) {
       return expected::makeError("Failed to fetch ledger peers!");
     }

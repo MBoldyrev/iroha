@@ -24,8 +24,8 @@ using namespace iroha::consensus::yac;
 
 namespace {
   auto createPeerOrderer(
-      std::shared_ptr<iroha::ametsuchi::PeerQueryFactory> peer_query_factory) {
-    return std::make_shared<PeerOrdererImpl>(peer_query_factory);
+      std::shared_ptr<iroha::ametsuchi::PeerQuery> peer_query) {
+    return std::make_shared<PeerOrdererImpl>(peer_query);
   }
 
   auto createCryptoProvider(const shared_model::crypto::Keypair &keypair) {
@@ -83,8 +83,7 @@ namespace iroha {
 
       std::shared_ptr<YacGate> YacInit::initConsensusGate(
           Round initial_round,
-          std::shared_ptr<iroha::ametsuchi::PeerQueryFactory>
-              peer_query_factory,
+          std::shared_ptr<iroha::ametsuchi::PeerQuery> peer_query,
           boost::optional<shared_model::interface::types::PeerList>
               alternative_peers,
           std::shared_ptr<simulator::BlockCreator> block_creator,
@@ -98,9 +97,8 @@ namespace iroha {
               async_call,
           ConsistencyModel consistency_model,
           const logger::LoggerManagerTreePtr &consensus_log_manager) {
-        auto peer_orderer = createPeerOrderer(peer_query_factory);
-        auto peers = peer_query_factory->createPeerQuery() |
-            [](auto &&peer_query) { return peer_query->getLedgerPeers(); };
+        auto peer_orderer = createPeerOrderer(peer_query);
+        auto peers = peer_query->getLedgerPeers();
 
         consensus_network_ = std::make_shared<NetworkImpl>(
             async_call,
