@@ -5,6 +5,7 @@
 
 #include "framework/executor_itf/executor_itf.hpp"
 
+#include "ametsuchi/indexer.hpp"
 #include "ametsuchi/specific_query_executor.hpp"
 #include "ametsuchi/tx_executor.hpp"
 #include "framework/config_helper.hpp"
@@ -37,6 +38,7 @@ namespace {
 
 ExecutorItf::ExecutorItf(std::shared_ptr<CommandExecutor> cmd_executor,
                          std::shared_ptr<SpecificQueryExecutor> query_executor,
+                         std::shared_ptr<Indexer> tx_indexer,
                          logger::LoggerManagerTreePtr log_manager)
     : log_manager_(std::move(log_manager)),
       log_(log_manager_->getLogger()),
@@ -47,6 +49,7 @@ ExecutorItf::ExecutorItf(std::shared_ptr<CommandExecutor> cmd_executor,
       cmd_executor_(std::move(cmd_executor)),
       tx_executor_(std::make_unique<TransactionExecutor>(cmd_executor_)),
       query_executor_(std::move(query_executor)),
+      tx_indexer_(std::move(tx_indexer)),
       query_counter_(0) {}
 
 ExecutorItf::~ExecutorItf() {
@@ -60,6 +63,7 @@ CreateResult ExecutorItf::create(ExecutorItfTarget target) {
   std::unique_ptr<ExecutorItf> executor_itf(
       new ExecutorItf(std::move(target.command_executor),
                       std::move(target.query_executor),
+                      std::move(target.tx_indexer),
                       log_manager));
   return executor_itf->prepareState() |
       [&executor_itf] { return std::move(executor_itf); };
@@ -91,6 +95,42 @@ const std::unique_ptr<shared_model::interface::MockCommandFactory>
 const std::unique_ptr<shared_model::interface::MockQueryFactory>
     &ExecutorItf::getMockQueryFactory() const {
   return mock_query_factory_;
+}
+
+iroha::expected::Result<void, std::string> ExecutorItf::addTransaction(
+    shared_model::interface::types::HashType hash,
+    shared_model::interface::types::HeightType height,
+    size_t index) {
+  Indexer::TxPosition pos{height, index};
+  tx_indexer_->committedTxHash(hash);
+  tx_indexer_->txHashPosition(hash, pos);
+  return tx_indexer_->flush();
+}
+
+iroha::expected::Result<void, std::string> ExecutorItf::addAccountTransaction(
+    shared_model::interface::types::AccountIdType account,
+    shared_model::interface::types::HashType hash,
+    shared_model::interface::types::HeightType height,
+    size_t index) {
+  return addTransaction(hash, height, index) | [&] {
+    Indexer::TxPosition pos{height, index};
+    tx_indexer_->txPositionByCreator(account, pos);
+    return tx_indexer_->flush();
+  };
+}
+
+iroha::expected::Result<void, std::string>
+ExecutorItf::addAccountAssetTransaction(
+    shared_model::interface::types::AccountIdType account,
+    shared_model::interface::types::AssetIdType asset,
+    shared_model::interface::types::HashType hash,
+    shared_model::interface::types::HeightType height,
+    size_t index) {
+  return addAccountTransaction(account, hash, height, index) | [&] {
+    Indexer::TxPosition pos{height, index};
+    tx_indexer_->accountAssetTxPosition(account, asset, pos);
+    return tx_indexer_->flush();
+  };
 }
 
 CommandResult ExecutorItf::createRoleWithPerms(

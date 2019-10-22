@@ -225,6 +225,26 @@ namespace iroha {
       const std::unique_ptr<shared_model::interface::MockQueryFactory>
           &getMockQueryFactory() const;
 
+      // ----------------- populate transaction hashes storage -----------------
+
+      iroha::expected::Result<void, std::string> addTransaction(
+          shared_model::interface::types::HashType hash,
+          shared_model::interface::types::HeightType height,
+          size_t index);
+
+      iroha::expected::Result<void, std::string> addAccountTransaction(
+          shared_model::interface::types::AccountIdType account,
+          shared_model::interface::types::HashType hash,
+          shared_model::interface::types::HeightType height,
+          size_t index);
+
+      iroha::expected::Result<void, std::string> addAccountAssetTransaction(
+          shared_model::interface::types::AccountIdType account,
+          shared_model::interface::types::AssetIdType asset,
+          shared_model::interface::types::HashType hash,
+          shared_model::interface::types::HeightType height,
+          size_t index);
+
       // ------------------ helper functions to prepare state ------------------
 
       /**
@@ -271,6 +291,7 @@ namespace iroha {
           std::shared_ptr<iroha::ametsuchi::CommandExecutor> cmd_executor,
           std::shared_ptr<iroha::ametsuchi::SpecificQueryExecutor>
               query_executor,
+          std::shared_ptr<iroha::ametsuchi::Indexer> tx_indexer,
           logger::LoggerManagerTreePtr log_manager);
 
       /// Prepare WSV (as part of initialization).
@@ -311,6 +332,7 @@ namespace iroha {
       std::shared_ptr<iroha::ametsuchi::CommandExecutor> cmd_executor_;
       std::shared_ptr<iroha::ametsuchi::TransactionExecutor> tx_executor_;
       std::shared_ptr<iroha::ametsuchi::SpecificQueryExecutor> query_executor_;
+      std::shared_ptr<iroha::ametsuchi::Indexer> tx_indexer_;
 
       shared_model::interface::types::CounterType query_counter_;
     };

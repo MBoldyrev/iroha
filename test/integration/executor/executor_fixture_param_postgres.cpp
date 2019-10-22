@@ -7,6 +7,7 @@
 
 #include <soci/soci.h>
 #include "ametsuchi/impl/postgres_command_executor.hpp"
+#include "ametsuchi/impl/postgres_indexer.hpp"
 #include "ametsuchi/impl/postgres_query_executor.hpp"
 #include "ametsuchi/impl/postgres_specific_query_executor.hpp"
 #include "backend/protobuf/proto_permission_to_string.hpp"
@@ -28,10 +29,11 @@ using namespace iroha::expected;
 using namespace iroha::integration_framework;
 
 namespace {
-  constexpr size_t kDataBaseSessionPoolSize = 3;  // sessions for:
+  constexpr size_t kDataBaseSessionPoolSize = 4;  // sessions for:
                                                   // - command executor
                                                   // - query executor
                                                   // - resetWsv
+                                                  // - tx indexer
 
   ExecutorItfTarget createPostgresExecutorItfTarget(TestDbManager &db_manager);
 }  // namespace
@@ -96,6 +98,13 @@ namespace {
     std::unique_ptr<BlockStorage> block_storage_;
   };
 
+  class PostgresIndexerWrapper : public SessionHolder, public PostgresIndexer {
+   public:
+    PostgresIndexerWrapper(std::unique_ptr<soci::session> session)
+        : SessionHolder(std::move(session)),
+          PostgresIndexer(*SessionHolder::session) {}
+  };
+
   ExecutorItfTarget createPostgresExecutorItfTarget(TestDbManager &db_manager) {
     ExecutorItfTarget target;
     target.command_executor = std::make_shared<PostgresCommandExecutor>(
@@ -111,6 +120,8 @@ namespace {
             getTestLoggerManager()
                 ->getChild("SpecificQueryExecutor")
                 ->getLogger());
+    target.tx_indexer =
+        std::make_unique<PostgresIndexerWrapper>(db_manager.getSession());
     return target;
   }
 

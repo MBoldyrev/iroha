@@ -11,6 +11,7 @@
 namespace iroha {
   namespace ametsuchi {
     class CommandExecutor;
+    class Indexer;
     class SpecificQueryExecutor;
   }  // namespace ametsuchi
 
@@ -20,6 +21,7 @@ namespace iroha {
     struct ExecutorItfTarget final {
       std::shared_ptr<iroha::ametsuchi::CommandExecutor> command_executor;
       std::shared_ptr<iroha::ametsuchi::SpecificQueryExecutor> query_executor;
+      std::shared_ptr<iroha::ametsuchi::Indexer> tx_indexer;
     };
 
   }  // namespace integration_framework
