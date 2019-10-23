@@ -13,8 +13,8 @@
 #include <boost/range/adaptor/transformed.hpp>
 #include <boost/range/algorithm/transform.hpp>
 #include <boost/range/irange.hpp>
-#include "ametsuchi/block_storage.hpp"
 #include "ametsuchi/impl/soci_utils.hpp"
+#include "ametsuchi/read_only_block_storage.hpp"
 #include "backend/plain/account_detail_record_id.hpp"
 #include "backend/plain/peer.hpp"
 #include "common/bind.hpp"
@@ -184,7 +184,7 @@ namespace iroha {
 
     PostgresSpecificQueryExecutor::PostgresSpecificQueryExecutor(
         soci::session &sql,
-        BlockStorage &block_store,
+        ReadOnlyBlockStorage &block_store,
         std::shared_ptr<PendingTransactionStorage> pending_txs_storage,
         std::shared_ptr<shared_model::interface::QueryResponseFactory>
             response_factory,

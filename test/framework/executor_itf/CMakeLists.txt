@@ -13,3 +13,9 @@ target_link_libraries(executor_itf
     test_logger
     tx_executor
     )
+
+add_library(executor_itf_test_storage test_block_storage.cpp)
+target_link_libraries(executor_itf_test_storage
+    common
+    gtest::gtest
+    )

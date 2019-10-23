@@ -227,17 +227,20 @@ namespace iroha {
 
       // ----------------- populate transaction hashes storage -----------------
 
+      /// Add a generic committed transaction to ledger.
       iroha::expected::Result<void, std::string> addTransaction(
           shared_model::interface::types::HashType hash,
           shared_model::interface::types::HeightType height,
           size_t index);
 
+      /// Add a committed account transaction to ledger.
       iroha::expected::Result<void, std::string> addAccountTransaction(
           shared_model::interface::types::AccountIdType account,
           shared_model::interface::types::HashType hash,
           shared_model::interface::types::HeightType height,
           size_t index);
 
+      /// Add a committed account asset transaction to ledger.
       iroha::expected::Result<void, std::string> addAccountAssetTransaction(
           shared_model::interface::types::AccountIdType account,
           shared_model::interface::types::AssetIdType asset,
@@ -292,6 +295,7 @@ namespace iroha {
           std::shared_ptr<iroha::ametsuchi::SpecificQueryExecutor>
               query_executor,
           std::shared_ptr<iroha::ametsuchi::Indexer> tx_indexer,
+          std::shared_ptr<TestBlockStorage> test_block_storage,
           logger::LoggerManagerTreePtr log_manager);
 
       /// Prepare WSV (as part of initialization).
@@ -333,6 +337,7 @@ namespace iroha {
       std::shared_ptr<iroha::ametsuchi::TransactionExecutor> tx_executor_;
       std::shared_ptr<iroha::ametsuchi::SpecificQueryExecutor> query_executor_;
       std::shared_ptr<iroha::ametsuchi::Indexer> tx_indexer_;
+      std::shared_ptr<TestBlockStorage> test_block_storage_;
 
       shared_model::interface::types::CounterType query_counter_;
     };

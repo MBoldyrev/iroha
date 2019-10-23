@@ -16,12 +16,14 @@ namespace iroha {
   }  // namespace ametsuchi
 
   namespace integration_framework {
+    class TestBlockStorage;
 
     /// Holder of backend-dependent tested components.
     struct ExecutorItfTarget final {
       std::shared_ptr<iroha::ametsuchi::CommandExecutor> command_executor;
       std::shared_ptr<iroha::ametsuchi::SpecificQueryExecutor> query_executor;
       std::shared_ptr<iroha::ametsuchi::Indexer> tx_indexer;
+      std::shared_ptr<TestBlockStorage> test_block_storage;
     };
 
   }  // namespace integration_framework

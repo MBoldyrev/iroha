@@ -13,12 +13,12 @@
 #include "backend/protobuf/proto_permission_to_string.hpp"
 #include "backend/protobuf/proto_query_response_factory.hpp"
 #include "common/result.hpp"
+#include "framework/executor_itf/test_block_storage.hpp"
 #include "framework/result_gtest_checkers.hpp"
 #include "framework/test_db_manager.hpp"
 #include "framework/test_logger.hpp"
 #include "logger/logger_manager.hpp"
 #include "main/impl/pg_connection_init.hpp"
-#include "module/irohad/ametsuchi/mock_block_storage.hpp"
 #include "module/irohad/pending_txs_storage/pending_txs_storage_mock.hpp"
 #include "module/shared_model/interface_mocks.hpp"
 
@@ -78,7 +78,7 @@ namespace {
    public:
     PostgresSpecificQueryExecutorWrapper(
         std::unique_ptr<soci::session> &&session,
-        std::unique_ptr<BlockStorage> block_storage,
+        ReadOnlyBlockStorage &block_storage,
         std::shared_ptr<PendingTransactionStorage> pending_txs_storage,
         std::shared_ptr<shared_model::interface::QueryResponseFactory>
             response_factory,
@@ -87,15 +87,11 @@ namespace {
         logger::LoggerPtr log)
         : SessionHolder(std::move(session)),
           PostgresSpecificQueryExecutor(*SessionHolder::session,
-                                        *block_storage,
+                                        block_storage,
                                         std::move(pending_txs_storage),
                                         std::move(response_factory),
                                         std::move(perm_converter),
-                                        std::move(log)),
-          block_storage_(std::move(block_storage)) {}
-
-   private:
-    std::unique_ptr<BlockStorage> block_storage_;
+                                        std::move(log)) {}
   };
 
   class PostgresIndexerWrapper : public SessionHolder, public PostgresIndexer {
@@ -110,10 +106,11 @@ namespace {
     target.command_executor = std::make_shared<PostgresCommandExecutor>(
         db_manager.getSession(),
         std::make_shared<shared_model::proto::ProtoPermissionToString>());
+    target.test_block_storage = std::make_shared<TestBlockStorage>();
     target.query_executor =
         std::make_unique<PostgresSpecificQueryExecutorWrapper>(
             db_manager.getSession(),
-            std::make_unique<MockBlockStorage>(),
+            *target.test_block_storage,
             std::make_shared<MockPendingTransactionStorage>(),
             std::make_shared<shared_model::proto::ProtoQueryResponseFactory>(),
             std::make_shared<shared_model::proto::ProtoPermissionToString>(),

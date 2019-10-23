@@ -15,6 +15,7 @@ add_library(executor_fixture_param_postgres executor_fixture_param_postgres.cpp)
 target_link_libraries(executor_fixture_param_postgres
     ametsuchi
     executor_fixture_param
+    executor_itf_test_storage
     gmock::main
     shared_model_proto_backend
     test_db_manager

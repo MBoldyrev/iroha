@@ -9,10 +9,12 @@
 #include "ametsuchi/specific_query_executor.hpp"
 #include "ametsuchi/tx_executor.hpp"
 #include "framework/config_helper.hpp"
+#include "framework/executor_itf/test_block_storage.hpp"
 #include "framework/test_logger.hpp"
 #include "interfaces/permissions.hpp"
 #include "logger/logger.hpp"
 #include "logger/logger_manager.hpp"
+#include "module/shared_model/interface_mocks.hpp"
 #include "module/shared_model/mock_objects_factories/mock_command_factory.hpp"
 #include "module/shared_model/mock_objects_factories/mock_query_factory.hpp"
 
@@ -39,6 +41,7 @@ namespace {
 ExecutorItf::ExecutorItf(std::shared_ptr<CommandExecutor> cmd_executor,
                          std::shared_ptr<SpecificQueryExecutor> query_executor,
                          std::shared_ptr<Indexer> tx_indexer,
+                         std::shared_ptr<TestBlockStorage> test_block_storage,
                          logger::LoggerManagerTreePtr log_manager)
     : log_manager_(std::move(log_manager)),
       log_(log_manager_->getLogger()),
@@ -50,6 +53,7 @@ ExecutorItf::ExecutorItf(std::shared_ptr<CommandExecutor> cmd_executor,
       tx_executor_(std::make_unique<TransactionExecutor>(cmd_executor_)),
       query_executor_(std::move(query_executor)),
       tx_indexer_(std::move(tx_indexer)),
+      test_block_storage_(std::move(test_block_storage)),
       query_counter_(0) {}
 
 ExecutorItf::~ExecutorItf() {
@@ -64,6 +68,7 @@ CreateResult ExecutorItf::create(ExecutorItfTarget target) {
       new ExecutorItf(std::move(target.command_executor),
                       std::move(target.query_executor),
                       std::move(target.tx_indexer),
+                      std::move(target.test_block_storage),
                       log_manager));
   return executor_itf->prepareState() |
       [&executor_itf] { return std::move(executor_itf); };
@@ -101,6 +106,8 @@ iroha::expected::Result<void, std::string> ExecutorItf::addTransaction(
     shared_model::interface::types::HashType hash,
     shared_model::interface::types::HeightType height,
     size_t index) {
+  test_block_storage_->addTransaction(
+      height, index, createMockTransactionWithHash(hash));
   Indexer::TxPosition pos{height, index};
   tx_indexer_->committedTxHash(hash);
   tx_indexer_->txHashPosition(hash, pos);

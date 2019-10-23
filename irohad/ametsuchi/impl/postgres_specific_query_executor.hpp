@@ -37,7 +37,7 @@ namespace iroha {
 
   namespace ametsuchi {
 
-    class BlockStorage;
+    class ReadOnlyBlockStorage;
 
     using QueryErrorType =
         shared_model::interface::QueryResponseFactory::ErrorQueryType;
@@ -50,7 +50,7 @@ namespace iroha {
      public:
       PostgresSpecificQueryExecutor(
           soci::session &sql,
-          BlockStorage &block_store,
+          ReadOnlyBlockStorage &block_store,
           std::shared_ptr<PendingTransactionStorage> pending_txs_storage,
           std::shared_ptr<shared_model::interface::QueryResponseFactory>
               response_factory,
@@ -253,7 +253,7 @@ namespace iroha {
       };
 
       soci::session &sql_;
-      BlockStorage &block_store_;
+      ReadOnlyBlockStorage &block_store_;
       std::shared_ptr<PendingTransactionStorage> pending_txs_storage_;
       std::shared_ptr<shared_model::interface::QueryResponseFactory>
           query_response_factory_;
