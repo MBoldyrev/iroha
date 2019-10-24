@@ -74,6 +74,28 @@ struct MockTransaction : public shared_model::interface::Transaction {
       boost::optional<std::shared_ptr<shared_model::interface::BatchMeta>>());
 };
 
+namespace detail {
+  /**
+   * Creates raw pointer to mock transaction with provided hash
+   * @param hash -- const ref to hash to be returned by the transaction
+   * @return shared_ptr for transaction
+   */
+  inline MockTransaction *createRawMockTransactionWithHash(
+      const shared_model::interface::types::HashType &hash) {
+    using ::testing::NiceMock;
+    using ::testing::ReturnRefOfCopy;
+
+    auto res = new NiceMock<MockTransaction>();
+
+    ON_CALL(*res, hash()).WillByDefault(ReturnRefOfCopy(hash));
+    ON_CALL(*res, clone()).WillByDefault(::testing::Invoke([hash] {
+      return createRawMockTransactionWithHash(hash);
+    }));
+
+    return res;
+  }
+}  // namespace detail
+
 /**
  * Creates mock transaction with provided hash
  * @param hash -- const ref to hash to be returned by the transaction
@@ -81,14 +103,8 @@ struct MockTransaction : public shared_model::interface::Transaction {
  */
 inline auto createMockTransactionWithHash(
     const shared_model::interface::types::HashType &hash) {
-  using ::testing::NiceMock;
-  using ::testing::ReturnRefOfCopy;
-
-  auto res = std::make_shared<NiceMock<MockTransaction>>();
-
-  ON_CALL(*res, hash()).WillByDefault(ReturnRefOfCopy(hash));
-
-  return res;
+  return std::shared_ptr<MockTransaction>(
+      detail::createRawMockTransactionWithHash(hash));
 }
 
 struct MockTransactionBatch : public shared_model::interface::TransactionBatch {
