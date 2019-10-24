@@ -113,16 +113,6 @@ target_link_libraries(create_asset_test
     integration_framework
     )
 
-addtest(get_account_asset_txs_test
-    "get_account_asset_txs_test.cpp;\
-query_permission_test_ast_txs.cpp;\
-query_permission_test_base.cpp"
-    )
-target_link_libraries(get_account_asset_txs_test
-    acceptance_fixture
-    integration_framework
-    )
-
 addtest(query_permissions_common_test
     "query_permission_common_tests.cpp;\
 query_permission_test_ast_txs.cpp;\
