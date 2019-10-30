@@ -6,9 +6,10 @@
 #ifndef IROHA_PROTO_ACCOUNT_ASSET_HPP
 #define IROHA_PROTO_ACCOUNT_ASSET_HPP
 
+#include "interfaces/common_objects/account_asset.hpp"
+
 #include "backend/protobuf/common_objects/trivial_proto.hpp"
 #include "backend/protobuf/util.hpp"
-#include "interfaces/common_objects/account_asset.hpp"
 #include "qry_responses.pb.h"
 
 namespace shared_model {
