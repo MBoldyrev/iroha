@@ -15,14 +15,16 @@ namespace shared_model {
   namespace proto {
     class BlockResponse final : public interface::BlockResponse {
      public:
+      explicit BlockResponse(iroha::protocol::BlockResponse &block_response);
+
       explicit BlockResponse(
           iroha::protocol::BlockQueryResponse &block_query_response);
+
+      explicit BlockResponse(iroha::protocol::QueryResponse &query_response);
 
       const Block &block() const override;
 
      private:
-      const iroha::protocol::BlockResponse &block_response_;
-
       Block block_;
     };
   }  // namespace proto

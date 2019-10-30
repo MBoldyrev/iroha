@@ -8,12 +8,15 @@
 namespace shared_model {
   namespace proto {
 
+    BlockResponse::BlockResponse(iroha::protocol::BlockResponse &block_response)
+        : block_{*block_response.mutable_block()->mutable_block_v1()} {}
+
     BlockResponse::BlockResponse(
         iroha::protocol::BlockQueryResponse &block_query_response)
-        : block_response_{block_query_response.block_response()},
-          block_{*block_query_response.mutable_block_response()
-                      ->mutable_block()
-                      ->mutable_block_v1()} {}
+        : BlockResponse(*block_query_response.mutable_block_response()) {}
+
+    BlockResponse::BlockResponse(iroha::protocol::QueryResponse &query_response)
+        : BlockResponse(*query_response.mutable_block_response()) {}
 
     const Block &BlockResponse::block() const {
       return block_;

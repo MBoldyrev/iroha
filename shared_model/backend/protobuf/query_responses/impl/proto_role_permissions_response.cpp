@@ -6,7 +6,6 @@
 #include "backend/protobuf/query_responses/proto_role_permissions_response.hpp"
 
 #include "backend/protobuf/permissions.hpp"
-#include "utils/string_builder.hpp"
 
 namespace shared_model {
   namespace proto {
@@ -31,12 +30,9 @@ namespace shared_model {
       return role_permissions_;
     }
 
-    std::string RolePermissionsResponse::toString() const {
-      return detail::PrettyStringBuilder()
-          .init("RolePermissionsResponse")
-          .appendAll(permissions::toString(rolePermissions()),
-                     [](auto p) { return p; })
-          .finalize();
+    std::vector<std::string> RolePermissionsResponse::permissionsToString()
+        const {
+      return permissions::toString(rolePermissions());
     }
 
   }  // namespace proto
