@@ -7,7 +7,6 @@
 #define IROHA_SHARED_MODEL_PROTO_ACCOUNT_HPP
 
 #include "backend/protobuf/common_objects/trivial_proto.hpp"
-#include "backend/protobuf/util.hpp"
 #include "interfaces/common_objects/account.hpp"
 #include "qry_responses.pb.h"
 

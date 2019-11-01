@@ -22,6 +22,12 @@
 #include "backend/protobuf/util.hpp"
 #include "utils/variant_deserializer.hpp"
 
+namespace iroha {
+  namespace protocol {
+    class Query;
+  }
+}  // namespace iroha
+
 namespace {
   /// type of proto variant
   using ProtoQueryVariantType =

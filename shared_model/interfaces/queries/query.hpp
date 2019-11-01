@@ -10,7 +10,12 @@
 
 #include "interfaces/base/signable.hpp"
 #include "interfaces/common_objects/types.hpp"
-#include "queries.pb.h"
+
+namespace iroha {
+  namespace protocol {
+    class Query;
+  }
+}  // namespace iroha
 
 namespace shared_model {
 

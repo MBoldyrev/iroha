@@ -11,9 +11,9 @@
 #include <boost/range/adaptor/transformed.hpp>
 #include "ametsuchi/tx_presence_cache.hpp"
 #include "backend/protobuf/transaction.hpp"
-#include "interfaces/iroha_internal/deserialize_repeated_transactions.hpp"
 #include "interfaces/iroha_internal/parse_and_create_batches.hpp"
 #include "interfaces/iroha_internal/transaction_batch.hpp"
+#include "interfaces/iroha_internal/util.hpp"
 #include "interfaces/transaction.hpp"
 #include "logger/logger.hpp"
 #include "network/impl/grpc_channel_builder.hpp"
@@ -64,7 +64,7 @@ grpc::Status MstTransportGrpc::SendState(
     ::google::protobuf::Empty *response) {
   log_->info("MstState Received");
 
-  auto transactions = shared_model::proto::deserializeTransactions(
+  auto transactions = shared_model::util::deserializeTransactions(
       *transaction_factory_, request->transactions());
   if (auto e = expected::resultToOptionalError(transactions)) {
     log_->warn(

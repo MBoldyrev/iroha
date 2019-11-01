@@ -8,8 +8,6 @@
 
 #include "interfaces/base/model_primitive.hpp"
 
-#include "commands.pb.h"
-
 #include <boost/variant/variant_fwd.hpp>
 
 namespace shared_model {
@@ -39,36 +37,36 @@ namespace shared_model {
    * General note: this class is container for commands, not a base class.
    */
   class Command : public ModelPrimitive<Command> {
-   private:
     /// const reference shortcut type
     template <typename... Value>
-    using wrap = boost::variant<const Value &...>;
+    using ConstRefVariant = boost::variant<const Value &...>;
 
    public:
     using TransportType = iroha::protocol::Command;
 
+    using CommandVariantType = ConstRefVariant<AddAssetQuantity,
+                                               AddPeer,
+                                               AddSignatory,
+                                               AppendRole,
+                                               CreateAccount,
+                                               CreateAsset,
+                                               CreateDomain,
+                                               CreateRole,
+                                               DetachRole,
+                                               GrantPermission,
+                                               RemoveSignatory,
+                                               RevokePermission,
+                                               SetAccountDetail,
+                                               SetQuorum,
+                                               SubtractAssetQuantity,
+                                               TransferAsset,
+                                               RemovePeer,
+                                               CompareAndSetAccountDetail,
+                                               SetSettingValue>;
+
     explicit Command(TransportType &ref);
 
-    /// Type of variant, that handle concrete command
-    using CommandVariantType = wrap<AddAssetQuantity,
-                                    AddPeer,
-                                    AddSignatory,
-                                    AppendRole,
-                                    CreateAccount,
-                                    CreateAsset,
-                                    CreateDomain,
-                                    CreateRole,
-                                    DetachRole,
-                                    GrantPermission,
-                                    RemoveSignatory,
-                                    RevokePermission,
-                                    SetAccountDetail,
-                                    SetQuorum,
-                                    SubtractAssetQuantity,
-                                    TransferAsset,
-                                    RemovePeer,
-                                    CompareAndSetAccountDetail,
-                                    SetSettingValue>;
+    ~Command();
 
     /**
      * @return reference to const variant with concrete command

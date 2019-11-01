@@ -9,7 +9,6 @@
 #include "interfaces/common_objects/account_asset.hpp"
 
 #include "backend/protobuf/common_objects/trivial_proto.hpp"
-#include "backend/protobuf/util.hpp"
 #include "qry_responses.pb.h"
 
 namespace shared_model {

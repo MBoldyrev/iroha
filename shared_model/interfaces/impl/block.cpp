@@ -8,8 +8,8 @@
 #include <boost/range/adaptors.hpp>
 #include "common/byteutils.hpp"
 #include "interfaces/common_objects/signature.hpp"
+#include "interfaces/iroha_internal/util.hpp"
 #include "interfaces/transaction.hpp"
-#include "interfaces/util.hpp"
 #include "utils/string_builder.hpp"
 
 using namespace shared_model;
@@ -28,7 +28,7 @@ struct Block::Impl {
                                     payload_.mutable_transactions()->end());
   }()};
 
-  types::BlobType blob_{[this] { return makeBlob(proto_); }()};
+  types::BlobType blob_{[this] { return util::makeBlob(proto_); }()};
 
   types::HashType prev_hash_{[this] {
     return types::HashType(
@@ -49,7 +49,7 @@ struct Block::Impl {
     return hashes;
   }()};
 
-  types::BlobType payload_blob_{[this] { return makeBlob(payload_); }()};
+  types::BlobType payload_blob_{[this] { return util::makeBlob(payload_); }()};
 
   types::HashType hash_ = makeHash(payload_blob_);
 };

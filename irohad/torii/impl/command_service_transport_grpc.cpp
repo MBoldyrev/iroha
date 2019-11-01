@@ -22,12 +22,12 @@
 #include "common/combine_latest_until_first_completed.hpp"
 #include "common/run_loop_handler.hpp"
 #include "cryptography/hash_providers/sha3_256.hpp"
-#include "interfaces/iroha_internal/deserialize_repeated_transactions.hpp"
 #include "interfaces/iroha_internal/parse_and_create_batches.hpp"
 #include "interfaces/iroha_internal/transaction_batch.hpp"
 #include "interfaces/iroha_internal/transaction_batch_factory.hpp"
 #include "interfaces/iroha_internal/transaction_batch_parser.hpp"
 #include "interfaces/iroha_internal/tx_status_factory.hpp"
+#include "interfaces/iroha_internal/util.hpp"
 #include "interfaces/transaction.hpp"
 #include "logger/logger.hpp"
 #include "torii/status_bus.hpp"
@@ -82,7 +82,7 @@ namespace iroha {
         return grpc::Status::OK;
       };
 
-      auto transactions = shared_model::proto::deserializeTransactions(
+      auto transactions = shared_model::util::deserializeTransactions(
           *transaction_factory_, request->transactions());
       if (auto e = expected::resultToOptionalError(transactions)) {
         return publish_stateless_fail(

@@ -33,7 +33,6 @@ add_library(shared_model_interfaces
     impl/permission_to_string.cpp
     impl/transaction.cpp
     iroha_internal/impl/block_json_converter.cpp
-    iroha_internal/impl/deserialize_repeated_transactions.cpp
     iroha_internal/impl/proposal.cpp
     iroha_internal/impl/query_response_factory.cpp
     iroha_internal/impl/tx_status_factory.cpp

@@ -5,8 +5,8 @@
 
 #include "interfaces/proposal.hpp"
 
+#include "interfaces/iroha_internal/util.hpp"
 #include "interfaces/transaction.hpp"
-#include "interfaces/util.hpp"
 
 using namespace types;
 
@@ -22,7 +22,7 @@ struct Proposal::Impl {
                                     proto_.mutable_transactions()->end());
   }()};
 
-  types::BlobType blob_{[this] { return makeBlob(proto_); }()};
+  types::BlobType blob_{[this] { return util::makeBlob(proto_); }()};
 
   const types::HashType hash_{
       [this] { return crypto::DefaultHashProvider::makeHash(blob_); }()};
