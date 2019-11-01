@@ -38,7 +38,7 @@ if (NOT IROHA_ROOT_PROJECT)
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../libs/generator generator)
 endif ()
 
-add_subdirectory(backend)
+#add_subdirectory(backend)
 add_subdirectory(builders)
 add_subdirectory(converters)
 add_subdirectory(cryptography)
