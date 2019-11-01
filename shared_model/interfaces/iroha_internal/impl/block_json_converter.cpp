@@ -11,7 +11,6 @@
 #include "interfaces/block.hpp"
 
 using namespace shared_model;
-using namespace shared_model::proto;
 
 iroha::expected::Result<types::JsonType, std::string>
 ProtoBlockJsonConverter::serialize(const Block &block) const noexcept {

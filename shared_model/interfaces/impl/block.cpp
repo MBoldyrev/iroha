@@ -44,7 +44,7 @@ struct Block::Impl {
   std::vector<types::HashType> rejected_transactions_hashes_{[this] {
     std::vector<types::HashType> hashes;
     for (const auto &hash : *payload_.mutable_rejected_transactions_hashes()) {
-      hashes.emplace_back(shared_model::crypto::Hash::fromHexString(hash));
+      hashes.emplace_back(crypto::Hash::fromHexString(hash));
     }
     return hashes;
   }()};

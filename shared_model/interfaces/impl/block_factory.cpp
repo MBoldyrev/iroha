@@ -11,18 +11,15 @@
 #include "interfaces/block.hpp"
 
 using namespace shared_model;
-using namespace shared_model::proto;
 
 ProtoBlockFactory::ProtoBlockFactory(
-    std::unique_ptr<shared_model::validation::AbstractValidator<
-        shared_model::Block>> interface_validator,
-    std::unique_ptr<
-        shared_model::validation::AbstractValidator<iroha::protocol::Block>>
+    std::unique_ptr<validation::AbstractValidator<Block>> interface_validator,
+    std::unique_ptr<validation::AbstractValidator<iroha::protocol::Block>>
         proto_validator)
     : interface_validator_{std::move(interface_validator)},
       proto_validator_{std::move(proto_validator)} {}
 
-std::unique_ptr<shared_model::Block> ProtoBlockFactory::unsafeCreateBlock(
+std::unique_ptr<Block> ProtoBlockFactory::unsafeCreateBlock(
     types::HeightType height,
     const types::HashType &prev_hash,
     types::TimestampType created_time,
@@ -56,8 +53,7 @@ std::unique_ptr<shared_model::Block> ProtoBlockFactory::unsafeCreateBlock(
       proto_validator_->validate(proto_block_container);
   proto_block_container.release_block_v1();
 
-  auto model_proto_block =
-      std::make_unique<shared_model::Block>(std::move(block));
+  auto model_proto_block = std::make_unique<Block>(std::move(block));
   auto interface_block_validation_result =
       interface_validator_->validate(*model_proto_block);
 
@@ -75,13 +71,13 @@ std::unique_ptr<shared_model::Block> ProtoBlockFactory::unsafeCreateBlock(
   return model_proto_block;
 }
 
-iroha::expected::Result<std::unique_ptr<shared_model::Block>, std::string>
+iroha::expected::Result<std::unique_ptr<Block>, std::string>
 ProtoBlockFactory::createBlock(iroha::protocol::Block block) {
   if (auto errors = proto_validator_->validate(block)) {
     return iroha::expected::makeError(errors.reason());
   }
 
-  std::unique_ptr<shared_model::Block> proto_block =
+  std::unique_ptr<Block> proto_block =
       std::make_unique<Block>(std::move(block.block_v1()));
   if (auto errors = interface_validator_->validate(*proto_block)) {
     return iroha::expected::makeError(errors.reason());

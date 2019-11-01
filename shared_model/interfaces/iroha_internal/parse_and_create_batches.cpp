@@ -8,13 +8,11 @@
 #include "interfaces/iroha_internal/transaction_batch.hpp"
 
 using namespace shared_model;
-using namespace shared_model;
 
 iroha::expected::Result<types::BatchesCollectionType, std::string>
-shared_model::parseAndCreateBatches(
-    const TransactionBatchParser &batch_parser,
-    const TransactionBatchFactory &batch_factory,
-    const types::SharedTxsCollectionType &transactions) {
+parseAndCreateBatches(const TransactionBatchParser &batch_parser,
+                      const TransactionBatchFactory &batch_factory,
+                      const types::SharedTxsCollectionType &transactions) {
   auto batch_candidates = batch_parser.parseBatches(transactions);
 
   types::BatchesCollectionType batches;

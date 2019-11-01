@@ -8,7 +8,7 @@
 #include "cryptography/hash.hpp"
 #include "interfaces/common_objects/types.hpp"
 
-using namespace shared_model::proto;
+using namespace shared_model;
 
 // -------------------------------| Private API |-------------------------------
 
@@ -34,8 +34,7 @@ namespace {
    */
   ProtoTxStatusFactory::FactoryReturnType wrap(
       iroha::protocol::ToriiResponse &&value) {
-    return std::make_unique<shared_model::TransactionResponse>(
-        std::move(value));
+    return std::make_unique<TransactionResponse>(std::move(value));
   }
 }  // namespace
 

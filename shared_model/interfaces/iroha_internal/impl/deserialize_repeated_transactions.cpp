@@ -6,11 +6,10 @@
 #include "interfaces/iroha_internal/deserialize_repeated_transactions.hpp"
 
 using namespace shared_model;
-using namespace shared_model::proto;
 
 iroha::expected::Result<types::SharedTxsCollectionType,
                         TransactionFactoryType::Error>
-shared_model::deserializeTransactions(
+deserializeTransactions(
     const TransactionFactoryType &transaction_factory,
     const google::protobuf::RepeatedPtrField<iroha::protocol::Transaction>
         &transactions) {
