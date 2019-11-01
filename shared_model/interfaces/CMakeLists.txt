@@ -35,6 +35,13 @@ add_library(shared_model_interfaces
     iroha_internal/impl/block_json_converter.cpp
     iroha_internal/impl/deserialize_repeated_transactions.cpp
     iroha_internal/impl/proposal.cpp
+    iroha_internal/impl/query_response_factory.cpp
+    iroha_internal/impl/tx_status_factory.cpp
+    iroha_internal/parse_and_create_batches.cpp
+    iroha_internal/transaction_batch.cpp
+    iroha_internal/transaction_batch_impl.cpp
+    iroha_internal/transaction_batch_parser_impl.cpp
+    iroha_internal/transaction_sequence.cpp
     queries/impl/account_detail_pagination_meta.cpp
     queries/impl/account_detail_record_id.cpp
     queries/impl/asset_pagination_meta.cpp
@@ -55,46 +62,24 @@ add_library(shared_model_interfaces
     queries/impl/query.cpp
     queries/impl/query_payload_meta.cpp
     queries/impl/tx_pagination_meta.cpp
+    query_responses/impl/account_asset_response.cpp
+    query_responses/impl/account_detail_response.cpp
+    query_responses/impl/account_response.cpp
+    query_responses/impl/asset_response.cpp
+    query_responses/impl/block_error_response.cpp
+    query_responses/impl/block_query_response.cpp
+    query_responses/impl/block_response.cpp
+    query_responses/impl/error_query_response.cpp
+    query_responses/impl/peers_response.cpp
+    query_responses/impl/pending_transactions_page_response.cpp
+    query_responses/impl/query_response.cpp
+    query_responses/impl/role_permissions_response.cpp
+    query_responses/impl/roles_response.cpp
+    query_responses/impl/signatories_response.cpp
+    query_responses/impl/transactions_page_response.cpp
+    query_responses/impl/transactions_response.cpp
+    transaction_responses/impl/tx_response.cpp
     )
-
-if (IROHA_ROOT_PROJECT)
-  target_sources(shared_model_interfaces PRIVATE
-      iroha_internal/impl/query_response_factory.cpp
-      iroha_internal/impl/tx_status_factory.cpp
-      iroha_internal/parse_and_create_batches.cpp
-      iroha_internal/transaction_batch.cpp
-      iroha_internal/transaction_batch_impl.cpp
-      iroha_internal/transaction_batch_parser_impl.cpp
-      iroha_internal/transaction_sequence.cpp
-      query_responses/impl/account_asset_response.cpp
-      query_responses/impl/account_detail_response.cpp
-      query_responses/impl/account_response.cpp
-      query_responses/impl/asset_response.cpp
-      query_responses/impl/block_error_response.cpp
-      query_responses/impl/block_query_response.cpp
-      query_responses/impl/block_response.cpp
-      query_responses/impl/error_query_response.cpp
-      query_responses/impl/peers_response.cpp
-      query_responses/impl/pending_transactions_page_response.cpp
-      query_responses/impl/query_response.cpp
-      query_responses/impl/role_permissions_response.cpp
-      query_responses/impl/roles_response.cpp
-      query_responses/impl/signatories_response.cpp
-      query_responses/impl/transactions_page_response.cpp
-      query_responses/impl/transactions_response.cpp
-      transaction_responses/impl/tx_response.cpp
-      )
-
-  add_library(shared_model_interfaces_factories
-      iroha_internal/transaction_sequence_factory.cpp
-      iroha_internal/transaction_batch_factory_impl.cpp
-    )
-
-  target_link_libraries(shared_model_interfaces_factories
-    shared_model_interfaces
-    shared_model_stateless_validation
-    )
-endif ()
 
 target_link_libraries(shared_model_interfaces
     ${Boost_LIBRARIES}
@@ -104,4 +89,13 @@ target_link_libraries(shared_model_interfaces
     schema
     shared_model_cryptography
     shared_model_utils
+    )
+
+add_library(shared_model_interfaces_factories
+    iroha_internal/transaction_sequence_factory.cpp
+    iroha_internal/transaction_batch_factory_impl.cpp
+    )
+target_link_libraries(shared_model_interfaces_factories
+    shared_model_interfaces
+    shared_model_stateless_validation
     )
