@@ -29,20 +29,20 @@ namespace shared_model {
      * Make string developer representation of object
      * @return string with internal state of object
      */
-    std::string toString() const {
+    virtual std::string toString() const {
       return detail::PrettyStringBuilder()
           .init("Primitive")
           .append("address", std::to_string(reinterpret_cast<uint64_t>(this)))
           .finalize();
     }
 
-    bool operator==(const ModelType &rhs) const;
+    virtual bool operator==(const ModelType &rhs) const = 0;
 
-    bool operator!=(const ModelType &rhs) const {
+    virtual bool operator!=(const ModelType &rhs) const {
       return not(*this == rhs);
     }
 
-    ~ModelPrimitive() = default;
+    virtual ~ModelPrimitive() = default;
   };
 }  // namespace shared_model
 #endif  // IROHA_MODEL_PRIMITIVE_HPP
