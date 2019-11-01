@@ -10,8 +10,8 @@
 #include <rxcpp/rx-observable-fwd.hpp>
 
 #include "cryptography/public_key.hpp"
+#include "interfaces/block.hpp"
 #include "interfaces/common_objects/types.hpp"
-#include "interfaces/iroha_internal/block.hpp"
 
 namespace iroha {
   namespace network {

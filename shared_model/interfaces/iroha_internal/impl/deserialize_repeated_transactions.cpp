@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "backend/protobuf/deserialize_repeated_transactions.hpp"
+#include "interfaces/iroha_internal/deserialize_repeated_transactions.hpp"
 
 using namespace shared_model;
 using namespace shared_model::proto;

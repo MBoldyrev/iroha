@@ -25,7 +25,7 @@
 #include "interfaces/query_responses/error_query_response.hpp"
 #include "interfaces/query_responses/pending_transactions_page_response.hpp"
 #include "interfaces/query_responses/query_response.hpp"
-#include "interfaces/query_responses/role_permissions.hpp"
+#include "interfaces/query_responses/role_permissions_response.hpp"
 #include "interfaces/query_responses/roles_response.hpp"
 #include "interfaces/query_responses/signatories_response.hpp"
 #include "interfaces/query_responses/transactions_page_response.hpp"

@@ -6,8 +6,9 @@
 #ifndef IROHA_SHARED_MODEL_PROTO_PROPOSAL_HPP
 #define IROHA_SHARED_MODEL_PROTO_PROPOSAL_HPP
 
-#include "interfaces/common_objects/types.hpp"
 #include "interfaces/iroha_internal/proposal.hpp"
+
+#include "interfaces/common_objects/types.hpp"
 #include "proposal.pb.h"
 
 namespace shared_model {

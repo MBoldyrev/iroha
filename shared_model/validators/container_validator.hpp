@@ -8,8 +8,8 @@
 
 #include <boost/format.hpp>
 #include "datetime/time.hpp"
+#include "interfaces/block.hpp"
 #include "interfaces/common_objects/types.hpp"
-#include "interfaces/iroha_internal/block.hpp"
 #include "validators/answer.hpp"
 #include "validators/validators_common.hpp"
 

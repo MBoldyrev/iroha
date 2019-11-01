@@ -12,8 +12,8 @@
 
 #include "builders/protobuf/unsigned_proto.hpp"
 #include "interfaces/base/signable.hpp"
+#include "interfaces/block.hpp"
 #include "interfaces/common_objects/types.hpp"
-#include "interfaces/iroha_internal/block.hpp"
 #include "interfaces/transaction.hpp"
 #include "module/irohad/common/validators_config.hpp"
 #include "validators/default_validator.hpp"

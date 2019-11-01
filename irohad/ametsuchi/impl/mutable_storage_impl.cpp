@@ -16,8 +16,8 @@
 #include "ametsuchi/impl/postgres_wsv_query.hpp"
 #include "ametsuchi/ledger_state.hpp"
 #include "ametsuchi/tx_executor.hpp"
+#include "interfaces/block.hpp"
 #include "interfaces/commands/command.hpp"
-#include "interfaces/iroha_internal/block.hpp"
 #include "logger/logger.hpp"
 #include "logger/logger_manager.hpp"
 

@@ -7,7 +7,7 @@
 
 #include <gtest/gtest.h>
 #include "framework/test_logger.hpp"
-#include "interfaces/iroha_internal/block.hpp"
+#include "interfaces/block.hpp"
 #include "interfaces/transaction.hpp"
 
 using iroha::main::BlockLoader;

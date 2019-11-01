@@ -11,13 +11,13 @@
 #include <soci/soci.h>
 #include <boost/optional.hpp>
 #include "framework/test_logger.hpp"
+#include "interfaces/block.hpp"
 #include "interfaces/common_objects/account.hpp"
 #include "interfaces/common_objects/account_asset.hpp"
 #include "interfaces/common_objects/asset.hpp"
 #include "interfaces/common_objects/common_objects_factory.hpp"
 #include "interfaces/common_objects/domain.hpp"
 #include "interfaces/common_objects/types.hpp"
-#include "interfaces/iroha_internal/block.hpp"
 #include "interfaces/permissions.hpp"
 #include "interfaces/queries/query.hpp"
 #include "interfaces/query_responses/query_response.hpp"

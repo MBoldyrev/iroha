@@ -17,12 +17,12 @@
 #include <boost/range/adaptor/transformed.hpp>
 #include <rxcpp/operators/rx-start_with.hpp>
 #include <rxcpp/operators/rx-take_while.hpp>
-#include "backend/protobuf/deserialize_repeated_transactions.hpp"
 #include "backend/protobuf/transaction_responses/proto_tx_response.hpp"
 #include "backend/protobuf/util.hpp"
 #include "common/combine_latest_until_first_completed.hpp"
 #include "common/run_loop_handler.hpp"
 #include "cryptography/hash_providers/sha3_256.hpp"
+#include "interfaces/iroha_internal/deserialize_repeated_transactions.hpp"
 #include "interfaces/iroha_internal/parse_and_create_batches.hpp"
 #include "interfaces/iroha_internal/transaction_batch.hpp"
 #include "interfaces/iroha_internal/transaction_batch_factory.hpp"

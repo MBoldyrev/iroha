@@ -19,9 +19,9 @@ namespace shared_model {
    * Add new signatory to account
    */
   class AddSignatory : public ModelPrimitive<AddSignatory> {
+   public:
     explicit AddSignatory(iroha::protocol::Command &command);
 
-   public:
     /**
      * @return New signatory is identified with public key
      */

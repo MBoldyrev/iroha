@@ -15,6 +15,14 @@ namespace shared_model {
 
   class Proposal : public ModelPrimitive<Proposal> {
    public:
+    using TransportType = iroha::protocol::Proposal;
+
+    Proposal(Proposal &&o) noexcept;
+    Proposal &operator=(Proposal &&o) noexcept = default;
+
+    explicit Proposal(const TransportType &ref);
+    explicit Proposal(TransportType &&ref);
+
     /**
      * @return transactions
      */
@@ -48,6 +56,10 @@ namespace shared_model {
                      [](auto &transaction) { return transaction.toString(); })
           .finalize();
     }
+
+   private:
+    struct Impl;
+    std::unique_ptr<Impl> impl_;
   };
 
 }  // namespace shared_model

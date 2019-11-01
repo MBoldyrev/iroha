@@ -6,8 +6,9 @@
 #ifndef IROHA_SHARED_MODEL_SET_SETTING_VALUE_HPP
 #define IROHA_SHARED_MODEL_SET_SETTING_VALUE_HPP
 
-#include "commands.pb.h"
 #include "interfaces/base/model_primitive.hpp"
+
+#include "commands.pb.h"
 #include "interfaces/commands/set_setting_value.hpp"
 
 #include "interfaces/common_objects/types.hpp"

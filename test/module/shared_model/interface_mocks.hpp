@@ -9,10 +9,10 @@
 #include <gmock/gmock.h>
 #include "cryptography/public_key.hpp"
 #include "cryptography/signed.hpp"
+#include "interfaces/block.hpp"
 #include "interfaces/commands/command.hpp"
 #include "interfaces/common_objects/common_objects_factory.hpp"
 #include "interfaces/common_objects/peer.hpp"
-#include "interfaces/iroha_internal/block.hpp"
 #include "interfaces/iroha_internal/block_json_converter.hpp"
 #include "interfaces/iroha_internal/proposal.hpp"
 #include "interfaces/iroha_internal/transaction_batch.hpp"

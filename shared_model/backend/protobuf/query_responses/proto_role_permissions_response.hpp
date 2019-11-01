@@ -6,7 +6,7 @@
 #ifndef IROHA_SHARED_MODEL_PROTO_ROLE_PERMISSIONS_RESPONSE_HPP
 #define IROHA_SHARED_MODEL_PROTO_ROLE_PERMISSIONS_RESPONSE_HPP
 
-#include "interfaces/query_responses/role_permissions.hpp"
+#include "interfaces/query_responses/role_permissions_response.hpp"
 
 #include "qry_responses.pb.h"
 

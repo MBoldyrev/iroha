@@ -6,7 +6,7 @@
 #ifndef IROHA_UNSAFE_BLOCK_FACTORY_HPP
 #define IROHA_UNSAFE_BLOCK_FACTORY_HPP
 
-#include "interfaces/iroha_internal/block.hpp"
+#include "interfaces/block.hpp"
 
 namespace shared_model {
   /**

@@ -14,8 +14,8 @@
 #include "consensus/yac/yac_hash_provider.hpp"
 #include "consensus/yac/yac_peer_orderer.hpp"
 #include "cryptography/public_key.hpp"
+#include "interfaces/block.hpp"
 #include "interfaces/common_objects/signature.hpp"
-#include "interfaces/iroha_internal/block.hpp"
 #include "logger/logger.hpp"
 #include "simulator/block_creator.hpp"
 

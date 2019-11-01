@@ -13,7 +13,7 @@
 #include "ametsuchi/mutable_storage.hpp"
 #include "common/bind.hpp"
 #include "common/visitor.hpp"
-#include "interfaces/iroha_internal/block.hpp"
+#include "interfaces/block.hpp"
 #include "logger/logger.hpp"
 
 namespace iroha {

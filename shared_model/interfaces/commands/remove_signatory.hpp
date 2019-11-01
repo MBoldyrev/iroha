@@ -18,9 +18,9 @@ namespace shared_model {
    * Remove signatory from the account
    */
   class RemoveSignatory : public ModelPrimitive<RemoveSignatory> {
+   public:
     explicit RemoveSignatory(iroha::protocol::Command &command);
 
-   public:
     /**
      * @return account from which remove signatory
      */

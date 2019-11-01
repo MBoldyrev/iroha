@@ -7,8 +7,8 @@
 
 #include <gtest/gtest.h>
 #include <memory>
-#include "backend/protobuf/proto_query_response_factory.hpp"
 #include "backend/protobuf/proto_transport_factory.hpp"
+#include "interfaces/iroha_internal/proto_query_response_factory.hpp"
 #include "libfuzzer/libfuzzer_macro.h"
 #include "logger/dummy_logger.hpp"
 #include "module/irohad/ametsuchi/ametsuchi_mocks.hpp"

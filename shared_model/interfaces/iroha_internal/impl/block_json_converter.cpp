@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "backend/protobuf/proto_block_json_converter.hpp"
+#include "interfaces/iroha_internal/block_json_converter.hpp"
 
 #include <google/protobuf/util/json_util.h>
 #include <string>

@@ -9,7 +9,7 @@
 #include <boost/optional.hpp>
 #include "ametsuchi/tx_cache_response.hpp"
 #include "common/result.hpp"
-#include "interfaces/iroha_internal/block.hpp"
+#include "interfaces/block.hpp"
 
 namespace iroha {
 

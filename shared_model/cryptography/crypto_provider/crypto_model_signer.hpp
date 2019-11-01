@@ -9,7 +9,7 @@
 #include "cryptography/crypto_provider/abstract_crypto_model_signer.hpp"
 #include "cryptography/crypto_provider/crypto_signer.hpp"
 
-#include "interfaces/iroha_internal/block.hpp"
+#include "interfaces/block.hpp"
 
 namespace shared_model {
 

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "backend/protobuf/proto_query_response_factory.hpp"
+#include "interfaces/iroha_internal/proto_query_response_factory.hpp"
 
 #include <gtest/gtest.h>
 #include <boost/optional.hpp>
@@ -17,7 +17,7 @@
 #include "interfaces/query_responses/block_error_response.hpp"
 #include "interfaces/query_responses/block_response.hpp"
 #include "interfaces/query_responses/error_query_response.hpp"
-#include "interfaces/query_responses/role_permissions.hpp"
+#include "interfaces/query_responses/role_permissions_response.hpp"
 #include "interfaces/query_responses/roles_response.hpp"
 #include "interfaces/query_responses/signatories_response.hpp"
 #include "interfaces/query_responses/transactions_page_response.hpp"

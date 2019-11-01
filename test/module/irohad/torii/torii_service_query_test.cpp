@@ -6,12 +6,12 @@
 #include <gmock/gmock.h>
 
 #include "backend/protobuf/block.hpp"
-#include "backend/protobuf/proto_query_response_factory.hpp"
 #include "backend/protobuf/proto_transport_factory.hpp"
 #include "backend/protobuf/query_responses/proto_block_query_response.hpp"
 #include "backend/protobuf/query_responses/proto_query_response.hpp"
 #include "builders/protobuf/queries.hpp"
 #include "framework/test_logger.hpp"
+#include "interfaces/iroha_internal/proto_query_response_factory.hpp"
 #include "main/server_runner.hpp"
 #include "module/irohad/common/validators_config.hpp"
 #include "module/irohad/torii/processor/mock_query_processor.hpp"

@@ -18,6 +18,9 @@ namespace shared_model {
   class RolePermissionsResponse
       : public ModelPrimitive<RolePermissionsResponse> {
    public:
+    explicit RolePermissionsResponse(
+        iroha::protocol::QueryResponse &query_response);
+
     /**
      * @return role permissions
      */
@@ -30,6 +33,11 @@ namespace shared_model {
     std::string toString() const override;
 
     bool operator==(const ModelType &rhs) const override;
+
+   private:
+    const iroha::protocol::RolePermissionsResponse &role_permissions_response_;
+
+    const RolePermissionSet role_permissions_;
   };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_ROLE_PERMISSIONS_RESPONSE_HPP

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "backend/protobuf/proto_query_response_factory.hpp"
+#include "interfaces/iroha_internal/proto_query_response_factory.hpp"
 
 #include "backend/protobuf/block.hpp"
 #include "backend/protobuf/permissions.hpp"

@@ -8,7 +8,7 @@
 #include <boost/range/adaptor/transformed.hpp>
 #include "ametsuchi/command_executor.hpp"
 #include "common/bind.hpp"
-#include "interfaces/iroha_internal/block.hpp"
+#include "interfaces/block.hpp"
 #include "interfaces/iroha_internal/proposal.hpp"
 #include "logger/logger.hpp"
 

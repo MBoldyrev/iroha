@@ -11,7 +11,7 @@
 #include <memory>
 
 #include <boost/optional.hpp>
-#include "interfaces/iroha_internal/block.hpp"
+#include "interfaces/block.hpp"
 
 namespace iroha {
   namespace ametsuchi {

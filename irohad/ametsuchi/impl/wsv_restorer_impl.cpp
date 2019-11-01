@@ -11,7 +11,7 @@
 #include "ametsuchi/command_executor.hpp"
 #include "ametsuchi/mutable_storage.hpp"
 #include "ametsuchi/storage.hpp"
-#include "interfaces/iroha_internal/block.hpp"
+#include "interfaces/block.hpp"
 
 namespace {
   /**

@@ -9,8 +9,8 @@
 #include <boost/format.hpp>
 #include <boost/range/adaptor/indexed.hpp>
 #include "datetime/time.hpp"
+#include "interfaces/block.hpp"
 #include "interfaces/common_objects/types.hpp"
-#include "interfaces/iroha_internal/block.hpp"
 #include "interfaces/transaction.hpp"
 #include "validators/abstract_validator.hpp"
 #include "validators/answer.hpp"

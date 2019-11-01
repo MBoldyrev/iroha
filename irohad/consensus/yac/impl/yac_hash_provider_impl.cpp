@@ -4,7 +4,7 @@
  */
 
 #include "consensus/yac/impl/yac_hash_provider_impl.hpp"
-#include "interfaces/iroha_internal/block.hpp"
+#include "interfaces/block.hpp"
 #include "interfaces/iroha_internal/proposal.hpp"
 
 namespace iroha {

@@ -8,6 +8,35 @@
 
 using namespace shared_model;
 
+TransactionsPageResponse::TransactionsPageResponse(
+    iroha::protocol::QueryResponse &query_response)
+    : transactionPageResponse_{query_response.transactions_page_response()},
+      transactions_{transactionPageResponse_.transactions().begin(),
+                    transactionPageResponse_.transactions().end()},
+      next_hash_{[this]() -> boost::optional<types::HashType> {
+        switch (transactionPageResponse_.next_page_tag_case()) {
+          case iroha::protocol::TransactionsPageResponse::kNextTxHash:
+            return crypto::Hash::fromHexString(
+                transactionPageResponse_.next_tx_hash());
+          default:
+            return boost::none;
+        }
+      }()} {}
+
+types::TransactionsCollectionType TransactionsPageResponse::transactions()
+    const {
+  return transactions_;
+}
+
+boost::optional<types::HashType> TransactionsPageResponse::nextTxHash() const {
+  return next_hash_;
+}
+
+types::TransactionsNumberType TransactionsPageResponse::allTransactionsSize()
+    const {
+  return transactionPageResponse_.all_transactions_size();
+}
+
 std::string TransactionsPageResponse::toString() const {
   auto builder = detail::PrettyStringBuilder()
                      .init("TransactionsPageResponse")

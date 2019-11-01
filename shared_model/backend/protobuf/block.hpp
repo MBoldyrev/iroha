@@ -6,7 +6,7 @@
 #ifndef IROHA_SHARED_MODEL_PROTO_BLOCK_HPP
 #define IROHA_SHARED_MODEL_PROTO_BLOCK_HPP
 
-#include "interfaces/iroha_internal/block.hpp"
+#include "interfaces/block.hpp"
 
 #include "block.pb.h"
 #include "interfaces/common_objects/types.hpp"

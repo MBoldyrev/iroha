@@ -19,9 +19,9 @@ namespace shared_model {
    * Create acccount in Iroha domain
    */
   class CreateAccount : public ModelPrimitive<CreateAccount> {
+   public:
     explicit CreateAccount(iroha::protocol::Command &command);
 
-   public:
     /**
      * @return Name of the account to create in Iroha
      */
