@@ -5,6 +5,7 @@
 
 #include "interfaces/query_responses/query_response_variant.hpp"
 
+#include "common/variant_transform.hpp"
 #include "interfaces/query_responses/account_asset_response.hpp"
 #include "interfaces/query_responses/account_detail_response.hpp"
 #include "interfaces/query_responses/account_response.hpp"
@@ -22,6 +23,8 @@
 
 using namespace shared_model;
 
+using PbQueryResponse = iroha::protocol::QueryResponse;
+
 using Variant = QueryResponse::QueryResponseVariantType;
 template Variant::~variant();
 template Variant::variant(Variant &&);
@@ -31,6 +34,75 @@ template int Variant::which() const noexcept;
 template void Variant::indicate_which(int) noexcept;
 template bool Variant::using_backup() const noexcept;
 template Variant::convert_copy_into::convert_copy_into(void *) noexcept;
+
+using QueryResponseUniquePointerVariant =
+    iroha::TransformedVariant<QueryResponse::QueryResponseVariantType,
+                              iroha::metafunctions::ConstrefToUniquePointer>;
+
+QueryResponseUniquePointerVariant loadQueryResponse(
+    PbQueryResponse &pb_qry_response) {
+  switch (pb_qry_response.qry_response_case()) {
+    case PbQueryResponse:::
+      return std::make_unique<>(pb_qry_response);
+    case PbQueryResponse::kAccountAssetsResponse:
+      return std::make_unique<AccountAssetResponse>(pb_qry_response);
+    case PbQueryResponse::kAccountDetailResponse:
+      return std::make_unique<AccountDetailResponse>(pb_qry_response);
+    case PbQueryResponse::kAccountResponse:
+      return std::make_unique<AccountResponse>(pb_qry_response);
+    case PbQueryResponse::kErrorResponse:
+      return std::make_unique<ErrorQueryResponse>(pb_qry_response);
+    case PbQueryResponse::kSignatoriesResponse:
+      return std::make_unique<SignatoriesResponse>(pb_qry_response);
+    case PbQueryResponse::kTransactionsResponse:
+      return std::make_unique<TransactionsResponse>(pb_qry_response);
+    case PbQueryResponse::kAssetResponse:
+      return std::make_unique<AssetResponse>(pb_qry_response);
+    case PbQueryResponse::kRolesResponse:
+      return std::make_unique<RolesResponse>(pb_qry_response);
+    case PbQueryResponse::kRolePermissionsResponse:
+      return std::make_unique<RolePermissionsResponse>(pb_qry_response);
+    case PbQueryResponse::kTransactionsPageResponse:
+      return std::make_unique<TransactionsPageResponse>(pb_qry_response);
+    case PbQueryResponse::kPendingTransactionsPageResponse:
+      return std::make_unique<PendingTransactionsPageResponse>(pb_qry_response);
+    case PbQueryResponse::kBlockResponse:
+      return std::make_unique<BlockResponse>(pb_qry_response);
+    case PbQueryResponse::kPeersResponse:
+      return std::make_unique<PeersResponse>(pb_qry_response);
+    default:
+      BOOST_ASSERT_MSG(false, "unknown qry_response");
+      return {};
+  };
+}
+}  // namespace
+
+struct QueryResponse::Impl {
+  Impl(TransportType &ref)
+      : proto_(ref),
+        qry_response_holder_(loadQueryResponse(proto_)),
+        qry_response_constref_(boost::apply_visitor(
+            iroha::indirecting_visitor<QueryResponseVariantType>,
+            qry_response_holder_)) {}
+
+  TransportType &proto_;
+  QueryResponseUniquePointerVariant qry_response_holder_;
+  QueryResponseVariantType qry_response_constref_;
+};
+
+QueryResponse::~QueryResponse() = default;
+
+const QueryResponse::QueryResponseVariantType &QueryResponse::get() const {
+  return impl_->qry_response_constref_;
+}
+
+const types::HashType &QueryResponse::queryHash() const {
+  return impl_->hash_;
+}
+
+const QueryResponse::TransportType &QueryResponse::getTransport() const {
+  return impl_->proto_;
+}
 
 std::string QueryResponse::toString() const {
   return boost::apply_visitor(detail::ToStringVisitor(), get());

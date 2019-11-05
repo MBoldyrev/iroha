@@ -96,10 +96,12 @@ namespace {
 
 struct Command::Impl {
   Impl(TransportType &ref)
-      : command_holder_(loadCommand(ref)),
+      : proto_(ref),
+        command_holder_(loadCommand(proto_)),
         command_constref_(boost::apply_visitor(
             iroha::indirecting_visitor<CommandVariantType>, command_holder_)) {}
 
+  TransportType &proto_;
   CommandUniquePointerVariant command_holder_;
   CommandVariantType command_constref_;
 };
@@ -110,6 +112,10 @@ Command::~Command() = default;
 
 const Command::CommandVariantType &Command::get() const {
   return impl_->command_constref_;
+}
+
+const Command::TransportType &Command::getTransport() const {
+  return impl_->proto_;
 }
 
 std::string Command::toString() const {

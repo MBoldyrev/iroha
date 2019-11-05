@@ -21,25 +21,47 @@
 #include "common/byteutils.hpp"
 #include "utils/variant_deserializer.hpp"
 
-namespace {
-  /// type of proto variant
-  using ProtoQueryResponseVariantType =
-      boost::variant<shared_model::AccountAssetResponse,
-                     shared_model::AccountDetailResponse,
-                     shared_model::AccountResponse,
-                     shared_model::ErrorQueryResponse,
-                     shared_model::SignatoriesResponse,
-                     shared_model::TransactionsResponse,
-                     shared_model::AssetResponse,
-                     shared_model::RolesResponse,
-                     shared_model::RolePermissionsResponse,
-                     shared_model::TransactionsPageResponse,
-                     shared_model::PendingTransactionsPageResponse,
-                     shared_model::BlockResponse,
-                     shared_model::PeersResponse>;
+using PbQueryResponse = iroha::protocol::Command;
 
-  /// list of types in variant
-  using ProtoQueryResponseListType = ProtoQueryResponseVariantType::types;
+using CommandUniquePointerVariant =
+    iroha::TransformedVariant<Command::CommandVariantType,
+                              iroha::metafunctions::ConstrefToUniquePointer>;
+
+CommandUniquePointerVariant loadCommand(PbQueryResponse &pb_qry_response) {
+  switch (pb_qry_response.command_case()) {
+    case PbQueryResponse:::
+      return std::make_unique<>(pb_qry_response);
+    case PbQueryResponse::kAccountAssetsResponse:
+      return std::make_unique<AccountAssetResponse>(pb_qry_response);
+    case PbQueryResponse::kAccountDetailResponse:
+      return std::make_unique<AccountDetailResponse>(pb_qry_response);
+    case PbQueryResponse::kAccountResponse:
+      return std::make_unique<AccountResponse>(pb_qry_response);
+    case PbQueryResponse::kErrorResponse:
+      return std::make_unique<ErrorQueryResponse>(pb_qry_response);
+    case PbQueryResponse::kSignatoriesResponse:
+      return std::make_unique<SignatoriesResponse>(pb_qry_response);
+    case PbQueryResponse::kTransactionsResponse:
+      return std::make_unique<TransactionsResponse>(pb_qry_response);
+    case PbQueryResponse::kAssetResponse:
+      return std::make_unique<AssetResponse>(pb_qry_response);
+    case PbQueryResponse::kRolesResponse:
+      return std::make_unique<RolesResponse>(pb_qry_response);
+    case PbQueryResponse::kRolePermissionsResponse:
+      return std::make_unique<RolePermissionsResponse>(pb_qry_response);
+    case PbQueryResponse::kTransactionsPageResponse:
+      return std::make_unique<TransactionsPageResponse>(pb_qry_response);
+    case PbQueryResponse::kPendingTransactionsPageResponse:
+      return std::make_unique<PendingTransactionsPageResponse>(pb_qry_response);
+    case PbQueryResponse::kBlockResponse:
+      return std::make_unique<BlockResponse>(pb_qry_response);
+    case PbQueryResponse::kPeersResponse:
+      return std::make_unique<PeersResponse>(pb_qry_response);
+    default:
+      BOOST_ASSERT_MSG(false, "unknown command");
+      return {};
+  };
+}
 }  // namespace
 
 struct QueryResponse::Impl {

@@ -24,9 +24,9 @@ namespace shared_model {
    */
   class BlockQueryResponse : public ModelPrimitive<BlockQueryResponse> {
    private:
-    /// Shortcut type for polymorphic wrapper
+    /// const reference shortcut type
     template <typename... Value>
-    using w = boost::variant<const Value &...>;
+    using ConstRefVariant = boost::variant<const Value &...>;
 
    public:
     using TransportType = iroha::protocol::BlockQueryResponse;
@@ -34,7 +34,8 @@ namespace shared_model {
     explicit BlockQueryResponse(TransportType &&block_query_response);
 
     /// Type of container with all concrete query response
-    using QueryResponseVariantType = w<BlockResponse, BlockErrorResponse>;
+    using QueryResponseVariantType =
+        ConstRefVariant<BlockResponse, BlockErrorResponse>;
 
     /// Type of all available query responses
     using QueryResponseListType = QueryResponseVariantType::types;

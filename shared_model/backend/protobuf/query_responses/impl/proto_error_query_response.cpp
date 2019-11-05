@@ -8,22 +8,18 @@
 #include "backend/protobuf/query_responses/proto_concrete_error_query_response.hpp"
 #include "utils/variant_deserializer.hpp"
 
+StatelessFailedErrorResponse, StatefulFailedErrorResponse,
+    NoAccountErrorResponse, NoAccountAssetsErrorResponse,
+    NoAccountDetailErrorResponse, NoSignatoriesErrorResponse,
+    NotSupportedErrorResponse, NoAssetErrorResponse, NoRolesErrorResponse > ;
+
 namespace {
   /// type of proto variant
   using ProtoQueryErrorResponseVariantType =
-      boost::variant<shared_model::StatelessFailedErrorResponse,
-                     shared_model::StatefulFailedErrorResponse,
-                     shared_model::NoAccountErrorResponse,
-                     shared_model::NoAccountAssetsErrorResponse,
-                     shared_model::NoAccountDetailErrorResponse,
-                     shared_model::NoSignatoriesErrorResponse,
-                     shared_model::NotSupportedErrorResponse,
-                     shared_model::NoAssetErrorResponse,
-                     shared_model::NoRolesErrorResponse>;
 
-  /// list of types in proto variant
-  using ProtoQueryErrorResponseListType =
-      ProtoQueryErrorResponseVariantType::types;
+      /// list of types in proto variant
+      using ProtoQueryErrorResponseListType =
+          ProtoQueryErrorResponseVariantType::types;
 }  // namespace
 
 struct ErrorQueryResponse::Impl {
