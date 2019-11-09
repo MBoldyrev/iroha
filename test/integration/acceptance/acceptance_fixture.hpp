@@ -174,9 +174,9 @@ class AcceptanceFixture : public ::testing::Test {
    * @tparam ErrorResponse is type of error to check against
    * @param response to check for
    */
-  template <typename ErrorResponse>
-  std::function<void(const shared_model::QueryResponse &)>
-  checkQueryErrorResponse();
+  std::function<void(const shared_model::interface::QueryResponse &)>
+  checkQueryErrorResponse(shared_model::QueryErrorType error_type,
+                          shared_model::ErrorCodeType error_code);
 
   /**
    * @return unique time for this fixture

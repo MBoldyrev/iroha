@@ -71,7 +71,9 @@ class QueriesAcceptanceTest : public AcceptanceFixture {
 TEST_F(QueriesAcceptanceTest, NonExistentCreatorId) {
   auto query = complete(baseQry(NonExistentUserId).getRoles());
 
-  itf.sendQuery(query, checkQueryErrorResponse<StatefulFailedErrorResponse>());
+  itf.sendQuery(query,
+                checkQueryErrorResponse(
+                    shared_model::QueryErrorType::kStatefulFailed, 2));
 }
 
 /**
@@ -104,7 +106,9 @@ TEST_F(QueriesAcceptanceTest, More24HourOldTime) {
                                                  - std::chrono::seconds(1)))
                    .getRoles());
 
-  itf.sendQuery(query, checkQueryErrorResponse<StatelessFailedErrorResponse>());
+  itf.sendQuery(query,
+                checkQueryErrorResponse(
+                    shared_model::QueryErrorType::kStatelessFailed, 0));
 }
 
 /**
@@ -171,7 +175,9 @@ TEST_F(QueriesAcceptanceTest, MoreFiveMinutesFromFuture) {
                                                  + std::chrono::seconds(1)))
                    .getRoles());
 
-  itf.sendQuery(query, checkQueryErrorResponse<StatelessFailedErrorResponse>());
+  itf.sendQuery(query,
+                checkQueryErrorResponse(
+                    shared_model::QueryErrorType::kStatelessFailed, 0));
 }
 
 /**
@@ -187,7 +193,9 @@ TEST_F(QueriesAcceptanceTest, TenMinutesFromFuture) {
                    .createdTime(iroha::time::now(std::chrono::minutes(10)))
                    .getRoles());
 
-  itf.sendQuery(query, checkQueryErrorResponse<StatelessFailedErrorResponse>());
+  itf.sendQuery(query,
+                checkQueryErrorResponse(
+                    shared_model::QueryErrorType::kStatelessFailed, 0));
 }
 
 /**
@@ -206,7 +214,9 @@ TEST_F(QueriesAcceptanceTest, InvalidSignValidPubKeypair) {
 
   auto query = complete(baseQry().getRoles(), kInvalidSignValidPubKeypair);
 
-  itf.sendQuery(query, checkQueryErrorResponse<StatelessFailedErrorResponse>());
+  itf.sendQuery(query,
+                checkQueryErrorResponse(
+                    shared_model::QueryErrorType::kStatelessFailed, 0));
 }
 
 /**
@@ -224,7 +234,9 @@ TEST_F(QueriesAcceptanceTest, ValidSignInvalidPubKeypair) {
 
   auto query = complete(baseQry().getRoles(), kValidSignInvalidPubKeypair);
 
-  itf.sendQuery(query, checkQueryErrorResponse<StatelessFailedErrorResponse>());
+  itf.sendQuery(query,
+                checkQueryErrorResponse(
+                    shared_model::QueryErrorType::kStatelessFailed, 0));
 }
 
 /**
@@ -242,7 +254,9 @@ TEST_F(QueriesAcceptanceTest, FullyInvalidKeypair) {
 
   auto query = complete(baseQry().getRoles(), kFullyInvalidKeypair);
 
-  itf.sendQuery(query, checkQueryErrorResponse<StatelessFailedErrorResponse>());
+  itf.sendQuery(query,
+                checkQueryErrorResponse(
+                    shared_model::QueryErrorType::kStatelessFailed, 0));
 }
 
 /**
@@ -259,7 +273,9 @@ TEST_F(QueriesAcceptanceTest, EmptySignValidPubKeypair) {
   proto_query.clear_signature();
   auto query = proto::Query(proto_query);
 
-  itf.sendQuery(query, checkQueryErrorResponse<StatelessFailedErrorResponse>());
+  itf.sendQuery(query,
+                checkQueryErrorResponse(
+                    shared_model::QueryErrorType::kStatelessFailed, 0));
 }
 
 /**
@@ -275,7 +291,9 @@ TEST_F(QueriesAcceptanceTest, ValidSignEmptyPubKeypair) {
   proto_query.mutable_signature()->clear_public_key();
   auto query = proto::Query(proto_query);
 
-  itf.sendQuery(query, checkQueryErrorResponse<StatelessFailedErrorResponse>());
+  itf.sendQuery(query,
+                checkQueryErrorResponse(
+                    shared_model::QueryErrorType::kStatelessFailed, 0));
 }
 
 /**
@@ -292,7 +310,9 @@ TEST_F(QueriesAcceptanceTest, FullyEmptyPubKeypair) {
   proto_query.mutable_signature()->clear_public_key();
   auto query = proto::Query(proto_query);
 
-  itf.sendQuery(query, checkQueryErrorResponse<StatelessFailedErrorResponse>());
+  itf.sendQuery(query,
+                checkQueryErrorResponse(
+                    shared_model::QueryErrorType::kStatelessFailed, 0));
 }
 
 /**
@@ -314,7 +334,9 @@ TEST_F(QueriesAcceptanceTest, InvalidSignEmptyPubKeypair) {
   proto_query.mutable_signature()->clear_public_key();
   auto query = proto::Query(proto_query);
 
-  itf.sendQuery(query, checkQueryErrorResponse<StatelessFailedErrorResponse>());
+  itf.sendQuery(query,
+                checkQueryErrorResponse(
+                    shared_model::QueryErrorType::kStatelessFailed, 0));
 }
 
 /**
@@ -340,5 +362,7 @@ TEST_F(QueriesAcceptanceTest, EmptySignInvalidPubKeypair) {
   proto_query.clear_signature();
   auto query = proto::Query(proto_query);
 
-  itf.sendQuery(query, checkQueryErrorResponse<StatelessFailedErrorResponse>());
+  itf.sendQuery(query,
+                checkQueryErrorResponse(
+                    shared_model::QueryErrorType::kStatelessFailed, 0));
 }

@@ -87,6 +87,8 @@ namespace shared_model {
     using PeerList = std::vector<std::shared_ptr<shared_model::Peer>>;
     /// Type of a TLS certificate
     using TLSCertificateType = std::string;
+    /// Type of query error code
+    using QueryErrorCodeType = uint32_t;
 
     enum class BatchType { ATOMIC = 0, ORDERED = 1 };
 

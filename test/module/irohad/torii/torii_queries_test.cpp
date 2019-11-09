@@ -48,7 +48,7 @@ using namespace iroha::torii;
 using namespace shared_model::permissions;
 
 using wTransaction = std::shared_ptr<shared_model::Transaction>;
-using ErrorQueryType = shared_model::QueryResponseFactory::ErrorQueryType;
+using QueryErrorType = shared_model::QueryResponseFactory::QueryErrorType;
 
 // TODO kamilsa 22.06.18 IR-1472 rework this test so that query service is
 // mocked
@@ -220,7 +220,7 @@ TEST_F(ToriiQueriesTest, FindAccountWhenNoGrantPermissions) {
 
   auto *r = query_response_factory
                 ->createErrorQueryResponse(
-                    ErrorQueryType::kStatefulFailed, "", 2, model_query.hash())
+                    QueryErrorType::kStatefulFailed, "", 2, model_query.hash())
                 .release();
 
   EXPECT_CALL(*query_executor, validateAndExecute_(_))
@@ -361,7 +361,7 @@ TEST_F(ToriiQueriesTest, FindAccountAssetWhenNoGrantPermissions) {
 
   auto *r = query_response_factory
                 ->createErrorQueryResponse(
-                    ErrorQueryType::kStatefulFailed, "", 2, model_query.hash())
+                    QueryErrorType::kStatefulFailed, "", 2, model_query.hash())
                 .release();
 
   EXPECT_CALL(*query_executor, validateAndExecute_(_))
@@ -464,7 +464,7 @@ TEST_F(ToriiQueriesTest, FindSignatoriesWhenNoGrantPermissions) {
 
   auto *r = query_response_factory
                 ->createErrorQueryResponse(
-                    ErrorQueryType::kStatefulFailed, "", 2, model_query.hash())
+                    QueryErrorType::kStatefulFailed, "", 2, model_query.hash())
                 .release();
 
   EXPECT_CALL(*query_executor, validateAndExecute_(_))

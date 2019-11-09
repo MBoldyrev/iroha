@@ -149,7 +149,8 @@ class GetAccount : public AcceptanceFixture {
 TEST_F(GetAccount, EmptyAccount) {
   prepareState().sendQuery(
       makeQuery(""),
-      checkQueryErrorResponse<shared_model::StatelessFailedErrorResponse>());
+      checkQueryErrorResponse(shared_model::QueryErrorType::kStatelessFailed,
+                              0));
 }
 
 /**
@@ -165,7 +166,8 @@ TEST_F(GetAccount, NonexistentAccount) {
   prepareState().sendQuery(
       complete(baseQry().queryCounter(1).getAccount("inexistent@" + kDomain)),
 
-      checkQueryErrorResponse<shared_model::StatefulFailedErrorResponse>());
+      checkQueryErrorResponse(shared_model::QueryErrorType::kStatefulFailed,
+                              0));
 }
 
 /**
@@ -181,7 +183,8 @@ TEST_F(GetAccount, NonexistentAccount) {
 TEST_F(GetAccount, NoPermission) {
   prepareState({}).sendQuery(
       makeQuery(),
-      checkQueryErrorResponse<shared_model::StatefulFailedErrorResponse>());
+      checkQueryErrorResponse(shared_model::QueryErrorType::kStatefulFailed,
+                              2));
 }
 
 /**
@@ -240,9 +243,9 @@ TEST_F(GetAccount, NoPermissionOtherAccount) {
   const std::string kUser2Id = kUser2 + "@" + kDomain;
   prepareState({})
       .sendTxAwait(makeSecondUser(), CHECK_TXS_QUANTITY(1))
-      .sendQuery(
-          makeQuery(kUser2Id),
-          checkQueryErrorResponse<shared_model::StatefulFailedErrorResponse>());
+      .sendQuery(makeQuery(kUser2Id),
+                 checkQueryErrorResponse(
+                     shared_model::QueryErrorType::kStatefulFailed, 2));
 }
 
 /**
@@ -258,9 +261,9 @@ TEST_F(GetAccount, WithGetMyPermissionOtherAccount) {
   const std::string kUser2Id = kUser2 + "@" + kDomain;
   prepareState({permissions::Role::kGetMyAccount})
       .sendTxAwait(makeSecondUser(), CHECK_TXS_QUANTITY(1))
-      .sendQuery(
-          makeQuery(kUser2Id),
-          checkQueryErrorResponse<shared_model::StatefulFailedErrorResponse>());
+      .sendQuery(makeQuery(kUser2Id),
+                 checkQueryErrorResponse(
+                     shared_model::QueryErrorType::kStatefulFailed, 2));
 }
 
 /**
@@ -309,9 +312,9 @@ TEST_F(GetAccount, NoPermissionOtherAccountInterdomain) {
   const std::string kUser2Id = kUser2 + "@" + kNewDomain;
   prepareState({})
       .sendTxAwait(makeSecondInterdomainUser(), CHECK_TXS_QUANTITY(1))
-      .sendQuery(
-          makeQuery(kUser2Id),
-          checkQueryErrorResponse<shared_model::StatefulFailedErrorResponse>());
+      .sendQuery(makeQuery(kUser2Id),
+                 checkQueryErrorResponse(
+                     shared_model::QueryErrorType::kStatefulFailed, 2));
 }
 
 /**
@@ -327,9 +330,9 @@ TEST_F(GetAccount, WithGetMyPermissionOtherAccountInterdomain) {
   const std::string kUser2Id = kUser2 + "@" + kNewDomain;
   prepareState({permissions::Role::kGetMyAccount})
       .sendTxAwait(makeSecondInterdomainUser(), CHECK_TXS_QUANTITY(1))
-      .sendQuery(
-          makeQuery(kUser2Id),
-          checkQueryErrorResponse<shared_model::StatefulFailedErrorResponse>());
+      .sendQuery(makeQuery(kUser2Id),
+                 checkQueryErrorResponse(
+                     shared_model::QueryErrorType::kStatefulFailed, 2));
 }
 
 /**
@@ -345,9 +348,9 @@ TEST_F(GetAccount, WithGetDomainPermissionOtherAccountInterdomain) {
   const std::string kUser2Id = kUser2 + "@" + kNewDomain;
   prepareState({permissions::Role::kGetDomainAccounts})
       .sendTxAwait(makeSecondInterdomainUser(), CHECK_TXS_QUANTITY(1))
-      .sendQuery(
-          makeQuery(kUser2Id),
-          checkQueryErrorResponse<shared_model::StatefulFailedErrorResponse>());
+      .sendQuery(makeQuery(kUser2Id),
+                 checkQueryErrorResponse(
+                     shared_model::QueryErrorType::kStatefulFailed, 2));
 }
 
 /**

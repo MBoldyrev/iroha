@@ -40,7 +40,7 @@ namespace shared_model {
         const crypto::Hash &query_hash) const override;
 
     std::unique_ptr<QueryResponse> createErrorQueryResponse(
-        ErrorQueryType error_type,
+        QueryErrorType error_type,
         ErrorQueryResponse::ErrorMessageType error_msg,
         ErrorQueryResponse::ErrorCodeType error_code,
         const crypto::Hash &query_hash) const override;

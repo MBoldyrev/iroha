@@ -124,49 +124,15 @@ auto AcceptanceFixture::complete(Builder builder)
   return complete(builder, kUserKeypair);
 }
 
-template <typename ErrorResponse>
-std::function<void(const shared_model::QueryResponse &)>
-AcceptanceFixture::checkQueryErrorResponse() {
-  return [](auto &response) {
-    ASSERT_TRUE(boost::apply_visitor(
-        shared_model::QueryErrorResponseChecker<ErrorResponse>(),
-        response.get()));
+std::function<void(const shared_model::interface::QueryResponse &)>
+AcceptanceFixture::checkQueryErrorResponse(
+    shared_model::QueryErrorType error_type,
+    shared_model::ErrorCodeType error_code) {
+  return [error_type, error_code](auto &response) {
+    EXPECT_EQ(response.reason(), error_type);
+    EXPECT_EQ(response.errorCode(), error_code);
   };
 }
-
-template auto AcceptanceFixture::complete<TestUnsignedTransactionBuilder>(
-    TestUnsignedTransactionBuilder builder)
-    -> decltype(builder.build().finish());
-template auto AcceptanceFixture::complete<TestUnsignedQueryBuilder>(
-    TestUnsignedQueryBuilder builder) -> decltype(builder.build().finish());
-
-template std::function<void(const shared_model::QueryResponse &)>
-AcceptanceFixture::checkQueryErrorResponse<
-    shared_model::StatelessFailedErrorResponse>();
-template std::function<void(const shared_model::QueryResponse &)>
-AcceptanceFixture::checkQueryErrorResponse<
-    shared_model::StatefulFailedErrorResponse>();
-template std::function<void(const shared_model::QueryResponse &)>
-AcceptanceFixture::checkQueryErrorResponse<
-    shared_model::NoAccountErrorResponse>();
-template std::function<void(const shared_model::QueryResponse &)>
-AcceptanceFixture::checkQueryErrorResponse<
-    shared_model::NoAccountAssetsErrorResponse>();
-template std::function<void(const shared_model::QueryResponse &)>
-AcceptanceFixture::checkQueryErrorResponse<
-    shared_model::NoAccountDetailErrorResponse>();
-template std::function<void(const shared_model::QueryResponse &)>
-AcceptanceFixture::checkQueryErrorResponse<
-    shared_model::NoSignatoriesErrorResponse>();
-template std::function<void(const shared_model::QueryResponse &)>
-AcceptanceFixture::checkQueryErrorResponse<
-    shared_model::NotSupportedErrorResponse>();
-template std::function<void(const shared_model::QueryResponse &)>
-AcceptanceFixture::checkQueryErrorResponse<
-    shared_model::NoAssetErrorResponse>();
-template std::function<void(const shared_model::QueryResponse &)>
-AcceptanceFixture::checkQueryErrorResponse<
-    shared_model::NoRolesErrorResponse>();
 
 iroha::time::time_t AcceptanceFixture::getUniqueTime() {
   return initial_time + nonce_counter++;

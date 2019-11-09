@@ -68,7 +68,7 @@ namespace iroha {
         // TODO [IR-1816] Akvinikym 03.12.18: replace magic number 3
         // with a named constant
         return query_response_factory_->createErrorQueryResponse(
-            shared_model::QueryResponseFactory::ErrorQueryType::kStatefulFailed,
+            shared_model::QueryResponseFactory::QueryErrorType::kStatefulFailed,
             "query signatories did not pass validation",
             3,
             query.hash());

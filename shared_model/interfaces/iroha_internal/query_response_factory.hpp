@@ -12,6 +12,7 @@
 #include "interfaces/common_objects/account.hpp"
 #include "interfaces/common_objects/asset.hpp"
 #include "interfaces/common_objects/types.hpp"
+#include "interfaces/iroha_internal/error_query_response_reason.hpp"
 #include "interfaces/permissions.hpp"
 #include "interfaces/queries/account_detail_record_id.hpp"
 #include "interfaces/query_responses/block_query_response.hpp"
@@ -98,20 +99,6 @@ namespace shared_model {
         std::unique_ptr<Block> block, const crypto::Hash &query_hash) const;
 
     /**
-     * Describes type of error to be placed inside the error query response
-     */
-    enum class ErrorQueryType {
-      kStatelessFailed,
-      kStatefulFailed,
-      kNoAccount,
-      kNoAccountAssets,
-      kNoAccountDetail,
-      kNoSignatories,
-      kNotSupported,
-      kNoAsset,
-      kNoRoles
-    };
-    /**
      * Create response for failed query
      * @param error_type - type of error to be inserted into the response
      * @param error_msg - message, which is to be set in the response
@@ -120,7 +107,7 @@ namespace shared_model {
      * @return error response
      */
     std::unique_ptr<QueryResponse> createErrorQueryResponse(
-        ErrorQueryType error_type,
+        QueryErrorType error_type,
         ErrorQueryResponse::ErrorMessageType error_msg,
         ErrorQueryResponse::ErrorCodeType error_code,
         const crypto::Hash &query_hash) const;

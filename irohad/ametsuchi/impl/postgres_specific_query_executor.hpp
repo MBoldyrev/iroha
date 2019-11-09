@@ -38,7 +38,7 @@ namespace iroha {
 
     class BlockStorage;
 
-    using QueryErrorType = shared_model::QueryResponseFactory::ErrorQueryType;
+    using QueryErrorType = shared_model::QueryResponseFactory::QueryErrorType;
 
     using ErrorQueryResponse = shared_model::ErrorQueryResponse;
     using QueryErrorMessageType = ErrorQueryResponse::ErrorMessageType;

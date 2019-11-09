@@ -151,7 +151,7 @@ std::unique_ptr<QueryResponse> ProtoQueryResponseFactory::createBlockResponse(
 
 std::unique_ptr<QueryResponse>
 ProtoQueryResponseFactory::createErrorQueryResponse(
-    ErrorQueryType error_type,
+    QueryErrorType error_type,
     ErrorQueryResponse::ErrorMessageType error_msg,
     ErrorQueryResponse::ErrorCodeType error_code,
     const crypto::Hash &query_hash) const {
@@ -160,31 +160,31 @@ ProtoQueryResponseFactory::createErrorQueryResponse(
           iroha::protocol::QueryResponse &protocol_query_response) mutable {
         iroha::protocol::ErrorResponse_Reason reason;
         switch (error_type) {
-          case ErrorQueryType::kStatelessFailed:
+          case QueryErrorType::kStatelessFailed:
             reason = iroha::protocol::ErrorResponse_Reason_STATELESS_INVALID;
             break;
-          case ErrorQueryType::kStatefulFailed:
+          case QueryErrorType::kStatefulFailed:
             reason = iroha::protocol::ErrorResponse_Reason_STATEFUL_INVALID;
             break;
-          case ErrorQueryType::kNoAccount:
+          case QueryErrorType::kNoAccount:
             reason = iroha::protocol::ErrorResponse_Reason_NO_ACCOUNT;
             break;
-          case ErrorQueryType::kNoAccountAssets:
+          case QueryErrorType::kNoAccountAssets:
             reason = iroha::protocol::ErrorResponse_Reason_NO_ACCOUNT_ASSETS;
             break;
-          case ErrorQueryType::kNoAccountDetail:
+          case QueryErrorType::kNoAccountDetail:
             reason = iroha::protocol::ErrorResponse_Reason_NO_ACCOUNT_DETAIL;
             break;
-          case ErrorQueryType::kNoSignatories:
+          case QueryErrorType::kNoSignatories:
             reason = iroha::protocol::ErrorResponse_Reason_NO_SIGNATORIES;
             break;
-          case ErrorQueryType::kNotSupported:
+          case QueryErrorType::kNotSupported:
             reason = iroha::protocol::ErrorResponse_Reason_NOT_SUPPORTED;
             break;
-          case ErrorQueryType::kNoAsset:
+          case QueryErrorType::kNoAsset:
             reason = iroha::protocol::ErrorResponse_Reason_NO_ASSET;
             break;
-          case ErrorQueryType::kNoRoles:
+          case QueryErrorType::kNoRoles:
             reason = iroha::protocol::ErrorResponse_Reason_NO_ROLES;
             break;
         }
