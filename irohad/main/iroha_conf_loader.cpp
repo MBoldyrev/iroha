@@ -350,17 +350,12 @@ inline void JsonDeserializerImpl::getVal<std::unique_ptr<shared_model::Peer>>(
                });
   }
 
-  common_objects_factory_
-      ->createPeer(
-          address,
-          shared_model::crypto::PublicKey(
-              shared_model::crypto::Blob::fromHexString(public_key_str)),
-          tls_certificate_str)
-      .match([&dest](auto &&v) { dest = std::move(v.value); },
-             [&path](const auto &error) {
-               throw std::runtime_error("Failed to create a peer at '" + path
-                                        + "': " + error.error);
-             });
+  dest = std::make_unique<shared_model::Peer>(
+      address,
+      shared_model::crypto::PublicKey(
+          shared_model::crypto::Blob::fromHexString(public_key_str)),
+      tls_certificate_str);
+  validator_->validatePeer(validation_errors, *dest);
 }
 
 template <>
@@ -488,7 +483,8 @@ IrohadConfig parse_iroha_config(
     return doc;
   }()};
 
-  JsonDeserializerImpl parser(common_objects_factory);
+  JsonDeserializerImpl parser;
   IrohadConfig config = parser.deserialize<IrohadConfig>(doc);
+  if (not parser.
   return config;
 }
