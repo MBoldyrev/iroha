@@ -171,6 +171,19 @@ namespace shared_model {
           ReasonsGroupType &reason,
           const AccountDetailPaginationMeta &pagination_meta) const;
 
+      void validateAccount(ReasonsGroupType &reason,
+                           const Account &account) const;
+
+      void validateAccountAsset(ReasonsGroupType &reason,
+                                const AccountAsset &account_asset) const;
+
+      void validateAsset(ReasonsGroupType &reason, const Asset &asset) const;
+
+      void validateDomain(ReasonsGroupType &reason, const Domain &domain) const;
+
+      void validateSignature(ReasonsGroupType &reason,
+                             const Signature::SignedType &signature) const;
+
      private:
       const static std::string account_name_pattern_;
       const static std::string asset_name_pattern_;

@@ -24,7 +24,11 @@ add_library(shared_model_interfaces
     commands/impl/set_setting_value.cpp
     commands/impl/subtract_asset_quantity.cpp
     commands/impl/transfer_asset.cpp
+    common_objects/impl/account_asset.cpp
+    common_objects/impl/account.cpp
     common_objects/impl/amount.cpp
+    common_objects/impl/asset.cpp
+    common_objects/impl/domain.cpp
     common_objects/impl/peer.cpp
     common_objects/impl/signature.cpp
     impl/block.cpp

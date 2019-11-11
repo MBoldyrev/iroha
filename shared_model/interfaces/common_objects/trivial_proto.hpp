@@ -6,6 +6,7 @@
 #ifndef IROHA_SHARED_MODEL_TRIVIAL_PROTO_HPP
 #define IROHA_SHARED_MODEL_TRIVIAL_PROTO_HPP
 
+#include "interfaces/base/model_primitive.hpp"
 #include "utils/reference_holder.hpp"
 
 namespace shared_model {
@@ -15,7 +16,7 @@ namespace shared_model {
    * @tparam Proto is protobuf container
    */
   template <typename Iface, typename Proto>
-  class TrivialProto : public Iface {
+  class TrivialProto : public ModelPrimitive<Iface> {
    public:
     using TransportType = Proto;
 

@@ -6,35 +6,27 @@
 #ifndef IROHA_SHARED_MODEL_PEER_HPP
 #define IROHA_SHARED_MODEL_PEER_HPP
 
-#include "interfaces/base/model_primitive.hpp"
-
-#include <boost/optional.hpp>
-
+#include <boost/optional/optional.hpp>
 #include "cryptography/hash.hpp"
 #include "cryptography/public_key.hpp"
+#include "interfaces/common_objects/trivial_proto.hpp"
 #include "interfaces/common_objects/types.hpp"
 #include "primitive.pb.h"
-#include "utils/reference_holder.hpp"
-
-#include <boost/optional/optional_fwd.hpp>
 
 namespace shared_model {
 
   /**
-   * Representation of a network participant.
+   * Representation of a network participant (Iroha node).
    */
-  class Peer : public ModelPrimitive<Peer> {
+  class Peer : public TrivialProto<Peer, iroha::protocol::Peer> {
    public:
-    template <typename PeerType>
-    explicit Peer(PeerType &&peer) : proto_(std::forward<PeerType>(peer)) {
-      if (proto_->certificate_case()) {
-        tls_certificate_ = proto_->tls_certificate();
-      }
-    }
+    template <typename T>
+    explicit Peer(T &&peer) : TrivialProto(std::forward<T>(peer)) {}
 
-    Peer(const Peer &o) : Peer(o.proto_) {}
-
-    Peer(Peer &&o) noexcept : Peer(std::move(o.proto_)) {}
+    Peer(const types::AddressType &address,
+         const types::PubkeyType &public_key,
+         const boost::optional<types::TLSCertificateType> &tls_certificate =
+             boost::none);
 
     /**
      * @return Peer address, for fetching data
@@ -56,10 +48,14 @@ namespace shared_model {
     bool operator==(const ModelType &rhs) const override;
 
    private:
-    detail::ReferenceHolder<iroha::protocol::Peer> proto_;
     const types::PubkeyType public_key_{
         crypto::Hash::fromHexString(proto_->peer_key())};
-    boost::optional<std::string> tls_certificate_;
+    boost::optional<types::TLSCertificateType> tls_certificate_{[this] {
+      if (proto_->certificate_case()) {
+        return proto_->tls_certificate();
+      }
+      return boost::none;
+    }()};
   };
 }  // namespace shared_model
 

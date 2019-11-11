@@ -17,6 +17,9 @@ namespace shared_model {
    */
   class Amount final : public ModelPrimitive<Amount> {
    public:
+    template <typename T>
+    explicit Amount(T &&amount) : TrivialProto(std::forward<T>(amount)) {}
+
     explicit Amount(const std::string &amount);
 
     /**

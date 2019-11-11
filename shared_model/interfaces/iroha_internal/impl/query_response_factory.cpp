@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "interfaces/iroha_internal/proto_query_response_factory.hpp"
+#include "interfaces/iroha_internal/query_response_factory.hpp"
 
 #include "cryptography/public_key.hpp"
 #include "interfaces/block.hpp"
@@ -57,8 +57,7 @@ namespace {
   }
 }  // namespace
 
-std::unique_ptr<QueryResponse>
-ProtoQueryResponseFactory::createAccountAssetResponse(
+std::unique_ptr<QueryResponse> QueryResponseFactory::createAccountAssetResponse(
     std::vector<std::tuple<types::AccountIdType, types::AssetIdType, Amount>>
         assets,
     size_t total_assets_number,
@@ -86,7 +85,7 @@ ProtoQueryResponseFactory::createAccountAssetResponse(
 }
 
 std::unique_ptr<QueryResponse>
-ProtoQueryResponseFactory::createAccountDetailResponse(
+QueryResponseFactory::createAccountDetailResponse(
     types::DetailType account_detail,
     size_t total_number,
     boost::optional<const AccountDetailRecordId &> next_record_id,
@@ -108,7 +107,7 @@ ProtoQueryResponseFactory::createAccountDetailResponse(
       query_hash);
 }
 
-std::unique_ptr<QueryResponse> ProtoQueryResponseFactory::createAccountResponse(
+std::unique_ptr<QueryResponse> QueryResponseFactory::createAccountResponse(
     const types::AccountIdType account_id,
     const types::DomainIdType domain_id,
     types::QuorumType quorum,
@@ -136,7 +135,7 @@ std::unique_ptr<QueryResponse> ProtoQueryResponseFactory::createAccountResponse(
       query_hash);
 }
 
-std::unique_ptr<QueryResponse> ProtoQueryResponseFactory::createBlockResponse(
+std::unique_ptr<QueryResponse> QueryResponseFactory::createBlockResponse(
     std::unique_ptr<Block> block, const crypto::Hash &query_hash) const {
   return createQueryResponse(
       [block = std::move(block)](
@@ -149,8 +148,7 @@ std::unique_ptr<QueryResponse> ProtoQueryResponseFactory::createBlockResponse(
       query_hash);
 }
 
-std::unique_ptr<QueryResponse>
-ProtoQueryResponseFactory::createErrorQueryResponse(
+std::unique_ptr<QueryResponse> QueryResponseFactory::createErrorQueryResponse(
     QueryErrorType error_type,
     ErrorQueryResponse::ErrorMessageType error_msg,
     ErrorQueryResponse::ErrorCodeType error_code,
@@ -197,8 +195,7 @@ ProtoQueryResponseFactory::createErrorQueryResponse(
       query_hash);
 }
 
-std::unique_ptr<QueryResponse>
-ProtoQueryResponseFactory::createSignatoriesResponse(
+std::unique_ptr<QueryResponse> QueryResponseFactory::createSignatoriesResponse(
     std::vector<types::PubkeyType> signatories,
     const crypto::Hash &query_hash) const {
   return createQueryResponse(
@@ -213,8 +210,7 @@ ProtoQueryResponseFactory::createSignatoriesResponse(
       query_hash);
 }
 
-std::unique_ptr<QueryResponse>
-ProtoQueryResponseFactory::createTransactionsResponse(
+std::unique_ptr<QueryResponse> QueryResponseFactory::createTransactionsResponse(
     std::vector<std::unique_ptr<Transaction>> transactions,
     const crypto::Hash &query_hash) const {
   return createQueryResponse(
@@ -231,7 +227,7 @@ ProtoQueryResponseFactory::createTransactionsResponse(
 }
 
 std::unique_ptr<QueryResponse>
-ProtoQueryResponseFactory::createTransactionsPageResponse(
+QueryResponseFactory::createTransactionsPageResponse(
     std::vector<std::unique_ptr<Transaction>> transactions,
     boost::optional<const crypto::Hash &> next_tx_hash,
     types::TransactionsNumberType all_transactions_size,
@@ -258,7 +254,7 @@ ProtoQueryResponseFactory::createTransactionsPageResponse(
 }
 
 std::unique_ptr<QueryResponse>
-ProtoQueryResponseFactory::createPendingTransactionsPageResponse(
+QueryResponseFactory::createPendingTransactionsPageResponse(
     std::vector<std::unique_ptr<Transaction>> transactions,
     types::TransactionsNumberType all_transactions_size,
     boost::optional<PendingTransactionsPageResponse::BatchInfo> next_batch_info,
@@ -288,7 +284,7 @@ ProtoQueryResponseFactory::createPendingTransactionsPageResponse(
       query_hash);
 }
 
-std::unique_ptr<QueryResponse> ProtoQueryResponseFactory::createAssetResponse(
+std::unique_ptr<QueryResponse> QueryResponseFactory::createAssetResponse(
     const types::AssetIdType asset_id,
     const types::DomainIdType domain_id,
     const types::PrecisionType precision,
@@ -307,7 +303,7 @@ std::unique_ptr<QueryResponse> ProtoQueryResponseFactory::createAssetResponse(
       query_hash);
 }
 
-std::unique_ptr<QueryResponse> ProtoQueryResponseFactory::createRolesResponse(
+std::unique_ptr<QueryResponse> QueryResponseFactory::createRolesResponse(
     std::vector<types::RoleIdType> roles,
     const crypto::Hash &query_hash) const {
   return createQueryResponse(
@@ -323,7 +319,7 @@ std::unique_ptr<QueryResponse> ProtoQueryResponseFactory::createRolesResponse(
 }
 
 std::unique_ptr<QueryResponse>
-ProtoQueryResponseFactory::createRolePermissionsResponse(
+QueryResponseFactory::createRolePermissionsResponse(
     RolePermissionSet role_permissions, const crypto::Hash &query_hash) const {
   return createQueryResponse(
       [role_permissions](
@@ -341,7 +337,7 @@ ProtoQueryResponseFactory::createRolePermissionsResponse(
       query_hash);
 }
 
-std::unique_ptr<QueryResponse> ProtoQueryResponseFactory::createPeersResponse(
+std::unique_ptr<QueryResponse> QueryResponseFactory::createPeersResponse(
     types::PeerList peers, const crypto::Hash &query_hash) const {
   return createQueryResponse(
       [peers](iroha::protocol::QueryResponse &protocol_query_response) {
@@ -357,7 +353,7 @@ std::unique_ptr<QueryResponse> ProtoQueryResponseFactory::createPeersResponse(
 }
 
 std::unique_ptr<BlockQueryResponse>
-ProtoQueryResponseFactory::createBlockQueryResponse(
+QueryResponseFactory::createBlockQueryResponse(
     std::shared_ptr<const Block> block) const {
   return createQueryResponse(
       [block = std::move(block)](
@@ -370,7 +366,7 @@ ProtoQueryResponseFactory::createBlockQueryResponse(
 }
 
 std::unique_ptr<BlockQueryResponse>
-ProtoQueryResponseFactory::createBlockQueryResponse(
+QueryResponseFactory::createBlockQueryResponse(
     std::string error_message) const {
   return createQueryResponse(
       [error_message = std::move(error_message)](

@@ -7,17 +7,25 @@
 #define IROHA_SHARED_MODEL_ACCOUNT_HPP
 
 #include "cryptography/hash.hpp"
-#include "interfaces/base/model_primitive.hpp"
+#include "interfaces/common_objects/trivial_proto.hpp"
 #include "interfaces/common_objects/types.hpp"
-#include "utils/string_builder.hpp"
+#include "qry_responses.pb.h"
 
 namespace shared_model {
 
   /**
    * User identity information in the system
    */
-  class Account : public ModelPrimitive<Account> {
+  class Account : public TrivialProto<Account, iroha::protocol::Account> {
    public:
+    template <typename T>
+    Account(T &&account) : TrivialProto(std::forward<T>(account)) {}
+
+    Account(const types::AccountIdType &account_id,
+            const types::DomainIdType &domain_id,
+            types::QuorumType quorum,
+            const types::JsonType &jsonData);
+
     /**
      * @return Identity of user, for fetching data
      */
@@ -42,25 +50,14 @@ namespace shared_model {
      * Stringify the data.
      * @return the content of account asset.
      */
-    std::string toString() const override {
-      return detail::PrettyStringBuilder()
-          .init("Account")
-          .append("accountId", accountId())
-          .append("domainId", domainId())
-          .append("quorum", std::to_string(quorum()))
-          .append("json", jsonData())
-          .finalize();
-    }
+    std::string toString() const override;
 
     /**
      * Checks equality of objects inside
      * @param rhs - other wrapped value
      * @return true, if wrapped objects are same
      */
-    bool operator==(const Account &rhs) const override {
-      return accountId() == rhs.accountId() and domainId() == rhs.domainId()
-          and quorum() == rhs.quorum() and jsonData() == rhs.jsonData();
-    }
+    bool operator==(const Account &rhs) const override;
   };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_ACCOUNT_HPP

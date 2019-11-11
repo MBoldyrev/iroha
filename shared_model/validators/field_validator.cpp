@@ -425,5 +425,37 @@ namespace shared_model {
           };
     }
 
+    void FieldValidator::validateAccount(ReasonsGroupType &reason,
+                                         const Account &account) const {
+      validatePaginationMetaPageSize(reason, pagination_meta.pageSize());
+      validateAccountId(reason, account.accountId());
+      validateDomainId(reason, account.domainId());
+      validateQuorum(reason, account.quorum());
+    }
+
+    void FieldValidator::validateAccountAsset(
+        ReasonsGroupType &reason, const AccountAsset &account_asset) const {
+      validateAccountId(reasons, account_asset.accountId());
+      validateAssetId(reasons, account_asset.assetId());
+    }
+
+    void FieldValidator::validateAsset(ReasonsGroupType &reason,
+                                       const Asset &asset) const {
+      validateAssetId(reasons, asset.assetId());
+      validateDomainId(reasons, asset.domainId());
+    }
+
+    void FieldValidator::validateDomain(ReasonsGroupType &reason,
+                                        const Domain &domain) const {
+      validateDomainId(reason, domain.domainId());
+      validateRoleId(reason, domain.defaultRole());
+    }
+
+    void FieldValidator::validateSignature(
+        ReasonsGroupType &reason,
+        const Signature::SignedType &signature) const {
+      validatePubkey(reason, signature.publicKey());
+    }
+
   }  // namespace validation
 }  // namespace shared_model

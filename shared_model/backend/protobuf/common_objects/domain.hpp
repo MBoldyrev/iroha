@@ -3,32 +3,37 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef IROHA_SHARED_MODEL_PROTO_DOMAIN_HPP
-#define IROHA_SHARED_MODEL_PROTO_DOMAIN_HPP
-
-#include "backend/protobuf/common_objects/trivial_proto.hpp"
 #include "interfaces/common_objects/domain.hpp"
-#include "qry_responses.pb.h"
 
-namespace shared_model {
-  class Domain final : public TrivialProto<Domain, iroha::protocol::Domain> {
-   public:
-    template <typename DomainType>
-    explicit Domain(DomainType &&domain)
-        : TrivialProto(std::forward<DomainType>(domain)) {}
+#include "utils/string_builder.hpp"
 
-    Domain(const Domain &o) : Domain(o.proto_) {}
+using namespace shared_model;
 
-    Domain(Domain &&o) noexcept : Domain(std::move(o.proto_)) {}
+Domain::Domain(const types::DomainIdType &domain_id,
+               const types::RoleIdType &default_role)
+    : Domain([&]() -> TransportType {
+        iroha::protocol::Domain domain;
+        domain.set_domain_id(domain_id);
+        domain.set_default_role(default_role);
+        return domain;
+      }()) {}
 
-    const types::DomainIdType &domainId() const override {
-      return proto_->domain_id();
-    }
+const types::DomainIdType &Domain::domainId() const override {
+  return proto_->domain_id();
+}
 
-    const types::RoleIdType &defaultRole() const override {
-      return proto_->default_role();
-    }
-  };
-}  // namespace shared_model
+const types::RoleIdType &Domain::defaultRole() const override {
+  return proto_->default_role();
+}
 
-#endif  // IROHA_SHARED_MODEL_PROTO_DOMAIN_HPP
+std::string Domain::toString() const override {
+  return detail::PrettyStringBuilder()
+      .init("Domain")
+      .append("domainId", domainId())
+      .append("defaultRole", defaultRole())
+      .finalize();
+}
+
+bool Domain::operator==(const ModelType &rhs) const override {
+  return domainId() == rhs.domainId() and defaultRole() == rhs.defaultRole();
+}

@@ -6,17 +6,23 @@
 #ifndef IROHA_SHARED_MODEL_DOMAIN_HPP
 #define IROHA_SHARED_MODEL_DOMAIN_HPP
 
-#include "interfaces/base/model_primitive.hpp"
+#include "interfaces/common_objects/trivial_proto.hpp"
 #include "interfaces/common_objects/types.hpp"
-#include "utils/string_builder.hpp"
+#include "qry_responses.pb.h"
 
 namespace shared_model {
 
   /**
    * Domain object represents administrative unit within the system
    */
-  class Domain : public ModelPrimitive<Domain> {
+  class Domain : public TrivialProto<Domain, iroha::protocol::Domain> {
    public:
+    template <typename T>
+    explicit Domain(T &&domain) : TrivialProto(std::forward<T>(domain)) {}
+
+    Domain(const types::DomainIdType &domain_id,
+           const types::RoleIdType &default_role);
+
     /**
      * @return Identity of domain
      */
@@ -26,27 +32,19 @@ namespace shared_model {
      * @return Default role of domain
      */
     const types::RoleIdType &defaultRole() const;
+
     /**
      * Stringify the data.
      * @return the content of asset.
      */
-    std::string toString() const override {
-      return detail::PrettyStringBuilder()
-          .init("Domain")
-          .append("domainId", domainId())
-          .append("defaultRole", defaultRole())
-          .finalize();
-    }
+    std::string toString() const override;
 
     /**
      * Checks equality of objects inside
      * @param rhs - other wrapped value
      * @return true, if wrapped objects are same
      */
-    bool operator==(const ModelType &rhs) const override {
-      return domainId() == rhs.domainId()
-          and defaultRole() == rhs.defaultRole();
-    }
+    bool operator==(const ModelType &rhs) const override;
   };
 }  // namespace shared_model
 

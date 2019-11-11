@@ -6,29 +6,26 @@
 #ifndef IROHA_SHARED_MODEL_ACCOUNT_ASSET_HPP
 #define IROHA_SHARED_MODEL_ACCOUNT_ASSET_HPP
 
-#include "interfaces/base/model_primitive.hpp"
-
 #include "interfaces/common_objects/amount.hpp"
 #include "interfaces/common_objects/trivial_proto.hpp"
 #include "interfaces/common_objects/types.hpp"
 #include "qry_responses.pb.h"
-#include "utils/string_builder.hpp"
 
 namespace shared_model {
 
   /**
    * Representation of wallet in system
    */
-  class AccountAsset : public ModelPrimitive<AccountAsset> {
+  class AccountAsset
+      : public TrivialProto<AccountAsset, iroha::protocol::AccountAsset> {
    public:
-    template <typename AccountAssetType>
-    explicit AccountAsset(AccountAssetType &&accountAssetType)
-        : TrivialProto(std::forward<AccountAssetType>(accountAssetType)) {}
+    template <typename T>
+    explicit AccountAsset(T &&accountAssetType)
+        : TrivialProto(std::forward<T>(accountAssetType)) {}
 
-    AccountAsset(const AccountAsset &o) : AccountAsset(o.proto_) {}
-
-    AccountAsset(AccountAsset &&o) noexcept
-        : AccountAsset(std::move(o.proto_)) {}
+    AccountAsset(const types::AccountIdType &account_id,
+                 const types::AssetIdType &asset_id,
+                 const Amount &balance);
 
     /**
      * @return Identity of user, for fetching data
@@ -49,24 +46,14 @@ namespace shared_model {
      * Stringify the data.
      * @return the content of account asset.
      */
-    std::string toString() const override {
-      return detail::PrettyStringBuilder()
-          .init("AccountAsset")
-          .append("accountId", accountId())
-          .append("assetId", assetId())
-          .append("balance", balance().toString())
-          .finalize();
-    }
+    std::string toString() const override;
 
     /**
      * Checks equality of objects inside
      * @param rhs - other wrapped value
      * @return true, if wrapped objects are same
      */
-    bool operator==(const ModelType &rhs) const override {
-      return accountId() == rhs.accountId() and assetId() == rhs.assetId()
-          and balance() == rhs.balance();
-    }
+    bool operator==(const ModelType &rhs) const override;
 
    private:
     const Amount balance_{proto_->balance()};

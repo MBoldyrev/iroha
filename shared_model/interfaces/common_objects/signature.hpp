@@ -6,36 +6,25 @@
 #ifndef IROHA_SHARED_MODEL_SIGNATURE_HPP
 #define IROHA_SHARED_MODEL_SIGNATURE_HPP
 
-#include "common/cloneable.hpp"
-
 #include "cryptography/public_key.hpp"
 #include "cryptography/signed.hpp"
-#include "interfaces/base/model_primitive.hpp"
 #include "interfaces/common_objects/trivial_proto.hpp"
 #include "primitive.pb.h"
-#include "utils/string_builder.hpp"
 
 namespace shared_model {
-
-  namespace crypto {
-    class PublicKey;
-    class Signed;
-  }  // namespace crypto
 
   /**
    * Class represents signature of high-level domain objects.
    */
-  class Signature : public ModelPrimitive<Signature>,
-                    public Cloneable<Signature> {
-    template <typename SignatureType>
-    explicit Signature(SignatureType &&signature)
-        : TrivialProto(std::forward<SignatureType>(signature)) {}
-
-    Signature(const Signature &o) : Signature(o.proto_) {}
-
-    Signature(Signature &&o) noexcept : Signature(std::move(o.proto_)) {}
-
+  class Signature : public TrivialProto<Signature, iroha::protocol::Signature> {
    public:
+    template <typename T>
+    explicit Signature(T &&signature)
+        : TrivialProto(std::forward<T>(signature)) {}
+
+    Signature(const types::PubkeyType &key,
+              const Signature::SignedType &signed_data);
+
     /**
      * Type of public key
      */
@@ -61,10 +50,6 @@ namespace shared_model {
     std::string toString() const override;
 
    private:
-    Signature *clone() const override {
-      return new Signature(proto_);
-    }
-
     const PublicKeyType public_key_{
         PublicKeyType::fromHexString(proto_->public_key())};
 
