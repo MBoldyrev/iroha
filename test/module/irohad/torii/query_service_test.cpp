@@ -4,6 +4,7 @@
  */
 
 #include "torii/query_service.hpp"
+
 #include "backend/protobuf/proto_query_response_factory.hpp"
 #include "backend/protobuf/proto_transport_factory.hpp"
 #include "backend/protobuf/query_responses/proto_query_response.hpp"

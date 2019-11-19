@@ -4,6 +4,7 @@
  */
 
 #include "backend/protobuf/proto_query_response_factory.hpp"
+
 #include <gtest/gtest.h>
 #include <boost/optional.hpp>
 #include "backend/plain/account_detail_record_id.hpp"

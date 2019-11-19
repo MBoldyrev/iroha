@@ -4,6 +4,7 @@
  */
 
 #include "backend/protobuf/permissions.hpp"
+
 #include <gtest/gtest.h>
 #include <boost/range/algorithm/for_each.hpp>
 #include <boost/range/irange.hpp>
