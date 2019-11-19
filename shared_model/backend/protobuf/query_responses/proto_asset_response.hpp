@@ -12,19 +12,17 @@
 #include "qry_responses.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class AssetResponse final : public interface::AssetResponse {
-     public:
-      explicit AssetResponse(iroha::protocol::QueryResponse &query_response);
+  class AssetResponse final : public AssetResponse {
+   public:
+    explicit AssetResponse(iroha::protocol::QueryResponse &query_response);
 
-      const Asset &asset() const override;
+    const Asset &asset() const override;
 
-     private:
-      const iroha::protocol::AssetResponse &asset_response_;
+   private:
+    const iroha::protocol::AssetResponse &asset_response_;
 
-      Asset asset_;
-    };
-  }  // namespace proto
+    Asset asset_;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_PROTO_ASSET_RESPONSE_HPP

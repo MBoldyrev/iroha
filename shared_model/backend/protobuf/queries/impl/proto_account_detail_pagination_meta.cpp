@@ -23,7 +23,7 @@ size_t AccountDetailPaginationMeta::pageSize() const {
   return proto_.page_size();
 }
 
-boost::optional<const shared_model::interface::AccountDetailRecordId &>
+boost::optional<const shared_model::AccountDetailRecordId &>
 AccountDetailPaginationMeta::firstRecordId() const {
   if (first_record_id_) {
     return first_record_id_.value();

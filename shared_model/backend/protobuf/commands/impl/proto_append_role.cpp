@@ -8,10 +8,10 @@
 AppendRole::AppendRole(iroha::protocol::Command &command)
     : append_role_{command.append_role()} {}
 
-const interface::types::AccountIdType &AppendRole::accountId() const {
+const types::AccountIdType &AppendRole::accountId() const {
   return append_role_.account_id();
 }
 
-const interface::types::RoleIdType &AppendRole::roleName() const {
+const types::RoleIdType &AppendRole::roleName() const {
   return append_role_.role_name();
 }

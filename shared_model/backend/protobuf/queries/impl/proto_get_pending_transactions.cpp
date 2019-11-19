@@ -16,7 +16,7 @@ GetPendingTransactions::GetPendingTransactions(iroha::protocol::Query &query)
         return boost::none;
       }()} {}
 
-boost::optional<const interface::TxPaginationMeta &>
+boost::optional<const TxPaginationMeta &>
 GetPendingTransactions::paginationMeta() const {
   if (pagination_meta_) {
     return pagination_meta_.value();

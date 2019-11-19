@@ -15,20 +15,19 @@ using namespace shared_model::proto;
 
 ProtoBlockFactory::ProtoBlockFactory(
     std::unique_ptr<shared_model::validation::AbstractValidator<
-        shared_model::interface::Block>> interface_validator,
+        shared_model::Block>> interface_validator,
     std::unique_ptr<
         shared_model::validation::AbstractValidator<iroha::protocol::Block>>
         proto_validator)
     : interface_validator_{std::move(interface_validator)},
       proto_validator_{std::move(proto_validator)} {}
 
-std::unique_ptr<shared_model::interface::Block>
-ProtoBlockFactory::unsafeCreateBlock(
-    interface::types::HeightType height,
-    const interface::types::HashType &prev_hash,
-    interface::types::TimestampType created_time,
-    const interface::types::TransactionsCollectionType &txs,
-    const interface::types::HashCollectionType &rejected_hashes) {
+std::unique_ptr<shared_model::Block> ProtoBlockFactory::unsafeCreateBlock(
+    types::HeightType height,
+    const types::HashType &prev_hash,
+    types::TimestampType created_time,
+    const types::TransactionsCollectionType &txs,
+    const types::HashCollectionType &rejected_hashes) {
   iroha::protocol::Block_v1 block;
   auto *block_payload = block.mutable_payload();
   block_payload->set_height(height);
@@ -58,7 +57,7 @@ ProtoBlockFactory::unsafeCreateBlock(
   proto_block_container.release_block_v1();
 
   auto model_proto_block =
-      std::make_unique<shared_model::proto::Block>(std::move(block));
+      std::make_unique<shared_model::Block>(std::move(block));
   auto interface_block_validation_result =
       interface_validator_->validate(*model_proto_block);
 
@@ -76,14 +75,13 @@ ProtoBlockFactory::unsafeCreateBlock(
   return model_proto_block;
 }
 
-iroha::expected::Result<std::unique_ptr<shared_model::interface::Block>,
-                        std::string>
+iroha::expected::Result<std::unique_ptr<shared_model::Block>, std::string>
 ProtoBlockFactory::createBlock(iroha::protocol::Block block) {
   if (auto errors = proto_validator_->validate(block)) {
     return iroha::expected::makeError(errors.reason());
   }
 
-  std::unique_ptr<shared_model::interface::Block> proto_block =
+  std::unique_ptr<shared_model::Block> proto_block =
       std::make_unique<Block>(std::move(block.block_v1()));
   if (auto errors = interface_validator_->validate(*proto_block)) {
     return iroha::expected::makeError(errors.reason());

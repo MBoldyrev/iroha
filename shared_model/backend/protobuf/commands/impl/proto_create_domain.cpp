@@ -8,10 +8,10 @@
 CreateDomain::CreateDomain(iroha::protocol::Command &command)
     : create_domain_{command.create_domain()} {}
 
-const interface::types::DomainIdType &CreateDomain::domainId() const {
+const types::DomainIdType &CreateDomain::domainId() const {
   return create_domain_.domain_id();
 }
 
-const interface::types::RoleIdType &CreateDomain::userDefaultRole() const {
+const types::RoleIdType &CreateDomain::userDefaultRole() const {
   return create_domain_.default_role();
 }

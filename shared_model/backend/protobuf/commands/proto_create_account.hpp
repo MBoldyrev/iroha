@@ -12,25 +12,23 @@
 #include "cryptography/public_key.hpp"
 
 namespace shared_model {
-  namespace proto {
 
-    class CreateAccount final : public interface::CreateAccount {
-     public:
-      explicit CreateAccount(iroha::protocol::Command &command);
+  class CreateAccount final : public CreateAccount {
+   public:
+    explicit CreateAccount(iroha::protocol::Command &command);
 
-      const interface::types::PubkeyType &pubkey() const override;
+    const types::PubkeyType &pubkey() const override;
 
-      const interface::types::AccountNameType &accountName() const override;
+    const types::AccountNameType &accountName() const override;
 
-      const interface::types::DomainIdType &domainId() const override;
+    const types::DomainIdType &domainId() const override;
 
-     private:
-      const iroha::protocol::CreateAccount &create_account_;
+   private:
+    const iroha::protocol::CreateAccount &create_account_;
 
-      const interface::types::PubkeyType pubkey_;
-    };
+    const types::PubkeyType pubkey_;
+  };
 
-  }  // namespace proto
 }  // namespace shared_model
 
 #endif  // IROHA_PROTO_CREATE_ACCOUNT_HPP

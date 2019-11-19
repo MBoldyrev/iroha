@@ -11,17 +11,15 @@
 #include "cryptography/blob.hpp"
 
 namespace shared_model {
-  namespace proto {
 
-    template <typename T>
-    crypto::Blob makeBlob(T &&message) {
-      crypto::Blob::Bytes data;
-      data.resize(message.ByteSizeLong());
-      message.SerializeToArray(data.data(), data.size());
-      return crypto::Blob(std::move(data));
-    }
+  template <typename T>
+  crypto::Blob makeBlob(T &&message) {
+    crypto::Blob::Bytes data;
+    data.resize(message.ByteSizeLong());
+    message.SerializeToArray(data.data(), data.size());
+    return crypto::Blob(std::move(data));
+  }
 
-  }  // namespace proto
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_PROTO_UTIL_HPP

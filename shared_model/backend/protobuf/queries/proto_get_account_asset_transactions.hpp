@@ -12,27 +12,24 @@
 #include "queries.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class GetAccountAssetTransactions final
-        : public interface::GetAccountAssetTransactions {
-     public:
-      explicit GetAccountAssetTransactions(iroha::protocol::Query &query);
+  class GetAccountAssetTransactions final : public GetAccountAssetTransactions {
+   public:
+    explicit GetAccountAssetTransactions(iroha::protocol::Query &query);
 
-      const interface::types::AccountIdType &accountId() const override;
+    const types::AccountIdType &accountId() const override;
 
-      const interface::types::AssetIdType &assetId() const override;
+    const types::AssetIdType &assetId() const override;
 
-      const interface::TxPaginationMeta &paginationMeta() const override;
+    const TxPaginationMeta &paginationMeta() const override;
 
-     private:
-      // ------------------------------| fields |-------------------------------
+   private:
+    // ------------------------------| fields |-------------------------------
 
-      const iroha::protocol::GetAccountAssetTransactions
-          &account_asset_transactions_;
-      const TxPaginationMeta pagination_meta_;
-    };
+    const iroha::protocol::GetAccountAssetTransactions
+        &account_asset_transactions_;
+    const TxPaginationMeta pagination_meta_;
+  };
 
-  }  // namespace proto
 }  // namespace shared_model
 
 #endif  // IROHA_GET_ACCOUNT_ASSET_TRANSACTIONS_H

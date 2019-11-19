@@ -13,27 +13,23 @@
 #include "qry_responses.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class AccountAssetResponse final : public interface::AccountAssetResponse {
-     public:
-      explicit AccountAssetResponse(
-          iroha::protocol::QueryResponse &query_response);
+  class AccountAssetResponse final : public AccountAssetResponse {
+   public:
+    explicit AccountAssetResponse(
+        iroha::protocol::QueryResponse &query_response);
 
-      const interface::types::AccountAssetCollectionType accountAssets()
-          const override;
+    const types::AccountAssetCollectionType accountAssets() const override;
 
-      boost::optional<interface::types::AssetIdType> nextAssetId()
-          const override;
+    boost::optional<types::AssetIdType> nextAssetId() const override;
 
-      size_t totalAccountAssetsNumber() const override;
+    size_t totalAccountAssetsNumber() const override;
 
-     private:
-      const iroha::protocol::AccountAssetResponse &account_asset_response_;
+   private:
+    const iroha::protocol::AccountAssetResponse &account_asset_response_;
 
-      std::vector<AccountAsset> account_assets_;
-      const boost::optional<interface::types::AssetIdType> next_asset_id_;
-    };
-  }  // namespace proto
+    std::vector<AccountAsset> account_assets_;
+    const boost::optional<types::AssetIdType> next_asset_id_;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_PROTO_ACCOUNT_ASSET_RESPONSE_HPP

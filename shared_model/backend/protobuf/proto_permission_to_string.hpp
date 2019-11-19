@@ -9,18 +9,15 @@
 #include "interfaces/permission_to_string.hpp"
 
 namespace shared_model {
-  namespace proto {
-    class ProtoPermissionToString : public interface::PermissionToString {
-     public:
-      std::string toString(interface::permissions::Role r) override;
-      std::string toString(interface::permissions::Grantable r) override;
+  class ProtoPermissionToString : public PermissionToString {
+   public:
+    std::string toString(permissions::Role r) override;
+    std::string toString(permissions::Grantable r) override;
 
-      std::vector<std::string> toString(
-          const interface::RolePermissionSet &set) override;
-      std::vector<std::string> toString(
-          const interface::GrantablePermissionSet &set) override;
-    };
-  }  // namespace proto
+    std::vector<std::string> toString(const RolePermissionSet &set) override;
+    std::vector<std::string> toString(
+        const GrantablePermissionSet &set) override;
+  };
 }  // namespace shared_model
 
 #endif  // PROTO_PERMISSION_TO_STRING_HPP

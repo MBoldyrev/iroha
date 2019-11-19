@@ -14,41 +14,39 @@
 #include "transaction.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class BatchMeta final : public interface::BatchMeta {
-     public:
-      explicit BatchMeta(
-          iroha::protocol::Transaction::Payload::BatchMeta &batch_meta)
-          : batch_meta_{batch_meta},
-            type_{[this] {
-              unsigned which = batch_meta_.GetDescriptor()
-                                   ->FindFieldByName("type")
-                                   ->enum_type()
-                                   ->FindValueByNumber(batch_meta_.type())
-                                   ->index();
-              return static_cast<interface::types::BatchType>(which);
-            }()},
-            reduced_hashes_{boost::copy_range<ReducedHashesType>(
-                batch_meta.reduced_hashes()
-                | boost::adaptors::transformed([](const auto &hash) {
-                    return crypto::Hash::fromHexString(hash);
-                  }))} {}
+  class BatchMeta final : public BatchMeta {
+   public:
+    explicit BatchMeta(
+        iroha::protocol::Transaction::Payload::BatchMeta &batch_meta)
+        : batch_meta_{batch_meta},
+          type_{[this] {
+            unsigned which = batch_meta_.GetDescriptor()
+                                 ->FindFieldByName("type")
+                                 ->enum_type()
+                                 ->FindValueByNumber(batch_meta_.type())
+                                 ->index();
+            return static_cast<types::BatchType>(which);
+          }()},
+          reduced_hashes_{boost::copy_range<ReducedHashesType>(
+              batch_meta.reduced_hashes()
+              | boost::adaptors::transformed([](const auto &hash) {
+                  return crypto::Hash::fromHexString(hash);
+                }))} {}
 
-      interface::types::BatchType type() const override {
-        return type_;
-      }
+    types::BatchType type() const override {
+      return type_;
+    }
 
-      const ReducedHashesType &reducedHashes() const override {
-        return reduced_hashes_;
-      }
+    const ReducedHashesType &reducedHashes() const override {
+      return reduced_hashes_;
+    }
 
-     private:
-      const iroha::protocol::Transaction::Payload::BatchMeta &batch_meta_;
+   private:
+    const iroha::protocol::Transaction::Payload::BatchMeta &batch_meta_;
 
-      interface::types::BatchType type_;
+    types::BatchType type_;
 
-      const ReducedHashesType reduced_hashes_;
-    };
-  }  // namespace proto
+    const ReducedHashesType reduced_hashes_;
+  };
 }  // namespace shared_model
 #endif  // IROHA_PROTO_BATCH_META_HPP

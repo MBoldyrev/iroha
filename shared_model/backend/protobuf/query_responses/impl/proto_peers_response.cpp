@@ -10,6 +10,6 @@ PeersResponse::PeersResponse(iroha::protocol::QueryResponse &query_response)
       peers_{query_response.mutable_peers_response()->mutable_peers()->begin(),
              query_response.mutable_peers_response()->mutable_peers()->end()} {}
 
-interface::PeersForwardCollectionType PeersResponse::peers() const {
+PeersForwardCollectionType PeersResponse::peers() const {
   return peers_;
 }

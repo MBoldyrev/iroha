@@ -17,12 +17,12 @@ PendingTransactionsPageResponse::PendingTransactionsPageResponse(
                         ->mutable_transactions()
                         ->end()},
       next_batch_info_{
-          [this]() -> boost::optional<
-                       interface::PendingTransactionsPageResponse::BatchInfo> {
+          [this]()
+              -> boost::optional<PendingTransactionsPageResponse::BatchInfo> {
             if (pending_transactions_page_response_.has_next_batch_info()) {
               auto &next =
                   pending_transactions_page_response_.next_batch_info();
-              interface::PendingTransactionsPageResponse::BatchInfo next_batch;
+              PendingTransactionsPageResponse::BatchInfo next_batch;
               next_batch.first_tx_hash =
                   crypto::Hash::fromHexString(next.first_tx_hash());
               next_batch.batch_size = next.batch_size();
@@ -31,17 +31,17 @@ PendingTransactionsPageResponse::PendingTransactionsPageResponse(
             return boost::none;
           }()} {}
 
-interface::types::TransactionsCollectionType
+types::TransactionsCollectionType
 PendingTransactionsPageResponse::transactions() const {
   return transactions_;
 }
 
-boost::optional<interface::PendingTransactionsPageResponse::BatchInfo>
+boost::optional<PendingTransactionsPageResponse::BatchInfo>
 PendingTransactionsPageResponse::nextBatchInfo() const {
   return next_batch_info_;
 }
 
-interface::types::TransactionsNumberType
+types::TransactionsNumberType
 PendingTransactionsPageResponse::allTransactionsSize() const {
   return pending_transactions_page_response_.all_transactions_size();
 }

@@ -26,39 +26,35 @@ struct Transaction::Impl {
   iroha::protocol::Transaction::Payload::ReducedPayload &reduced_payload_{
       *proto_->mutable_payload()->mutable_reduced_payload()};
 
-  interface::types::BlobType blob_{[this] { return makeBlob(*proto_); }()};
+  types::BlobType blob_{[this] { return makeBlob(*proto_); }()};
 
-  interface::types::BlobType payload_blob_{
-      [this] { return makeBlob(payload_); }()};
+  types::BlobType payload_blob_{[this] { return makeBlob(payload_); }()};
 
-  interface::types::BlobType reduced_payload_blob_{
+  types::BlobType reduced_payload_blob_{
       [this] { return makeBlob(reduced_payload_); }()};
 
-  interface::types::HashType reduced_hash_{makeHash(reduced_payload_blob_)};
+  types::HashType reduced_hash_{makeHash(reduced_payload_blob_)};
 
-  std::vector<proto::Command> commands_{
-      reduced_payload_.mutable_commands()->begin(),
-      reduced_payload_.mutable_commands()->end()};
+  std::vector<Command> commands_{reduced_payload_.mutable_commands()->begin(),
+                                 reduced_payload_.mutable_commands()->end()};
 
-  boost::optional<std::shared_ptr<interface::BatchMeta>> meta_{
-      [this]() -> boost::optional<std::shared_ptr<interface::BatchMeta>> {
+  boost::optional<std::shared_ptr<BatchMeta>> meta_{
+      [this]() -> boost::optional<std::shared_ptr<BatchMeta>> {
         if (payload_.has_batch()) {
-          std::shared_ptr<interface::BatchMeta> b =
-              std::make_shared<proto::BatchMeta>(*payload_.mutable_batch());
+          std::shared_ptr<BatchMeta> b =
+              std::make_shared<BatchMeta>(*payload_.mutable_batch());
           return b;
         }
         return boost::none;
       }()};
 
-  SignatureSetType<proto::Signature> signatures_{[this] {
+  SignatureSetType<Signature> signatures_{[this] {
     auto signatures = *proto_->mutable_signatures()
-        | boost::adaptors::transformed(
-              [](auto &x) { return proto::Signature(x); });
-    return SignatureSetType<proto::Signature>(signatures.begin(),
-                                              signatures.end());
+        | boost::adaptors::transformed([](auto &x) { return Signature(x); });
+    return SignatureSetType<Signature>(signatures.begin(), signatures.end());
   }()};
 
-  interface::types::HashType hash_{makeHash(payload_blob_)};
+  types::HashType hash_{makeHash(payload_blob_)};
 };
 
 Transaction::Transaction(const TransportType &transaction) {
@@ -83,7 +79,7 @@ Transaction::Transaction(Transaction &&transaction) noexcept = default;
 
 Transaction::~Transaction() = default;
 
-const interface::types::AccountIdType &Transaction::creatorAccountId() const {
+const types::AccountIdType &Transaction::creatorAccountId() const {
   return impl_->reduced_payload_.creator_account_id();
 }
 
@@ -91,23 +87,23 @@ Transaction::CommandsType Transaction::commands() const {
   return impl_->commands_;
 }
 
-const interface::types::BlobType &Transaction::blob() const {
+const types::BlobType &Transaction::blob() const {
   return impl_->blob_;
 }
 
-const interface::types::BlobType &Transaction::payload() const {
+const types::BlobType &Transaction::payload() const {
   return impl_->payload_blob_;
 }
 
-const interface::types::BlobType &Transaction::reducedPayload() const {
+const types::BlobType &Transaction::reducedPayload() const {
   return impl_->reduced_payload_blob_;
 }
 
-interface::types::SignatureRangeType Transaction::signatures() const {
+types::SignatureRangeType Transaction::signatures() const {
   return impl_->signatures_;
 }
 
-const interface::types::HashType &Transaction::reducedHash() const {
+const types::HashType &Transaction::reducedHash() const {
   return impl_->reduced_hash_;
 }
 
@@ -129,16 +125,14 @@ bool Transaction::addSignature(const crypto::Signed &signed_blob,
 
   impl_->signatures_ = [this] {
     auto signatures = *impl_->proto_->mutable_signatures()
-        | boost::adaptors::transformed(
-              [](auto &x) { return proto::Signature(x); });
-    return SignatureSetType<proto::Signature>(signatures.begin(),
-                                              signatures.end());
+        | boost::adaptors::transformed([](auto &x) { return Signature(x); });
+    return SignatureSetType<Signature>(signatures.begin(), signatures.end());
   }();
 
   return true;
 }
 
-const interface::types::HashType &Transaction::hash() const {
+const types::HashType &Transaction::hash() const {
   return impl_->hash_;
 }
 
@@ -146,16 +140,15 @@ const Transaction::TransportType &Transaction::getTransport() const {
   return *impl_->proto_;
 }
 
-interface::types::TimestampType Transaction::createdTime() const {
+types::TimestampType Transaction::createdTime() const {
   return impl_->reduced_payload_.created_time();
 }
 
-interface::types::QuorumType Transaction::quorum() const {
+types::QuorumType Transaction::quorum() const {
   return impl_->reduced_payload_.quorum();
 }
 
-boost::optional<std::shared_ptr<interface::BatchMeta>> Transaction::batchMeta()
-    const {
+boost::optional<std::shared_ptr<BatchMeta>> Transaction::batchMeta() const {
   return impl_->meta_;
 }
 

@@ -10,48 +10,46 @@
 #include "interfaces/iroha_internal/tx_status_factory.hpp"
 
 namespace shared_model {
-  namespace proto {
-    class ProtoTxStatusFactory : public interface::TxStatusFactory {
-     public:
-      using FactoryReturnType = interface::TxStatusFactory::FactoryReturnType;
+  class ProtoTxStatusFactory : public TxStatusFactory {
+   public:
+    using FactoryReturnType = TxStatusFactory::FactoryReturnType;
 
-      // ------------------------| Stateless statuses |-------------------------
+    // ------------------------| Stateless statuses |-------------------------
 
-      FactoryReturnType makeStatelessFail(TransactionHashType,
-                                          TransactionError) override;
-
-      FactoryReturnType makeStatelessValid(TransactionHashType,
-                                           TransactionError) override;
-
-      // ------------------------| Stateful statuses |--------------------------
-
-      FactoryReturnType makeStatefulFail(TransactionHashType,
-                                         TransactionError) override;
-      FactoryReturnType makeStatefulValid(TransactionHashType,
-                                          TransactionError) override;
-
-      // --------------------------| Final statuses |---------------------------
-
-      FactoryReturnType makeCommitted(TransactionHashType,
-                                      TransactionError) override;
-
-      FactoryReturnType makeRejected(TransactionHashType,
-                                     TransactionError) override;
-
-      // --------------------------| Rest statuses |----------------------------
-
-      FactoryReturnType makeMstExpired(TransactionHashType,
-                                       TransactionError) override;
-
-      FactoryReturnType makeMstPending(TransactionHashType,
-                                       TransactionError) override;
-
-      FactoryReturnType makeNotReceived(TransactionHashType,
+    FactoryReturnType makeStatelessFail(TransactionHashType,
                                         TransactionError) override;
 
-      FactoryReturnType makeEnoughSignaturesCollected(
-          TransactionHashType, TransactionError) override;
-    };
-  }  // namespace proto
+    FactoryReturnType makeStatelessValid(TransactionHashType,
+                                         TransactionError) override;
+
+    // ------------------------| Stateful statuses |--------------------------
+
+    FactoryReturnType makeStatefulFail(TransactionHashType,
+                                       TransactionError) override;
+    FactoryReturnType makeStatefulValid(TransactionHashType,
+                                        TransactionError) override;
+
+    // --------------------------| Final statuses |---------------------------
+
+    FactoryReturnType makeCommitted(TransactionHashType,
+                                    TransactionError) override;
+
+    FactoryReturnType makeRejected(TransactionHashType,
+                                   TransactionError) override;
+
+    // --------------------------| Rest statuses |----------------------------
+
+    FactoryReturnType makeMstExpired(TransactionHashType,
+                                     TransactionError) override;
+
+    FactoryReturnType makeMstPending(TransactionHashType,
+                                     TransactionError) override;
+
+    FactoryReturnType makeNotReceived(TransactionHashType,
+                                      TransactionError) override;
+
+    FactoryReturnType makeEnoughSignaturesCollected(TransactionHashType,
+                                                    TransactionError) override;
+  };
 }  // namespace shared_model
 #endif  // IROHA_PROTO_TX_STATUS_FACTORY_HPP

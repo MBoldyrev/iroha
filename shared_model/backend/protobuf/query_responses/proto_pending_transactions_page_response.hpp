@@ -13,30 +13,26 @@
 #include "qry_responses.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class PendingTransactionsPageResponse final
-        : public interface::PendingTransactionsPageResponse {
-     public:
-      explicit PendingTransactionsPageResponse(
-          iroha::protocol::QueryResponse &query_response);
+  class PendingTransactionsPageResponse final
+      : public PendingTransactionsPageResponse {
+   public:
+    explicit PendingTransactionsPageResponse(
+        iroha::protocol::QueryResponse &query_response);
 
-      interface::types::TransactionsCollectionType transactions()
-          const override;
+    types::TransactionsCollectionType transactions() const override;
 
-      boost::optional<interface::PendingTransactionsPageResponse::BatchInfo>
-      nextBatchInfo() const override;
+    boost::optional<PendingTransactionsPageResponse::BatchInfo> nextBatchInfo()
+        const override;
 
-      interface::types::TransactionsNumberType allTransactionsSize()
-          const override;
+    types::TransactionsNumberType allTransactionsSize() const override;
 
-     private:
-      const iroha::protocol::PendingTransactionsPageResponse
-          &pending_transactions_page_response_;
-      const std::vector<Transaction> transactions_;
-      boost::optional<interface::PendingTransactionsPageResponse::BatchInfo>
-          next_batch_info_;
-    };
-  }  // namespace proto
+   private:
+    const iroha::protocol::PendingTransactionsPageResponse
+        &pending_transactions_page_response_;
+    const std::vector<Transaction> transactions_;
+    boost::optional<PendingTransactionsPageResponse::BatchInfo>
+        next_batch_info_;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_PROTO_PENDING_TRANSACTIONS_PAGE_RESPONSE_HPP

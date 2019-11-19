@@ -8,13 +8,13 @@
 using namespace shared_model;
 using namespace shared_model::proto;
 
-iroha::expected::Result<interface::types::SharedTxsCollectionType,
+iroha::expected::Result<types::SharedTxsCollectionType,
                         TransactionFactoryType::Error>
-shared_model::proto::deserializeTransactions(
+shared_model::deserializeTransactions(
     const TransactionFactoryType &transaction_factory,
     const google::protobuf::RepeatedPtrField<iroha::protocol::Transaction>
         &transactions) {
-  interface::types::SharedTxsCollectionType tx_collection;
+  types::SharedTxsCollectionType tx_collection;
   for (const auto &tx : transactions) {
     auto model_tx = transaction_factory.build(tx);
     if (auto e = iroha::expected::resultToOptionalError(model_tx)) {

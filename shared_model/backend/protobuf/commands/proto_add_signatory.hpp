@@ -12,22 +12,20 @@
 #include "cryptography/public_key.hpp"
 
 namespace shared_model {
-  namespace proto {
-    class AddSignatory final : public interface::AddSignatory {
-     public:
-      explicit AddSignatory(iroha::protocol::Command &command);
+  class AddSignatory final : public AddSignatory {
+   public:
+    explicit AddSignatory(iroha::protocol::Command &command);
 
-      const interface::types::AccountIdType &accountId() const override;
+    const types::AccountIdType &accountId() const override;
 
-      const interface::types::PubkeyType &pubkey() const override;
+    const types::PubkeyType &pubkey() const override;
 
-     private:
-      const iroha::protocol::AddSignatory &add_signatory_;
+   private:
+    const iroha::protocol::AddSignatory &add_signatory_;
 
-      const interface::types::PubkeyType pubkey_;
-    };
+    const types::PubkeyType pubkey_;
+  };
 
-  }  // namespace proto
 }  // namespace shared_model
 
 #endif  // IROHA_PROTO_ADD_SIGNATORY_HPP

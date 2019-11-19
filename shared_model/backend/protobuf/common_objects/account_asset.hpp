@@ -12,36 +12,33 @@
 #include "qry_responses.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class AccountAsset final
-        : public TrivialProto<interface::AccountAsset,
-                              iroha::protocol::AccountAsset> {
-     public:
-      template <typename AccountAssetType>
-      explicit AccountAsset(AccountAssetType &&accountAssetType)
-          : TrivialProto(std::forward<AccountAssetType>(accountAssetType)) {}
+  class AccountAsset final
+      : public TrivialProto<AccountAsset, iroha::protocol::AccountAsset> {
+   public:
+    template <typename AccountAssetType>
+    explicit AccountAsset(AccountAssetType &&accountAssetType)
+        : TrivialProto(std::forward<AccountAssetType>(accountAssetType)) {}
 
-      AccountAsset(const AccountAsset &o) : AccountAsset(o.proto_) {}
+    AccountAsset(const AccountAsset &o) : AccountAsset(o.proto_) {}
 
-      AccountAsset(AccountAsset &&o) noexcept
-          : AccountAsset(std::move(o.proto_)) {}
+    AccountAsset(AccountAsset &&o) noexcept
+        : AccountAsset(std::move(o.proto_)) {}
 
-      const interface::types::AccountIdType &accountId() const override {
-        return proto_->account_id();
-      }
+    const types::AccountIdType &accountId() const override {
+      return proto_->account_id();
+    }
 
-      const interface::types::AssetIdType &assetId() const override {
-        return proto_->asset_id();
-      }
+    const types::AssetIdType &assetId() const override {
+      return proto_->asset_id();
+    }
 
-      const interface::Amount &balance() const override {
-        return balance_;
-      }
+    const Amount &balance() const override {
+      return balance_;
+    }
 
-     private:
-      const interface::Amount balance_{proto_->balance()};
-    };
-  }  // namespace proto
+   private:
+    const Amount balance_{proto_->balance()};
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_PROTO_ACCOUNT_ASSET_HPP

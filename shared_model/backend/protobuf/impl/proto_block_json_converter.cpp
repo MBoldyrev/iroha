@@ -13,9 +13,8 @@
 using namespace shared_model;
 using namespace shared_model::proto;
 
-iroha::expected::Result<interface::types::JsonType, std::string>
-ProtoBlockJsonConverter::serialize(const interface::Block &block) const
-    noexcept {
+iroha::expected::Result<types::JsonType, std::string>
+ProtoBlockJsonConverter::serialize(const Block &block) const noexcept {
   const auto &proto_block_v1 = static_cast<const Block &>(block).getTransport();
   iroha::protocol::Block proto_block;
   *proto_block.mutable_block_v1() = proto_block_v1;
@@ -29,15 +28,15 @@ ProtoBlockJsonConverter::serialize(const interface::Block &block) const
   return iroha::expected::makeValue(result);
 }
 
-iroha::expected::Result<std::unique_ptr<interface::Block>, std::string>
-ProtoBlockJsonConverter::deserialize(
-    const interface::types::JsonType &json) const noexcept {
+iroha::expected::Result<std::unique_ptr<Block>, std::string>
+ProtoBlockJsonConverter::deserialize(const types::JsonType &json) const
+    noexcept {
   iroha::protocol::Block block;
   auto status = google::protobuf::util::JsonStringToMessage(json, &block);
   if (not status.ok()) {
     return iroha::expected::makeError(status.error_message());
   }
-  std::unique_ptr<interface::Block> result =
+  std::unique_ptr<Block> result =
       std::make_unique<Block>(std::move(block.block_v1()));
   return iroha::expected::makeValue(std::move(result));
 }

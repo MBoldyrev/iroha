@@ -10,6 +10,6 @@ BlockErrorResponse::BlockErrorResponse(
     : block_error_response{block_query_response.block_error_response()},
       message_{block_error_response.message()} {}
 
-const interface::types::DescriptionType &BlockErrorResponse::message() const {
+const types::DescriptionType &BlockErrorResponse::message() const {
   return message_;
 }

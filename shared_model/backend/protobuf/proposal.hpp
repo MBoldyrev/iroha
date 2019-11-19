@@ -11,37 +11,34 @@
 #include "proposal.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class Proposal final : public interface::Proposal {
-     public:
-      using TransportType = iroha::protocol::Proposal;
+  class Proposal final : public Proposal {
+   public:
+    using TransportType = iroha::protocol::Proposal;
 
-      Proposal(Proposal &&o) noexcept;
-      Proposal &operator=(Proposal &&o) noexcept = default;
+    Proposal(Proposal &&o) noexcept;
+    Proposal &operator=(Proposal &&o) noexcept = default;
 
-      explicit Proposal(const TransportType &ref);
-      explicit Proposal(TransportType &&ref);
+    explicit Proposal(const TransportType &ref);
+    explicit Proposal(TransportType &&ref);
 
-      interface::types::TransactionsCollectionType transactions()
-          const override;
+    types::TransactionsCollectionType transactions() const override;
 
-      interface::types::TimestampType createdTime() const override;
+    types::TimestampType createdTime() const override;
 
-      interface::types::HeightType height() const override;
+    types::HeightType height() const override;
 
-      const interface::types::BlobType &blob() const override;
+    const types::BlobType &blob() const override;
 
-      const TransportType &getTransport() const;
+    const TransportType &getTransport() const;
 
-      const interface::types::HashType &hash() const override;
+    const types::HashType &hash() const override;
 
-      ~Proposal() override;
+    ~Proposal() override;
 
-     private:
-      struct Impl;
-      std::unique_ptr<Impl> impl_;
-    };
-  }  // namespace proto
+   private:
+    struct Impl;
+    std::unique_ptr<Impl> impl_;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_PROPOSAL_HPP

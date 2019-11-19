@@ -13,12 +13,10 @@ GetAccountTransactions::GetAccountTransactions(iroha::protocol::Query &query)
                             ->mutable_get_account_transactions()
                             ->mutable_pagination_meta()} {}
 
-const interface::types::AccountIdType &GetAccountTransactions::accountId()
-    const {
+const types::AccountIdType &GetAccountTransactions::accountId() const {
   return account_transactions_.account_id();
 }
 
-const interface::TxPaginationMeta &GetAccountTransactions::paginationMeta()
-    const {
+const TxPaginationMeta &GetAccountTransactions::paginationMeta() const {
   return pagination_meta_;
 }

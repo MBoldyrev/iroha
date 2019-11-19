@@ -8,15 +8,14 @@
 QueryPayloadMeta::QueryPayloadMeta(iroha::protocol::QueryPayloadMeta &meta)
     : meta_{meta} {}
 
-const interface::types::AccountIdType &QueryPayloadMeta::creatorAccountId()
-    const {
+const types::AccountIdType &QueryPayloadMeta::creatorAccountId() const {
   return meta_.creator_account_id();
 }
 
-interface::types::CounterType QueryPayloadMeta::queryCounter() const {
+types::CounterType QueryPayloadMeta::queryCounter() const {
   return meta_.query_counter();
 }
 
-interface::types::TimestampType QueryPayloadMeta::createdTime() const {
+types::TimestampType QueryPayloadMeta::createdTime() const {
   return meta_.created_time();
 }

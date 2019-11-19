@@ -17,27 +17,25 @@ GetAccountDetail::GetAccountDetail(iroha::protocol::Query &query)
         return boost::none;
       }()} {}
 
-const interface::types::AccountIdType &GetAccountDetail::accountId() const {
+const types::AccountIdType &GetAccountDetail::accountId() const {
   return account_detail_.opt_account_id_case()
       ? account_detail_.account_id()
       : query_.payload().meta().creator_account_id();
 }
 
-boost::optional<interface::types::AccountDetailKeyType> GetAccountDetail::key()
-    const {
+boost::optional<types::AccountDetailKeyType> GetAccountDetail::key() const {
   return account_detail_.opt_key_case()
       ? boost::make_optional(account_detail_.key())
       : boost::none;
 }
 
-boost::optional<interface::types::AccountIdType> GetAccountDetail::writer()
-    const {
+boost::optional<types::AccountIdType> GetAccountDetail::writer() const {
   return account_detail_.opt_writer_case()
       ? boost::make_optional(account_detail_.writer())
       : boost::none;
 }
 
-boost::optional<const interface::AccountDetailPaginationMeta &>
+boost::optional<const AccountDetailPaginationMeta &>
 GetAccountDetail::paginationMeta() const {
   if (pagination_meta_) {
     return *pagination_meta_;

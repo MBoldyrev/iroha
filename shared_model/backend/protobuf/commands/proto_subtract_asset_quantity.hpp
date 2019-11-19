@@ -12,23 +12,20 @@
 #include "interfaces/common_objects/amount.hpp"
 
 namespace shared_model {
-  namespace proto {
-    class SubtractAssetQuantity final
-        : public interface::SubtractAssetQuantity {
-     public:
-      explicit SubtractAssetQuantity(iroha::protocol::Command &command);
+  class SubtractAssetQuantity final : public SubtractAssetQuantity {
+   public:
+    explicit SubtractAssetQuantity(iroha::protocol::Command &command);
 
-      const interface::types::AssetIdType &assetId() const override;
+    const types::AssetIdType &assetId() const override;
 
-      const interface::Amount &amount() const override;
+    const Amount &amount() const override;
 
-     private:
-      const iroha::protocol::SubtractAssetQuantity &subtract_asset_quantity_;
+   private:
+    const iroha::protocol::SubtractAssetQuantity &subtract_asset_quantity_;
 
-      const interface::Amount amount_;
-    };
+    const Amount amount_;
+  };
 
-  }  // namespace proto
 }  // namespace shared_model
 
 #endif  // IROHA_PROTO_SUBTRACT_ASSET_QUANTITY_HPP

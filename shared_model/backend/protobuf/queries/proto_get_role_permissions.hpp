@@ -11,19 +11,17 @@
 #include "queries.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class GetRolePermissions final : public interface::GetRolePermissions {
-     public:
-      explicit GetRolePermissions(iroha::protocol::Query &query);
+  class GetRolePermissions final : public GetRolePermissions {
+   public:
+    explicit GetRolePermissions(iroha::protocol::Query &query);
 
-      const interface::types::RoleIdType &roleId() const override;
+    const types::RoleIdType &roleId() const override;
 
-     private:
-      // ------------------------------| fields |-------------------------------
-      const iroha::protocol::GetRolePermissions &role_permissions_;
-    };
+   private:
+    // ------------------------------| fields |-------------------------------
+    const iroha::protocol::GetRolePermissions &role_permissions_;
+  };
 
-  }  // namespace proto
 }  // namespace shared_model
 
 #endif  // IROHA_PROTO_GET_ROLE_PERMISSIONS_H

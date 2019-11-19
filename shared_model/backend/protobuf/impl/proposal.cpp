@@ -8,7 +8,7 @@
 #include "backend/protobuf/transaction.hpp"
 #include "backend/protobuf/util.hpp"
 
-using namespace interface::types;
+using namespace types;
 
 struct Proposal::Impl {
   explicit Impl(TransportType &&ref) : proto_(std::move(ref)) {}
@@ -17,15 +17,14 @@ struct Proposal::Impl {
 
   TransportType proto_;
 
-  const std::vector<proto::Transaction> transactions_{[this] {
-    return std::vector<proto::Transaction>(
-        proto_.mutable_transactions()->begin(),
-        proto_.mutable_transactions()->end());
+  const std::vector<Transaction> transactions_{[this] {
+    return std::vector<Transaction>(proto_.mutable_transactions()->begin(),
+                                    proto_.mutable_transactions()->end());
   }()};
 
-  interface::types::BlobType blob_{[this] { return makeBlob(proto_); }()};
+  types::BlobType blob_{[this] { return makeBlob(proto_); }()};
 
-  const interface::types::HashType hash_{
+  const types::HashType hash_{
       [this] { return crypto::DefaultHashProvider::makeHash(blob_); }()};
 };
 
@@ -51,7 +50,7 @@ HeightType Proposal::height() const {
   return impl_->proto_.height();
 }
 
-const interface::types::BlobType &Proposal::blob() const {
+const types::BlobType &Proposal::blob() const {
   return impl_->blob_;
 }
 
@@ -59,7 +58,7 @@ const Proposal::TransportType &Proposal::getTransport() const {
   return impl_->proto_;
 }
 
-const interface::types::HashType &Proposal::hash() const {
+const types::HashType &Proposal::hash() const {
   return impl_->hash_;
 }
 

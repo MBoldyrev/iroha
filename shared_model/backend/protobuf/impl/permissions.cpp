@@ -7,38 +7,37 @@
 
 namespace shared_model {
 
-  interface::permissions::Role fromTransport(
+  permissions::Role fromTransport(
       iroha::protocol::RolePermission perm) noexcept {
-    return static_cast<interface::permissions::Role>(perm);
+    return static_cast<permissions::Role>(perm);
   }
 
-  iroha::protocol::RolePermission toTransport(interface::permissions::Role r) {
+  iroha::protocol::RolePermission toTransport(permissions::Role r) {
     return static_cast<iroha::protocol::RolePermission>(r);
   }
 
-  std::string toString(interface::permissions::Role r) {
+  std::string toString(permissions::Role r) {
     return iroha::protocol::RolePermission_Name(toTransport(r));
   }
 
-  interface::permissions::Grantable fromTransport(
+  permissions::Grantable fromTransport(
       iroha::protocol::GrantablePermission perm) noexcept {
-    return static_cast<interface::permissions::Grantable>(perm);
+    return static_cast<permissions::Grantable>(perm);
   }
 
-  iroha::protocol::GrantablePermission toTransport(
-      interface::permissions::Grantable r) {
+  iroha::protocol::GrantablePermission toTransport(permissions::Grantable r) {
     return static_cast<iroha::protocol::GrantablePermission>(r);
   }
 
-  std::string toString(interface::permissions::Grantable r) {
+  std::string toString(permissions::Grantable r) {
     return iroha::protocol::GrantablePermission_Name(toTransport(r));
   }
 
   std::vector<std::string> toString(
-      const interface::PermissionSet<interface::permissions::Role> &set) {
+      const PermissionSet<permissions::Role> &set) {
     std::vector<std::string> v;
     for (size_t i = 0; i < set.size(); ++i) {
-      auto perm = static_cast<interface::permissions::Role>(i);
+      auto perm = static_cast<permissions::Role>(i);
       if (set.isSet(perm)) {
         v.push_back(toString(perm));
       }
@@ -47,10 +46,10 @@ namespace shared_model {
   }
 
   std::vector<std::string> toString(
-      const interface::PermissionSet<interface::permissions::Grantable> &set) {
+      const PermissionSet<permissions::Grantable> &set) {
     std::vector<std::string> v;
     for (size_t i = 0; i < set.size(); ++i) {
-      auto perm = static_cast<interface::permissions::Grantable>(i);
+      auto perm = static_cast<permissions::Grantable>(i);
       if (set.isSet(perm)) {
         v.push_back(toString(perm));
       }

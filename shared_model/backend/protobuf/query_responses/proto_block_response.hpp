@@ -12,22 +12,20 @@
 #include "qry_responses.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class BlockResponse final : public interface::BlockResponse {
-     public:
-      explicit BlockResponse(iroha::protocol::BlockResponse &block_response);
+  class BlockResponse final : public BlockResponse {
+   public:
+    explicit BlockResponse(iroha::protocol::BlockResponse &block_response);
 
-      explicit BlockResponse(
-          iroha::protocol::BlockQueryResponse &block_query_response);
+    explicit BlockResponse(
+        iroha::protocol::BlockQueryResponse &block_query_response);
 
-      explicit BlockResponse(iroha::protocol::QueryResponse &query_response);
+    explicit BlockResponse(iroha::protocol::QueryResponse &query_response);
 
-      const Block &block() const override;
+    const Block &block() const override;
 
-     private:
-      Block block_;
-    };
-  }  // namespace proto
+   private:
+    Block block_;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_PROTO_BLOCK_RESPONSE_HPP

@@ -8,6 +8,6 @@
 GetBlock::GetBlock(iroha::protocol::Query &query)
     : get_block_{query.payload().get_block()} {}
 
-interface::types::HeightType GetBlock::height() const {
+types::HeightType GetBlock::height() const {
   return get_block_.height();
 }

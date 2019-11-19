@@ -13,20 +13,16 @@
 #include "queries.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class GetPendingTransactions final
-        : public interface::GetPendingTransactions {
-     public:
-      explicit GetPendingTransactions(iroha::protocol::Query &query);
+  class GetPendingTransactions final : public GetPendingTransactions {
+   public:
+    explicit GetPendingTransactions(iroha::protocol::Query &query);
 
-      boost::optional<const interface::TxPaginationMeta &> paginationMeta()
-          const override;
+    boost::optional<const TxPaginationMeta &> paginationMeta() const override;
 
-     private:
-      const iroha::protocol::GetPendingTransactions &pending_transactions_;
-      boost::optional<const TxPaginationMeta> pagination_meta_;
-    };
-  }  // namespace proto
+   private:
+    const iroha::protocol::GetPendingTransactions &pending_transactions_;
+    boost::optional<const TxPaginationMeta> pagination_meta_;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_PROTO_GET_PENDING_TRANSACTIONS_HPP

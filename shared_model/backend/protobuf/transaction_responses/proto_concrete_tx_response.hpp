@@ -18,40 +18,35 @@
 #include "interfaces/transaction_responses/tx_response.hpp"
 
 namespace shared_model {
-  namespace proto {
-    // -------------------------| Stateless statuses |--------------------------
+  // -------------------------| Stateless statuses |--------------------------
 
-    using StatelessFailedTxResponse =
-        ProtoRef<interface::StatelessFailedTxResponse,
-                 iroha::protocol::ToriiResponse>;
-    using StatelessValidTxResponse =
-        ProtoRef<interface::StatelessValidTxResponse,
-                 iroha::protocol::ToriiResponse>;
-    // -------------------------| Stateful statuses |---------------------------
+  using StatelessFailedTxResponse =
+      ProtoRef<StatelessFailedTxResponse, iroha::protocol::ToriiResponse>;
+  using StatelessValidTxResponse =
+      ProtoRef<StatelessValidTxResponse, iroha::protocol::ToriiResponse>;
+  // -------------------------| Stateful statuses |---------------------------
 
-    using StatefulFailedTxResponse =
-        ProtoRef<interface::StatefulFailedTxResponse,
-                 iroha::protocol::ToriiResponse>;
-    using StatefulValidTxResponse = ProtoRef<interface::StatefulValidTxResponse,
-                                             iroha::protocol::ToriiResponse>;
+  using StatefulFailedTxResponse =
+      ProtoRef<StatefulFailedTxResponse, iroha::protocol::ToriiResponse>;
+  using StatefulValidTxResponse =
+      ProtoRef<StatefulValidTxResponse, iroha::protocol::ToriiResponse>;
 
-    // ----------------------------| End statuses |-----------------------------
+  // ----------------------------| End statuses |-----------------------------
 
-    using CommittedTxResponse = ProtoRef<interface::CommittedTxResponse,
-                                         iroha::protocol::ToriiResponse>;
-    using RejectedTxResponse =
-        ProtoRef<interface::RejectedTxResponse, iroha::protocol::ToriiResponse>;
+  using CommittedTxResponse =
+      ProtoRef<CommittedTxResponse, iroha::protocol::ToriiResponse>;
+  using RejectedTxResponse =
+      ProtoRef<RejectedTxResponse, iroha::protocol::ToriiResponse>;
 
-    // ---------------------------| Rest statuses |-----------------------------
+  // ---------------------------| Rest statuses |-----------------------------
 
-    using MstExpiredResponse =
-        ProtoRef<interface::MstExpiredResponse, iroha::protocol::ToriiResponse>;
-    using NotReceivedTxResponse = ProtoRef<interface::NotReceivedTxResponse,
-                                           iroha::protocol::ToriiResponse>;
-    using MstPendingResponse =
-        ProtoRef<interface::MstPendingResponse, iroha::protocol::ToriiResponse>;
-    using EnoughSignaturesCollectedResponse =
-        ProtoRef<interface::EnoughSignaturesCollectedResponse,
-                 iroha::protocol::ToriiResponse>;
-  }  // namespace proto
+  using MstExpiredResponse =
+      ProtoRef<MstExpiredResponse, iroha::protocol::ToriiResponse>;
+  using NotReceivedTxResponse =
+      ProtoRef<NotReceivedTxResponse, iroha::protocol::ToriiResponse>;
+  using MstPendingResponse =
+      ProtoRef<MstPendingResponse, iroha::protocol::ToriiResponse>;
+  using EnoughSignaturesCollectedResponse =
+      ProtoRef<EnoughSignaturesCollectedResponse,
+               iroha::protocol::ToriiResponse>;
 }  // namespace shared_model

@@ -11,24 +11,20 @@
 #include "qry_responses.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class RolePermissionsResponse final
-        : public interface::RolePermissionsResponse {
-     public:
-      explicit RolePermissionsResponse(
-          iroha::protocol::QueryResponse &query_response);
+  class RolePermissionsResponse final : public RolePermissionsResponse {
+   public:
+    explicit RolePermissionsResponse(
+        iroha::protocol::QueryResponse &query_response);
 
-      const interface::RolePermissionSet &rolePermissions() const override;
+    const RolePermissionSet &rolePermissions() const override;
 
-      std::string toString() const override;
+    std::string toString() const override;
 
-     private:
-      const iroha::protocol::RolePermissionsResponse
-          &role_permissions_response_;
+   private:
+    const iroha::protocol::RolePermissionsResponse &role_permissions_response_;
 
-      const interface::RolePermissionSet role_permissions_;
-    };
-  }  // namespace proto
+    const RolePermissionSet role_permissions_;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_PROTO_ROLE_PERMISSIONS_RESPONSE_HPP

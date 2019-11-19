@@ -8,10 +8,10 @@
 SetSettingValue::SetSettingValue(iroha::protocol::Command &command)
     : set_setting_value_{command.set_setting_value()} {}
 
-const interface::types::SettingKeyType &SetSettingValue::key() const {
+const types::SettingKeyType &SetSettingValue::key() const {
   return set_setting_value_.key();
 }
 
-const interface::types::SettingValueType &SetSettingValue::value() const {
+const types::SettingValueType &SetSettingValue::value() const {
   return set_setting_value_.value();
 }

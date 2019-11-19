@@ -8,7 +8,7 @@
 #include <boost/optional.hpp>
 #include "cryptography/hash.hpp"
 
-namespace types = shared_model::interface::types;
+namespace types = shared_model::types;
 
 using namespace shared_model::proto;
 

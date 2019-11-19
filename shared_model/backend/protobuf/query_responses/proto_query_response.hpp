@@ -11,26 +11,24 @@
 #include "qry_responses.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class QueryResponse final : public interface::QueryResponse {
-     public:
-      using TransportType = iroha::protocol::QueryResponse;
+  class QueryResponse final : public QueryResponse {
+   public:
+    using TransportType = iroha::protocol::QueryResponse;
 
-      explicit QueryResponse(TransportType &&queryResponse);
+    explicit QueryResponse(TransportType &&queryResponse);
 
-      ~QueryResponse() override;
+    ~QueryResponse() override;
 
-      const QueryResponseVariantType &get() const override;
+    const QueryResponseVariantType &get() const override;
 
-      const interface::types::HashType &queryHash() const override;
+    const types::HashType &queryHash() const override;
 
-      const TransportType &getTransport() const;
+    const TransportType &getTransport() const;
 
-     private:
-      struct Impl;
-      std::unique_ptr<Impl> impl_;
-    };
-  }  // namespace proto
+   private:
+    struct Impl;
+    std::unique_ptr<Impl> impl_;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_PROTO_QUERY_RESPONSE_HPP

@@ -15,28 +15,25 @@
 #include "queries.pb.h"
 
 namespace shared_model {
-  namespace proto {
 
-    /// Provides query metadata for AccountDetail list pagination.
-    class AccountDetailPaginationMeta final
-        : public interface::AccountDetailPaginationMeta {
-     public:
-      using TransportType = iroha::protocol::AccountDetailPaginationMeta;
+  /// Provides query metadata for AccountDetail list pagination.
+  class AccountDetailPaginationMeta final : public AccountDetailPaginationMeta {
+   public:
+    using TransportType = iroha::protocol::AccountDetailPaginationMeta;
 
-      explicit AccountDetailPaginationMeta(TransportType &proto);
+    explicit AccountDetailPaginationMeta(TransportType &proto);
 
-      AccountDetailPaginationMeta(const AccountDetailPaginationMeta &o);
+    AccountDetailPaginationMeta(const AccountDetailPaginationMeta &o);
 
-      size_t pageSize() const override;
+    size_t pageSize() const override;
 
-      boost::optional<const interface::AccountDetailRecordId &> firstRecordId()
-          const override;
+    boost::optional<const AccountDetailRecordId &> firstRecordId()
+        const override;
 
-     private:
-      TransportType &proto_;
-      const boost::optional<const AccountDetailRecordId> first_record_id_;
-    };
-  }  // namespace proto
+   private:
+    TransportType &proto_;
+    const boost::optional<const AccountDetailRecordId> first_record_id_;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_PROTO_MODEL_QUERY_ACCOUNT_DETAIL_PAGINATION_META_HPP

@@ -12,18 +12,16 @@
 #include "commands.pb.h"
 
 namespace shared_model {
-  namespace proto {
 
-    class RemovePeer final : public interface::RemovePeer {
-     public:
-      explicit RemovePeer(iroha::protocol::Command &command);
+  class RemovePeer final : public RemovePeer {
+   public:
+    explicit RemovePeer(iroha::protocol::Command &command);
 
-      const interface::types::PubkeyType &pubkey() const override;
+    const types::PubkeyType &pubkey() const override;
 
-     private:
-      const interface::types::PubkeyType pubkey_;
-    };
-  }  // namespace proto
+   private:
+    const types::PubkeyType pubkey_;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_PROTO_REMOVE_PEER_HPP

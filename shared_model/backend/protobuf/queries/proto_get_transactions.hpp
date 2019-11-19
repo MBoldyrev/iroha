@@ -12,22 +12,20 @@
 #include "queries.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class GetTransactions final : public interface::GetTransactions {
-     public:
-      explicit GetTransactions(iroha::protocol::Query &query);
+  class GetTransactions final : public GetTransactions {
+   public:
+    explicit GetTransactions(iroha::protocol::Query &query);
 
-      const TransactionHashesType &transactionHashes() const override;
+    const TransactionHashesType &transactionHashes() const override;
 
-     private:
-      // ------------------------------| fields |-------------------------------
+   private:
+    // ------------------------------| fields |-------------------------------
 
-      const iroha::protocol::GetTransactions &get_transactions_;
+    const iroha::protocol::GetTransactions &get_transactions_;
 
-      const TransactionHashesType transaction_hashes_;
-    };
+    const TransactionHashesType transaction_hashes_;
+  };
 
-  }  // namespace proto
 }  // namespace shared_model
 
 #endif  // IROHA_PROTO_GET_TRANSACTIONS_HPP

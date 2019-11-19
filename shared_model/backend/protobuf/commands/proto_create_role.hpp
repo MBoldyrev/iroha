@@ -11,23 +11,21 @@
 #include "interfaces/permissions.hpp"
 
 namespace shared_model {
-  namespace proto {
-    class CreateRole final : public interface::CreateRole {
-     public:
-      explicit CreateRole(iroha::protocol::Command &command);
+  class CreateRole final : public CreateRole {
+   public:
+    explicit CreateRole(iroha::protocol::Command &command);
 
-      const interface::types::RoleIdType &roleName() const override;
+    const types::RoleIdType &roleName() const override;
 
-      const interface::RolePermissionSet &rolePermissions() const override;
+    const RolePermissionSet &rolePermissions() const override;
 
-      std::string toString() const override;
+    std::string toString() const override;
 
-     private:
-      const iroha::protocol::CreateRole &create_role_;
+   private:
+    const iroha::protocol::CreateRole &create_role_;
 
-      const interface::RolePermissionSet role_permissions_;
-    };
-  }  // namespace proto
+    const RolePermissionSet role_permissions_;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_PROTO_CREATE_ROLE_HPP

@@ -34,7 +34,7 @@ namespace {
    */
   ProtoTxStatusFactory::FactoryReturnType wrap(
       iroha::protocol::ToriiResponse &&value) {
-    return std::make_unique<shared_model::proto::TransactionResponse>(
+    return std::make_unique<shared_model::TransactionResponse>(
         std::move(value));
   }
 }  // namespace

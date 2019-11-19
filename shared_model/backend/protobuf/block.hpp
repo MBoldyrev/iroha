@@ -12,52 +12,48 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace proto {
-    class Block final : public interface::Block {
-     public:
-      using TransportType = iroha::protocol::Block_v1;
+  class Block final : public Block {
+   public:
+    using TransportType = iroha::protocol::Block_v1;
 
-      Block(Block &&o) noexcept;
-      Block &operator=(Block &&o) noexcept = default;
-      explicit Block(const TransportType &ref);
-      explicit Block(TransportType &&ref);
+    Block(Block &&o) noexcept;
+    Block &operator=(Block &&o) noexcept = default;
+    explicit Block(const TransportType &ref);
+    explicit Block(TransportType &&ref);
 
-      interface::types::TransactionsCollectionType transactions()
-          const override;
+    types::TransactionsCollectionType transactions() const override;
 
-      interface::types::HeightType height() const override;
+    types::HeightType height() const override;
 
-      const interface::types::HashType &prevHash() const override;
+    const types::HashType &prevHash() const override;
 
-      const interface::types::BlobType &blob() const override;
+    const types::BlobType &blob() const override;
 
-      interface::types::SignatureRangeType signatures() const override;
+    types::SignatureRangeType signatures() const override;
 
-      bool addSignature(const crypto::Signed &signed_blob,
-                        const crypto::PublicKey &public_key) override;
+    bool addSignature(const crypto::Signed &signed_blob,
+                      const crypto::PublicKey &public_key) override;
 
-      const interface::types::HashType &hash() const override;
+    const types::HashType &hash() const override;
 
-      interface::types::TimestampType createdTime() const override;
+    types::TimestampType createdTime() const override;
 
-      interface::types::TransactionsNumberType txsNumber() const override;
+    types::TransactionsNumberType txsNumber() const override;
 
-      interface::types::HashCollectionType rejected_transactions_hashes()
-          const override;
+    types::HashCollectionType rejected_transactions_hashes() const override;
 
-      const interface::types::BlobType &payload() const override;
+    const types::BlobType &payload() const override;
 
-      typename interface::Block::ModelType *clone() const override;
+    typename Block::ModelType *clone() const override;
 
-      const iroha::protocol::Block_v1 &getTransport() const;
+    const iroha::protocol::Block_v1 &getTransport() const;
 
-      ~Block() override;
+    ~Block() override;
 
-     private:
-      struct Impl;
-      std::unique_ptr<Impl> impl_;
-    };
-  }  // namespace proto
+   private:
+    struct Impl;
+    std::unique_ptr<Impl> impl_;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_PROTO_BLOCK_HPP

@@ -12,26 +12,23 @@
 #include "primitive.pb.h"
 
 namespace shared_model {
-  namespace proto {
 
-    /// Provides query metadata for AccountDetail list pagination.
-    class AccountDetailRecordId final
-        : public interface::AccountDetailRecordId {
-     public:
-      using TransportType = iroha::protocol::AccountDetailRecordId;
+  /// Provides query metadata for AccountDetail list pagination.
+  class AccountDetailRecordId final : public AccountDetailRecordId {
+   public:
+    using TransportType = iroha::protocol::AccountDetailRecordId;
 
-      explicit AccountDetailRecordId(TransportType &proto);
+    explicit AccountDetailRecordId(TransportType &proto);
 
-      explicit AccountDetailRecordId(const AccountDetailRecordId &o);
+    explicit AccountDetailRecordId(const AccountDetailRecordId &o);
 
-      shared_model::interface::types::AccountIdType writer() const override;
+    shared_model::types::AccountIdType writer() const override;
 
-      shared_model::interface::types::AccountDetailKeyType key() const override;
+    shared_model::types::AccountDetailKeyType key() const override;
 
-     private:
-      TransportType &proto_;
-    };
-  }  // namespace proto
+   private:
+    TransportType &proto_;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_PROTO_MODEL_QUERY_ACCOUNT_DETAIL_RECORD_ID_HPP

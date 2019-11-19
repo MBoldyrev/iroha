@@ -8,10 +8,10 @@
 SetQuorum::SetQuorum(iroha::protocol::Command &command)
     : set_account_quorum_{command.set_account_quorum()} {}
 
-const interface::types::AccountIdType &SetQuorum::accountId() const {
+const types::AccountIdType &SetQuorum::accountId() const {
   return set_account_quorum_.account_id();
 }
 
-interface::types::QuorumType SetQuorum::newQuorum() const {
+types::QuorumType SetQuorum::newQuorum() const {
   return set_account_quorum_.quorum();
 }

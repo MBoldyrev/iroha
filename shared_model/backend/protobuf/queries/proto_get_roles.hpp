@@ -11,13 +11,11 @@
 #include "queries.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class GetRoles final : public interface::GetRoles {
-     public:
-      explicit GetRoles(iroha::protocol::Query &query);
-    };
+  class GetRoles final : public GetRoles {
+   public:
+    explicit GetRoles(iroha::protocol::Query &query);
+  };
 
-  }  // namespace proto
 }  // namespace shared_model
 
 #endif  // IROHA_PROTO_GET_ROLES_H

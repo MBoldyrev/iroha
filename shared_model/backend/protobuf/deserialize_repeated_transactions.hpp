@@ -13,19 +13,17 @@
 #include "transaction.pb.h"
 
 namespace shared_model {
-  namespace proto {
 
-    using TransactionFactoryType = interface::AbstractTransportFactory<
-        shared_model::interface::Transaction,
-        iroha::protocol::Transaction>;
+  using TransactionFactoryType =
+      AbstractTransportFactory<shared_model::Transaction,
+                               iroha::protocol::Transaction>;
 
-    iroha::expected::Result<interface::types::SharedTxsCollectionType,
-                            TransactionFactoryType::Error>
-    deserializeTransactions(
-        const TransactionFactoryType &transaction_factory,
-        const google::protobuf::RepeatedPtrField<iroha::protocol::Transaction>
-            &transactions);
-  }  // namespace proto
+  iroha::expected::Result<types::SharedTxsCollectionType,
+                          TransactionFactoryType::Error>
+  deserializeTransactions(
+      const TransactionFactoryType &transaction_factory,
+      const google::protobuf::RepeatedPtrField<iroha::protocol::Transaction>
+          &transactions);
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_PROTO_DESERIALIZE_REPEATED_TRANSACTIONS_HPP

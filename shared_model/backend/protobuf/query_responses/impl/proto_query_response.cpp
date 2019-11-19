@@ -24,19 +24,19 @@
 namespace {
   /// type of proto variant
   using ProtoQueryResponseVariantType =
-      boost::variant<shared_model::proto::AccountAssetResponse,
-                     shared_model::proto::AccountDetailResponse,
-                     shared_model::proto::AccountResponse,
-                     shared_model::proto::ErrorQueryResponse,
-                     shared_model::proto::SignatoriesResponse,
-                     shared_model::proto::TransactionsResponse,
-                     shared_model::proto::AssetResponse,
-                     shared_model::proto::RolesResponse,
-                     shared_model::proto::RolePermissionsResponse,
-                     shared_model::proto::TransactionsPageResponse,
-                     shared_model::proto::PendingTransactionsPageResponse,
-                     shared_model::proto::BlockResponse,
-                     shared_model::proto::PeersResponse>;
+      boost::variant<shared_model::AccountAssetResponse,
+                     shared_model::AccountDetailResponse,
+                     shared_model::AccountResponse,
+                     shared_model::ErrorQueryResponse,
+                     shared_model::SignatoriesResponse,
+                     shared_model::TransactionsResponse,
+                     shared_model::AssetResponse,
+                     shared_model::RolesResponse,
+                     shared_model::RolePermissionsResponse,
+                     shared_model::TransactionsPageResponse,
+                     shared_model::PendingTransactionsPageResponse,
+                     shared_model::BlockResponse,
+                     shared_model::PeersResponse>;
 
   /// list of types in variant
   using ProtoQueryResponseListType = ProtoQueryResponseVariantType::types;
@@ -71,7 +71,7 @@ const QueryResponse::QueryResponseVariantType &QueryResponse::get() const {
   return impl_->ivariant_;
 }
 
-const interface::types::HashType &QueryResponse::queryHash() const {
+const types::HashType &QueryResponse::queryHash() const {
   return impl_->hash_;
 }
 

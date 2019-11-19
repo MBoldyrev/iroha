@@ -11,24 +11,22 @@
 #include "qry_responses.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class BlockQueryResponse final : public interface::BlockQueryResponse {
-     public:
-      using TransportType = iroha::protocol::BlockQueryResponse;
+  class BlockQueryResponse final : public BlockQueryResponse {
+   public:
+    using TransportType = iroha::protocol::BlockQueryResponse;
 
-      explicit BlockQueryResponse(TransportType &&block_query_response);
+    explicit BlockQueryResponse(TransportType &&block_query_response);
 
-      ~BlockQueryResponse() override;
+    ~BlockQueryResponse() override;
 
-      const QueryResponseVariantType &get() const override;
+    const QueryResponseVariantType &get() const override;
 
-      const TransportType &getTransport() const;
+    const TransportType &getTransport() const;
 
-     private:
-      struct Impl;
-      std::unique_ptr<Impl> impl_;
-    };
-  }  // namespace proto
+   private:
+    struct Impl;
+    std::unique_ptr<Impl> impl_;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_PROTO_BLOCK_QUERY_RESPONSE_HPP

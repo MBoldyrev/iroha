@@ -11,7 +11,7 @@ TransactionsPageResponse::TransactionsPageResponse(
     : transactionPageResponse_{query_response.transactions_page_response()},
       transactions_{transactionPageResponse_.transactions().begin(),
                     transactionPageResponse_.transactions().end()},
-      next_hash_{[this]() -> boost::optional<interface::types::HashType> {
+      next_hash_{[this]() -> boost::optional<types::HashType> {
         switch (transactionPageResponse_.next_page_tag_case()) {
           case iroha::protocol::TransactionsPageResponse::kNextTxHash:
             return crypto::Hash::fromHexString(
@@ -21,17 +21,16 @@ TransactionsPageResponse::TransactionsPageResponse(
         }
       }()} {}
 
-interface::types::TransactionsCollectionType
-TransactionsPageResponse::transactions() const {
+types::TransactionsCollectionType TransactionsPageResponse::transactions()
+    const {
   return transactions_;
 }
 
-boost::optional<interface::types::HashType>
-TransactionsPageResponse::nextTxHash() const {
+boost::optional<types::HashType> TransactionsPageResponse::nextTxHash() const {
   return next_hash_;
 }
 
-interface::types::TransactionsNumberType
-TransactionsPageResponse::allTransactionsSize() const {
+types::TransactionsNumberType TransactionsPageResponse::allTransactionsSize()
+    const {
   return transactionPageResponse_.all_transactions_size();
 }

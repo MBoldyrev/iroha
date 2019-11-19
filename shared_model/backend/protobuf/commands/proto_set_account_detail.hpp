@@ -11,22 +11,20 @@
 #include "commands.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class SetAccountDetail final : public interface::SetAccountDetail {
-     public:
-      explicit SetAccountDetail(iroha::protocol::Command &command);
+  class SetAccountDetail final : public SetAccountDetail {
+   public:
+    explicit SetAccountDetail(iroha::protocol::Command &command);
 
-      const interface::types::AccountIdType &accountId() const override;
+    const types::AccountIdType &accountId() const override;
 
-      const interface::types::AccountDetailKeyType &key() const override;
+    const types::AccountDetailKeyType &key() const override;
 
-      const interface::types::AccountDetailValueType &value() const override;
+    const types::AccountDetailValueType &value() const override;
 
-     private:
-      const iroha::protocol::SetAccountDetail &set_account_detail_;
-    };
+   private:
+    const iroha::protocol::SetAccountDetail &set_account_detail_;
+  };
 
-  }  // namespace proto
 }  // namespace shared_model
 
 #endif  // IROHA_PROTO_SET_ACCOUNT_DETAIL_HPP

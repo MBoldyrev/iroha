@@ -13,8 +13,8 @@
 namespace {
   /// type of proto variant
   using ProtoQueryResponseVariantType =
-      boost::variant<shared_model::proto::BlockResponse,
-                     shared_model::proto::BlockErrorResponse>;
+      boost::variant<shared_model::BlockResponse,
+                     shared_model::BlockErrorResponse>;
 }  // namespace
 
 struct BlockQueryResponse::Impl {

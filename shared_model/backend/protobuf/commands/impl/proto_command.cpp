@@ -29,25 +29,25 @@
 namespace {
   /// type of proto variant
   using ProtoCommandVariantType =
-      ::boost::variant<shared_model::proto::AddAssetQuantity,
-                       shared_model::proto::AddPeer,
-                       shared_model::proto::AddSignatory,
-                       shared_model::proto::AppendRole,
-                       shared_model::proto::CreateAccount,
-                       shared_model::proto::CreateAsset,
-                       shared_model::proto::CreateDomain,
-                       shared_model::proto::CreateRole,
-                       shared_model::proto::DetachRole,
-                       shared_model::proto::GrantPermission,
-                       shared_model::proto::RemoveSignatory,
-                       shared_model::proto::RevokePermission,
-                       shared_model::proto::SetAccountDetail,
-                       shared_model::proto::SetQuorum,
-                       shared_model::proto::SubtractAssetQuantity,
-                       shared_model::proto::TransferAsset,
-                       shared_model::proto::RemovePeer,
-                       shared_model::proto::CompareAndSetAccountDetail,
-                       shared_model::proto::SetSettingValue>;
+      ::boost::variant<shared_model::AddAssetQuantity,
+                       shared_model::AddPeer,
+                       shared_model::AddSignatory,
+                       shared_model::AppendRole,
+                       shared_model::CreateAccount,
+                       shared_model::CreateAsset,
+                       shared_model::CreateDomain,
+                       shared_model::CreateRole,
+                       shared_model::DetachRole,
+                       shared_model::GrantPermission,
+                       shared_model::RemoveSignatory,
+                       shared_model::RevokePermission,
+                       shared_model::SetAccountDetail,
+                       shared_model::SetQuorum,
+                       shared_model::SubtractAssetQuantity,
+                       shared_model::TransferAsset,
+                       shared_model::RemovePeer,
+                       shared_model::CompareAndSetAccountDetail,
+                       shared_model::SetSettingValue>;
 
   /// list of types in proto variant
   using ProtoCommandListType = ProtoCommandVariantType::types;

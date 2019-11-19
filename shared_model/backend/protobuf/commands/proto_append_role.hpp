@@ -11,21 +11,19 @@
 #include "commands.pb.h"
 
 namespace shared_model {
-  namespace proto {
 
-    class AppendRole final : public interface::AppendRole {
-     public:
-      explicit AppendRole(iroha::protocol::Command &command);
+  class AppendRole final : public AppendRole {
+   public:
+    explicit AppendRole(iroha::protocol::Command &command);
 
-      const interface::types::AccountIdType &accountId() const override;
+    const types::AccountIdType &accountId() const override;
 
-      const interface::types::RoleIdType &roleName() const override;
+    const types::RoleIdType &roleName() const override;
 
-     private:
-      const iroha::protocol::AppendRole &append_role_;
-    };
+   private:
+    const iroha::protocol::AppendRole &append_role_;
+  };
 
-  }  // namespace proto
 }  // namespace shared_model
 
 #endif  // IROHA_PROTO_APPEND_ROLE_HPP

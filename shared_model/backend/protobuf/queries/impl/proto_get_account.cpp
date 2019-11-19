@@ -8,6 +8,6 @@
 GetAccount::GetAccount(iroha::protocol::Query &query)
     : account_{query.payload().get_account()} {}
 
-const interface::types::AccountIdType &GetAccount::accountId() const {
+const types::AccountIdType &GetAccount::accountId() const {
   return account_.account_id();
 }

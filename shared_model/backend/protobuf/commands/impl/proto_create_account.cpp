@@ -11,14 +11,14 @@ CreateAccount::CreateAccount(iroha::protocol::Command &command)
     : create_account_{command.create_account()},
       pubkey_{crypto::Hash::fromHexString(create_account_.public_key())} {}
 
-const interface::types::PubkeyType &CreateAccount::pubkey() const {
+const types::PubkeyType &CreateAccount::pubkey() const {
   return pubkey_;
 }
 
-const interface::types::AccountNameType &CreateAccount::accountName() const {
+const types::AccountNameType &CreateAccount::accountName() const {
   return create_account_.account_name();
 }
 
-const interface::types::DomainIdType &CreateAccount::domainId() const {
+const types::DomainIdType &CreateAccount::domainId() const {
   return create_account_.domain_id();
 }

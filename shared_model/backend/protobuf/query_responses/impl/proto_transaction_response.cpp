@@ -11,7 +11,6 @@ TransactionsResponse::TransactionsResponse(
       transactions_{transaction_response_.transactions().begin(),
                     transaction_response_.transactions().end()} {}
 
-interface::types::TransactionsCollectionType
-TransactionsResponse::transactions() const {
+types::TransactionsCollectionType TransactionsResponse::transactions() const {
   return transactions_;
 }

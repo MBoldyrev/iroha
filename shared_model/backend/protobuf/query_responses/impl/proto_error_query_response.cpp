@@ -11,15 +11,15 @@
 namespace {
   /// type of proto variant
   using ProtoQueryErrorResponseVariantType =
-      boost::variant<shared_model::proto::StatelessFailedErrorResponse,
-                     shared_model::proto::StatefulFailedErrorResponse,
-                     shared_model::proto::NoAccountErrorResponse,
-                     shared_model::proto::NoAccountAssetsErrorResponse,
-                     shared_model::proto::NoAccountDetailErrorResponse,
-                     shared_model::proto::NoSignatoriesErrorResponse,
-                     shared_model::proto::NotSupportedErrorResponse,
-                     shared_model::proto::NoAssetErrorResponse,
-                     shared_model::proto::NoRolesErrorResponse>;
+      boost::variant<shared_model::StatelessFailedErrorResponse,
+                     shared_model::StatefulFailedErrorResponse,
+                     shared_model::NoAccountErrorResponse,
+                     shared_model::NoAccountAssetsErrorResponse,
+                     shared_model::NoAccountDetailErrorResponse,
+                     shared_model::NoSignatoriesErrorResponse,
+                     shared_model::NotSupportedErrorResponse,
+                     shared_model::NoAssetErrorResponse,
+                     shared_model::NoRolesErrorResponse>;
 
   /// list of types in proto variant
   using ProtoQueryErrorResponseListType =

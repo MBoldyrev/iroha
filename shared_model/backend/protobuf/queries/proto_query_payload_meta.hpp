@@ -11,21 +11,19 @@
 #include "queries.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class QueryPayloadMeta final : public interface::QueryPayloadMeta {
-     public:
-      explicit QueryPayloadMeta(iroha::protocol::QueryPayloadMeta &meta);
+  class QueryPayloadMeta final : public QueryPayloadMeta {
+   public:
+    explicit QueryPayloadMeta(iroha::protocol::QueryPayloadMeta &meta);
 
-      const interface::types::AccountIdType &creatorAccountId() const override;
+    const types::AccountIdType &creatorAccountId() const override;
 
-      interface::types::CounterType queryCounter() const override;
+    types::CounterType queryCounter() const override;
 
-      interface::types::TimestampType createdTime() const override;
+    types::TimestampType createdTime() const override;
 
-     private:
-      const iroha::protocol::QueryPayloadMeta &meta_;
-    };
-  }  // namespace proto
+   private:
+    const iroha::protocol::QueryPayloadMeta &meta_;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_PROTO_QUERY_HPP

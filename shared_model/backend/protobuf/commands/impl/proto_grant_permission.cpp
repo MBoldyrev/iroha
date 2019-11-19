@@ -10,11 +10,11 @@
 GrantPermission::GrantPermission(iroha::protocol::Command &command)
     : grant_permission_{command.grant_permission()} {}
 
-const interface::types::AccountIdType &GrantPermission::accountId() const {
+const types::AccountIdType &GrantPermission::accountId() const {
   return grant_permission_.account_id();
 }
 
-interface::permissions::Grantable GrantPermission::permissionName() const {
+permissions::Grantable GrantPermission::permissionName() const {
   return permissions::fromTransport(grant_permission_.permission());
 }
 

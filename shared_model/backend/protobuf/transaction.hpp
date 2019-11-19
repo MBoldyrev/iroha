@@ -10,59 +10,56 @@
 #include "transaction.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class Transaction final : public interface::Transaction {
-     public:
-      using TransportType = iroha::protocol::Transaction;
+  class Transaction final : public Transaction {
+   public:
+    using TransportType = iroha::protocol::Transaction;
 
-      explicit Transaction(const TransportType &transaction);
+    explicit Transaction(const TransportType &transaction);
 
-      explicit Transaction(TransportType &&transaction);
+    explicit Transaction(TransportType &&transaction);
 
-      explicit Transaction(TransportType &transaction);
+    explicit Transaction(TransportType &transaction);
 
-      Transaction(const Transaction &transaction);
+    Transaction(const Transaction &transaction);
 
-      Transaction(Transaction &&o) noexcept;
+    Transaction(Transaction &&o) noexcept;
 
-      ~Transaction() override;
+    ~Transaction() override;
 
-      const interface::types::AccountIdType &creatorAccountId() const override;
+    const types::AccountIdType &creatorAccountId() const override;
 
-      Transaction::CommandsType commands() const override;
+    Transaction::CommandsType commands() const override;
 
-      const interface::types::BlobType &blob() const override;
+    const types::BlobType &blob() const override;
 
-      const interface::types::BlobType &payload() const override;
+    const types::BlobType &payload() const override;
 
-      const interface::types::BlobType &reducedPayload() const override;
+    const types::BlobType &reducedPayload() const override;
 
-      interface::types::SignatureRangeType signatures() const override;
+    types::SignatureRangeType signatures() const override;
 
-      const interface::types::HashType &reducedHash() const override;
+    const types::HashType &reducedHash() const override;
 
-      bool addSignature(const crypto::Signed &signed_blob,
-                        const crypto::PublicKey &public_key) override;
+    bool addSignature(const crypto::Signed &signed_blob,
+                      const crypto::PublicKey &public_key) override;
 
-      const interface::types::HashType &hash() const override;
+    const types::HashType &hash() const override;
 
-      const TransportType &getTransport() const;
+    const TransportType &getTransport() const;
 
-      interface::types::TimestampType createdTime() const override;
+    types::TimestampType createdTime() const override;
 
-      interface::types::QuorumType quorum() const override;
+    types::QuorumType quorum() const override;
 
-      boost::optional<std::shared_ptr<interface::BatchMeta>> batchMeta()
-          const override;
+    boost::optional<std::shared_ptr<BatchMeta>> batchMeta() const override;
 
-     protected:
-      Transaction::ModelType *clone() const override;
+   protected:
+    Transaction::ModelType *clone() const override;
 
-     private:
-      struct Impl;
-      std::unique_ptr<Impl> impl_;
-    };
-  }  // namespace proto
+   private:
+    struct Impl;
+    std::unique_ptr<Impl> impl_;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_PROTO_TRANSACTION_HPP

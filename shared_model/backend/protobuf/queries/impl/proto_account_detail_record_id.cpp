@@ -13,12 +13,10 @@ AccountDetailRecordId::AccountDetailRecordId(TransportType &proto)
 AccountDetailRecordId::AccountDetailRecordId(const AccountDetailRecordId &o)
     : AccountDetailRecordId(o.proto_) {}
 
-shared_model::interface::types::AccountIdType AccountDetailRecordId::writer()
-    const {
+shared_model::types::AccountIdType AccountDetailRecordId::writer() const {
   return proto_.writer();
 }
 
-shared_model::interface::types::AccountDetailKeyType
-AccountDetailRecordId::key() const {
+shared_model::types::AccountDetailKeyType AccountDetailRecordId::key() const {
   return proto_.key();
 }

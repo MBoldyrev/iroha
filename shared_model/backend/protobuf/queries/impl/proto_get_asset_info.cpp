@@ -8,6 +8,6 @@
 GetAssetInfo::GetAssetInfo(iroha::protocol::Query &query)
     : asset_info_{query.payload().get_asset_info()} {}
 
-const interface::types::AssetIdType &GetAssetInfo::assetId() const {
+const types::AssetIdType &GetAssetInfo::assetId() const {
   return asset_info_.asset_id();
 }

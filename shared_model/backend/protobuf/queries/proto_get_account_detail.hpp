@@ -13,29 +13,26 @@
 #include "queries.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class GetAccountDetail final : public interface::GetAccountDetail {
-     public:
-      explicit GetAccountDetail(iroha::protocol::Query &query);
+  class GetAccountDetail final : public GetAccountDetail {
+   public:
+    explicit GetAccountDetail(iroha::protocol::Query &query);
 
-      const interface::types::AccountIdType &accountId() const override;
+    const types::AccountIdType &accountId() const override;
 
-      boost::optional<interface::types::AccountDetailKeyType> key()
-          const override;
+    boost::optional<types::AccountDetailKeyType> key() const override;
 
-      boost::optional<interface::types::AccountIdType> writer() const override;
+    boost::optional<types::AccountIdType> writer() const override;
 
-      boost::optional<const interface::AccountDetailPaginationMeta &>
-      paginationMeta() const override;
+    boost::optional<const AccountDetailPaginationMeta &> paginationMeta()
+        const override;
 
-     private:
-      // ------------------------------| fields |-------------------------------
+   private:
+    // ------------------------------| fields |-------------------------------
 
-      const iroha::protocol::Query &query_;
-      const iroha::protocol::GetAccountDetail &account_detail_;
-      const boost::optional<const AccountDetailPaginationMeta> pagination_meta_;
-    };
-  }  // namespace proto
+    const iroha::protocol::Query &query_;
+    const iroha::protocol::GetAccountDetail &account_detail_;
+    const boost::optional<const AccountDetailPaginationMeta> pagination_meta_;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_PROTO_GET_ACCOUNT_DETAIL_HPP

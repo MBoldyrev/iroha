@@ -9,6 +9,6 @@ RemovePeer::RemovePeer(iroha::protocol::Command &command)
     : pubkey_{crypto::Hash::fromHexString(command.remove_peer().public_key())} {
 }
 
-const interface::types::PubkeyType &RemovePeer::pubkey() const {
+const types::PubkeyType &RemovePeer::pubkey() const {
   return pubkey_;
 }

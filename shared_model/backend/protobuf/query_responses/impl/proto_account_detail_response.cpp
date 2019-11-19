@@ -16,7 +16,7 @@ AccountDetailResponse::AccountDetailResponse(
         return boost::none;
       }(*query_response.mutable_account_detail_response())} {}
 
-const interface::types::DetailType &AccountDetailResponse::detail() const {
+const types::DetailType &AccountDetailResponse::detail() const {
   return account_detail_response_.detail();
 }
 
@@ -24,7 +24,7 @@ size_t AccountDetailResponse::totalNumber() const {
   return account_detail_response_.total_number();
 }
 
-boost::optional<const shared_model::interface::AccountDetailRecordId &>
+boost::optional<const shared_model::AccountDetailRecordId &>
 AccountDetailResponse::nextRecordId() const {
   if (next_record_id_) {
     return next_record_id_.value();

@@ -8,15 +8,14 @@
 SetAccountDetail::SetAccountDetail(iroha::protocol::Command &command)
     : set_account_detail_{command.set_account_detail()} {}
 
-const interface::types::AccountIdType &SetAccountDetail::accountId() const {
+const types::AccountIdType &SetAccountDetail::accountId() const {
   return set_account_detail_.account_id();
 }
 
-const interface::types::AccountDetailKeyType &SetAccountDetail::key() const {
+const types::AccountDetailKeyType &SetAccountDetail::key() const {
   return set_account_detail_.key();
 }
 
-const interface::types::AccountDetailValueType &SetAccountDetail::value()
-    const {
+const types::AccountDetailValueType &SetAccountDetail::value() const {
   return set_account_detail_.value();
 }

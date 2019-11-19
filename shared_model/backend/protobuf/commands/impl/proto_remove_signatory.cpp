@@ -11,10 +11,10 @@ RemoveSignatory::RemoveSignatory(iroha::protocol::Command &command)
     : remove_signatory_{command.remove_signatory()},
       pubkey_{crypto::Hash::fromHexString(remove_signatory_.public_key())} {}
 
-const interface::types::AccountIdType &RemoveSignatory::accountId() const {
+const types::AccountIdType &RemoveSignatory::accountId() const {
   return remove_signatory_.account_id();
 }
 
-const interface::types::PubkeyType &RemoveSignatory::pubkey() const {
+const types::PubkeyType &RemoveSignatory::pubkey() const {
   return pubkey_;
 }

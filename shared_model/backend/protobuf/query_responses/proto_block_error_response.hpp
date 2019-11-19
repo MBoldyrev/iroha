@@ -11,20 +11,18 @@
 #include "qry_responses.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class BlockErrorResponse final : public interface::BlockErrorResponse {
-     public:
-      explicit BlockErrorResponse(
-          iroha::protocol::BlockQueryResponse &block_query_response);
+  class BlockErrorResponse final : public BlockErrorResponse {
+   public:
+    explicit BlockErrorResponse(
+        iroha::protocol::BlockQueryResponse &block_query_response);
 
-      const interface::types::DescriptionType &message() const override;
+    const types::DescriptionType &message() const override;
 
-     private:
-      const iroha::protocol::BlockErrorResponse &block_error_response;
+   private:
+    const iroha::protocol::BlockErrorResponse &block_error_response;
 
-      const interface::types::DescriptionType message_;
-    };
-  }  // namespace proto
+    const types::DescriptionType message_;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_PROTO_BLOCK_ERROR_RESPONSE_HPP

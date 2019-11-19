@@ -11,19 +11,17 @@
 #include "qry_responses.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class RolesResponse final : public interface::RolesResponse {
-     public:
-      explicit RolesResponse(iroha::protocol::QueryResponse &query_response);
+  class RolesResponse final : public RolesResponse {
+   public:
+    explicit RolesResponse(iroha::protocol::QueryResponse &query_response);
 
-      const RolesIdType &roles() const override;
+    const RolesIdType &roles() const override;
 
-     private:
-      const iroha::protocol::RolesResponse &roles_response_;
+   private:
+    const iroha::protocol::RolesResponse &roles_response_;
 
-      const RolesIdType roles_;
-    };
-  }  // namespace proto
+    const RolesIdType roles_;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_PROTO_ROLES_RESPONSE_HPP

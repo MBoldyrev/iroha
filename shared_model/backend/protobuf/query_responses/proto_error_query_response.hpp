@@ -11,27 +11,24 @@
 #include "qry_responses.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class ErrorQueryResponse final : public interface::ErrorQueryResponse {
-     public:
-      explicit ErrorQueryResponse(
-          iroha::protocol::QueryResponse &query_response);
+  class ErrorQueryResponse final : public ErrorQueryResponse {
+   public:
+    explicit ErrorQueryResponse(iroha::protocol::QueryResponse &query_response);
 
-      ErrorQueryResponse(ErrorQueryResponse &&o) noexcept;
+    ErrorQueryResponse(ErrorQueryResponse &&o) noexcept;
 
-      ~ErrorQueryResponse() override;
+    ~ErrorQueryResponse() override;
 
-      const QueryErrorResponseVariantType &get() const override;
+    const QueryErrorResponseVariantType &get() const override;
 
-      const ErrorMessageType &errorMessage() const override;
+    const ErrorMessageType &errorMessage() const override;
 
-      ErrorCodeType errorCode() const override;
+    ErrorCodeType errorCode() const override;
 
-     private:
-      struct Impl;
-      std::unique_ptr<Impl> impl_;
-    };
-  }  // namespace proto
+   private:
+    struct Impl;
+    std::unique_ptr<Impl> impl_;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_PROTO_ERROR_RESPONSE_HPP

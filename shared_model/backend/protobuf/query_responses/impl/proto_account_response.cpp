@@ -11,12 +11,11 @@ AccountResponse::AccountResponse(iroha::protocol::QueryResponse &query_response)
     : account_response_{query_response.account_response()},
       account_roles_{boost::copy_range<AccountRolesIdType>(
           account_response_.account_roles()
-          | boost::adaptors::transformed([](const auto &role) {
-              return interface::types::RoleIdType(role);
-            }))},
+          | boost::adaptors::transformed(
+                [](const auto &role) { return types::RoleIdType(role); }))},
       account_{*query_response.mutable_account_response()->mutable_account()} {}
 
-const interface::Account &AccountResponse::account() const {
+const Account &AccountResponse::account() const {
   return account_;
 }
 

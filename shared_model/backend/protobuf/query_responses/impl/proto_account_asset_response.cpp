@@ -22,13 +22,12 @@ AccountAssetResponse::AccountAssetResponse(
         return boost::none;
       }()} {}
 
-const interface::types::AccountAssetCollectionType
-AccountAssetResponse::accountAssets() const {
+const types::AccountAssetCollectionType AccountAssetResponse::accountAssets()
+    const {
   return account_assets_;
 }
 
-boost::optional<interface::types::AssetIdType>
-AccountAssetResponse::nextAssetId() const {
+boost::optional<types::AssetIdType> AccountAssetResponse::nextAssetId() const {
   return next_asset_id_;
 }
 

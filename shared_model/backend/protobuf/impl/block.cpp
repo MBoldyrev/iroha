@@ -20,39 +20,35 @@ struct Block::Impl {
   TransportType proto_;
   iroha::protocol::Block_v1::Payload &payload_{*proto_.mutable_payload()};
 
-  std::vector<proto::Transaction> transactions_{[this] {
-    return std::vector<proto::Transaction>(
-        payload_.mutable_transactions()->begin(),
-        payload_.mutable_transactions()->end());
+  std::vector<Transaction> transactions_{[this] {
+    return std::vector<Transaction>(payload_.mutable_transactions()->begin(),
+                                    payload_.mutable_transactions()->end());
   }()};
 
-  interface::types::BlobType blob_{[this] { return makeBlob(proto_); }()};
+  types::BlobType blob_{[this] { return makeBlob(proto_); }()};
 
-  interface::types::HashType prev_hash_{[this] {
-    return interface::types::HashType(
+  types::HashType prev_hash_{[this] {
+    return types::HashType(
         crypto::Hash::fromHexString(proto_.payload().prev_block_hash()));
   }()};
 
-  SignatureSetType<proto::Signature> signatures_{[this] {
+  SignatureSetType<Signature> signatures_{[this] {
     auto signatures = *proto_.mutable_signatures()
-        | boost::adaptors::transformed(
-              [](auto &x) { return proto::Signature(x); });
-    return SignatureSetType<proto::Signature>(signatures.begin(),
-                                              signatures.end());
+        | boost::adaptors::transformed([](auto &x) { return Signature(x); });
+    return SignatureSetType<Signature>(signatures.begin(), signatures.end());
   }()};
 
-  std::vector<interface::types::HashType> rejected_transactions_hashes_{[this] {
-    std::vector<interface::types::HashType> hashes;
+  std::vector<types::HashType> rejected_transactions_hashes_{[this] {
+    std::vector<types::HashType> hashes;
     for (const auto &hash : *payload_.mutable_rejected_transactions_hashes()) {
       hashes.emplace_back(shared_model::crypto::Hash::fromHexString(hash));
     }
     return hashes;
   }()};
 
-  interface::types::BlobType payload_blob_{
-      [this] { return makeBlob(payload_); }()};
+  types::BlobType payload_blob_{[this] { return makeBlob(payload_); }()};
 
-  interface::types::HashType hash_ = makeHash(payload_blob_);
+  types::HashType hash_ = makeHash(payload_blob_);
 };
 
 Block::Block(Block &&o) noexcept = default;
@@ -65,23 +61,23 @@ Block::Block(TransportType &&ref) {
   impl_ = std::make_unique<Block::Impl>(std::move(ref));
 }
 
-interface::types::TransactionsCollectionType Block::transactions() const {
+types::TransactionsCollectionType Block::transactions() const {
   return impl_->transactions_;
 }
 
-interface::types::HeightType Block::height() const {
+types::HeightType Block::height() const {
   return impl_->payload_.height();
 }
 
-const interface::types::HashType &Block::prevHash() const {
+const types::HashType &Block::prevHash() const {
   return impl_->prev_hash_;
 }
 
-const interface::types::BlobType &Block::blob() const {
+const types::BlobType &Block::blob() const {
   return impl_->blob_;
 }
 
-interface::types::SignatureRangeType Block::signatures() const {
+types::SignatureRangeType Block::signatures() const {
   return impl_->signatures_;
 }
 
@@ -103,32 +99,29 @@ bool Block::addSignature(const crypto::Signed &signed_blob,
 
   impl_->signatures_ = [this] {
     auto signatures = *impl_->proto_.mutable_signatures()
-        | boost::adaptors::transformed(
-              [](auto &x) { return proto::Signature(x); });
-    return SignatureSetType<proto::Signature>(signatures.begin(),
-                                              signatures.end());
+        | boost::adaptors::transformed([](auto &x) { return Signature(x); });
+    return SignatureSetType<Signature>(signatures.begin(), signatures.end());
   }();
   return true;
 }
 
-const interface::types::HashType &Block::hash() const {
+const types::HashType &Block::hash() const {
   return impl_->hash_;
 }
 
-interface::types::TimestampType Block::createdTime() const {
+types::TimestampType Block::createdTime() const {
   return impl_->payload_.created_time();
 }
 
-interface::types::TransactionsNumberType Block::txsNumber() const {
+types::TransactionsNumberType Block::txsNumber() const {
   return impl_->payload_.tx_number();
 }
 
-interface::types::HashCollectionType Block::rejected_transactions_hashes()
-    const {
+types::HashCollectionType Block::rejected_transactions_hashes() const {
   return impl_->rejected_transactions_hashes_;
 }
 
-const interface::types::BlobType &Block::payload() const {
+const types::BlobType &Block::payload() const {
   return impl_->payload_blob_;
 }
 

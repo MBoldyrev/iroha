@@ -12,23 +12,21 @@
 #include "cryptography/public_key.hpp"
 
 namespace shared_model {
-  namespace proto {
 
-    class RemoveSignatory final : public interface::RemoveSignatory {
-     public:
-      explicit RemoveSignatory(iroha::protocol::Command &command);
+  class RemoveSignatory final : public RemoveSignatory {
+   public:
+    explicit RemoveSignatory(iroha::protocol::Command &command);
 
-      const interface::types::AccountIdType &accountId() const override;
+    const types::AccountIdType &accountId() const override;
 
-      const interface::types::PubkeyType &pubkey() const override;
+    const types::PubkeyType &pubkey() const override;
 
-     private:
-      const iroha::protocol::RemoveSignatory &remove_signatory_;
+   private:
+    const iroha::protocol::RemoveSignatory &remove_signatory_;
 
-      const interface::types::PubkeyType pubkey_;
-    };
+    const types::PubkeyType pubkey_;
+  };
 
-  }  // namespace proto
 }  // namespace shared_model
 
 #endif  // IROHA_PROTO_REMOVE_SIGNATORY_HPP

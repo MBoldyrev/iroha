@@ -11,20 +11,18 @@
 #include "commands.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class SetQuorum final : public interface::SetQuorum {
-     public:
-      explicit SetQuorum(iroha::protocol::Command &command);
+  class SetQuorum final : public SetQuorum {
+   public:
+    explicit SetQuorum(iroha::protocol::Command &command);
 
-      const interface::types::AccountIdType &accountId() const override;
+    const types::AccountIdType &accountId() const override;
 
-      interface::types::QuorumType newQuorum() const override;
+    types::QuorumType newQuorum() const override;
 
-     private:
-      const iroha::protocol::SetAccountQuorum &set_account_quorum_;
-    };
+   private:
+    const iroha::protocol::SetAccountQuorum &set_account_quorum_;
+  };
 
-  }  // namespace proto
 }  // namespace shared_model
 
 #endif  // IROHA_PROTO_SET_QUORUM_HPP

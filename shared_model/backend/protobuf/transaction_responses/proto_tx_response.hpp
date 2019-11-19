@@ -11,45 +11,43 @@
 #include "endpoint.pb.h"
 
 namespace shared_model {
-  namespace proto {
+  /**
+   * TransactionResponse is a status of transaction in system
+   */
+  class TransactionResponse final : public TransactionResponse {
+   public:
+    using TransportType = iroha::protocol::ToriiResponse;
+
+    TransactionResponse(const TransactionResponse &r);
+    TransactionResponse(TransactionResponse &&r) noexcept;
+
+    explicit TransactionResponse(const TransportType &ref);
+    explicit TransactionResponse(TransportType &&ref);
+
+    ~TransactionResponse() override;
+
+    const types::HashType &transactionHash() const override;
+
     /**
-     * TransactionResponse is a status of transaction in system
+     * @return attached interface tx response
      */
-    class TransactionResponse final : public interface::TransactionResponse {
-     public:
-      using TransportType = iroha::protocol::ToriiResponse;
+    const ResponseVariantType &get() const override;
 
-      TransactionResponse(const TransactionResponse &r);
-      TransactionResponse(TransactionResponse &&r) noexcept;
+    const StatelessErrorOrFailedCommandNameType &statelessErrorOrCommandName()
+        const override;
 
-      explicit TransactionResponse(const TransportType &ref);
-      explicit TransactionResponse(TransportType &&ref);
+    FailedCommandIndexType failedCommandIndex() const override;
 
-      ~TransactionResponse() override;
+    ErrorCodeType errorCode() const override;
 
-      const interface::types::HashType &transactionHash() const override;
+    const TransportType &getTransport() const;
 
-      /**
-       * @return attached interface tx response
-       */
-      const ResponseVariantType &get() const override;
+   private:
+    struct Impl;
+    std::unique_ptr<Impl> impl_;
 
-      const StatelessErrorOrFailedCommandNameType &statelessErrorOrCommandName()
-          const override;
-
-      FailedCommandIndexType failedCommandIndex() const override;
-
-      ErrorCodeType errorCode() const override;
-
-      const TransportType &getTransport() const;
-
-     private:
-      struct Impl;
-      std::unique_ptr<Impl> impl_;
-
-      int priority() const noexcept override;
-    };
-  }  // namespace  proto
+    int priority() const noexcept override;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_PROTO_TX_RESPONSE_HPP

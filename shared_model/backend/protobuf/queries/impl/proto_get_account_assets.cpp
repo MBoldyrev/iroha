@@ -17,12 +17,12 @@ GetAccountAssets::GetAccountAssets(iroha::protocol::Query &query)
         }
       }()} {}
 
-const interface::types::AccountIdType &GetAccountAssets::accountId() const {
+const types::AccountIdType &GetAccountAssets::accountId() const {
   return account_assets_.account_id();
 }
 
-boost::optional<const interface::AssetPaginationMeta &>
-GetAccountAssets::paginationMeta() const {
+boost::optional<const AssetPaginationMeta &> GetAccountAssets::paginationMeta()
+    const {
   if (pagination_meta_) {
     return pagination_meta_.value();
   }

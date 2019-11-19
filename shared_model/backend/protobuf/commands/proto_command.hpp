@@ -11,23 +11,21 @@
 #include "commands.pb.h"
 
 namespace shared_model {
-  namespace proto {
 
-    class Command final : public interface::Command {
-     public:
-      using TransportType = iroha::protocol::Command;
+  class Command final : public Command {
+   public:
+    using TransportType = iroha::protocol::Command;
 
-      explicit Command(TransportType &ref);
+    explicit Command(TransportType &ref);
 
-      ~Command() override;
+    ~Command() override;
 
-      const CommandVariantType &get() const override;
+    const CommandVariantType &get() const override;
 
-     private:
-      struct Impl;
-      std::unique_ptr<Impl> impl_;
-    };
-  }  // namespace proto
+   private:
+    struct Impl;
+    std::unique_ptr<Impl> impl_;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_PROTO_COMMAND_HPP

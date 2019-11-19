@@ -25,19 +25,19 @@
 namespace {
   /// type of proto variant
   using ProtoQueryVariantType =
-      boost::variant<shared_model::proto::GetAccount,
-                     shared_model::proto::GetSignatories,
-                     shared_model::proto::GetAccountTransactions,
-                     shared_model::proto::GetAccountAssetTransactions,
-                     shared_model::proto::GetTransactions,
-                     shared_model::proto::GetAccountAssets,
-                     shared_model::proto::GetAccountDetail,
-                     shared_model::proto::GetRoles,
-                     shared_model::proto::GetRolePermissions,
-                     shared_model::proto::GetAssetInfo,
-                     shared_model::proto::GetPendingTransactions,
-                     shared_model::proto::GetBlock,
-                     shared_model::proto::GetPeers>;
+      boost::variant<shared_model::GetAccount,
+                     shared_model::GetSignatories,
+                     shared_model::GetAccountTransactions,
+                     shared_model::GetAccountAssetTransactions,
+                     shared_model::GetTransactions,
+                     shared_model::GetAccountAssets,
+                     shared_model::GetAccountDetail,
+                     shared_model::GetRoles,
+                     shared_model::GetRolePermissions,
+                     shared_model::GetAssetInfo,
+                     shared_model::GetPendingTransactions,
+                     shared_model::GetBlock,
+                     shared_model::GetPeers>;
 
   /// list of types in proto variant
   using ProtoQueryListType = ProtoQueryVariantType::types;
@@ -61,19 +61,19 @@ struct Query::Impl {
 
   QueryVariantType ivariant_{variant_};
 
-  interface::types::BlobType blob_{makeBlob(proto_)};
+  types::BlobType blob_{makeBlob(proto_)};
 
-  interface::types::BlobType payload_{makeBlob(proto_.payload())};
+  types::BlobType payload_{makeBlob(proto_.payload())};
 
-  SignatureSetType<proto::Signature> signatures_{[this] {
-    SignatureSetType<proto::Signature> set;
+  SignatureSetType<Signature> signatures_{[this] {
+    SignatureSetType<Signature> set;
     if (proto_.has_signature()) {
       set.emplace(*proto_.mutable_signature());
     }
     return set;
   }()};
 
-  interface::types::HashType hash_ = makeHash(payload_);
+  types::HashType hash_ = makeHash(payload_);
 };
 
 Query::Query(const Query &o) : Query(o.impl_->proto_) {}
@@ -92,23 +92,23 @@ const Query::QueryVariantType &Query::get() const {
   return impl_->ivariant_;
 }
 
-const interface::types::AccountIdType &Query::creatorAccountId() const {
+const types::AccountIdType &Query::creatorAccountId() const {
   return impl_->proto_.payload().meta().creator_account_id();
 }
 
-interface::types::CounterType Query::queryCounter() const {
+types::CounterType Query::queryCounter() const {
   return impl_->proto_.payload().meta().query_counter();
 }
 
-const interface::types::BlobType &Query::blob() const {
+const types::BlobType &Query::blob() const {
   return impl_->blob_;
 }
 
-const interface::types::BlobType &Query::payload() const {
+const types::BlobType &Query::payload() const {
   return impl_->payload_;
 }
 
-interface::types::SignatureRangeType Query::signatures() const {
+types::SignatureRangeType Query::signatures() const {
   return impl_->signatures_;
 }
 
@@ -122,16 +122,15 @@ bool Query::addSignature(const crypto::Signed &signed_blob,
   sig->set_signature(signed_blob.hex());
   sig->set_public_key(public_key.hex());
 
-  impl_->signatures_ =
-      SignatureSetType<proto::Signature>{proto::Signature{*sig}};
+  impl_->signatures_ = SignatureSetType<Signature>{Signature{*sig}};
   return true;
 }
 
-const interface::types::HashType &Query::hash() const {
+const types::HashType &Query::hash() const {
   return impl_->hash_;
 }
 
-interface::types::TimestampType Query::createdTime() const {
+types::TimestampType Query::createdTime() const {
   return impl_->proto_.payload().meta().created_time();
 }
 

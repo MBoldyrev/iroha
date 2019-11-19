@@ -15,17 +15,14 @@ GetAccountAssetTransactions::GetAccountAssetTransactions(
                             ->mutable_get_account_asset_transactions()
                             ->mutable_pagination_meta()} {}
 
-const interface::types::AccountIdType &GetAccountAssetTransactions::accountId()
-    const {
+const types::AccountIdType &GetAccountAssetTransactions::accountId() const {
   return account_asset_transactions_.account_id();
 }
 
-const interface::types::AssetIdType &GetAccountAssetTransactions::assetId()
-    const {
+const types::AssetIdType &GetAccountAssetTransactions::assetId() const {
   return account_asset_transactions_.asset_id();
 }
 
-const interface::TxPaginationMeta &GetAccountAssetTransactions::paginationMeta()
-    const {
+const TxPaginationMeta &GetAccountAssetTransactions::paginationMeta() const {
   return pagination_meta_;
 }

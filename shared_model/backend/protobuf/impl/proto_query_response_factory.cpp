@@ -24,7 +24,7 @@ namespace {
    * @return unique_ptr to created query response
    */
   template <typename QueryResponseCreatorLambda>
-  std::unique_ptr<shared_model::interface::QueryResponse> createQueryResponse(
+  std::unique_ptr<shared_model::QueryResponse> createQueryResponse(
       QueryResponseCreatorLambda response_creator,
       const shared_model::crypto::Hash &query_hash) {
     iroha::protocol::QueryResponse protocol_query_response;
@@ -32,7 +32,7 @@ namespace {
 
     response_creator(protocol_query_response);
 
-    return std::make_unique<shared_model::proto::QueryResponse>(
+    return std::make_unique<shared_model::QueryResponse>(
         std::move(protocol_query_response));
   }
 
@@ -45,24 +45,24 @@ namespace {
    * @return unique_ptr to created block query response
    */
   template <typename QueryResponseCreatorLambda>
-  std::unique_ptr<shared_model::interface::BlockQueryResponse>
-  createQueryResponse(QueryResponseCreatorLambda response_creator) {
+  std::unique_ptr<shared_model::BlockQueryResponse> createQueryResponse(
+      QueryResponseCreatorLambda response_creator) {
     iroha::protocol::BlockQueryResponse protocol_query_response;
 
     response_creator(protocol_query_response);
 
-    return std::make_unique<shared_model::proto::BlockQueryResponse>(
+    return std::make_unique<shared_model::BlockQueryResponse>(
         std::move(protocol_query_response));
   }
 }  // namespace
 
-std::unique_ptr<shared_model::interface::QueryResponse>
-shared_model::proto::ProtoQueryResponseFactory::createAccountAssetResponse(
-    std::vector<std::tuple<interface::types::AccountIdType,
-                           interface::types::AssetIdType,
-                           shared_model::interface::Amount>> assets,
+std::unique_ptr<shared_model::QueryResponse>
+shared_model::ProtoQueryResponseFactory::createAccountAssetResponse(
+    std::vector<std::tuple<types::AccountIdType,
+                           types::AssetIdType,
+                           shared_model::Amount>> assets,
     size_t total_assets_number,
-    boost::optional<shared_model::interface::types::AssetIdType> next_asset_id,
+    boost::optional<shared_model::types::AssetIdType> next_asset_id,
     const crypto::Hash &query_hash) const {
   return createQueryResponse(
       [assets = std::move(assets),
@@ -85,12 +85,11 @@ shared_model::proto::ProtoQueryResponseFactory::createAccountAssetResponse(
       query_hash);
 }
 
-std::unique_ptr<shared_model::interface::QueryResponse>
-shared_model::proto::ProtoQueryResponseFactory::createAccountDetailResponse(
-    shared_model::interface::types::DetailType account_detail,
+std::unique_ptr<shared_model::QueryResponse>
+shared_model::ProtoQueryResponseFactory::createAccountDetailResponse(
+    shared_model::types::DetailType account_detail,
     size_t total_number,
-    boost::optional<const shared_model::interface::AccountDetailRecordId &>
-        next_record_id,
+    boost::optional<const shared_model::AccountDetailRecordId &> next_record_id,
     const crypto::Hash &query_hash) const {
   return createQueryResponse(
       [&account_detail, total_number, &next_record_id](
@@ -109,13 +108,13 @@ shared_model::proto::ProtoQueryResponseFactory::createAccountDetailResponse(
       query_hash);
 }
 
-std::unique_ptr<shared_model::interface::QueryResponse>
-shared_model::proto::ProtoQueryResponseFactory::createAccountResponse(
-    const shared_model::interface::types::AccountIdType account_id,
-    const shared_model::interface::types::DomainIdType domain_id,
-    shared_model::interface::types::QuorumType quorum,
-    const shared_model::interface::types::JsonType jsonData,
-    std::vector<shared_model::interface::types::RoleIdType> roles,
+std::unique_ptr<shared_model::QueryResponse>
+shared_model::ProtoQueryResponseFactory::createAccountResponse(
+    const shared_model::types::AccountIdType account_id,
+    const shared_model::types::DomainIdType domain_id,
+    shared_model::types::QuorumType quorum,
+    const shared_model::types::JsonType jsonData,
+    std::vector<shared_model::types::RoleIdType> roles,
     const crypto::Hash &query_hash) const {
   return createQueryResponse(
       [account_id = std::move(account_id),
@@ -138,9 +137,9 @@ shared_model::proto::ProtoQueryResponseFactory::createAccountResponse(
       query_hash);
 }
 
-std::unique_ptr<shared_model::interface::QueryResponse>
-shared_model::proto::ProtoQueryResponseFactory::createBlockResponse(
-    std::unique_ptr<shared_model::interface::Block> block,
+std::unique_ptr<shared_model::QueryResponse>
+shared_model::ProtoQueryResponseFactory::createBlockResponse(
+    std::unique_ptr<shared_model::Block> block,
     const crypto::Hash &query_hash) const {
   return createQueryResponse(
       [block = std::move(block)](
@@ -148,17 +147,16 @@ shared_model::proto::ProtoQueryResponseFactory::createBlockResponse(
         iroha::protocol::BlockResponse *protocol_specific_response =
             protocol_query_response.mutable_block_response();
         *protocol_specific_response->mutable_block()->mutable_block_v1() =
-            static_cast<shared_model::proto::Block *>(block.get())
-                ->getTransport();
+            static_cast<shared_model::Block *>(block.get())->getTransport();
       },
       query_hash);
 }
 
-std::unique_ptr<shared_model::interface::QueryResponse>
-shared_model::proto::ProtoQueryResponseFactory::createErrorQueryResponse(
+std::unique_ptr<shared_model::QueryResponse>
+shared_model::ProtoQueryResponseFactory::createErrorQueryResponse(
     ErrorQueryType error_type,
-    interface::ErrorQueryResponse::ErrorMessageType error_msg,
-    interface::ErrorQueryResponse::ErrorCodeType error_code,
+    ErrorQueryResponse::ErrorMessageType error_msg,
+    ErrorQueryResponse::ErrorCodeType error_code,
     const crypto::Hash &query_hash) const {
   return createQueryResponse(
       [error_type, error_msg = std::move(error_msg), error_code](
@@ -202,9 +200,9 @@ shared_model::proto::ProtoQueryResponseFactory::createErrorQueryResponse(
       query_hash);
 }
 
-std::unique_ptr<shared_model::interface::QueryResponse>
-shared_model::proto::ProtoQueryResponseFactory::createSignatoriesResponse(
-    std::vector<shared_model::interface::types::PubkeyType> signatories,
+std::unique_ptr<shared_model::QueryResponse>
+shared_model::ProtoQueryResponseFactory::createSignatoriesResponse(
+    std::vector<shared_model::types::PubkeyType> signatories,
     const crypto::Hash &query_hash) const {
   return createQueryResponse(
       [signatories = std::move(signatories)](
@@ -218,10 +216,9 @@ shared_model::proto::ProtoQueryResponseFactory::createSignatoriesResponse(
       query_hash);
 }
 
-std::unique_ptr<shared_model::interface::QueryResponse>
-shared_model::proto::ProtoQueryResponseFactory::createTransactionsResponse(
-    std::vector<std::unique_ptr<shared_model::interface::Transaction>>
-        transactions,
+std::unique_ptr<shared_model::QueryResponse>
+shared_model::ProtoQueryResponseFactory::createTransactionsResponse(
+    std::vector<std::unique_ptr<shared_model::Transaction>> transactions,
     const crypto::Hash &query_hash) const {
   return createQueryResponse(
       [transactions = std::move(transactions)](
@@ -230,19 +227,18 @@ shared_model::proto::ProtoQueryResponseFactory::createTransactionsResponse(
             protocol_query_response.mutable_transactions_response();
         for (const auto &tx : transactions) {
           *protocol_specific_response->add_transactions() =
-              static_cast<shared_model::proto::Transaction *>(tx.get())
+              static_cast<shared_model::Transaction *>(tx.get())
                   ->getTransport();
         }
       },
       query_hash);
 }
 
-std::unique_ptr<shared_model::interface::QueryResponse>
-shared_model::proto::ProtoQueryResponseFactory::createTransactionsPageResponse(
-    std::vector<std::unique_ptr<shared_model::interface::Transaction>>
-        transactions,
+std::unique_ptr<shared_model::QueryResponse>
+shared_model::ProtoQueryResponseFactory::createTransactionsPageResponse(
+    std::vector<std::unique_ptr<shared_model::Transaction>> transactions,
     boost::optional<const crypto::Hash &> next_tx_hash,
-    interface::types::TransactionsNumberType all_transactions_size,
+    types::TransactionsNumberType all_transactions_size,
     const crypto::Hash &query_hash) const {
   return createQueryResponse(
       [transactions = std::move(transactions),
@@ -253,7 +249,7 @@ shared_model::proto::ProtoQueryResponseFactory::createTransactionsPageResponse(
             protocol_query_response.mutable_transactions_page_response();
         for (const auto &tx : transactions) {
           *protocol_specific_response->add_transactions() =
-              static_cast<shared_model::proto::Transaction *>(tx.get())
+              static_cast<shared_model::Transaction *>(tx.get())
                   ->getTransport();
         }
         if (next_tx_hash) {
@@ -266,14 +262,12 @@ shared_model::proto::ProtoQueryResponseFactory::createTransactionsPageResponse(
       query_hash);
 }
 
-std::unique_ptr<shared_model::interface::QueryResponse> shared_model::proto::
-    ProtoQueryResponseFactory::createPendingTransactionsPageResponse(
-        std::vector<std::unique_ptr<shared_model::interface::Transaction>>
-            transactions,
-        interface::types::TransactionsNumberType all_transactions_size,
-        boost::optional<interface::PendingTransactionsPageResponse::BatchInfo>
-            next_batch_info,
-        const crypto::Hash &query_hash) const {
+std::unique_ptr<shared_model::QueryResponse>
+shared_model::ProtoQueryResponseFactory::createPendingTransactionsPageResponse(
+    std::vector<std::unique_ptr<shared_model::Transaction>> transactions,
+    types::TransactionsNumberType all_transactions_size,
+    boost::optional<PendingTransactionsPageResponse::BatchInfo> next_batch_info,
+    const crypto::Hash &query_hash) const {
   return createQueryResponse(
       [transactions = std::move(transactions),
        &all_transactions_size,
@@ -284,7 +278,7 @@ std::unique_ptr<shared_model::interface::QueryResponse> shared_model::proto::
                 .mutable_pending_transactions_page_response();
         for (const auto &tx : transactions) {
           *protocol_specific_response->add_transactions() =
-              static_cast<shared_model::proto::Transaction *>(tx.get())
+              static_cast<shared_model::Transaction *>(tx.get())
                   ->getTransport();
         }
         protocol_specific_response->set_all_transactions_size(
@@ -300,11 +294,11 @@ std::unique_ptr<shared_model::interface::QueryResponse> shared_model::proto::
       query_hash);
 }
 
-std::unique_ptr<shared_model::interface::QueryResponse>
-shared_model::proto::ProtoQueryResponseFactory::createAssetResponse(
-    const interface::types::AssetIdType asset_id,
-    const interface::types::DomainIdType domain_id,
-    const interface::types::PrecisionType precision,
+std::unique_ptr<shared_model::QueryResponse>
+shared_model::ProtoQueryResponseFactory::createAssetResponse(
+    const types::AssetIdType asset_id,
+    const types::DomainIdType domain_id,
+    const types::PrecisionType precision,
     const crypto::Hash &query_hash) const {
   return createQueryResponse(
       [asset_id = std::move(asset_id),
@@ -320,9 +314,9 @@ shared_model::proto::ProtoQueryResponseFactory::createAssetResponse(
       query_hash);
 }
 
-std::unique_ptr<shared_model::interface::QueryResponse>
-shared_model::proto::ProtoQueryResponseFactory::createRolesResponse(
-    std::vector<shared_model::interface::types::RoleIdType> roles,
+std::unique_ptr<shared_model::QueryResponse>
+shared_model::ProtoQueryResponseFactory::createRolesResponse(
+    std::vector<shared_model::types::RoleIdType> roles,
     const crypto::Hash &query_hash) const {
   return createQueryResponse(
       [roles = std::move(roles)](
@@ -336,9 +330,9 @@ shared_model::proto::ProtoQueryResponseFactory::createRolesResponse(
       query_hash);
 }
 
-std::unique_ptr<shared_model::interface::QueryResponse>
-shared_model::proto::ProtoQueryResponseFactory::createRolePermissionsResponse(
-    shared_model::interface::RolePermissionSet role_permissions,
+std::unique_ptr<shared_model::QueryResponse>
+shared_model::ProtoQueryResponseFactory::createRolePermissionsResponse(
+    shared_model::RolePermissionSet role_permissions,
     const crypto::Hash &query_hash) const {
   return createQueryResponse(
       [role_permissions](
@@ -346,19 +340,19 @@ shared_model::proto::ProtoQueryResponseFactory::createRolePermissionsResponse(
         iroha::protocol::RolePermissionsResponse *protocol_specific_response =
             protocol_query_response.mutable_role_permissions_response();
         for (size_t i = 0; i < role_permissions.size(); ++i) {
-          auto perm = static_cast<interface::permissions::Role>(i);
+          auto perm = static_cast<permissions::Role>(i);
           if (role_permissions.isSet(perm)) {
             protocol_specific_response->add_permissions(
-                shared_model::proto::permissions::toTransport(perm));
+                shared_model::permissions::toTransport(perm));
           }
         }
       },
       query_hash);
 }
 
-std::unique_ptr<shared_model::interface::QueryResponse>
-shared_model::proto::ProtoQueryResponseFactory::createPeersResponse(
-    interface::types::PeerList peers, const crypto::Hash &query_hash) const {
+std::unique_ptr<shared_model::QueryResponse>
+shared_model::ProtoQueryResponseFactory::createPeersResponse(
+    types::PeerList peers, const crypto::Hash &query_hash) const {
   return createQueryResponse(
       [peers](iroha::protocol::QueryResponse &protocol_query_response) {
         auto *protocol_specific_response =
@@ -372,22 +366,21 @@ shared_model::proto::ProtoQueryResponseFactory::createPeersResponse(
       query_hash);
 }
 
-std::unique_ptr<shared_model::interface::BlockQueryResponse>
-shared_model::proto::ProtoQueryResponseFactory::createBlockQueryResponse(
-    std::shared_ptr<const shared_model::interface::Block> block) const {
-  return createQueryResponse(
-      [block = std::move(block)](
-          iroha::protocol::BlockQueryResponse &protocol_query_response) {
-        iroha::protocol::BlockResponse *protocol_specific_response =
-            protocol_query_response.mutable_block_response();
-        *protocol_specific_response->mutable_block()->mutable_block_v1() =
-            static_cast<const shared_model::proto::Block *>(block.get())
-                ->getTransport();
-      });
+std::unique_ptr<shared_model::BlockQueryResponse>
+shared_model::ProtoQueryResponseFactory::createBlockQueryResponse(
+    std::shared_ptr<const shared_model::Block> block) const {
+  return createQueryResponse([block = std::move(block)](
+                                 iroha::protocol::BlockQueryResponse
+                                     &protocol_query_response) {
+    iroha::protocol::BlockResponse *protocol_specific_response =
+        protocol_query_response.mutable_block_response();
+    *protocol_specific_response->mutable_block()->mutable_block_v1() =
+        static_cast<const shared_model::Block *>(block.get())->getTransport();
+  });
 }
 
-std::unique_ptr<shared_model::interface::BlockQueryResponse>
-shared_model::proto::ProtoQueryResponseFactory::createBlockQueryResponse(
+std::unique_ptr<shared_model::BlockQueryResponse>
+shared_model::ProtoQueryResponseFactory::createBlockQueryResponse(
     std::string error_message) const {
   return createQueryResponse(
       [error_message = std::move(error_message)](

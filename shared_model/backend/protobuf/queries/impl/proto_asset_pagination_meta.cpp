@@ -7,7 +7,7 @@
 
 #include <boost/optional.hpp>
 
-namespace types = shared_model::interface::types;
+namespace types = shared_model::types;
 
 using namespace shared_model::proto;
 

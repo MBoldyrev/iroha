@@ -8,10 +8,10 @@
 DetachRole::DetachRole(iroha::protocol::Command &command)
     : detach_role_{command.detach_role()} {}
 
-const interface::types::AccountIdType &DetachRole::accountId() const {
+const types::AccountIdType &DetachRole::accountId() const {
   return detach_role_.account_id();
 }
 
-const interface::types::RoleIdType &DetachRole::roleName() const {
+const types::RoleIdType &DetachRole::roleName() const {
   return detach_role_.role_name();
 }

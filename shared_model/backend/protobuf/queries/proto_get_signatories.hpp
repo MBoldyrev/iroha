@@ -11,20 +11,18 @@
 #include "queries.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class GetSignatories final : public interface::GetSignatories {
-     public:
-      explicit GetSignatories(iroha::protocol::Query &query);
+  class GetSignatories final : public GetSignatories {
+   public:
+    explicit GetSignatories(iroha::protocol::Query &query);
 
-      const interface::types::AccountIdType &accountId() const override;
+    const types::AccountIdType &accountId() const override;
 
-     private:
-      // ------------------------------| fields |-------------------------------
+   private:
+    // ------------------------------| fields |-------------------------------
 
-      const iroha::protocol::GetSignatories &account_signatories_;
-    };
+    const iroha::protocol::GetSignatories &account_signatories_;
+  };
 
-  }  // namespace proto
 }  // namespace shared_model
 
 #endif  // IROHA_PROTO_GET_SIGNATORIES_H

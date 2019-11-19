@@ -15,7 +15,7 @@ BlocksQuery::BlocksQuery(TransportType &&query)
       blob_{makeBlob(proto_)},
       payload_{makeBlob(proto_.meta())},
       signatures_{[this] {
-        SignatureSetType<proto::Signature> set;
+        SignatureSetType<Signature> set;
         if (proto_.has_signature()) {
           set.emplace(*proto_.mutable_signature());
         }
@@ -23,23 +23,23 @@ BlocksQuery::BlocksQuery(TransportType &&query)
       }()},
       hash_(makeHash(payload_)) {}
 
-const interface::types::AccountIdType &BlocksQuery::creatorAccountId() const {
+const types::AccountIdType &BlocksQuery::creatorAccountId() const {
   return proto_.meta().creator_account_id();
 }
 
-interface::types::CounterType BlocksQuery::queryCounter() const {
+types::CounterType BlocksQuery::queryCounter() const {
   return proto_.meta().query_counter();
 }
 
-const interface::types::BlobType &BlocksQuery::blob() const {
+const types::BlobType &BlocksQuery::blob() const {
   return blob_;
 }
 
-const interface::types::BlobType &BlocksQuery::payload() const {
+const types::BlobType &BlocksQuery::payload() const {
   return payload_;
 }
 
-interface::types::SignatureRangeType BlocksQuery::signatures() const {
+types::SignatureRangeType BlocksQuery::signatures() const {
   return signatures_;
 }
 
@@ -57,11 +57,11 @@ bool BlocksQuery::addSignature(const crypto::Signed &signed_blob,
   return true;
 }
 
-const interface::types::HashType &BlocksQuery::hash() const {
+const types::HashType &BlocksQuery::hash() const {
   return hash_;
 }
 
-interface::types::TimestampType BlocksQuery::createdTime() const {
+types::TimestampType BlocksQuery::createdTime() const {
   return proto_.meta().created_time();
 }
 

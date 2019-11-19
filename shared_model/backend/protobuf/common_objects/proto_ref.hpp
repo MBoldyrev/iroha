@@ -7,25 +7,23 @@
 #define IROHA_SHARED_MODEL_PROTO_REF_HPP
 
 namespace shared_model {
-  namespace proto {
-    /**
-     * Generic class for handling references to proto objects.
-     * @tparam Iface is interface to inherit from
-     * @tparam Proto is protobuf container
+  /**
+   * Generic class for handling references to proto objects.
+   * @tparam Iface is interface to inherit from
+   * @tparam Proto is protobuf container
+   */
+  template <typename Iface, typename Proto>
+  class ProtoRef : public Iface {
+   public:
+    using TransportType = Proto;
+
+    /*
+     * Construct object from transport.
      */
-    template <typename Iface, typename Proto>
-    class ProtoRef : public Iface {
-     public:
-      using TransportType = Proto;
+    explicit ProtoRef(Proto &ref) : proto_(ref) {}
 
-      /*
-       * Construct object from transport.
-       */
-      explicit ProtoRef(Proto &ref) : proto_(ref) {}
-
-      Proto &proto_;
-    };
-  }  // namespace proto
+    Proto &proto_;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_PROTO_REF_HPP

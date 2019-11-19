@@ -13,21 +13,18 @@
 #include "qry_responses.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class TransactionsResponse final : public interface::TransactionsResponse {
-     public:
-      explicit TransactionsResponse(
-          iroha::protocol::QueryResponse &query_response);
+  class TransactionsResponse final : public TransactionsResponse {
+   public:
+    explicit TransactionsResponse(
+        iroha::protocol::QueryResponse &query_response);
 
-      interface::types::TransactionsCollectionType transactions()
-          const override;
+    types::TransactionsCollectionType transactions() const override;
 
-     private:
-      const iroha::protocol::TransactionsResponse &transaction_response_;
+   private:
+    const iroha::protocol::TransactionsResponse &transaction_response_;
 
-      const std::vector<proto::Transaction> transactions_;
-    };
-  }  // namespace proto
+    const std::vector<Transaction> transactions_;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_PROTO_TRANSACTION_RESPONSE_HPP

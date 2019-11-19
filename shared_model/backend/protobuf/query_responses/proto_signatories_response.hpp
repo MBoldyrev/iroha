@@ -12,20 +12,18 @@
 #include "qry_responses.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class SignatoriesResponse final : public interface::SignatoriesResponse {
-     public:
-      explicit SignatoriesResponse(
-          iroha::protocol::QueryResponse &query_response);
+  class SignatoriesResponse final : public SignatoriesResponse {
+   public:
+    explicit SignatoriesResponse(
+        iroha::protocol::QueryResponse &query_response);
 
-      const interface::types::PublicKeyCollectionType &keys() const override;
+    const types::PublicKeyCollectionType &keys() const override;
 
-     private:
-      const iroha::protocol::SignatoriesResponse &signatories_response_;
+   private:
+    const iroha::protocol::SignatoriesResponse &signatories_response_;
 
-      const interface::types::PublicKeyCollectionType keys_;
-    };
-  }  // namespace proto
+    const types::PublicKeyCollectionType keys_;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_PROTO_SIGNATORIES_RESPONSE_HPP

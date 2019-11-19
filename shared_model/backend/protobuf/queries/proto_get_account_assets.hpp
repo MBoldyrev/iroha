@@ -13,23 +13,21 @@
 #include "queries.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class GetAccountAssets final : public interface::GetAccountAssets {
-     public:
-      explicit GetAccountAssets(iroha::protocol::Query &query);
+  class GetAccountAssets final : public GetAccountAssets {
+   public:
+    explicit GetAccountAssets(iroha::protocol::Query &query);
 
-      const interface::types::AccountIdType &accountId() const override;
+    const types::AccountIdType &accountId() const override;
 
-      boost::optional<const interface::AssetPaginationMeta &> paginationMeta()
-          const override;
+    boost::optional<const AssetPaginationMeta &> paginationMeta()
+        const override;
 
-     private:
-      // ------------------------------| fields |-------------------------------
+   private:
+    // ------------------------------| fields |-------------------------------
 
-      const iroha::protocol::GetAccountAssets &account_assets_;
-      const boost::optional<const AssetPaginationMeta> pagination_meta_;
-    };
-  }  // namespace proto
+    const iroha::protocol::GetAccountAssets &account_assets_;
+    const boost::optional<const AssetPaginationMeta> pagination_meta_;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_PROTO_GET_ACCOUNT_ASSETS_H

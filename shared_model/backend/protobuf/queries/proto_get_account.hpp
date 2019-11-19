@@ -11,19 +11,17 @@
 #include "queries.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class GetAccount final : public interface::GetAccount {
-     public:
-      explicit GetAccount(iroha::protocol::Query &query);
+  class GetAccount final : public GetAccount {
+   public:
+    explicit GetAccount(iroha::protocol::Query &query);
 
-      const interface::types::AccountIdType &accountId() const override;
+    const types::AccountIdType &accountId() const override;
 
-     private:
-      // ------------------------------| fields |-------------------------------
-      const iroha::protocol::GetAccount &account_;
-    };
+   private:
+    // ------------------------------| fields |-------------------------------
+    const iroha::protocol::GetAccount &account_;
+  };
 
-  }  // namespace proto
 }  // namespace shared_model
 
 #endif  // IROHA_PROTO_GET_ACCOUNT_H

@@ -8,22 +8,19 @@
 #include "backend/protobuf/permissions.hpp"
 #include "primitive.pb.h"
 
-std::string ProtoPermissionToString::toString(interface::permissions::Role r) {
-  return iroha::protocol::RolePermission_Name(
-      proto::permissions::toTransport(r));
+std::string ProtoPermissionToString::toString(permissions::Role r) {
+  return iroha::protocol::RolePermission_Name(permissions::toTransport(r));
 }
 
-std::string ProtoPermissionToString::toString(
-    interface::permissions::Grantable r) {
-  return iroha::protocol::GrantablePermission_Name(
-      proto::permissions::toTransport(r));
+std::string ProtoPermissionToString::toString(permissions::Grantable r) {
+  return iroha::protocol::GrantablePermission_Name(permissions::toTransport(r));
 }
 
 std::vector<std::string> ProtoPermissionToString::toString(
-    const interface::RolePermissionSet &set) {
+    const RolePermissionSet &set) {
   std::vector<std::string> v;
   for (size_t i = 0; i < set.size(); ++i) {
-    auto perm = static_cast<interface::permissions::Role>(i);
+    auto perm = static_cast<permissions::Role>(i);
     if (set.isSet(perm)) {
       v.push_back(toString(perm));
     }
@@ -32,10 +29,10 @@ std::vector<std::string> ProtoPermissionToString::toString(
 }
 
 std::vector<std::string> ProtoPermissionToString::toString(
-    const interface::GrantablePermissionSet &set) {
+    const GrantablePermissionSet &set) {
   std::vector<std::string> v;
   for (size_t i = 0; i < set.size(); ++i) {
-    auto perm = static_cast<interface::permissions::Grantable>(i);
+    auto perm = static_cast<permissions::Grantable>(i);
     if (set.isSet(perm)) {
       v.push_back(toString(perm));
     }

@@ -11,48 +11,46 @@
 #include "queries.pb.h"
 
 namespace shared_model {
-  namespace proto {
 
-    class Query final : public interface::Query {
-     public:
-      using TransportType = iroha::protocol::Query;
+  class Query final : public Query {
+   public:
+    using TransportType = iroha::protocol::Query;
 
-      Query(const Query &o);
-      Query(Query &&o) noexcept;
+    Query(const Query &o);
+    Query(Query &&o) noexcept;
 
-      explicit Query(const TransportType &ref);
-      explicit Query(TransportType &&ref);
+    explicit Query(const TransportType &ref);
+    explicit Query(TransportType &&ref);
 
-      ~Query() override;
+    ~Query() override;
 
-      const Query::QueryVariantType &get() const override;
+    const Query::QueryVariantType &get() const override;
 
-      const interface::types::AccountIdType &creatorAccountId() const override;
+    const types::AccountIdType &creatorAccountId() const override;
 
-      interface::types::CounterType queryCounter() const override;
+    types::CounterType queryCounter() const override;
 
-      const interface::types::BlobType &blob() const override;
+    const types::BlobType &blob() const override;
 
-      const interface::types::BlobType &payload() const override;
+    const types::BlobType &payload() const override;
 
-      // ------------------------| Signable override  |-------------------------
-      interface::types::SignatureRangeType signatures() const override;
+    // ------------------------| Signable override  |-------------------------
+    types::SignatureRangeType signatures() const override;
 
-      bool addSignature(const crypto::Signed &signed_blob,
-                        const crypto::PublicKey &public_key) override;
+    bool addSignature(const crypto::Signed &signed_blob,
+                      const crypto::PublicKey &public_key) override;
 
-      const interface::types::HashType &hash() const override;
+    const types::HashType &hash() const override;
 
-      interface::types::TimestampType createdTime() const override;
+    types::TimestampType createdTime() const override;
 
-      const TransportType &getTransport() const;
+    const TransportType &getTransport() const;
 
-     private:
-      struct Impl;
-      std::unique_ptr<Impl> impl_;
-    };
+   private:
+    struct Impl;
+    std::unique_ptr<Impl> impl_;
+  };
 
-  }  // namespace proto
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_PROTO_QUERY_HPP

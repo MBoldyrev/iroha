@@ -8,6 +8,6 @@
 GetSignatories::GetSignatories(iroha::protocol::Query &query)
     : account_signatories_{query.payload().get_signatories()} {}
 
-const interface::types::AccountIdType &GetSignatories::accountId() const {
+const types::AccountIdType &GetSignatories::accountId() const {
   return account_signatories_.account_id();
 }

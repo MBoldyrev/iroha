@@ -19,32 +19,24 @@
 #include "qry_responses.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    using StatelessFailedErrorResponse =
-        ProtoRef<interface::StatelessFailedErrorResponse,
-                 iroha::protocol::ErrorResponse>;
-    using StatefulFailedErrorResponse =
-        ProtoRef<interface::StatefulFailedErrorResponse,
-                 iroha::protocol::ErrorResponse>;
-    using NoAccountErrorResponse = ProtoRef<interface::NoAccountErrorResponse,
-                                            iroha::protocol::ErrorResponse>;
-    using NoAccountAssetsErrorResponse =
-        ProtoRef<interface::NoAccountAssetsErrorResponse,
-                 iroha::protocol::ErrorResponse>;
-    using NoAccountDetailErrorResponse =
-        ProtoRef<interface::NoAccountDetailErrorResponse,
-                 iroha::protocol::ErrorResponse>;
-    using NoSignatoriesErrorResponse =
-        ProtoRef<interface::NoSignatoriesErrorResponse,
-                 iroha::protocol::ErrorResponse>;
-    using NotSupportedErrorResponse =
-        ProtoRef<interface::NotSupportedErrorResponse,
-                 iroha::protocol::ErrorResponse>;
-    using NoAssetErrorResponse = ProtoRef<interface::NoAssetErrorResponse,
-                                          iroha::protocol::ErrorResponse>;
-    using NoRolesErrorResponse = ProtoRef<interface::NoRolesErrorResponse,
-                                          iroha::protocol::ErrorResponse>;
-  }  // namespace proto
+  using StatelessFailedErrorResponse =
+      ProtoRef<StatelessFailedErrorResponse, iroha::protocol::ErrorResponse>;
+  using StatefulFailedErrorResponse =
+      ProtoRef<StatefulFailedErrorResponse, iroha::protocol::ErrorResponse>;
+  using NoAccountErrorResponse =
+      ProtoRef<NoAccountErrorResponse, iroha::protocol::ErrorResponse>;
+  using NoAccountAssetsErrorResponse =
+      ProtoRef<NoAccountAssetsErrorResponse, iroha::protocol::ErrorResponse>;
+  using NoAccountDetailErrorResponse =
+      ProtoRef<NoAccountDetailErrorResponse, iroha::protocol::ErrorResponse>;
+  using NoSignatoriesErrorResponse =
+      ProtoRef<NoSignatoriesErrorResponse, iroha::protocol::ErrorResponse>;
+  using NotSupportedErrorResponse =
+      ProtoRef<NotSupportedErrorResponse, iroha::protocol::ErrorResponse>;
+  using NoAssetErrorResponse =
+      ProtoRef<NoAssetErrorResponse, iroha::protocol::ErrorResponse>;
+  using NoRolesErrorResponse =
+      ProtoRef<NoRolesErrorResponse, iroha::protocol::ErrorResponse>;
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_PROTO_CONCRETE_ERROR_QUERY_RESPONSE_HPP

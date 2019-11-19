@@ -11,22 +11,20 @@
 #include "commands.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class RevokePermission final : public interface::RevokePermission {
-     public:
-      explicit RevokePermission(iroha::protocol::Command &command);
+  class RevokePermission final : public RevokePermission {
+   public:
+    explicit RevokePermission(iroha::protocol::Command &command);
 
-      const interface::types::AccountIdType &accountId() const override;
+    const types::AccountIdType &accountId() const override;
 
-      interface::permissions::Grantable permissionName() const override;
+    permissions::Grantable permissionName() const override;
 
-      std::string toString() const override;
+    std::string toString() const override;
 
-     private:
-      const iroha::protocol::RevokePermission &revoke_permission_;
-    };
+   private:
+    const iroha::protocol::RevokePermission &revoke_permission_;
+  };
 
-  }  // namespace proto
 }  // namespace shared_model
 
 #endif  // IROHA_PROTO_REVOKE_PERMISSION_HPP

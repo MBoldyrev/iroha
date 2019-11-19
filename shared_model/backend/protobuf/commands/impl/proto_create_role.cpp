@@ -10,7 +10,7 @@
 CreateRole::CreateRole(iroha::protocol::Command &command)
     : create_role_{command.create_role()}, role_permissions_{[&command] {
         auto &perms_in = command.create_role().permissions();
-        interface::RolePermissionSet perms_out;
+        RolePermissionSet perms_out;
         for (const auto &perm : perms_in) {
           perms_out.set(permissions::fromTransport(
               static_cast<iroha::protocol::RolePermission>(perm)));
@@ -18,11 +18,11 @@ CreateRole::CreateRole(iroha::protocol::Command &command)
         return perms_out;
       }()} {}
 
-const interface::types::RoleIdType &CreateRole::roleName() const {
+const types::RoleIdType &CreateRole::roleName() const {
   return create_role_.role_name();
 }
 
-const interface::RolePermissionSet &CreateRole::rolePermissions() const {
+const RolePermissionSet &CreateRole::rolePermissions() const {
   return role_permissions_;
 }
 

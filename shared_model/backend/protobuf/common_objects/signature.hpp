@@ -13,37 +13,35 @@
 #include "primitive.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class Signature final : public TrivialProto<interface::Signature,
-                                                iroha::protocol::Signature> {
-     public:
-      template <typename SignatureType>
-      explicit Signature(SignatureType &&signature)
-          : TrivialProto(std::forward<SignatureType>(signature)) {}
+  class Signature final
+      : public TrivialProto<Signature, iroha::protocol::Signature> {
+   public:
+    template <typename SignatureType>
+    explicit Signature(SignatureType &&signature)
+        : TrivialProto(std::forward<SignatureType>(signature)) {}
 
-      Signature(const Signature &o) : Signature(o.proto_) {}
+    Signature(const Signature &o) : Signature(o.proto_) {}
 
-      Signature(Signature &&o) noexcept : Signature(std::move(o.proto_)) {}
+    Signature(Signature &&o) noexcept : Signature(std::move(o.proto_)) {}
 
-      const PublicKeyType &publicKey() const override {
-        return public_key_;
-      }
+    const PublicKeyType &publicKey() const override {
+      return public_key_;
+    }
 
-      const SignedType &signedData() const override {
-        return signed_;
-      }
+    const SignedType &signedData() const override {
+      return signed_;
+    }
 
-     private:
-      interface::Signature *clone() const override {
-        return new Signature(proto_);
-      }
+   private:
+    Signature *clone() const override {
+      return new Signature(proto_);
+    }
 
-      const PublicKeyType public_key_{
-          PublicKeyType::fromHexString(proto_->public_key())};
+    const PublicKeyType public_key_{
+        PublicKeyType::fromHexString(proto_->public_key())};
 
-      const SignedType signed_{SignedType::fromHexString(proto_->signature())};
-    };
-  }  // namespace proto
+    const SignedType signed_{SignedType::fromHexString(proto_->signature())};
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_PROTO_SIGNATURE_HPP

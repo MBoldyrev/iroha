@@ -12,19 +12,17 @@
 #include "qry_responses.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class PeersResponse final : public interface::PeersResponse {
-     public:
-      explicit PeersResponse(iroha::protocol::QueryResponse &query_response);
+  class PeersResponse final : public PeersResponse {
+   public:
+    explicit PeersResponse(iroha::protocol::QueryResponse &query_response);
 
-      interface::PeersForwardCollectionType peers() const override;
+    PeersForwardCollectionType peers() const override;
 
-     private:
-      const iroha::protocol::PeersResponse &peers_response_;
+   private:
+    const iroha::protocol::PeersResponse &peers_response_;
 
-      std::vector<Peer> peers_;
-    };
-  }  // namespace proto
+    std::vector<Peer> peers_;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_PROTO_PEERS_RESPONSE_HPP

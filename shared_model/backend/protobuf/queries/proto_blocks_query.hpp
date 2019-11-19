@@ -12,47 +12,45 @@
 #include "queries.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class BlocksQuery final : public interface::BlocksQuery {
-     public:
-      using TransportType = iroha::protocol::BlocksQuery;
+  class BlocksQuery final : public BlocksQuery {
+   public:
+    using TransportType = iroha::protocol::BlocksQuery;
 
-      explicit BlocksQuery(const TransportType &query);
-      explicit BlocksQuery(TransportType &&query);
+    explicit BlocksQuery(const TransportType &query);
+    explicit BlocksQuery(TransportType &&query);
 
-      const interface::types::AccountIdType &creatorAccountId() const override;
+    const types::AccountIdType &creatorAccountId() const override;
 
-      interface::types::CounterType queryCounter() const override;
+    types::CounterType queryCounter() const override;
 
-      const interface::types::BlobType &blob() const override;
+    const types::BlobType &blob() const override;
 
-      const interface::types::BlobType &payload() const override;
+    const types::BlobType &payload() const override;
 
-      // ------------------------| Signable override  |-------------------------
-      interface::types::SignatureRangeType signatures() const override;
+    // ------------------------| Signable override  |-------------------------
+    types::SignatureRangeType signatures() const override;
 
-      bool addSignature(const crypto::Signed &signed_blob,
-                        const crypto::PublicKey &public_key) override;
+    bool addSignature(const crypto::Signed &signed_blob,
+                      const crypto::PublicKey &public_key) override;
 
-      const interface::types::HashType &hash() const override;
+    const types::HashType &hash() const override;
 
-      interface::types::TimestampType createdTime() const override;
+    types::TimestampType createdTime() const override;
 
-      const TransportType &getTransport() const;
+    const TransportType &getTransport() const;
 
-     private:
-      // ------------------------------| fields |-------------------------------
-      TransportType proto_;
+   private:
+    // ------------------------------| fields |-------------------------------
+    TransportType proto_;
 
-      const interface::types::BlobType blob_;
+    const types::BlobType blob_;
 
-      const interface::types::BlobType payload_;
+    const types::BlobType payload_;
 
-      SignatureSetType<proto::Signature> signatures_;
+    SignatureSetType<Signature> signatures_;
 
-      interface::types::HashType hash_;
-    };
-  }  // namespace proto
+    types::HashType hash_;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_PROTO_BLOCKS_QUERY_HPP

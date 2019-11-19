@@ -12,21 +12,19 @@
 #include "interfaces/common_objects/amount.hpp"
 
 namespace shared_model {
-  namespace proto {
-    class AddAssetQuantity final : public interface::AddAssetQuantity {
-     public:
-      explicit AddAssetQuantity(iroha::protocol::Command &command);
+  class AddAssetQuantity final : public AddAssetQuantity {
+   public:
+    explicit AddAssetQuantity(iroha::protocol::Command &command);
 
-      const interface::types::AssetIdType &assetId() const override;
+    const types::AssetIdType &assetId() const override;
 
-      const interface::Amount &amount() const override;
+    const Amount &amount() const override;
 
-     private:
-      const iroha::protocol::AddAssetQuantity &add_asset_quantity_;
+   private:
+    const iroha::protocol::AddAssetQuantity &add_asset_quantity_;
 
-      const interface::Amount amount_;
-    };
-  }  // namespace proto
+    const Amount amount_;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_PROTO_ADD_ASSET_QUANTITY_HPP

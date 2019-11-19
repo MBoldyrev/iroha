@@ -11,19 +11,17 @@
 #include "queries.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class GetAssetInfo final : public interface::GetAssetInfo {
-     public:
-      explicit GetAssetInfo(iroha::protocol::Query &query);
+  class GetAssetInfo final : public GetAssetInfo {
+   public:
+    explicit GetAssetInfo(iroha::protocol::Query &query);
 
-      const interface::types::AssetIdType &assetId() const override;
+    const types::AssetIdType &assetId() const override;
 
-     private:
-      // ------------------------------| fields |-------------------------------
-      const iroha::protocol::GetAssetInfo &asset_info_;
-    };
+   private:
+    // ------------------------------| fields |-------------------------------
+    const iroha::protocol::GetAssetInfo &asset_info_;
+  };
 
-  }  // namespace proto
 }  // namespace shared_model
 
 #endif  // IROHA_PROTO_GET_ASSET_INFO_H

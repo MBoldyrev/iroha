@@ -9,10 +9,10 @@ SubtractAssetQuantity::SubtractAssetQuantity(iroha::protocol::Command &command)
     : subtract_asset_quantity_{command.subtract_asset_quantity()},
       amount_{subtract_asset_quantity_.amount()} {}
 
-const interface::types::AssetIdType &SubtractAssetQuantity::assetId() const {
+const types::AssetIdType &SubtractAssetQuantity::assetId() const {
   return subtract_asset_quantity_.asset_id();
 }
 
-const interface::Amount &SubtractAssetQuantity::amount() const {
+const Amount &SubtractAssetQuantity::amount() const {
   return amount_;
 }

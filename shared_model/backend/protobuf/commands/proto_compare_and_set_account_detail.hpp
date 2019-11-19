@@ -11,27 +11,24 @@
 #include "commands.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class CompareAndSetAccountDetail final
-        : public interface::CompareAndSetAccountDetail {
-     public:
-      explicit CompareAndSetAccountDetail(iroha::protocol::Command &command);
+  class CompareAndSetAccountDetail final : public CompareAndSetAccountDetail {
+   public:
+    explicit CompareAndSetAccountDetail(iroha::protocol::Command &command);
 
-      const interface::types::AccountIdType &accountId() const override;
+    const types::AccountIdType &accountId() const override;
 
-      const interface::types::AccountDetailKeyType &key() const override;
+    const types::AccountDetailKeyType &key() const override;
 
-      const interface::types::AccountDetailValueType &value() const override;
+    const types::AccountDetailValueType &value() const override;
 
-      const boost::optional<interface::types::AccountDetailValueType> oldValue()
-          const override;
+    const boost::optional<types::AccountDetailValueType> oldValue()
+        const override;
 
-     private:
-      const iroha::protocol::CompareAndSetAccountDetail
-          &compare_and_set_account_detail_;
-    };
+   private:
+    const iroha::protocol::CompareAndSetAccountDetail
+        &compare_and_set_account_detail_;
+  };
 
-  }  // namespace proto
 }  // namespace shared_model
 
 #endif  // IROHA_PROTO_COMPARE_AND_SET_ACCOUNT_DETAIL_HPP

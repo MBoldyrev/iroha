@@ -12,21 +12,19 @@
 #include "queries.pb.h"
 
 namespace shared_model {
-  namespace proto {
 
-    /// Provides query metadata for any transaction list pagination.
-    class TxPaginationMeta final : public interface::TxPaginationMeta {
-     public:
-      explicit TxPaginationMeta(iroha::protocol::TxPaginationMeta &meta);
+  /// Provides query metadata for any transaction list pagination.
+  class TxPaginationMeta final : public TxPaginationMeta {
+   public:
+    explicit TxPaginationMeta(iroha::protocol::TxPaginationMeta &meta);
 
-      interface::types::TransactionsNumberType pageSize() const override;
+    types::TransactionsNumberType pageSize() const override;
 
-      boost::optional<interface::types::HashType> firstTxHash() const override;
+    boost::optional<types::HashType> firstTxHash() const override;
 
-     private:
-      const iroha::protocol::TxPaginationMeta &meta_;
-    };
-  }  // namespace proto
+   private:
+    const iroha::protocol::TxPaginationMeta &meta_;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_PROTO_MODEL_QUERY_TX_PAGINATION_META_HPP

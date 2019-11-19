@@ -10,11 +10,11 @@
 RevokePermission::RevokePermission(iroha::protocol::Command &command)
     : revoke_permission_{command.revoke_permission()} {}
 
-const interface::types::AccountIdType &RevokePermission::accountId() const {
+const types::AccountIdType &RevokePermission::accountId() const {
   return revoke_permission_.account_id();
 }
 
-interface::permissions::Grantable RevokePermission::permissionName() const {
+permissions::Grantable RevokePermission::permissionName() const {
   return permissions::fromTransport(revoke_permission_.permission());
 }
 

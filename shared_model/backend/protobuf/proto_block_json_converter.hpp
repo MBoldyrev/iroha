@@ -14,17 +14,14 @@ namespace shared_model {
     class Block;
   }
 
-  namespace proto {
-    class ProtoBlockJsonConverter : public interface::BlockJsonConverter {
-     public:
-      iroha::expected::Result<interface::types::JsonType, std::string>
-      serialize(const interface::Block &block) const noexcept override;
+  class ProtoBlockJsonConverter : public BlockJsonConverter {
+   public:
+    iroha::expected::Result<types::JsonType, std::string> serialize(
+        const Block &block) const noexcept override;
 
-      iroha::expected::Result<std::unique_ptr<interface::Block>, std::string>
-      deserialize(const interface::types::JsonType &json) const
-          noexcept override;
-    };
-  }  // namespace proto
+    iroha::expected::Result<std::unique_ptr<Block>, std::string> deserialize(
+        const types::JsonType &json) const noexcept override;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_PROTO_BLOCK_JSON_CONVERTER_HPP

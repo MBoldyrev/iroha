@@ -12,35 +12,32 @@
 #include "qry_responses.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class Account final
-        : public TrivialProto<interface::Account, iroha::protocol::Account> {
-     public:
-      template <typename AccountType>
-      explicit Account(AccountType &&account)
-          : TrivialProto(std::forward<AccountType>(account)) {}
+  class Account final : public TrivialProto<Account, iroha::protocol::Account> {
+   public:
+    template <typename AccountType>
+    explicit Account(AccountType &&account)
+        : TrivialProto(std::forward<AccountType>(account)) {}
 
-      Account(const Account &o) : Account(o.proto_) {}
+    Account(const Account &o) : Account(o.proto_) {}
 
-      Account(Account &&o) noexcept : Account(std::move(o.proto_)) {}
+    Account(Account &&o) noexcept : Account(std::move(o.proto_)) {}
 
-      const interface::types::AccountIdType &accountId() const override {
-        return proto_->account_id();
-      }
+    const types::AccountIdType &accountId() const override {
+      return proto_->account_id();
+    }
 
-      const interface::types::DomainIdType &domainId() const override {
-        return proto_->domain_id();
-      }
+    const types::DomainIdType &domainId() const override {
+      return proto_->domain_id();
+    }
 
-      interface::types::QuorumType quorum() const override {
-        return proto_->quorum();
-      }
+    types::QuorumType quorum() const override {
+      return proto_->quorum();
+    }
 
-      const interface::types::JsonType &jsonData() const override {
-        return proto_->json_data();
-      }
-    };
-  }  // namespace proto
+    const types::JsonType &jsonData() const override {
+      return proto_->json_data();
+    }
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_PROTO_ACCOUNT_HPP

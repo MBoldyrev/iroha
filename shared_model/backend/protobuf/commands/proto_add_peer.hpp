@@ -13,19 +13,17 @@
 #include "interfaces/common_objects/peer.hpp"
 
 namespace shared_model {
-  namespace proto {
 
-    class AddPeer final : public interface::AddPeer {
-     public:
-      explicit AddPeer(iroha::protocol::Command &command);
+  class AddPeer final : public AddPeer {
+   public:
+    explicit AddPeer(iroha::protocol::Command &command);
 
-      const interface::Peer &peer() const override;
+    const Peer &peer() const override;
 
-     private:
-      const iroha::protocol::AddPeer &add_peer_;
-      proto::Peer peer_;
-    };
-  }  // namespace proto
+   private:
+    const iroha::protocol::AddPeer &add_peer_;
+    Peer peer_;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_PROTO_ADD_PEER_HPP

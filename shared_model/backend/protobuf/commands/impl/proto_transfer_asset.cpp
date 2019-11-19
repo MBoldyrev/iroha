@@ -9,22 +9,22 @@ TransferAsset::TransferAsset(iroha::protocol::Command &command)
     : transfer_asset_{command.transfer_asset()},
       amount_{transfer_asset_.amount()} {}
 
-const interface::Amount &TransferAsset::amount() const {
+const Amount &TransferAsset::amount() const {
   return amount_;
 }
 
-const interface::types::AssetIdType &TransferAsset::assetId() const {
+const types::AssetIdType &TransferAsset::assetId() const {
   return transfer_asset_.asset_id();
 }
 
-const interface::types::AccountIdType &TransferAsset::srcAccountId() const {
+const types::AccountIdType &TransferAsset::srcAccountId() const {
   return transfer_asset_.src_account_id();
 }
 
-const interface::types::AccountIdType &TransferAsset::destAccountId() const {
+const types::AccountIdType &TransferAsset::destAccountId() const {
   return transfer_asset_.dest_account_id();
 }
 
-const interface::types::DescriptionType &TransferAsset::description() const {
+const types::DescriptionType &TransferAsset::description() const {
   return transfer_asset_.description();
 }

@@ -15,16 +15,16 @@
 namespace {
   /// Variant type, that contains all concrete tx responses in the system
   using ProtoResponseVariantType =
-      boost::variant<shared_model::proto::StatelessFailedTxResponse,
-                     shared_model::proto::StatelessValidTxResponse,
-                     shared_model::proto::StatefulFailedTxResponse,
-                     shared_model::proto::StatefulValidTxResponse,
-                     shared_model::proto::RejectedTxResponse,
-                     shared_model::proto::CommittedTxResponse,
-                     shared_model::proto::MstExpiredResponse,
-                     shared_model::proto::NotReceivedTxResponse,
-                     shared_model::proto::MstPendingResponse,
-                     shared_model::proto::EnoughSignaturesCollectedResponse>;
+      boost::variant<shared_model::StatelessFailedTxResponse,
+                     shared_model::StatelessValidTxResponse,
+                     shared_model::StatefulFailedTxResponse,
+                     shared_model::StatefulValidTxResponse,
+                     shared_model::RejectedTxResponse,
+                     shared_model::CommittedTxResponse,
+                     shared_model::MstExpiredResponse,
+                     shared_model::NotReceivedTxResponse,
+                     shared_model::MstPendingResponse,
+                     shared_model::EnoughSignaturesCollectedResponse>;
 
   /// Type with list of types in ResponseVariantType
   using ProtoResponseListType = ProtoResponseVariantType::types;
@@ -74,7 +74,7 @@ TransactionResponse::TransactionResponse(TransportType &&ref) {
 
 TransactionResponse::~TransactionResponse() = default;
 
-const interface::types::HashType &TransactionResponse::transactionHash() const {
+const types::HashType &TransactionResponse::transactionHash() const {
   return impl_->hash_;
 }
 

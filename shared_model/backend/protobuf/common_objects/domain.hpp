@@ -11,27 +11,24 @@
 #include "qry_responses.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class Domain final
-        : public TrivialProto<interface::Domain, iroha::protocol::Domain> {
-     public:
-      template <typename DomainType>
-      explicit Domain(DomainType &&domain)
-          : TrivialProto(std::forward<DomainType>(domain)) {}
+  class Domain final : public TrivialProto<Domain, iroha::protocol::Domain> {
+   public:
+    template <typename DomainType>
+    explicit Domain(DomainType &&domain)
+        : TrivialProto(std::forward<DomainType>(domain)) {}
 
-      Domain(const Domain &o) : Domain(o.proto_) {}
+    Domain(const Domain &o) : Domain(o.proto_) {}
 
-      Domain(Domain &&o) noexcept : Domain(std::move(o.proto_)) {}
+    Domain(Domain &&o) noexcept : Domain(std::move(o.proto_)) {}
 
-      const interface::types::DomainIdType &domainId() const override {
-        return proto_->domain_id();
-      }
+    const types::DomainIdType &domainId() const override {
+      return proto_->domain_id();
+    }
 
-      const interface::types::RoleIdType &defaultRole() const override {
-        return proto_->default_role();
-      }
-    };
-  }  // namespace proto
+    const types::RoleIdType &defaultRole() const override {
+      return proto_->default_role();
+    }
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_PROTO_DOMAIN_HPP

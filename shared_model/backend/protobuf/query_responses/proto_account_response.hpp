@@ -12,23 +12,21 @@
 #include "qry_responses.pb.h"
 
 namespace shared_model {
-  namespace proto {
-    class AccountResponse final : public interface::AccountResponse {
-     public:
-      explicit AccountResponse(iroha::protocol::QueryResponse &query_response);
+  class AccountResponse final : public AccountResponse {
+   public:
+    explicit AccountResponse(iroha::protocol::QueryResponse &query_response);
 
-      const interface::Account &account() const override;
+    const Account &account() const override;
 
-      const AccountRolesIdType &roles() const override;
+    const AccountRolesIdType &roles() const override;
 
-     private:
-      const iroha::protocol::AccountResponse &account_response_;
+   private:
+    const iroha::protocol::AccountResponse &account_response_;
 
-      const AccountRolesIdType account_roles_;
+    const AccountRolesIdType account_roles_;
 
-      Account account_;
-    };
-  }  // namespace proto
+    Account account_;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_PROTO_ACCOUNT_RESPONSE_HPP

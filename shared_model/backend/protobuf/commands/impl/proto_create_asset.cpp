@@ -9,11 +9,11 @@ CreateAsset::CreateAsset(iroha::protocol::Command &command)
     : create_asset_{command.create_asset()},
       precision_{static_cast<const PrecisionType>(create_asset_.precision())} {}
 
-const interface::types::AssetNameType &CreateAsset::assetName() const {
+const types::AssetNameType &CreateAsset::assetName() const {
   return create_asset_.asset_name();
 }
 
-const interface::types::DomainIdType &CreateAsset::domainId() const {
+const types::DomainIdType &CreateAsset::domainId() const {
   return create_asset_.domain_id();
 }
 

@@ -11,21 +11,19 @@
 #include "commands.pb.h"
 
 namespace shared_model {
-  namespace proto {
 
-    class CreateDomain final : public interface::CreateDomain {
-     public:
-      explicit CreateDomain(iroha::protocol::Command &command);
+  class CreateDomain final : public CreateDomain {
+   public:
+    explicit CreateDomain(iroha::protocol::Command &command);
 
-      const interface::types::DomainIdType &domainId() const override;
+    const types::DomainIdType &domainId() const override;
 
-      const interface::types::RoleIdType &userDefaultRole() const override;
+    const types::RoleIdType &userDefaultRole() const override;
 
-     private:
-      const iroha::protocol::CreateDomain &create_domain_;
-    };
+   private:
+    const iroha::protocol::CreateDomain &create_domain_;
+  };
 
-  }  // namespace proto
 }  // namespace shared_model
 
 #endif  // IROHA_PROTO_CREATE_DOMAIN_HPP
