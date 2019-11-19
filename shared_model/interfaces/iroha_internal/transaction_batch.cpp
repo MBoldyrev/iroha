@@ -8,15 +8,11 @@
 #include "interfaces/transaction.hpp"
 #include "utils/string_builder.hpp"
 
-namespace shared_model {
-
-  std::string TransactionBatch::toString() const {
-    return detail::PrettyStringBuilder()
-        .init("TransactionBatch")
-        .appendAll("Transactions",
-                   transactions(),
-                   [](auto &tx) { return tx->toString(); })
-        .finalize();
-  }
-
-}  // namespace shared_model
+std::string TransactionBatch::toString() const {
+  return detail::PrettyStringBuilder()
+      .init("TransactionBatch")
+      .appendAll("Transactions",
+                 transactions(),
+                 [](auto &tx) { return tx->toString(); })
+      .finalize();
+}

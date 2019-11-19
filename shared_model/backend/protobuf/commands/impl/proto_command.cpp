@@ -53,34 +53,29 @@ namespace {
   using ProtoCommandListType = ProtoCommandVariantType::types;
 }  // namespace
 
-namespace shared_model {
-  namespace proto {
+struct Command::Impl {
+  explicit Impl(TransportType &ref) : proto_(ref) {}
 
-    struct Command::Impl {
-      explicit Impl(TransportType &ref) : proto_(ref) {}
+  TransportType &proto_;
 
-      TransportType &proto_;
+  ProtoCommandVariantType variant_{[this] {
+    auto &ar = proto_;
+    int which =
+        ar.GetDescriptor()->FindFieldByNumber(ar.command_case())->index();
+    return shared_model::detail::variant_impl<
+        ProtoCommandListType>::template load<ProtoCommandVariantType>(ar,
+                                                                      which);
+  }()};
 
-      ProtoCommandVariantType variant_{[this] {
-        auto &ar = proto_;
-        int which =
-            ar.GetDescriptor()->FindFieldByNumber(ar.command_case())->index();
-        return shared_model::detail::variant_impl<ProtoCommandListType>::
-            template load<ProtoCommandVariantType>(ar, which);
-      }()};
+  CommandVariantType ivariant_{variant_};
+};
 
-      CommandVariantType ivariant_{variant_};
-    };
+Command::Command(TransportType &ref) {
+  impl_ = std::make_unique<Impl>(ref);
+}
 
-    Command::Command(TransportType &ref) {
-      impl_ = std::make_unique<Impl>(ref);
-    }
+Command::~Command() = default;
 
-    Command::~Command() = default;
-
-    const Command::CommandVariantType &Command::get() const {
-      return impl_->ivariant_;
-    }
-
-  }  // namespace proto
-}  // namespace shared_model
+const Command::CommandVariantType &Command::get() const {
+  return impl_->ivariant_;
+}

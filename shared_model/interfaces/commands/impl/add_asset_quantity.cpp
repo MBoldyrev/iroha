@@ -5,18 +5,14 @@
 
 #include "interfaces/commands/add_asset_quantity.hpp"
 
-namespace shared_model {
+std::string AddAssetQuantity::toString() const {
+  return detail::PrettyStringBuilder()
+      .init("AddAssetQuantity")
+      .append("asset_id", assetId())
+      .append("amount", amount().toString())
+      .finalize();
+}
 
-  std::string AddAssetQuantity::toString() const {
-    return detail::PrettyStringBuilder()
-        .init("AddAssetQuantity")
-        .append("asset_id", assetId())
-        .append("amount", amount().toString())
-        .finalize();
-  }
-
-  bool AddAssetQuantity::operator==(const ModelType &rhs) const {
-    return assetId() == rhs.assetId() and amount() == rhs.amount();
-  }
-
-}  // namespace shared_model
+bool AddAssetQuantity::operator==(const ModelType &rhs) const {
+  return assetId() == rhs.assetId() and amount() == rhs.amount();
+}

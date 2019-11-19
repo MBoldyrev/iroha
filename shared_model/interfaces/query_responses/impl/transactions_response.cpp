@@ -7,17 +7,13 @@
 #include "interfaces/transaction.hpp"
 #include "utils/string_builder.hpp"
 
-namespace shared_model {
+std::string TransactionsResponse::toString() const {
+  return detail::PrettyStringBuilder()
+      .init("TransactionsResponse")
+      .appendAll(transactions(), [](auto &tx) { return tx.toString(); })
+      .finalize();
+}
 
-  std::string TransactionsResponse::toString() const {
-    return detail::PrettyStringBuilder()
-        .init("TransactionsResponse")
-        .appendAll(transactions(), [](auto &tx) { return tx.toString(); })
-        .finalize();
-  }
-
-  bool TransactionsResponse::operator==(const ModelType &rhs) const {
-    return transactions() == rhs.transactions();
-  }
-
-}  // namespace shared_model
+bool TransactionsResponse::operator==(const ModelType &rhs) const {
+  return transactions() == rhs.transactions();
+}

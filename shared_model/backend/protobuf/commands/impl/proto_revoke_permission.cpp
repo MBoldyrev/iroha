@@ -7,27 +7,21 @@
 
 #include "backend/protobuf/permissions.hpp"
 
-namespace shared_model {
-  namespace proto {
+RevokePermission::RevokePermission(iroha::protocol::Command &command)
+    : revoke_permission_{command.revoke_permission()} {}
 
-    RevokePermission::RevokePermission(iroha::protocol::Command &command)
-        : revoke_permission_{command.revoke_permission()} {}
+const interface::types::AccountIdType &RevokePermission::accountId() const {
+  return revoke_permission_.account_id();
+}
 
-    const interface::types::AccountIdType &RevokePermission::accountId() const {
-      return revoke_permission_.account_id();
-    }
+interface::permissions::Grantable RevokePermission::permissionName() const {
+  return permissions::fromTransport(revoke_permission_.permission());
+}
 
-    interface::permissions::Grantable RevokePermission::permissionName() const {
-      return permissions::fromTransport(revoke_permission_.permission());
-    }
-
-    std::string RevokePermission::toString() const {
-      return detail::PrettyStringBuilder()
-          .init("RevokePermission")
-          .append("account_id", accountId())
-          .append("permission", permissions::toString(permissionName()))
-          .finalize();
-    }
-
-  }  // namespace proto
-}  // namespace shared_model
+std::string RevokePermission::toString() const {
+  return detail::PrettyStringBuilder()
+      .init("RevokePermission")
+      .append("account_id", accountId())
+      .append("permission", permissions::toString(permissionName()))
+      .finalize();
+}

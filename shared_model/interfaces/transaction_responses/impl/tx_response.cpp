@@ -28,33 +28,30 @@ template void Variant::indicate_which(int) noexcept;
 template bool Variant::using_backup() const noexcept;
 template Variant::convert_copy_into::convert_copy_into(void *) noexcept;
 
-namespace shared_model {
-  TransactionResponse::PrioritiesComparisonResult
-  TransactionResponse::comparePriorities(const ModelType &other) const
-      noexcept {
-    if (this->priority() < other.priority()) {
-      return PrioritiesComparisonResult::kLess;
-    } else if (this->priority() == other.priority()) {
-      return PrioritiesComparisonResult::kEqual;
-    }
-    return PrioritiesComparisonResult::kGreater;
-  };
-
-  std::string TransactionResponse::toString() const {
-    return detail::PrettyStringBuilder()
-        .init("TransactionResponse")
-        .append("transactionHash", transactionHash().hex())
-        .append(boost::apply_visitor(detail::ToStringVisitor(), get()))
-        .append("statelessErrorOrCmdName", statelessErrorOrCommandName())
-        .append("failedCmdIndex", std::to_string(failedCommandIndex()))
-        .append("errorCode", std::to_string(errorCode()))
-        .finalize();
+TransactionResponse::PrioritiesComparisonResult
+TransactionResponse::comparePriorities(const ModelType &other) const noexcept {
+  if (this->priority() < other.priority()) {
+    return PrioritiesComparisonResult::kLess;
+  } else if (this->priority() == other.priority()) {
+    return PrioritiesComparisonResult::kEqual;
   }
+  return PrioritiesComparisonResult::kGreater;
+};
 
-  bool TransactionResponse::operator==(const ModelType &rhs) const {
-    return transactionHash() == rhs.transactionHash()
-        and statelessErrorOrCommandName() == rhs.statelessErrorOrCommandName()
-        and failedCommandIndex() == rhs.failedCommandIndex()
-        and errorCode() == rhs.errorCode() and get() == rhs.get();
-  }
-}  // namespace shared_model
+std::string TransactionResponse::toString() const {
+  return detail::PrettyStringBuilder()
+      .init("TransactionResponse")
+      .append("transactionHash", transactionHash().hex())
+      .append(boost::apply_visitor(detail::ToStringVisitor(), get()))
+      .append("statelessErrorOrCmdName", statelessErrorOrCommandName())
+      .append("failedCmdIndex", std::to_string(failedCommandIndex()))
+      .append("errorCode", std::to_string(errorCode()))
+      .finalize();
+}
+
+bool TransactionResponse::operator==(const ModelType &rhs) const {
+  return transactionHash() == rhs.transactionHash()
+      and statelessErrorOrCommandName() == rhs.statelessErrorOrCommandName()
+      and failedCommandIndex() == rhs.failedCommandIndex()
+      and errorCode() == rhs.errorCode() and get() == rhs.get();
+}

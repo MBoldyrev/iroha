@@ -9,12 +9,10 @@
 #include "interfaces/query_responses/block_response.hpp"
 #include "utils/visitor_apply_for_all.hpp"
 
-namespace shared_model {
-  std::string BlockQueryResponse::toString() const {
-    return boost::apply_visitor(detail::ToStringVisitor(), get());
-  }
+std::string BlockQueryResponse::toString() const {
+  return boost::apply_visitor(detail::ToStringVisitor(), get());
+}
 
-  bool BlockQueryResponse::operator==(const ModelType &rhs) const {
-    return get() == rhs.get();
-  }
-}  // namespace shared_model
+bool BlockQueryResponse::operator==(const ModelType &rhs) const {
+  return get() == rhs.get();
+}

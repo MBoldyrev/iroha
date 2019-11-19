@@ -9,18 +9,16 @@
 
 #include "cryptography/public_key.hpp"
 
-namespace shared_model {
-  std::string Peer::toString() const {
-    return detail::PrettyStringBuilder()
-        .init("Peer")
-        .append("address", address())
-        .append("pubkey", pubkey().toString())
-        .append("tlsCertificate", bool(tlsCertificate()))
-        .finalize();
-  }
+std::string Peer::toString() const {
+  return detail::PrettyStringBuilder()
+      .init("Peer")
+      .append("address", address())
+      .append("pubkey", pubkey().toString())
+      .append("tlsCertificate", bool(tlsCertificate()))
+      .finalize();
+}
 
-  bool Peer::operator==(const ModelType &rhs) const {
-    return address() == rhs.address() and pubkey() == rhs.pubkey()
-        and tlsCertificate() == rhs.tlsCertificate();
-  }
-}  // namespace shared_model
+bool Peer::operator==(const ModelType &rhs) const {
+  return address() == rhs.address() and pubkey() == rhs.pubkey()
+      and tlsCertificate() == rhs.tlsCertificate();
+}

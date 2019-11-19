@@ -5,17 +5,13 @@
 
 #include "interfaces/queries/get_role_permissions.hpp"
 
-namespace shared_model {
+std::string GetRolePermissions::toString() const {
+  return detail::PrettyStringBuilder()
+      .init("GetRolePermissions")
+      .append("role_id", roleId())
+      .finalize();
+}
 
-  std::string GetRolePermissions::toString() const {
-    return detail::PrettyStringBuilder()
-        .init("GetRolePermissions")
-        .append("role_id", roleId())
-        .finalize();
-  }
-
-  bool GetRolePermissions::operator==(const ModelType &rhs) const {
-    return roleId() == rhs.roleId();
-  }
-
-}  // namespace shared_model
+bool GetRolePermissions::operator==(const ModelType &rhs) const {
+  return roleId() == rhs.roleId();
+}

@@ -7,18 +7,14 @@
 
 #include "interfaces/queries/tx_pagination_meta.hpp"
 
-namespace shared_model {
-
-  std::string GetPendingTransactions::toString() const {
-    auto builder = detail::PrettyStringBuilder().init("GetPendingTransactions");
-    if (paginationMeta()) {
-      builder.append("pagination_meta", paginationMeta()->toString());
-    }
-    return builder.finalize();
+std::string GetPendingTransactions::toString() const {
+  auto builder = detail::PrettyStringBuilder().init("GetPendingTransactions");
+  if (paginationMeta()) {
+    builder.append("pagination_meta", paginationMeta()->toString());
   }
+  return builder.finalize();
+}
 
-  bool GetPendingTransactions::operator==(const ModelType &rhs) const {
-    return paginationMeta() == rhs.paginationMeta();
-  }
-
-}  // namespace shared_model
+bool GetPendingTransactions::operator==(const ModelType &rhs) const {
+  return paginationMeta() == rhs.paginationMeta();
+}

@@ -43,105 +43,98 @@ namespace {
   using ProtoQueryListType = ProtoQueryVariantType::types;
 }  // namespace
 
-namespace shared_model {
-  namespace proto {
+struct Query::Impl {
+  explicit Impl(TransportType &&ref) : proto_{std::move(ref)} {}
+  explicit Impl(const TransportType &ref) : proto_{ref} {}
 
-    struct Query::Impl {
-      explicit Impl(TransportType &&ref) : proto_{std::move(ref)} {}
-      explicit Impl(const TransportType &ref) : proto_{ref} {}
+  TransportType proto_;
 
-      TransportType proto_;
+  ProtoQueryVariantType variant_{[this] {
+    auto &ar = proto_;
+    int which = ar.payload()
+                    .GetDescriptor()
+                    ->FindFieldByNumber(ar.payload().query_case())
+                    ->index_in_oneof();
+    return shared_model::detail::variant_impl<
+        ProtoQueryListType>::template load<ProtoQueryVariantType>(ar, which);
+  }()};
 
-      ProtoQueryVariantType variant_{[this] {
-        auto &ar = proto_;
-        int which = ar.payload()
-                        .GetDescriptor()
-                        ->FindFieldByNumber(ar.payload().query_case())
-                        ->index_in_oneof();
-        return shared_model::detail::variant_impl<
-            ProtoQueryListType>::template load<ProtoQueryVariantType>(ar,
-                                                                      which);
-      }()};
+  QueryVariantType ivariant_{variant_};
 
-      QueryVariantType ivariant_{variant_};
+  interface::types::BlobType blob_{makeBlob(proto_)};
 
-      interface::types::BlobType blob_{makeBlob(proto_)};
+  interface::types::BlobType payload_{makeBlob(proto_.payload())};
 
-      interface::types::BlobType payload_{makeBlob(proto_.payload())};
-
-      SignatureSetType<proto::Signature> signatures_{[this] {
-        SignatureSetType<proto::Signature> set;
-        if (proto_.has_signature()) {
-          set.emplace(*proto_.mutable_signature());
-        }
-        return set;
-      }()};
-
-      interface::types::HashType hash_ = makeHash(payload_);
-    };
-
-    Query::Query(const Query &o) : Query(o.impl_->proto_) {}
-    Query::Query(Query &&o) noexcept = default;
-
-    Query::Query(const TransportType &ref) {
-      impl_ = std::make_unique<Impl>(ref);
+  SignatureSetType<proto::Signature> signatures_{[this] {
+    SignatureSetType<proto::Signature> set;
+    if (proto_.has_signature()) {
+      set.emplace(*proto_.mutable_signature());
     }
-    Query::Query(TransportType &&ref) {
-      impl_ = std::make_unique<Impl>(std::move(ref));
-    }
+    return set;
+  }()};
 
-    Query::~Query() = default;
+  interface::types::HashType hash_ = makeHash(payload_);
+};
 
-    const Query::QueryVariantType &Query::get() const {
-      return impl_->ivariant_;
-    }
+Query::Query(const Query &o) : Query(o.impl_->proto_) {}
+Query::Query(Query &&o) noexcept = default;
 
-    const interface::types::AccountIdType &Query::creatorAccountId() const {
-      return impl_->proto_.payload().meta().creator_account_id();
-    }
+Query::Query(const TransportType &ref) {
+  impl_ = std::make_unique<Impl>(ref);
+}
+Query::Query(TransportType &&ref) {
+  impl_ = std::make_unique<Impl>(std::move(ref));
+}
 
-    interface::types::CounterType Query::queryCounter() const {
-      return impl_->proto_.payload().meta().query_counter();
-    }
+Query::~Query() = default;
 
-    const interface::types::BlobType &Query::blob() const {
-      return impl_->blob_;
-    }
+const Query::QueryVariantType &Query::get() const {
+  return impl_->ivariant_;
+}
 
-    const interface::types::BlobType &Query::payload() const {
-      return impl_->payload_;
-    }
+const interface::types::AccountIdType &Query::creatorAccountId() const {
+  return impl_->proto_.payload().meta().creator_account_id();
+}
 
-    interface::types::SignatureRangeType Query::signatures() const {
-      return impl_->signatures_;
-    }
+interface::types::CounterType Query::queryCounter() const {
+  return impl_->proto_.payload().meta().query_counter();
+}
 
-    bool Query::addSignature(const crypto::Signed &signed_blob,
-                             const crypto::PublicKey &public_key) {
-      if (impl_->proto_.has_signature()) {
-        return false;
-      }
+const interface::types::BlobType &Query::blob() const {
+  return impl_->blob_;
+}
 
-      auto sig = impl_->proto_.mutable_signature();
-      sig->set_signature(signed_blob.hex());
-      sig->set_public_key(public_key.hex());
+const interface::types::BlobType &Query::payload() const {
+  return impl_->payload_;
+}
 
-      impl_->signatures_ =
-          SignatureSetType<proto::Signature>{proto::Signature{*sig}};
-      return true;
-    }
+interface::types::SignatureRangeType Query::signatures() const {
+  return impl_->signatures_;
+}
 
-    const interface::types::HashType &Query::hash() const {
-      return impl_->hash_;
-    }
+bool Query::addSignature(const crypto::Signed &signed_blob,
+                         const crypto::PublicKey &public_key) {
+  if (impl_->proto_.has_signature()) {
+    return false;
+  }
 
-    interface::types::TimestampType Query::createdTime() const {
-      return impl_->proto_.payload().meta().created_time();
-    }
+  auto sig = impl_->proto_.mutable_signature();
+  sig->set_signature(signed_blob.hex());
+  sig->set_public_key(public_key.hex());
 
-    const Query::TransportType &Query::getTransport() const {
-      return impl_->proto_;
-    }
+  impl_->signatures_ =
+      SignatureSetType<proto::Signature>{proto::Signature{*sig}};
+  return true;
+}
 
-  }  // namespace proto
-}  // namespace shared_model
+const interface::types::HashType &Query::hash() const {
+  return impl_->hash_;
+}
+
+interface::types::TimestampType Query::createdTime() const {
+  return impl_->proto_.payload().meta().created_time();
+}
+
+const Query::TransportType &Query::getTransport() const {
+  return impl_->proto_;
+}

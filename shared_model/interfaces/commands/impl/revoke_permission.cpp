@@ -5,11 +5,7 @@
 
 #include "interfaces/commands/revoke_permission.hpp"
 
-namespace shared_model {
-
-  bool RevokePermission::operator==(const ModelType &rhs) const {
-    return accountId() == rhs.accountId()
-        and permissionName() == rhs.permissionName();
-  }
-
-}  // namespace shared_model
+bool RevokePermission::operator==(const ModelType &rhs) const {
+  return accountId() == rhs.accountId()
+      and permissionName() == rhs.permissionName();
+}

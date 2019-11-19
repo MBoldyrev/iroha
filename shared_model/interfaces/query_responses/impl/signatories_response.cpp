@@ -8,17 +8,13 @@
 #include "cryptography/public_key.hpp"
 #include "utils/string_builder.hpp"
 
-namespace shared_model {
+std::string SignatoriesResponse::toString() const {
+  return detail::PrettyStringBuilder()
+      .init("SignatoriesResponse")
+      .appendAll(keys(), [](auto &key) { return key.toString(); })
+      .finalize();
+}
 
-  std::string SignatoriesResponse::toString() const {
-    return detail::PrettyStringBuilder()
-        .init("SignatoriesResponse")
-        .appendAll(keys(), [](auto &key) { return key.toString(); })
-        .finalize();
-  }
-
-  bool SignatoriesResponse::operator==(const ModelType &rhs) const {
-    return keys() == rhs.keys();
-  }
-
-}  // namespace shared_model
+bool SignatoriesResponse::operator==(const ModelType &rhs) const {
+  return keys() == rhs.keys();
+}

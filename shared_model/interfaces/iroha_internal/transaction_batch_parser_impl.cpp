@@ -40,24 +40,20 @@ namespace {
   }
 }  // namespace
 
-namespace shared_model {
+std::vector<types::TransactionsForwardCollectionType>
+TransactionBatchParserImpl::parseBatches(
+    types::TransactionsForwardCollectionType txs) const noexcept {
+  return parseBatchesImpl(txs, txs);
+}
 
-  std::vector<types::TransactionsForwardCollectionType>
-  TransactionBatchParserImpl::parseBatches(
-      types::TransactionsForwardCollectionType txs) const noexcept {
-    return parseBatchesImpl(txs, txs);
-  }
+std::vector<types::TransactionsCollectionType>
+TransactionBatchParserImpl::parseBatches(
+    types::TransactionsCollectionType txs) const noexcept {
+  return parseBatchesImpl(txs, txs);
+}
 
-  std::vector<types::TransactionsCollectionType>
-  TransactionBatchParserImpl::parseBatches(
-      types::TransactionsCollectionType txs) const noexcept {
-    return parseBatchesImpl(txs, txs);
-  }
-
-  std::vector<types::SharedTxsCollectionType>
-  TransactionBatchParserImpl::parseBatches(
-      const types::SharedTxsCollectionType &txs) const noexcept {
-    return parseBatchesImpl(txs | boost::adaptors::indirected, txs);
-  }
-
-}  // namespace shared_model
+std::vector<types::SharedTxsCollectionType>
+TransactionBatchParserImpl::parseBatches(
+    const types::SharedTxsCollectionType &txs) const noexcept {
+  return parseBatchesImpl(txs | boost::adaptors::indirected, txs);
+}

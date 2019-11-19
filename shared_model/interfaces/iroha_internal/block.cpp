@@ -8,24 +8,20 @@
 #include "interfaces/transaction.hpp"
 #include "utils/string_builder.hpp"
 
-namespace shared_model {
-
-  std::string Block::toString() const {
-    return detail::PrettyStringBuilder()
-        .init("Block")
-        .append("hash", hash().hex())
-        .append("height", std::to_string(height()))
-        .append("prevHash", prevHash().hex())
-        .append("txsNumber", std::to_string(txsNumber()))
-        .append("createdtime", std::to_string(createdTime()))
-        .append("transactions")
-        .appendAll(transactions(), [](auto &tx) { return tx.toString(); })
-        .append("signatures")
-        .appendAll(signatures(), [](auto &sig) { return sig.toString(); })
-        .appendAll("rejected transactions",
-                   rejected_transactions_hashes(),
-                   [](auto &hash) { return hash.hex(); })
-        .finalize();
-  }
-
-}  // namespace shared_model
+std::string Block::toString() const {
+  return detail::PrettyStringBuilder()
+      .init("Block")
+      .append("hash", hash().hex())
+      .append("height", std::to_string(height()))
+      .append("prevHash", prevHash().hex())
+      .append("txsNumber", std::to_string(txsNumber()))
+      .append("createdtime", std::to_string(createdTime()))
+      .append("transactions")
+      .appendAll(transactions(), [](auto &tx) { return tx.toString(); })
+      .append("signatures")
+      .appendAll(signatures(), [](auto &sig) { return sig.toString(); })
+      .appendAll("rejected transactions",
+                 rejected_transactions_hashes(),
+                 [](auto &hash) { return hash.hex(); })
+      .finalize();
+}

@@ -8,16 +8,14 @@
 #include "cryptography/public_key.hpp"
 #include "cryptography/signed.hpp"
 
-namespace shared_model {
-  bool Signature::operator==(const Signature &rhs) const {
-    return publicKey() == rhs.publicKey();
-  }
+bool Signature::operator==(const Signature &rhs) const {
+  return publicKey() == rhs.publicKey();
+}
 
-  std::string Signature::toString() const {
-    return detail::PrettyStringBuilder()
-        .init("Signature")
-        .append("publicKey", publicKey().hex())
-        .append("signedData", signedData().hex())
-        .finalize();
-  }
-}  // namespace shared_model
+std::string Signature::toString() const {
+  return detail::PrettyStringBuilder()
+      .init("Signature")
+      .append("publicKey", publicKey().hex())
+      .append("signedData", signedData().hex())
+      .finalize();
+}

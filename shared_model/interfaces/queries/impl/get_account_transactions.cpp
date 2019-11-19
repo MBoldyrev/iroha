@@ -7,18 +7,14 @@
 
 #include "interfaces/queries/tx_pagination_meta.hpp"
 
-namespace shared_model {
+std::string GetAccountTransactions::toString() const {
+  return detail::PrettyStringBuilder()
+      .init("GetAccountTransactions")
+      .append("account_id", accountId())
+      .append("pagination_meta", paginationMeta().toString())
+      .finalize();
+}
 
-  std::string GetAccountTransactions::toString() const {
-    return detail::PrettyStringBuilder()
-        .init("GetAccountTransactions")
-        .append("account_id", accountId())
-        .append("pagination_meta", paginationMeta().toString())
-        .finalize();
-  }
-
-  bool GetAccountTransactions::operator==(const ModelType &rhs) const {
-    return accountId() == rhs.accountId();
-  }
-
-}  // namespace shared_model
+bool GetAccountTransactions::operator==(const ModelType &rhs) const {
+  return accountId() == rhs.accountId();
+}

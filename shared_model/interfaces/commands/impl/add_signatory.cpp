@@ -7,18 +7,14 @@
 
 #include "cryptography/public_key.hpp"
 
-namespace shared_model {
+std::string AddSignatory::toString() const {
+  return detail::PrettyStringBuilder()
+      .init("AddSignatory")
+      .append("pubkey", pubkey().toString())
+      .append("account_id", accountId())
+      .finalize();
+}
 
-  std::string AddSignatory::toString() const {
-    return detail::PrettyStringBuilder()
-        .init("AddSignatory")
-        .append("pubkey", pubkey().toString())
-        .append("account_id", accountId())
-        .finalize();
-  }
-
-  bool AddSignatory::operator==(const ModelType &rhs) const {
-    return pubkey() == rhs.pubkey() and accountId() == rhs.accountId();
-  }
-
-}  // namespace shared_model
+bool AddSignatory::operator==(const ModelType &rhs) const {
+  return pubkey() == rhs.pubkey() and accountId() == rhs.accountId();
+}

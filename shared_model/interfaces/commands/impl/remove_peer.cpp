@@ -7,17 +7,13 @@
 
 #include "cryptography/public_key.hpp"
 
-namespace shared_model {
+std::string RemovePeer::toString() const {
+  return detail::PrettyStringBuilder()
+      .init("RemovePeer")
+      .append(pubkey().toString())
+      .finalize();
+}
 
-  std::string RemovePeer::toString() const {
-    return detail::PrettyStringBuilder()
-        .init("RemovePeer")
-        .append(pubkey().toString())
-        .finalize();
-  }
-
-  bool RemovePeer::operator==(const ModelType &rhs) const {
-    return pubkey() == rhs.pubkey();
-  }
-
-}  // namespace shared_model
+bool RemovePeer::operator==(const ModelType &rhs) const {
+  return pubkey() == rhs.pubkey();
+}

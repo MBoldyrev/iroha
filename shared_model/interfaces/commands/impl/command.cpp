@@ -35,14 +35,10 @@ template void Variant::indicate_which(int) noexcept;
 template bool Variant::using_backup() const noexcept;
 template Variant::convert_copy_into::convert_copy_into(void *) noexcept;
 
-namespace shared_model {
+std::string Command::toString() const {
+  return boost::apply_visitor(detail::ToStringVisitor(), get());
+}
 
-  std::string Command::toString() const {
-    return boost::apply_visitor(detail::ToStringVisitor(), get());
-  }
-
-  bool Command::operator==(const ModelType &rhs) const {
-    return this->get() == rhs.get();
-  }
-
-}  // namespace shared_model
+bool Command::operator==(const ModelType &rhs) const {
+  return this->get() == rhs.get();
+}

@@ -5,14 +5,10 @@
 
 #include "interfaces/queries/get_peers.hpp"
 
-namespace shared_model {
+std::string GetPeers::toString() const {
+  return detail::PrettyStringBuilder().init("GetPeers").finalize();
+}
 
-  std::string GetPeers::toString() const {
-    return detail::PrettyStringBuilder().init("GetPeers").finalize();
-  }
-
-  bool GetPeers::operator==(const ModelType &rhs) const {
-    return true;
-  }
-
-}  // namespace shared_model
+bool GetPeers::operator==(const ModelType &rhs) const {
+  return true;
+}

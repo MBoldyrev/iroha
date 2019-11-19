@@ -7,37 +7,32 @@
 
 using namespace shared_model;
 
-namespace shared_model {
-  namespace permissions {
+Role permissionFor(Grantable g) {
+  switch (g) {
+    case Grantable::kAddMySignatory:
+      return Role::kAddMySignatory;
+    case Grantable::kRemoveMySignatory:
+      return Role::kRemoveMySignatory;
+    case Grantable::kSetMyQuorum:
+      return Role::kSetMyQuorum;
+    case Grantable::kSetMyAccountDetail:
+      return Role::kSetMyAccountDetail;
+    case Grantable::kTransferMyAssets:
+      return Role::kTransferMyAssets;
+    default:;
+  }
+  return Role::COUNT;
+}
 
-    Role permissionFor(Grantable g) {
-      switch (g) {
-        case Grantable::kAddMySignatory:
-          return Role::kAddMySignatory;
-        case Grantable::kRemoveMySignatory:
-          return Role::kRemoveMySignatory;
-        case Grantable::kSetMyQuorum:
-          return Role::kSetMyQuorum;
-        case Grantable::kSetMyAccountDetail:
-          return Role::kSetMyAccountDetail;
-        case Grantable::kTransferMyAssets:
-          return Role::kTransferMyAssets;
-        default:;
-      }
-      return Role::COUNT;
-    }
+bool isValid(Role perm) noexcept {
+  auto p = static_cast<size_t>(perm);
+  return p < static_cast<size_t>(Role::COUNT);
+}
 
-    bool isValid(Role perm) noexcept {
-      auto p = static_cast<size_t>(perm);
-      return p < static_cast<size_t>(Role::COUNT);
-    }
-
-    bool isValid(Grantable perm) noexcept {
-      auto p = static_cast<size_t>(perm);
-      return p < static_cast<size_t>(Grantable::COUNT);
-    }
-  }  // namespace permissions
-}  // namespace shared_model
+bool isValid(Grantable perm) noexcept {
+  auto p = static_cast<size_t>(perm);
+  return p < static_cast<size_t>(Grantable::COUNT);
+}
 
 template <typename Perm>
 constexpr auto bit(Perm p) {

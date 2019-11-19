@@ -5,18 +5,14 @@
 
 #include "interfaces/commands/set_quorum.hpp"
 
-namespace shared_model {
+std::string SetQuorum::toString() const {
+  return detail::PrettyStringBuilder()
+      .init("SetQuorum")
+      .append("account_id", accountId())
+      .append("quorum", std::to_string(newQuorum()))
+      .finalize();
+}
 
-  std::string SetQuorum::toString() const {
-    return detail::PrettyStringBuilder()
-        .init("SetQuorum")
-        .append("account_id", accountId())
-        .append("quorum", std::to_string(newQuorum()))
-        .finalize();
-  }
-
-  bool SetQuorum::operator==(const ModelType &rhs) const {
-    return accountId() == rhs.accountId() and newQuorum() == rhs.newQuorum();
-  }
-
-}  // namespace shared_model
+bool SetQuorum::operator==(const ModelType &rhs) const {
+  return accountId() == rhs.accountId() and newQuorum() == rhs.newQuorum();
+}

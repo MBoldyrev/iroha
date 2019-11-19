@@ -6,10 +6,6 @@
 #include "interfaces/query_responses/role_permissions.hpp"
 #include "utils/string_builder.hpp"
 
-namespace shared_model {
-
-  bool RolePermissionsResponse::operator==(const ModelType &rhs) const {
-    return rolePermissions() == rhs.rolePermissions();
-  }
-
-}  // namespace shared_model
+bool RolePermissionsResponse::operator==(const ModelType &rhs) const {
+  return rolePermissions() == rhs.rolePermissions();
+}

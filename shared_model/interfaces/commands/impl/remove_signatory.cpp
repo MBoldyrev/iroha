@@ -7,18 +7,14 @@
 
 #include "cryptography/public_key.hpp"
 
-namespace shared_model {
+std::string RemoveSignatory::toString() const {
+  return detail::PrettyStringBuilder()
+      .init("RemoveSignatory")
+      .append("account_id", accountId())
+      .append(pubkey().toString())
+      .finalize();
+}
 
-  std::string RemoveSignatory::toString() const {
-    return detail::PrettyStringBuilder()
-        .init("RemoveSignatory")
-        .append("account_id", accountId())
-        .append(pubkey().toString())
-        .finalize();
-  }
-
-  bool RemoveSignatory::operator==(const ModelType &rhs) const {
-    return accountId() == rhs.accountId() and pubkey() == rhs.pubkey();
-  }
-
-}  // namespace shared_model
+bool RemoveSignatory::operator==(const ModelType &rhs) const {
+  return accountId() == rhs.accountId() and pubkey() == rhs.pubkey();
+}

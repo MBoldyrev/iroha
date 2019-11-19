@@ -30,14 +30,10 @@ template void Variant::indicate_which(int) noexcept;
 template bool Variant::using_backup() const noexcept;
 template Variant::convert_copy_into::convert_copy_into(void *) noexcept;
 
-namespace shared_model {
+std::string QueryResponse::toString() const {
+  return boost::apply_visitor(detail::ToStringVisitor(), get());
+}
 
-  std::string QueryResponse::toString() const {
-    return boost::apply_visitor(detail::ToStringVisitor(), get());
-  }
-
-  bool QueryResponse::operator==(const ModelType &rhs) const {
-    return queryHash() == rhs.queryHash() and get() == rhs.get();
-  }
-
-}  // namespace shared_model
+bool QueryResponse::operator==(const ModelType &rhs) const {
+  return queryHash() == rhs.queryHash() and get() == rhs.get();
+}

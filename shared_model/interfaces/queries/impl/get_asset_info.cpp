@@ -5,17 +5,13 @@
 
 #include "interfaces/queries/get_asset_info.hpp"
 
-namespace shared_model {
+std::string GetAssetInfo::toString() const {
+  return detail::PrettyStringBuilder()
+      .init("GetAssetInfo")
+      .append("asset_id", assetId())
+      .finalize();
+}
 
-  std::string GetAssetInfo::toString() const {
-    return detail::PrettyStringBuilder()
-        .init("GetAssetInfo")
-        .append("asset_id", assetId())
-        .finalize();
-  }
-
-  bool GetAssetInfo::operator==(const ModelType &rhs) const {
-    return assetId() == rhs.assetId();
-  }
-
-}  // namespace shared_model
+bool GetAssetInfo::operator==(const ModelType &rhs) const {
+  return assetId() == rhs.assetId();
+}

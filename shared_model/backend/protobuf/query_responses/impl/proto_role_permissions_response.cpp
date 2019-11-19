@@ -7,33 +7,25 @@
 
 #include "backend/protobuf/permissions.hpp"
 
-namespace shared_model {
-  namespace proto {
+RolePermissionsResponse::RolePermissionsResponse(
+    iroha::protocol::QueryResponse &query_response)
+    : role_permissions_response_{query_response.role_permissions_response()},
+      role_permissions_{[&query_response] {
+        auto &perms_in =
+            query_response.role_permissions_response().permissions();
+        interface::RolePermissionSet perms_out;
+        for (const auto &perm : perms_in) {
+          perms_out.set(permissions::fromTransport(
+              static_cast<iroha::protocol::RolePermission>(perm)));
+        }
+        return perms_out;
+      }()} {}
 
-    RolePermissionsResponse::RolePermissionsResponse(
-        iroha::protocol::QueryResponse &query_response)
-        : role_permissions_response_{query_response
-                                         .role_permissions_response()},
-          role_permissions_{[&query_response] {
-            auto &perms_in =
-                query_response.role_permissions_response().permissions();
-            interface::RolePermissionSet perms_out;
-            for (const auto &perm : perms_in) {
-              perms_out.set(permissions::fromTransport(
-                  static_cast<iroha::protocol::RolePermission>(perm)));
-            }
-            return perms_out;
-          }()} {}
+const interface::RolePermissionSet &RolePermissionsResponse::rolePermissions()
+    const {
+  return role_permissions_;
+}
 
-    const interface::RolePermissionSet &
-    RolePermissionsResponse::rolePermissions() const {
-      return role_permissions_;
-    }
-
-    std::vector<std::string> RolePermissionsResponse::permissionsToString()
-        const {
-      return permissions::toString(rolePermissions());
-    }
-
-  }  // namespace proto
-}  // namespace shared_model
+std::vector<std::string> RolePermissionsResponse::permissionsToString() const {
+  return permissions::toString(rolePermissions());
+}

@@ -5,18 +5,14 @@
 
 #include "interfaces/commands/detach_role.hpp"
 
-namespace shared_model {
+std::string DetachRole::toString() const {
+  return detail::PrettyStringBuilder()
+      .init("DetachRole")
+      .append("role_name", roleName())
+      .append("account_id", accountId())
+      .finalize();
+}
 
-  std::string DetachRole::toString() const {
-    return detail::PrettyStringBuilder()
-        .init("DetachRole")
-        .append("role_name", roleName())
-        .append("account_id", accountId())
-        .finalize();
-  }
-
-  bool DetachRole::operator==(const ModelType &rhs) const {
-    return accountId() == rhs.accountId() and roleName() == rhs.roleName();
-  }
-
-}  // namespace shared_model
+bool DetachRole::operator==(const ModelType &rhs) const {
+  return accountId() == rhs.accountId() and roleName() == rhs.roleName();
+}

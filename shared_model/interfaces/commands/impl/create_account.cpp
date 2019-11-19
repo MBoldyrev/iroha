@@ -7,20 +7,16 @@
 
 #include "cryptography/public_key.hpp"
 
-namespace shared_model {
+std::string CreateAccount::toString() const {
+  return detail::PrettyStringBuilder()
+      .init("CreateAccount")
+      .append("account_name", accountName())
+      .append("domain_id", domainId())
+      .append(pubkey().toString())
+      .finalize();
+}
 
-  std::string CreateAccount::toString() const {
-    return detail::PrettyStringBuilder()
-        .init("CreateAccount")
-        .append("account_name", accountName())
-        .append("domain_id", domainId())
-        .append(pubkey().toString())
-        .finalize();
-  }
-
-  bool CreateAccount::operator==(const ModelType &rhs) const {
-    return accountName() == rhs.accountName() and domainId() == rhs.domainId()
-        and pubkey() == rhs.pubkey();
-  }
-
-}  // namespace shared_model
+bool CreateAccount::operator==(const ModelType &rhs) const {
+  return accountName() == rhs.accountName() and domainId() == rhs.domainId()
+      and pubkey() == rhs.pubkey();
+}

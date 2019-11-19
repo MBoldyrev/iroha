@@ -7,27 +7,21 @@
 
 #include "backend/protobuf/permissions.hpp"
 
-namespace shared_model {
-  namespace proto {
+GrantPermission::GrantPermission(iroha::protocol::Command &command)
+    : grant_permission_{command.grant_permission()} {}
 
-    GrantPermission::GrantPermission(iroha::protocol::Command &command)
-        : grant_permission_{command.grant_permission()} {}
+const interface::types::AccountIdType &GrantPermission::accountId() const {
+  return grant_permission_.account_id();
+}
 
-    const interface::types::AccountIdType &GrantPermission::accountId() const {
-      return grant_permission_.account_id();
-    }
+interface::permissions::Grantable GrantPermission::permissionName() const {
+  return permissions::fromTransport(grant_permission_.permission());
+}
 
-    interface::permissions::Grantable GrantPermission::permissionName() const {
-      return permissions::fromTransport(grant_permission_.permission());
-    }
-
-    std::string GrantPermission::toString() const {
-      return detail::PrettyStringBuilder()
-          .init("GrantPermission")
-          .append("account_id", accountId())
-          .append("permission", permissions::toString(permissionName()))
-          .finalize();
-    }
-
-  }  // namespace proto
-}  // namespace shared_model
+std::string GrantPermission::toString() const {
+  return detail::PrettyStringBuilder()
+      .init("GrantPermission")
+      .append("account_id", accountId())
+      .append("permission", permissions::toString(permissionName()))
+      .finalize();
+}

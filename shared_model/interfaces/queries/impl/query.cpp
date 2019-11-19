@@ -31,20 +31,16 @@ template void Variant::indicate_which(int) noexcept;
 template bool Variant::using_backup() const noexcept;
 template Variant::convert_copy_into::convert_copy_into(void *) noexcept;
 
-namespace shared_model {
+std::string Query::toString() const {
+  return detail::PrettyStringBuilder()
+      .init("Query")
+      .append("creatorId", creatorAccountId())
+      .append("queryCounter", std::to_string(queryCounter()))
+      .append(Signable::toString())
+      .append(boost::apply_visitor(detail::ToStringVisitor(), get()))
+      .finalize();
+}
 
-  std::string Query::toString() const {
-    return detail::PrettyStringBuilder()
-        .init("Query")
-        .append("creatorId", creatorAccountId())
-        .append("queryCounter", std::to_string(queryCounter()))
-        .append(Signable::toString())
-        .append(boost::apply_visitor(detail::ToStringVisitor(), get()))
-        .finalize();
-  }
-
-  bool Query::operator==(const ModelType &rhs) const {
-    return this->get() == rhs.get();
-  }
-
-}  // namespace shared_model
+bool Query::operator==(const ModelType &rhs) const {
+  return this->get() == rhs.get();
+}

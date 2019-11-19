@@ -5,10 +5,4 @@
 
 #include "backend/protobuf/queries/proto_get_peers.hpp"
 
-namespace shared_model {
-  namespace proto {
-
-    GetPeers::GetPeers(iroha::protocol::Query &query) {}
-
-  }  // namespace proto
-}  // namespace shared_model
+GetPeers::GetPeers(iroha::protocol::Query &query) {}

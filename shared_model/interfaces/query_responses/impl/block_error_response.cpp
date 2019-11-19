@@ -7,16 +7,13 @@
 
 #include "utils/string_builder.hpp"
 
-namespace shared_model {
+std::string BlockErrorResponse::toString() const {
+  return detail::PrettyStringBuilder()
+      .init("BlockErrorResponse")
+      .append(message())
+      .finalize();
+}
 
-  std::string BlockErrorResponse::toString() const {
-    return detail::PrettyStringBuilder()
-        .init("BlockErrorResponse")
-        .append(message())
-        .finalize();
-  }
-
-  bool BlockErrorResponse::operator==(const ModelType &rhs) const {
-    return message() == rhs.message();
-  }
-}  // namespace shared_model
+bool BlockErrorResponse::operator==(const ModelType &rhs) const {
+  return message() == rhs.message();
+}

@@ -5,18 +5,14 @@
 
 #include "interfaces/commands/append_role.hpp"
 
-namespace shared_model {
+std::string AppendRole::toString() const {
+  return detail::PrettyStringBuilder()
+      .init("AppendRole")
+      .append("role_name", roleName())
+      .append("account_id", accountId())
+      .finalize();
+}
 
-  std::string AppendRole::toString() const {
-    return detail::PrettyStringBuilder()
-        .init("AppendRole")
-        .append("role_name", roleName())
-        .append("account_id", accountId())
-        .finalize();
-  }
-
-  bool AppendRole::operator==(const ModelType &rhs) const {
-    return accountId() == rhs.accountId() and roleName() == rhs.roleName();
-  }
-
-}  // namespace shared_model
+bool AppendRole::operator==(const ModelType &rhs) const {
+  return accountId() == rhs.accountId() and roleName() == rhs.roleName();
+}

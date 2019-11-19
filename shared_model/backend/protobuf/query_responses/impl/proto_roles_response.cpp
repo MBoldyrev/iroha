@@ -7,16 +7,10 @@
 
 #include <boost/range/iterator_range_core.hpp>
 
-namespace shared_model {
-  namespace proto {
+RolesResponse::RolesResponse(iroha::protocol::QueryResponse &query_response)
+    : roles_response_{query_response.roles_response()},
+      roles_{boost::copy_range<RolesIdType>(roles_response_.roles())} {}
 
-    RolesResponse::RolesResponse(iroha::protocol::QueryResponse &query_response)
-        : roles_response_{query_response.roles_response()},
-          roles_{boost::copy_range<RolesIdType>(roles_response_.roles())} {}
-
-    const RolesResponse::RolesIdType &RolesResponse::roles() const {
-      return roles_;
-    }
-
-  }  // namespace proto
-}  // namespace shared_model
+const RolesResponse::RolesIdType &RolesResponse::roles() const {
+  return roles_;
+}

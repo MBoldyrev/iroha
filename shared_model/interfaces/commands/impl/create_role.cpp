@@ -5,11 +5,7 @@
 
 #include "interfaces/commands/create_role.hpp"
 
-namespace shared_model {
-
-  bool CreateRole::operator==(const ModelType &rhs) const {
-    return roleName() == rhs.roleName()
-        and rolePermissions() == rhs.rolePermissions();
-  }
-
-}  // namespace shared_model
+bool CreateRole::operator==(const ModelType &rhs) const {
+  return roleName() == rhs.roleName()
+      and rolePermissions() == rhs.rolePermissions();
+}

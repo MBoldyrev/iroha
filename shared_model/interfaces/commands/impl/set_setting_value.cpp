@@ -5,18 +5,14 @@
 
 #include "interfaces/commands/set_setting_value.hpp"
 
-namespace shared_model {
+std::string SetSettingValue::toString() const {
+  return detail::PrettyStringBuilder()
+      .init("SetSettingValue")
+      .append("key", key())
+      .append("value", value())
+      .finalize();
+}
 
-  std::string SetSettingValue::toString() const {
-    return detail::PrettyStringBuilder()
-        .init("SetSettingValue")
-        .append("key", key())
-        .append("value", value())
-        .finalize();
-  }
-
-  bool SetSettingValue::operator==(const ModelType &rhs) const {
-    return key() == rhs.key() and value() == rhs.value();
-  }
-
-}  // namespace shared_model
+bool SetSettingValue::operator==(const ModelType &rhs) const {
+  return key() == rhs.key() and value() == rhs.value();
+}

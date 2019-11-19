@@ -7,32 +7,27 @@
 
 #include "interfaces/transaction.hpp"
 
-namespace shared_model {
-
-  std::string PendingTransactionsPageResponse::toString() const {
-    auto builder = detail::PrettyStringBuilder()
-                       .init("PendingTransactionsPageResponse")
-                       .appendAll("transactions",
-                                  transactions(),
-                                  [](auto &tx) { return tx.toString(); })
-                       .append("all transactions size",
-                               std::to_string(allTransactionsSize()));
-    if (auto next_batch_info = nextBatchInfo()) {
-      builder
-          .append("next batch first tx hash",
-                  next_batch_info->first_tx_hash.hex())
-          .append("next batch size",
-                  std::to_string(next_batch_info->batch_size));
-    } else {
-      builder.append("no next batch info is set");
-    }
-    return builder.finalize();
+std::string PendingTransactionsPageResponse::toString() const {
+  auto builder = detail::PrettyStringBuilder()
+                     .init("PendingTransactionsPageResponse")
+                     .appendAll("transactions",
+                                transactions(),
+                                [](auto &tx) { return tx.toString(); })
+                     .append("all transactions size",
+                             std::to_string(allTransactionsSize()));
+  if (auto next_batch_info = nextBatchInfo()) {
+    builder
+        .append("next batch first tx hash",
+                next_batch_info->first_tx_hash.hex())
+        .append("next batch size", std::to_string(next_batch_info->batch_size));
+  } else {
+    builder.append("no next batch info is set");
   }
+  return builder.finalize();
+}
 
-  bool PendingTransactionsPageResponse::operator==(const ModelType &rhs) const {
-    return transactions() == rhs.transactions()
-        and nextBatchInfo() == rhs.nextBatchInfo()
-        and allTransactionsSize() == rhs.allTransactionsSize();
-  }
-
-}  // namespace shared_model
+bool PendingTransactionsPageResponse::operator==(const ModelType &rhs) const {
+  return transactions() == rhs.transactions()
+      and nextBatchInfo() == rhs.nextBatchInfo()
+      and allTransactionsSize() == rhs.allTransactionsSize();
+}

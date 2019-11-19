@@ -6,19 +6,15 @@
 #include "interfaces/query_responses/account_response.hpp"
 #include "utils/string_builder.hpp"
 
-namespace shared_model {
+std::string AccountResponse::toString() const {
+  return detail::PrettyStringBuilder()
+      .init("AccountResponse")
+      .append(account().toString())
+      .append("roles")
+      .appendAll(roles(), [](auto s) { return s; })
+      .finalize();
+}
 
-  std::string AccountResponse::toString() const {
-    return detail::PrettyStringBuilder()
-        .init("AccountResponse")
-        .append(account().toString())
-        .append("roles")
-        .appendAll(roles(), [](auto s) { return s; })
-        .finalize();
-  }
-
-  bool AccountResponse::operator==(const ModelType &rhs) const {
-    return account() == rhs.account() and roles() == rhs.roles();
-  }
-
-}  // namespace shared_model
+bool AccountResponse::operator==(const ModelType &rhs) const {
+  return account() == rhs.account() and roles() == rhs.roles();
+}

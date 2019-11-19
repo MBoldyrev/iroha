@@ -7,19 +7,15 @@
 
 #include "interfaces/queries/tx_pagination_meta.hpp"
 
-namespace shared_model {
+std::string GetAccountAssetTransactions::toString() const {
+  return detail::PrettyStringBuilder()
+      .init("GetAccountAssetTransactions")
+      .append("account_id", accountId())
+      .append("asset_id", assetId())
+      .append("pagination_meta", paginationMeta().toString())
+      .finalize();
+}
 
-  std::string GetAccountAssetTransactions::toString() const {
-    return detail::PrettyStringBuilder()
-        .init("GetAccountAssetTransactions")
-        .append("account_id", accountId())
-        .append("asset_id", assetId())
-        .append("pagination_meta", paginationMeta().toString())
-        .finalize();
-  }
-
-  bool GetAccountAssetTransactions::operator==(const ModelType &rhs) const {
-    return accountId() == rhs.accountId() and assetId() == rhs.assetId();
-  }
-
-}  // namespace shared_model
+bool GetAccountAssetTransactions::operator==(const ModelType &rhs) const {
+  return accountId() == rhs.accountId() and assetId() == rhs.assetId();
+}
