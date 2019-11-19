@@ -8,6 +8,9 @@
 
 #include "interfaces/base/model_primitive.hpp"
 
+#include "backend/protobuf/block.hpp"
+#include "qry_responses.pb.h"
+
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
@@ -19,6 +22,13 @@ namespace shared_model {
    */
   class BlockResponse : public ModelPrimitive<BlockResponse> {
    public:
+    explicit BlockResponse(iroha::protocol::BlockResponse &block_response);
+
+    explicit BlockResponse(
+        iroha::protocol::BlockQueryResponse &block_query_response);
+
+    explicit BlockResponse(iroha::protocol::QueryResponse &query_response);
+
     /**
      * @return Attached block
      */
@@ -34,6 +44,9 @@ namespace shared_model {
      * @return true if the data are same.
      */
     bool operator==(const ModelType &rhs) const override;
+
+   private:
+    Block block_;
   };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_BLOCK_RESPONSE_HPP

@@ -7,8 +7,12 @@
 #define IROHA_SHARED_MODEL_ACCOUNT_ASSET_HPP
 
 #include "interfaces/base/model_primitive.hpp"
+
+#include "backend/protobuf/common_objects/trivial_proto.hpp"
+#include "backend/protobuf/util.hpp"
 #include "interfaces/common_objects/amount.hpp"
 #include "interfaces/common_objects/types.hpp"
+#include "qry_responses.pb.h"
 #include "utils/string_builder.hpp"
 
 namespace shared_model {
@@ -18,6 +22,15 @@ namespace shared_model {
    */
   class AccountAsset : public ModelPrimitive<AccountAsset> {
    public:
+    template <typename AccountAssetType>
+    explicit AccountAsset(AccountAssetType &&accountAssetType)
+        : TrivialProto(std::forward<AccountAssetType>(accountAssetType)) {}
+
+    AccountAsset(const AccountAsset &o) : AccountAsset(o.proto_) {}
+
+    AccountAsset(AccountAsset &&o) noexcept
+        : AccountAsset(std::move(o.proto_)) {}
+
     /**
      * @return Identity of user, for fetching data
      */
@@ -55,6 +68,9 @@ namespace shared_model {
       return accountId() == rhs.accountId() and assetId() == rhs.assetId()
           and balance() == rhs.balance();
     }
+
+   private:
+    const Amount balance_{proto_->balance()};
   };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_ACCOUNT_ASSET_HPP

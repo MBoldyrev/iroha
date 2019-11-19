@@ -8,6 +8,8 @@
 
 #include "interfaces/base/model_primitive.hpp"
 
+#include "commands.pb.h"
+
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
@@ -16,6 +18,8 @@ namespace shared_model {
    */
   class SetQuorum : public ModelPrimitive<SetQuorum> {
    public:
+    explicit SetQuorum(iroha::protocol::Command &command);
+
     /**
      * @return Id of the account to set quorum
      */
@@ -28,6 +32,9 @@ namespace shared_model {
     std::string toString() const override;
 
     bool operator==(const ModelType &rhs) const override;
+
+   private:
+    const iroha::protocol::SetAccountQuorum &set_account_quorum_;
   };
 }  // namespace shared_model
 

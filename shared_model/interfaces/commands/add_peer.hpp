@@ -8,6 +8,10 @@
 
 #include "interfaces/base/model_primitive.hpp"
 
+#include "backend/protobuf/common_objects/peer.hpp"
+#include "commands.pb.h"
+#include "interfaces/common_objects/peer.hpp"
+
 #include "interfaces/common_objects/peer.hpp"
 #include "interfaces/common_objects/types.hpp"
 
@@ -18,6 +22,8 @@ namespace shared_model {
    */
   class AddPeer : public ModelPrimitive<AddPeer> {
    public:
+    explicit AddPeer(iroha::protocol::Command &command);
+
     /**
      * Return peer to be added by the command.
      * @return Peer
@@ -27,6 +33,10 @@ namespace shared_model {
     std::string toString() const override;
 
     bool operator==(const ModelType &rhs) const override;
+
+   private:
+    const iroha::protocol::AddPeer &add_peer_;
+    Peer peer_;
   };
 }  // namespace shared_model
 

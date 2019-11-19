@@ -8,6 +8,8 @@
 
 #include "interfaces/base/model_primitive.hpp"
 
+#include "qry_responses.pb.h"
+
 #include <boost/variant.hpp>
 #include "interfaces/query_responses/error_responses/no_account_assets_error_response.hpp"
 #include "interfaces/query_responses/error_responses/no_account_detail_error_response.hpp"
@@ -32,6 +34,10 @@ namespace shared_model {
     using w = boost::variant<const Value &...>;
 
    public:
+    explicit ErrorQueryResponse(iroha::protocol::QueryResponse &query_response);
+
+    ErrorQueryResponse(ErrorQueryResponse &&o) noexcept;
+
     /// Type of container with all concrete error query responses
     using QueryErrorResponseVariantType = w<StatelessFailedErrorResponse,
                                             StatefulFailedErrorResponse,
@@ -76,6 +82,10 @@ namespace shared_model {
     std::string toString() const override;
 
     bool operator==(const ModelType &rhs) const override;
+
+   private:
+    struct Impl;
+    std::unique_ptr<Impl> impl_;
   };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_QUERY_ERROR_RESPONSE_HPP

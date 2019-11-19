@@ -8,6 +8,8 @@
 
 #include "interfaces/base/model_primitive.hpp"
 
+#include "qry_responses.pb.h"
+
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
@@ -16,6 +18,8 @@ namespace shared_model {
    */
   class RolesResponse : public ModelPrimitive<RolesResponse> {
    public:
+    explicit RolesResponse(iroha::protocol::QueryResponse &query_response);
+
     /// type of roles collection
     using RolesIdType = std::vector<types::RoleIdType>;
 
@@ -27,6 +31,11 @@ namespace shared_model {
     std::string toString() const override;
 
     bool operator==(const ModelType &rhs) const override;
+
+   private:
+    const iroha::protocol::RolesResponse &roles_response_;
+
+    const RolesIdType roles_;
   };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_ROLES_RESPONSE_HPP

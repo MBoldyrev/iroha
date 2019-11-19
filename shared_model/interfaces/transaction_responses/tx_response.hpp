@@ -8,6 +8,8 @@
 
 #include "interfaces/base/model_primitive.hpp"
 
+#include "endpoint.pb.h"
+
 #include <boost/variant/variant_fwd.hpp>
 #include "interfaces/common_objects/types.hpp"
 
@@ -41,6 +43,14 @@ namespace shared_model {
     int priority() const noexcept;
 
    public:
+    using TransportType = iroha::protocol::ToriiResponse;
+
+    TransactionResponse(const TransactionResponse &r);
+    TransactionResponse(TransactionResponse &&r) noexcept;
+
+    explicit TransactionResponse(const TransportType &ref);
+    explicit TransactionResponse(TransportType &&ref);
+
     /// Type of variant, that handle all concrete tx responses in the system
     using ResponseVariantType = wrap<StatelessFailedTxResponse,
                                      StatelessValidTxResponse,
@@ -106,6 +116,12 @@ namespace shared_model {
     std::string toString() const override;
 
     bool operator==(const ModelType &rhs) const override;
+
+   private:
+    struct Impl;
+    std::unique_ptr<Impl> impl_;
+
+    int priority() const noexcept override;
   };
 }  // namespace shared_model
 #endif  // IROHA_TX_RESPONSE_HPP

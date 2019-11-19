@@ -8,6 +8,9 @@
 
 #include "interfaces/base/model_primitive.hpp"
 
+#include "commands.pb.h"
+#include "cryptography/public_key.hpp"
+
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
@@ -16,6 +19,8 @@ namespace shared_model {
    * Create acccount in Iroha domain
    */
   class CreateAccount : public ModelPrimitive<CreateAccount> {
+    explicit CreateAccount(iroha::protocol::Command &command);
+
    public:
     /**
      * @return Name of the account to create in Iroha
@@ -33,6 +38,11 @@ namespace shared_model {
     std::string toString() const override;
 
     bool operator==(const ModelType &rhs) const override;
+
+   private:
+    const iroha::protocol::CreateAccount &create_account_;
+
+    const types::PubkeyType pubkey_;
   };
 }  // namespace shared_model
 

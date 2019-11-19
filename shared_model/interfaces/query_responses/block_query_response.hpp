@@ -8,6 +8,8 @@
 
 #include "interfaces/base/model_primitive.hpp"
 
+#include "qry_responses.pb.h"
+
 #include <boost/variant.hpp>
 
 namespace shared_model {
@@ -27,6 +29,10 @@ namespace shared_model {
     using w = boost::variant<const Value &...>;
 
    public:
+    using TransportType = iroha::protocol::BlockQueryResponse;
+
+    explicit BlockQueryResponse(TransportType &&block_query_response);
+
     /// Type of container with all concrete query response
     using QueryResponseVariantType = w<BlockResponse, BlockErrorResponse>;
 
@@ -43,6 +49,10 @@ namespace shared_model {
     std::string toString() const override;
 
     bool operator==(const ModelType &rhs) const override;
+
+   private:
+    struct Impl;
+    std::unique_ptr<Impl> impl_;
   };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_BLOCK_QUERY_RESPONSE_HPP

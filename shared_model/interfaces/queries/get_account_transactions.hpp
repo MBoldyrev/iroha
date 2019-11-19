@@ -8,6 +8,9 @@
 
 #include <memory>
 
+#include "backend/protobuf/queries/proto_tx_pagination_meta.hpp"
+#include "queries.pb.h"
+
 #include "interfaces/base/model_primitive.hpp"
 #include "interfaces/common_objects/types.hpp"
 
@@ -19,6 +22,8 @@ namespace shared_model {
    */
   class GetAccountTransactions : public ModelPrimitive<GetAccountTransactions> {
    public:
+    explicit GetAccountTransactions(iroha::protocol::Query &query);
+
     /**
      * @return account_id of requested transactions
      */
@@ -30,6 +35,12 @@ namespace shared_model {
     std::string toString() const override;
 
     bool operator==(const ModelType &rhs) const override;
+
+   private:
+    // ------------------------------| fields |-------------------------------
+
+    const iroha::protocol::GetAccountTransactions &account_transactions_;
+    const TxPaginationMeta pagination_meta_;
   };
 }  // namespace shared_model
 

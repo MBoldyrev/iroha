@@ -8,6 +8,8 @@
 
 #include "interfaces/base/model_primitive.hpp"
 
+#include "commands.pb.h"
+
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
@@ -17,6 +19,8 @@ namespace shared_model {
    */
   class AppendRole : public ModelPrimitive<AppendRole> {
    public:
+    explicit AppendRole(iroha::protocol::Command &command);
+
     /**
      * @return Account to add the role
      */
@@ -29,6 +33,9 @@ namespace shared_model {
     std::string toString() const override;
 
     bool operator==(const ModelType &rhs) const override;
+
+   private:
+    const iroha::protocol::AppendRole &append_role_;
   };
 }  // namespace shared_model
 

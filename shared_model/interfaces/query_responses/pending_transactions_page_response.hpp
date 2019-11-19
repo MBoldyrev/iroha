@@ -8,6 +8,10 @@
 
 #include "interfaces/base/model_primitive.hpp"
 
+#include "backend/protobuf/transaction.hpp"
+#include "interfaces/common_objects/types.hpp"
+#include "qry_responses.pb.h"
+
 #include <boost/optional/optional_fwd.hpp>
 #include "cryptography/hash.hpp"
 #include "interfaces/common_objects/range_types.hpp"
@@ -21,6 +25,9 @@ namespace shared_model {
   class PendingTransactionsPageResponse
       : public ModelPrimitive<PendingTransactionsPageResponse> {
    public:
+    explicit PendingTransactionsPageResponse(
+        iroha::protocol::QueryResponse &query_response);
+
     // TODO igor-egorov 2019-06-29 IR-570 Convert BatchInfo to a shared model
     // object
     struct BatchInfo {
@@ -51,6 +58,13 @@ namespace shared_model {
     std::string toString() const override;
 
     bool operator==(const ModelType &rhs) const override;
+
+   private:
+    const iroha::protocol::PendingTransactionsPageResponse
+        &pending_transactions_page_response_;
+    const std::vector<Transaction> transactions_;
+    boost::optional<PendingTransactionsPageResponse::BatchInfo>
+        next_batch_info_;
   };
 }  // namespace shared_model
 

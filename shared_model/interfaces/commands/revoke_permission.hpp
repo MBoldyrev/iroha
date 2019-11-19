@@ -8,6 +8,8 @@
 
 #include "interfaces/base/model_primitive.hpp"
 
+#include "commands.pb.h"
+
 #include "interfaces/common_objects/types.hpp"
 #include "interfaces/permissions.hpp"
 
@@ -17,6 +19,8 @@ namespace shared_model {
    */
   class RevokePermission : public ModelPrimitive<RevokePermission> {
    public:
+    explicit RevokePermission(iroha::protocol::Command &command);
+
     /**
      * @return account from which revoke permission
      */
@@ -30,6 +34,9 @@ namespace shared_model {
     std::string toString() const override;
 
     bool operator==(const ModelType &rhs) const override;
+
+   private:
+    const iroha::protocol::RevokePermission &revoke_permission_;
   };
 }  // namespace shared_model
 

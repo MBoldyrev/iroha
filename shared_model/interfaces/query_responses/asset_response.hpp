@@ -8,6 +8,9 @@
 
 #include "interfaces/base/model_primitive.hpp"
 
+#include "backend/protobuf/common_objects/asset.hpp"
+#include "qry_responses.pb.h"
+
 #include "interfaces/common_objects/asset.hpp"
 
 namespace shared_model {
@@ -16,6 +19,8 @@ namespace shared_model {
    */
   class AssetResponse : public ModelPrimitive<AssetResponse> {
    public:
+    explicit AssetResponse(iroha::protocol::QueryResponse &query_response);
+
     /**
      * @return Attached asset
      */
@@ -24,6 +29,11 @@ namespace shared_model {
     std::string toString() const override;
 
     bool operator==(const ModelType &rhs) const override;
+
+   private:
+    const iroha::protocol::AssetResponse &asset_response_;
+
+    Asset asset_;
   };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_ASSET_RESPONSE_HPP

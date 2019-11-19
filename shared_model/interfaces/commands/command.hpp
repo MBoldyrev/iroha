@@ -8,6 +8,8 @@
 
 #include "interfaces/base/model_primitive.hpp"
 
+#include "commands.pb.h"
+
 #include <boost/variant/variant_fwd.hpp>
 
 namespace shared_model {
@@ -43,6 +45,10 @@ namespace shared_model {
     using wrap = boost::variant<const Value &...>;
 
    public:
+    using TransportType = iroha::protocol::Command;
+
+    explicit Command(TransportType &ref);
+
     /// Type of variant, that handle concrete command
     using CommandVariantType = wrap<AddAssetQuantity,
                                     AddPeer,
@@ -74,6 +80,10 @@ namespace shared_model {
     std::string toString() const override;
 
     bool operator==(const ModelType &rhs) const override;
+
+   private:
+    struct Impl;
+    std::unique_ptr<Impl> impl_;
   };
 
 }  // namespace shared_model

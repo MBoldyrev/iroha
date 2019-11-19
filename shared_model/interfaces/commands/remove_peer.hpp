@@ -8,6 +8,9 @@
 
 #include "interfaces/base/model_primitive.hpp"
 
+#include "backend/protobuf/common_objects/peer.hpp"
+#include "commands.pb.h"
+
 #include "interfaces/common_objects/peer.hpp"
 #include "interfaces/common_objects/types.hpp"
 
@@ -18,6 +21,8 @@ namespace shared_model {
    */
   class RemovePeer : public ModelPrimitive<RemovePeer> {
    public:
+    explicit RemovePeer(iroha::protocol::Command &command);
+
     /**
      * Return public key of peer to be removed by the command.
      */
@@ -26,6 +31,9 @@ namespace shared_model {
     std::string toString() const override;
 
     bool operator==(const ModelType &rhs) const override;
+
+   private:
+    const types::PubkeyType pubkey_;
   };
 }  // namespace shared_model
 

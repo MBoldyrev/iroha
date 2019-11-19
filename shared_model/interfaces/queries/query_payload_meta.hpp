@@ -7,7 +7,9 @@
 #define IROHA_SHARED_MODEL_QUERY_PAYLOAD_META_HPP
 
 #include "interfaces/base/model_primitive.hpp"
+
 #include "interfaces/common_objects/types.hpp"
+#include "queries.pb.h"
 
 namespace shared_model {
 
@@ -17,6 +19,8 @@ namespace shared_model {
    */
   class QueryPayloadMeta : public ModelPrimitive<QueryPayloadMeta> {
    public:
+    explicit QueryPayloadMeta(iroha::protocol::QueryPayloadMeta &meta);
+
     /**
      * @return id of query creator
      */
@@ -35,6 +39,9 @@ namespace shared_model {
     types::TimestampType createdTime() const;
 
     bool operator==(const ModelType &rhs) const override;
+
+   private:
+    const iroha::protocol::QueryPayloadMeta &meta_;
   };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_QUERY_PAYLOAD_META_HPP

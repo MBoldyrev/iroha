@@ -8,6 +8,8 @@
 
 #include "interfaces/base/model_primitive.hpp"
 
+#include "commands.pb.h"
+
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
@@ -16,6 +18,8 @@ namespace shared_model {
    */
   class CreateAsset : public ModelPrimitive<CreateAsset> {
    public:
+    explicit CreateAsset(iroha::protocol::Command &command);
+
     /**
      * @return Asset name to create
      */
@@ -34,6 +38,11 @@ namespace shared_model {
     std::string toString() const override;
 
     bool operator==(const ModelType &rhs) const override;
+
+   private:
+    const iroha::protocol::CreateAsset &create_asset_;
+
+    const PrecisionType precision_;
   };
 }  // namespace shared_model
 

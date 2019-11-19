@@ -8,6 +8,9 @@
 
 #include "interfaces/base/model_primitive.hpp"
 
+#include "commands.pb.h"
+#include "cryptography/public_key.hpp"
+
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
@@ -15,6 +18,8 @@ namespace shared_model {
    * Remove signatory from the account
    */
   class RemoveSignatory : public ModelPrimitive<RemoveSignatory> {
+    explicit RemoveSignatory(iroha::protocol::Command &command);
+
    public:
     /**
      * @return account from which remove signatory
@@ -28,6 +33,11 @@ namespace shared_model {
     std::string toString() const override;
 
     bool operator==(const ModelType &rhs) const override;
+
+   private:
+    const iroha::protocol::RemoveSignatory &remove_signatory_;
+
+    const types::PubkeyType pubkey_;
   };
 }  // namespace shared_model
 

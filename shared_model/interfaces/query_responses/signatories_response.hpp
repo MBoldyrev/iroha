@@ -8,6 +8,9 @@
 
 #include "interfaces/base/model_primitive.hpp"
 
+#include "cryptography/public_key.hpp"
+#include "qry_responses.pb.h"
+
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
@@ -15,6 +18,9 @@ namespace shared_model {
    * Container of asset, for fetching data.
    */
   class SignatoriesResponse : public ModelPrimitive<SignatoriesResponse> {
+    explicit SignatoriesResponse(
+        iroha::protocol::QueryResponse &query_response);
+
    public:
     /**
      * @return All public keys attached to account
@@ -24,6 +30,11 @@ namespace shared_model {
     std::string toString() const override;
 
     bool operator==(const ModelType &rhs) const override;
+
+   private:
+    const iroha::protocol::SignatoriesResponse &signatories_response_;
+
+    const types::PublicKeyCollectionType keys_;
   };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_SIGNATORIES_RESPONSE_HPP

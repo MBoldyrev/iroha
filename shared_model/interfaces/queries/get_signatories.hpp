@@ -7,7 +7,9 @@
 #define IROHA_SHARED_MODEL_GET_SIGNATORIES_HPP
 
 #include "interfaces/base/model_primitive.hpp"
+
 #include "interfaces/common_objects/types.hpp"
+#include "queries.pb.h"
 
 namespace shared_model {
 
@@ -16,6 +18,8 @@ namespace shared_model {
    */
   class GetSignatories : public ModelPrimitive<GetSignatories> {
    public:
+    explicit GetSignatories(iroha::protocol::Query &query);
+
     /**
      * @return account_id of requested signatories
      */
@@ -24,6 +28,11 @@ namespace shared_model {
     std::string toString() const override;
 
     bool operator==(const ModelType &rhs) const override;
+
+   private:
+    // ------------------------------| fields |-------------------------------
+
+    const iroha::protocol::GetSignatories &account_signatories_;
   };
 }  // namespace shared_model
 

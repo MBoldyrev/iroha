@@ -7,8 +7,10 @@
 #define IROHA_SHARED_MODEL_QUERY_HPP
 
 #include <boost/variant/variant_fwd.hpp>
+
 #include "interfaces/base/signable.hpp"
 #include "interfaces/common_objects/types.hpp"
+#include "queries.pb.h"
 
 namespace shared_model {
 
@@ -38,6 +40,14 @@ namespace shared_model {
     using wrap = boost::variant<const Value &...>;
 
    public:
+    using TransportType = iroha::protocol::Query;
+
+    Query(const Query &o);
+    Query(Query &&o) noexcept;
+
+    explicit Query(const TransportType &ref);
+    explicit Query(TransportType &&ref);
+
     /// Type of variant, that handle concrete query
     using QueryVariantType = wrap<GetAccount,
                                   GetSignatories,
@@ -75,6 +85,10 @@ namespace shared_model {
     std::string toString() const override;
 
     bool operator==(const ModelType &rhs) const override;
+
+   private:
+    struct Impl;
+    std::unique_ptr<Impl> impl_;
   };
 }  // namespace shared_model
 

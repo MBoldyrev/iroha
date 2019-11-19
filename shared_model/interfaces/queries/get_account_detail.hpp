@@ -8,6 +8,10 @@
 
 #include <boost/optional.hpp>
 
+#include <boost/optional.hpp>
+#include "backend/protobuf/queries/proto_account_detail_pagination_meta.hpp"
+#include "queries.pb.h"
+
 #include "interfaces/base/model_primitive.hpp"
 #include "interfaces/common_objects/types.hpp"
 #include "interfaces/queries/account_detail_pagination_meta.hpp"
@@ -27,6 +31,8 @@ namespace shared_model {
    */
   class GetAccountDetail : public ModelPrimitive<GetAccountDetail> {
    public:
+    explicit GetAccountDetail(iroha::protocol::Query &query);
+
     /**
      * @return account identifier
      */
@@ -48,6 +54,13 @@ namespace shared_model {
     std::string toString() const override;
 
     bool operator==(const ModelType &rhs) const override;
+
+   private:
+    // ------------------------------| fields |-------------------------------
+
+    const iroha::protocol::Query &query_;
+    const iroha::protocol::GetAccountDetail &account_detail_;
+    const boost::optional<const AccountDetailPaginationMeta> pagination_meta_;
   };
 }  // namespace shared_model
 

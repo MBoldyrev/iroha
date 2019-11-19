@@ -7,8 +7,12 @@
 #define IROHA_SHARED_MODEL_GET_PENDING_TRANSACTIONS_HPP
 
 #include <boost/optional.hpp>
+
+#include <boost/optional.hpp>
+#include "backend/protobuf/queries/proto_tx_pagination_meta.hpp"
 #include "interfaces/base/model_primitive.hpp"
 #include "interfaces/common_objects/types.hpp"
+#include "queries.pb.h"
 
 namespace shared_model {
   class TxPaginationMeta;
@@ -19,6 +23,8 @@ namespace shared_model {
    */
   class GetPendingTransactions : public ModelPrimitive<GetPendingTransactions> {
    public:
+    explicit GetPendingTransactions(iroha::protocol::Query &query);
+
     // TODO igor-egorov 2019-06-06 IR-516 make page meta non-optional
     /**
      *  Get the query pagination metadata.
@@ -28,6 +34,10 @@ namespace shared_model {
     std::string toString() const override;
 
     bool operator==(const ModelType &rhs) const override;
+
+   private:
+    const iroha::protocol::GetPendingTransactions &pending_transactions_;
+    boost::optional<const TxPaginationMeta> pagination_meta_;
   };
 
 }  // namespace shared_model

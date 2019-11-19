@@ -8,6 +8,10 @@
 
 #include "interfaces/base/model_primitive.hpp"
 
+#include "backend/protobuf/transaction.hpp"
+#include "interfaces/common_objects/types.hpp"
+#include "qry_responses.pb.h"
+
 #include <boost/optional/optional_fwd.hpp>
 #include "interfaces/common_objects/range_types.hpp"
 #include "interfaces/common_objects/types.hpp"
@@ -19,6 +23,9 @@ namespace shared_model {
   class TransactionsPageResponse
       : public ModelPrimitive<TransactionsPageResponse> {
    public:
+    explicit TransactionsPageResponse(
+        iroha::protocol::QueryResponse &query_response);
+
     /**
      * @return transactions from this page
      */
@@ -37,6 +44,11 @@ namespace shared_model {
     std::string toString() const override;
 
     bool operator==(const ModelType &rhs) const override;
+
+   private:
+    const iroha::protocol::TransactionsPageResponse &transactionPageResponse_;
+    std::vector<Transaction> transactions_;
+    boost::optional<types::HashType> next_hash_;
   };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_TRANSACTIONS_PAGE_RESPONSE_HPP

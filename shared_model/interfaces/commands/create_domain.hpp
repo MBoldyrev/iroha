@@ -8,6 +8,8 @@
 
 #include "interfaces/base/model_primitive.hpp"
 
+#include "commands.pb.h"
+
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
@@ -16,6 +18,8 @@ namespace shared_model {
    */
   class CreateDomain : public ModelPrimitive<CreateDomain> {
    public:
+    explicit CreateDomain(iroha::protocol::Command &command);
+
     /**
      * @return Id of the domain to create
      */
@@ -28,6 +32,9 @@ namespace shared_model {
     std::string toString() const override;
 
     bool operator==(const ModelType &rhs) const override;
+
+   private:
+    const iroha::protocol::CreateDomain &create_domain_;
   };
 }  // namespace shared_model
 

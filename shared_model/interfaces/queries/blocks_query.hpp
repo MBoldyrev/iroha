@@ -7,7 +7,10 @@
 #define IROHA_SHARED_MODEL_BLOCKS_QUERY_HPP
 
 #include "interfaces/base/signable.hpp"
+
+#include "backend/protobuf/common_objects/signature.hpp"
 #include "interfaces/common_objects/types.hpp"
+#include "queries.pb.h"
 
 namespace shared_model {
 
@@ -18,6 +21,11 @@ namespace shared_model {
    */
   class BlocksQuery : public Signable<BlocksQuery> {
    public:
+    using TransportType = iroha::protocol::BlocksQuery;
+
+    explicit BlocksQuery(const TransportType &query);
+    explicit BlocksQuery(TransportType &&query);
+
     /**
      * @return id of query creator
      */
@@ -35,6 +43,18 @@ namespace shared_model {
     std::string toString() const override;
 
     bool operator==(const ModelType &rhs) const override;
+
+   private:
+    // ------------------------------| fields |-------------------------------
+    TransportType proto_;
+
+    const types::BlobType blob_;
+
+    const types::BlobType payload_;
+
+    SignatureSetType<Signature> signatures_;
+
+    types::HashType hash_;
   };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_BLOCKS_QUERY_HPP

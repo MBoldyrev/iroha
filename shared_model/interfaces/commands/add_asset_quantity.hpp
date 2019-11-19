@@ -8,6 +8,9 @@
 
 #include "interfaces/base/model_primitive.hpp"
 
+#include "commands.pb.h"
+#include "interfaces/common_objects/amount.hpp"
+
 #include "interfaces/common_objects/amount.hpp"
 #include "interfaces/common_objects/types.hpp"
 
@@ -18,6 +21,8 @@ namespace shared_model {
    */
   class AddAssetQuantity : public ModelPrimitive<AddAssetQuantity> {
    public:
+    explicit AddAssetQuantity(iroha::protocol::Command &command);
+
     /**
      * @return asset identifier
      */
@@ -30,6 +35,11 @@ namespace shared_model {
     std::string toString() const override;
 
     bool operator==(const ModelType &rhs) const override;
+
+   private:
+    const iroha::protocol::AddAssetQuantity &add_asset_quantity_;
+
+    const Amount amount_;
   };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_ADD_ASSET_QUANTITY_HPP

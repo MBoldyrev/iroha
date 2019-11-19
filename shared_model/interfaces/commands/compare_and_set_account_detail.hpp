@@ -7,6 +7,8 @@
 #define IROHA_SHARED_MODEL_COMPARE_AND_SET_ACCOUNT_DETAIL_HPP
 
 #include <boost/optional.hpp>
+
+#include "commands.pb.h"
 #include "interfaces/base/model_primitive.hpp"
 
 #include "interfaces/common_objects/types.hpp"
@@ -20,6 +22,8 @@ namespace shared_model {
   class CompareAndSetAccountDetail
       : public ModelPrimitive<CompareAndSetAccountDetail> {
    public:
+    explicit CompareAndSetAccountDetail(iroha::protocol::Command &command);
+
     /**
      * @return Identity of user to set account detail to
      */
@@ -43,6 +47,10 @@ namespace shared_model {
     std::string toString() const override;
 
     bool operator==(const ModelType &rhs) const override;
+
+   private:
+    const iroha::protocol::CompareAndSetAccountDetail
+        &compare_and_set_account_detail_;
   };
 }  // namespace shared_model
 

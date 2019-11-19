@@ -7,14 +7,18 @@
 #define IROHA_SHARED_INTERFACE_MODEL_QUERY_TX_PAGINATION_META_HPP
 
 #include <boost/optional.hpp>
+
 #include "interfaces/base/model_primitive.hpp"
 #include "interfaces/common_objects/types.hpp"
+#include "queries.pb.h"
 
 namespace shared_model {
 
   /// Provides query metadata for any transaction list pagination.
   class TxPaginationMeta : public ModelPrimitive<TxPaginationMeta> {
    public:
+    explicit TxPaginationMeta(iroha::protocol::TxPaginationMeta &meta);
+
     /// Get the requested page size.
     types::TransactionsNumberType pageSize() const;
 
@@ -24,6 +28,9 @@ namespace shared_model {
     std::string toString() const override;
 
     bool operator==(const ModelType &rhs) const override;
+
+   private:
+    const iroha::protocol::TxPaginationMeta &meta_;
   };
 
 }  // namespace shared_model
