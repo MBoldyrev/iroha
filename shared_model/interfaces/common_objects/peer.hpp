@@ -25,6 +25,7 @@ namespace shared_model {
    * Representation of a network participant.
    */
   class Peer : public ModelPrimitive<Peer> {
+   public:
     template <typename PeerType>
     explicit Peer(PeerType &&peer) : proto_(std::forward<PeerType>(peer)) {
       if (proto_->certificate_case()) {
@@ -36,7 +37,6 @@ namespace shared_model {
 
     Peer(Peer &&o) noexcept : Peer(std::move(o.proto_)) {}
 
-   public:
     /**
      * @return Peer address, for fetching data
      */

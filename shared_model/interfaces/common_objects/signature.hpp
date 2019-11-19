@@ -20,35 +20,21 @@ namespace shared_model {
   namespace crypto {
     class PublicKey;
     class Signed;
-
-   private:
-    Signature *clone() const override {
-      return new Signature(proto_);
-    }
-
-    const PublicKeyType public_key_{
-        PublicKeyType::fromHexString(proto_->public_key())};
-
-    const SignedType signed_{SignedType::fromHexString(proto_->signature())};
   }  // namespace crypto
 
   /**
    * Class represents signature of high-level domain objects.
    */
   class Signature : public ModelPrimitive<Signature>,
-                    template <typename SignatureType>
-                    explicit Signature(SignatureType &&signature)
-      : TrivialProto(std::forward<SignatureType>(signature)) {
-  }
+                    public Cloneable<Signature> {
+    template <typename SignatureType>
+    explicit Signature(SignatureType &&signature)
+        : TrivialProto(std::forward<SignatureType>(signature)) {}
 
-  Signature(const Signature &o)
-      : Signature(o.proto_) {
-  }
+    Signature(const Signature &o) : Signature(o.proto_) {}
 
-  Signature(Signature &&o) noexcept : Signature(std::move(o.proto_)) {}
+    Signature(Signature &&o) noexcept : Signature(std::move(o.proto_)) {}
 
- public
-  Cloneable<Signature> {
    public:
     /**
      * Type of public key
@@ -73,6 +59,16 @@ namespace shared_model {
     bool operator==(const Signature &rhs) const override;
 
     std::string toString() const override;
+
+   private:
+    Signature *clone() const override {
+      return new Signature(proto_);
+    }
+
+    const PublicKeyType public_key_{
+        PublicKeyType::fromHexString(proto_->public_key())};
+
+    const SignedType signed_{SignedType::fromHexString(proto_->signature())};
   };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_SIGNATURE_HPP

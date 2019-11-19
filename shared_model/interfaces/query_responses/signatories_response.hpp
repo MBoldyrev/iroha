@@ -18,10 +18,10 @@ namespace shared_model {
    * Container of asset, for fetching data.
    */
   class SignatoriesResponse : public ModelPrimitive<SignatoriesResponse> {
+   public:
     explicit SignatoriesResponse(
         iroha::protocol::QueryResponse &query_response);
 
-   public:
     /**
      * @return All public keys attached to account
      */
