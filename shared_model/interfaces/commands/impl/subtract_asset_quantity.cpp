@@ -5,6 +5,8 @@
 
 #include "interfaces/commands/subtract_asset_quantity.hpp"
 
+using namespace shared_model;
+
 std::string SubtractAssetQuantity::toString() const {
   return detail::PrettyStringBuilder()
       .init("SubtractAssetQuantity")

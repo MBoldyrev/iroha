@@ -5,6 +5,8 @@
 
 #include "interfaces/commands/set_setting_value.hpp"
 
+using namespace shared_model;
+
 std::string SetSettingValue::toString() const {
   return detail::PrettyStringBuilder()
       .init("SetSettingValue")

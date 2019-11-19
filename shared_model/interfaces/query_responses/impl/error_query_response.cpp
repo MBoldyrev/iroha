@@ -7,6 +7,8 @@
 
 #include "utils/visitor_apply_for_all.hpp"
 
+using namespace shared_model;
+
 std::string ErrorQueryResponse::toString() const {
   return detail::PrettyStringBuilder()
       .init("ErrorQueryResponse")

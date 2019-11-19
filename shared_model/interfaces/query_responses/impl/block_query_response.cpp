@@ -9,6 +9,8 @@
 #include "interfaces/query_responses/block_response.hpp"
 #include "utils/visitor_apply_for_all.hpp"
 
+using namespace shared_model;
+
 std::string BlockQueryResponse::toString() const {
   return boost::apply_visitor(detail::ToStringVisitor(), get());
 }

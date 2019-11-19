@@ -9,6 +9,8 @@
 
 #include "interfaces/iroha_internal/transaction_batch.hpp"
 
+using namespace shared_model;
+
 const types::SharedTxsCollectionType &TransactionSequence::transactions()
     const {
   if (not transactions_) {

@@ -7,6 +7,8 @@
 
 #include "interfaces/queries/tx_pagination_meta.hpp"
 
+using namespace shared_model;
+
 std::string GetAccountAssetTransactions::toString() const {
   return detail::PrettyStringBuilder()
       .init("GetAccountAssetTransactions")

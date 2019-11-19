@@ -6,6 +6,8 @@
 #include "interfaces/query_responses/transactions_page_response.hpp"
 #include "interfaces/transaction.hpp"
 
+using namespace shared_model;
+
 std::string TransactionsPageResponse::toString() const {
   auto builder = detail::PrettyStringBuilder()
                      .init("TransactionsPageResponse")

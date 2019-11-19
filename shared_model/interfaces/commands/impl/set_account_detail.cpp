@@ -5,6 +5,8 @@
 
 #include "interfaces/commands/set_account_detail.hpp"
 
+using namespace shared_model;
+
 std::string SetAccountDetail::toString() const {
   return detail::PrettyStringBuilder()
       .init("SetAccountDetail")

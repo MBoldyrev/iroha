@@ -5,6 +5,8 @@
 
 #include "interfaces/commands/compare_and_set_account_detail.hpp"
 
+using namespace shared_model;
+
 std::string CompareAndSetAccountDetail::toString() const {
   return detail::PrettyStringBuilder()
       .init("CompareAndSetAccountDetail")

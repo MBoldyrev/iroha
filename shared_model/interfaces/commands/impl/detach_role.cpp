@@ -5,6 +5,8 @@
 
 #include "interfaces/commands/detach_role.hpp"
 
+using namespace shared_model;
+
 std::string DetachRole::toString() const {
   return detail::PrettyStringBuilder()
       .init("DetachRole")

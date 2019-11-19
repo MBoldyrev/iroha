@@ -5,6 +5,8 @@
 
 #include "interfaces/queries/get_block.hpp"
 
+using namespace shared_model;
+
 std::string GetBlock::toString() const {
   return detail::PrettyStringBuilder()
       .init("GetBlock")

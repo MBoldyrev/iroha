@@ -5,6 +5,8 @@
 
 #include "interfaces/commands/add_asset_quantity.hpp"
 
+using namespace shared_model;
+
 std::string AddAssetQuantity::toString() const {
   return detail::PrettyStringBuilder()
       .init("AddAssetQuantity")

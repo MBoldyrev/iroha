@@ -5,6 +5,8 @@
 
 #include "interfaces/commands/append_role.hpp"
 
+using namespace shared_model;
+
 std::string AppendRole::toString() const {
   return detail::PrettyStringBuilder()
       .init("AppendRole")

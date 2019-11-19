@@ -5,6 +5,8 @@
 
 #include "interfaces/commands/set_quorum.hpp"
 
+using namespace shared_model;
+
 std::string SetQuorum::toString() const {
   return detail::PrettyStringBuilder()
       .init("SetQuorum")

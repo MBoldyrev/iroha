@@ -5,6 +5,8 @@
 
 #include "interfaces/queries/get_peers.hpp"
 
+using namespace shared_model;
+
 std::string GetPeers::toString() const {
   return detail::PrettyStringBuilder().init("GetPeers").finalize();
 }

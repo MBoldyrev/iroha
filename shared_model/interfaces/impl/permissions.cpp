@@ -7,6 +7,8 @@
 
 using namespace shared_model;
 
+using namespace shared_model;
+
 Role permissionFor(Grantable g) {
   switch (g) {
     case Grantable::kAddMySignatory:
@@ -137,5 +139,5 @@ void PermissionSet<Perm>::iterate(std::function<void(Perm)> f) const {
   }
 }
 
-template class shared_model::PermissionSet<permissions::Role>;
-template class shared_model::PermissionSet<permissions::Grantable>;
+template class PermissionSet<permissions::Role>;
+template class PermissionSet<permissions::Grantable>;

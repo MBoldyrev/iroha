@@ -7,6 +7,8 @@
 #include "interfaces/transaction.hpp"
 #include "utils/string_builder.hpp"
 
+using namespace shared_model;
+
 std::string TransactionsResponse::toString() const {
   return detail::PrettyStringBuilder()
       .init("TransactionsResponse")

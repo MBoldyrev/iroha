@@ -7,6 +7,8 @@
 
 #include "utils/string_builder.hpp"
 
+using namespace shared_model;
+
 std::string BlockErrorResponse::toString() const {
   return detail::PrettyStringBuilder()
       .init("BlockErrorResponse")

@@ -8,6 +8,8 @@
 #include "cryptography/hash.hpp"
 #include "utils/string_builder.hpp"
 
+using namespace shared_model;
+
 std::string GetTransactions::toString() const {
   return detail::PrettyStringBuilder()
       .init("GetTransactions")

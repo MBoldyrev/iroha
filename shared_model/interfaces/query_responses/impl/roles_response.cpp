@@ -6,6 +6,8 @@
 #include "interfaces/query_responses/roles_response.hpp"
 #include "utils/string_builder.hpp"
 
+using namespace shared_model;
+
 std::string RolesResponse::toString() const {
   return detail::PrettyStringBuilder()
       .init("RolesResponse")

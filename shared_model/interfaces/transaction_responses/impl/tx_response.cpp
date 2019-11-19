@@ -18,7 +18,9 @@
 #include "interfaces/transaction_responses/stateless_valid_tx_response.hpp"
 #include "utils/visitor_apply_for_all.hpp"
 
-using Variant = shared_model::TransactionResponse::ResponseVariantType;
+using namespace shared_model;
+
+using Variant = TransactionResponse::ResponseVariantType;
 template Variant::~variant();
 template Variant::variant(Variant &&);
 template bool Variant::operator==(const Variant &) const;

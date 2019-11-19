@@ -5,6 +5,8 @@
 
 #include "interfaces/commands/create_asset.hpp"
 
+using namespace shared_model;
+
 std::string CreateAsset::toString() const {
   return detail::PrettyStringBuilder()
       .init("CreateAsset")

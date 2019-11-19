@@ -8,6 +8,8 @@
 #include "interfaces/transaction.hpp"
 #include "utils/string_builder.hpp"
 
+using namespace shared_model;
+
 std::string TransactionBatch::toString() const {
   return detail::PrettyStringBuilder()
       .init("TransactionBatch")

@@ -21,7 +21,9 @@
 #include "interfaces/queries/query_payload_meta.hpp"
 #include "utils/visitor_apply_for_all.hpp"
 
-using Variant = shared_model::Query::QueryVariantType;
+using namespace shared_model;
+
+using Variant = Query::QueryVariantType;
 template Variant::~variant();
 template Variant::variant(Variant &&);
 template bool Variant::operator==(const Variant &) const;

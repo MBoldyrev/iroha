@@ -20,7 +20,9 @@
 #include "interfaces/query_responses/transactions_response.hpp"
 #include "utils/visitor_apply_for_all.hpp"
 
-using Variant = shared_model::QueryResponse::QueryResponseVariantType;
+using namespace shared_model;
+
+using Variant = QueryResponse::QueryResponseVariantType;
 template Variant::~variant();
 template Variant::variant(Variant &&);
 template bool Variant::operator==(const Variant &) const;

@@ -5,6 +5,8 @@
 
 #include "interfaces/queries/get_roles.hpp"
 
+using namespace shared_model;
+
 std::string GetRoles::toString() const {
   return detail::PrettyStringBuilder().init("GetRoles").finalize();
 }

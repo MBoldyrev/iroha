@@ -5,6 +5,8 @@
 
 #include "interfaces/queries/get_signatories.hpp"
 
+using namespace shared_model;
+
 std::string GetSignatories::toString() const {
   return detail::PrettyStringBuilder()
       .init("GetSignatories")

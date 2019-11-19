@@ -6,6 +6,8 @@
 #include "interfaces/queries/blocks_query.hpp"
 #include "utils/string_builder.hpp"
 
+using namespace shared_model;
+
 std::string BlocksQuery::toString() const {
   return detail::PrettyStringBuilder()
       .init("BlocksQuery")

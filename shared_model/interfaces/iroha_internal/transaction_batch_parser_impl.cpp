@@ -10,6 +10,8 @@
 #include "interfaces/iroha_internal/batch_meta.hpp"
 #include "interfaces/transaction.hpp"
 
+using namespace shared_model;
+
 namespace {
   /**
    * Zips in_range and out_range, where in_range elements are objects, parses

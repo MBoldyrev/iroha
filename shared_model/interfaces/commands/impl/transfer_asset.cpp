@@ -5,6 +5,8 @@
 
 #include "interfaces/commands/transfer_asset.hpp"
 
+using namespace shared_model;
+
 std::string TransferAsset::toString() const {
   return detail::PrettyStringBuilder()
       .init("TransferAsset")

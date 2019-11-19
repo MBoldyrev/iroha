@@ -5,6 +5,8 @@
 
 #include "interfaces/queries/get_role_permissions.hpp"
 
+using namespace shared_model;
+
 std::string GetRolePermissions::toString() const {
   return detail::PrettyStringBuilder()
       .init("GetRolePermissions")

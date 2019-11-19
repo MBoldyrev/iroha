@@ -25,7 +25,9 @@
 #include "interfaces/commands/transfer_asset.hpp"
 #include "utils/visitor_apply_for_all.hpp"
 
-using Variant = shared_model::Command::CommandVariantType;
+using namespace shared_model;
+
+using Variant = Command::CommandVariantType;
 template Variant::~variant();
 template Variant::variant(Variant &&);
 template bool Variant::operator==(const Variant &) const;

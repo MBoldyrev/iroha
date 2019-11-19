@@ -8,6 +8,8 @@
 #include "cryptography/public_key.hpp"
 #include "utils/string_builder.hpp"
 
+using namespace shared_model;
+
 std::string SignatoriesResponse::toString() const {
   return detail::PrettyStringBuilder()
       .init("SignatoriesResponse")

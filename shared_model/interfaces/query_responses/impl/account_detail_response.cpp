@@ -6,6 +6,8 @@
 #include "interfaces/query_responses/account_detail_response.hpp"
 #include "utils/string_builder.hpp"
 
+using namespace shared_model;
+
 std::string AccountDetailResponse::toString() const {
   const auto next_record_id = nextRecordId();
   return detail::PrettyStringBuilder()

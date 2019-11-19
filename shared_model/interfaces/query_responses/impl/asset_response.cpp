@@ -6,6 +6,8 @@
 #include "interfaces/query_responses/asset_response.hpp"
 #include "utils/string_builder.hpp"
 
+using namespace shared_model;
+
 std::string AssetResponse::toString() const {
   return detail::PrettyStringBuilder()
       .init("AssetResponse")

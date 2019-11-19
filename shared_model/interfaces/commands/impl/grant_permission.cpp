@@ -5,6 +5,8 @@
 
 #include "interfaces/commands/grant_permission.hpp"
 
+using namespace shared_model;
+
 bool GrantPermission::operator==(const ModelType &rhs) const {
   return accountId() == rhs.accountId()
       and permissionName() == rhs.permissionName();

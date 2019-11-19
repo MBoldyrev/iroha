@@ -5,6 +5,8 @@
 
 #include "interfaces/queries/get_asset_info.hpp"
 
+using namespace shared_model;
+
 std::string GetAssetInfo::toString() const {
   return detail::PrettyStringBuilder()
       .init("GetAssetInfo")

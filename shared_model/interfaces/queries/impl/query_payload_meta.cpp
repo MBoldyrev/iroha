@@ -5,6 +5,8 @@
 
 #include "interfaces/queries/query_payload_meta.hpp"
 
+using namespace shared_model;
+
 bool QueryPayloadMeta::operator==(const ModelType &rhs) const {
   return creatorAccountId() == rhs.creatorAccountId()
       and queryCounter() == rhs.queryCounter()

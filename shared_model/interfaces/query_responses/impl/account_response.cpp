@@ -6,6 +6,8 @@
 #include "interfaces/query_responses/account_response.hpp"
 #include "utils/string_builder.hpp"
 
+using namespace shared_model;
+
 std::string AccountResponse::toString() const {
   return detail::PrettyStringBuilder()
       .init("AccountResponse")

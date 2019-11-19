@@ -7,6 +7,8 @@
 
 #include "interfaces/transaction.hpp"
 
+using namespace shared_model;
+
 std::string PendingTransactionsPageResponse::toString() const {
   auto builder = detail::PrettyStringBuilder()
                      .init("PendingTransactionsPageResponse")

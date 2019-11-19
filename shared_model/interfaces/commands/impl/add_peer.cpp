@@ -7,6 +7,8 @@
 
 #include "cryptography/public_key.hpp"
 
+using namespace shared_model;
+
 std::string AddPeer::toString() const {
   return detail::PrettyStringBuilder()
       .init("AddPeer")

@@ -9,6 +9,8 @@
 #include "interfaces/iroha_internal/batch_meta.hpp"
 #include "utils/string_builder.hpp"
 
+using namespace shared_model;
+
 std::string Transaction::toString() const {
   return detail::PrettyStringBuilder()
       .init("Transaction")

@@ -8,6 +8,8 @@
 #include "interfaces/iroha_internal/block.hpp"
 #include "utils/string_builder.hpp"
 
+using namespace shared_model;
+
 std::string BlockResponse::toString() const {
   return detail::PrettyStringBuilder()
       .init("BlockResponse")

@@ -8,6 +8,8 @@
 #include "cryptography/public_key.hpp"
 #include "cryptography/signed.hpp"
 
+using namespace shared_model;
+
 bool Signature::operator==(const Signature &rhs) const {
   return publicKey() == rhs.publicKey();
 }

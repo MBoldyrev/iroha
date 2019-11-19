@@ -9,6 +9,8 @@
 #include "interfaces/transaction.hpp"
 #include "validators/answer.hpp"
 
+using namespace shared_model;
+
 TransactionBatchFactoryImpl::TransactionBatchFactoryImpl(
     std::shared_ptr<validation::AbstractValidator<TransactionBatch>>
         batch_validator)

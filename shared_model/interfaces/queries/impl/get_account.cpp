@@ -5,6 +5,8 @@
 
 #include "interfaces/queries/get_account.hpp"
 
+using namespace shared_model;
+
 std::string GetAccount::toString() const {
   return detail::PrettyStringBuilder()
       .init("GetAccount")

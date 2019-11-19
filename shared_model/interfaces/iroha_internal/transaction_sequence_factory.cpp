@@ -14,6 +14,8 @@
 #include "interfaces/transaction.hpp"
 #include "validators/answer.hpp"
 
+using namespace shared_model;
+
 namespace {
   // we use an unnamed namespace here because we don't want to add test as
   // include path for the shared_model_interfaces_factories target

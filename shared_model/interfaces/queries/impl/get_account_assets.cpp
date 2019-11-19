@@ -7,6 +7,8 @@
 
 #include "interfaces/queries/asset_pagination_meta.hpp"
 
+using namespace shared_model;
+
 std::string GetAccountAssets::toString() const {
   return detail::PrettyStringBuilder()
       .init("GetAccountAssets")

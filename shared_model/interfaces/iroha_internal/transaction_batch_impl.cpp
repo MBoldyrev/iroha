@@ -14,6 +14,8 @@
 #include "interfaces/transaction.hpp"
 #include "utils/string_builder.hpp"
 
+using namespace shared_model;
+
 TransactionBatchImpl::TransactionBatchImpl(
     types::SharedTxsCollectionType transactions)
     : transactions_(std::move(transactions)) {
@@ -49,10 +51,9 @@ std::string TransactionBatchImpl::toString() const {
       .finalize();
 }
 
-bool TransactionBatchImpl::addSignature(
-    size_t number_of_tx,
-    const shared_model::crypto::Signed &signed_blob,
-    const shared_model::crypto::PublicKey &public_key) {
+bool TransactionBatchImpl::addSignature(size_t number_of_tx,
+                                        const crypto::Signed &signed_blob,
+                                        const crypto::PublicKey &public_key) {
   if (number_of_tx >= transactions_.size()) {
     return false;
   } else {

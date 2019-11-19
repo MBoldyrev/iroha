@@ -8,6 +8,8 @@
 #include "interfaces/common_objects/peer.hpp"
 #include "utils/string_builder.hpp"
 
+using namespace shared_model;
+
 std::string PeersResponse::toString() const {
   return detail::PrettyStringBuilder()
       .init("PeersResponse")
