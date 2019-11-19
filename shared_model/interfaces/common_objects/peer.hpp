@@ -21,18 +21,17 @@ namespace shared_model {
     /**
      * @return Peer address, for fetching data
      */
-    virtual const types::AddressType &address() const = 0;
+    const types::AddressType &address() const;
 
     /**
      * @return Peer TLS certficate
      */
-    virtual const boost::optional<types::TLSCertificateType> &tlsCertificate()
-        const = 0;
+    const boost::optional<types::TLSCertificateType> &tlsCertificate() const;
 
     /**
      * @return Public key, for fetching data
      */
-    virtual const types::PubkeyType &pubkey() const = 0;
+    const types::PubkeyType &pubkey() const;
 
     std::string toString() const override;
 

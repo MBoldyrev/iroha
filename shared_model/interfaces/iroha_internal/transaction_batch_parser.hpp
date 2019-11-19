@@ -16,16 +16,16 @@ namespace shared_model {
    */
   class TransactionBatchParser {
    public:
-    virtual std::vector<types::TransactionsForwardCollectionType> parseBatches(
-        types::TransactionsForwardCollectionType txs) const noexcept = 0;
+    std::vector<types::TransactionsForwardCollectionType> parseBatches(
+        types::TransactionsForwardCollectionType txs) const noexcept;
 
-    virtual std::vector<types::TransactionsCollectionType> parseBatches(
-        types::TransactionsCollectionType txs) const noexcept = 0;
+    std::vector<types::TransactionsCollectionType> parseBatches(
+        types::TransactionsCollectionType txs) const noexcept;
 
-    virtual std::vector<types::SharedTxsCollectionType> parseBatches(
-        const types::SharedTxsCollectionType &txs) const noexcept = 0;
+    std::vector<types::SharedTxsCollectionType> parseBatches(
+        const types::SharedTxsCollectionType &txs) const noexcept;
 
-    virtual ~TransactionBatchParser() = default;
+    ~TransactionBatchParser() = default;
   };
 
 }  // namespace shared_model

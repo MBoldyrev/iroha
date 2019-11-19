@@ -21,14 +21,13 @@ namespace shared_model {
     /**
      * @return Account has Asset model
      */
-    virtual const types::DetailType &detail() const = 0;
+    const types::DetailType &detail() const;
 
     /// @return total number of account details matching the query.
-    virtual size_t totalNumber() const = 0;
+    size_t totalNumber() const;
 
     /// @return next page starting record, if this page is not last.
-    virtual boost::optional<const AccountDetailRecordId &> nextRecordId()
-        const = 0;
+    boost::optional<const AccountDetailRecordId &> nextRecordId() const;
 
     std::string toString() const override;
 

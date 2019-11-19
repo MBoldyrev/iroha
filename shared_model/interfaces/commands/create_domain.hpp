@@ -19,11 +19,11 @@ namespace shared_model {
     /**
      * @return Id of the domain to create
      */
-    virtual const types::DomainIdType &domainId() const = 0;
+    const types::DomainIdType &domainId() const;
     /**
      * @return default role of the user in the domain
      */
-    virtual const types::RoleIdType &userDefaultRole() const = 0;
+    const types::RoleIdType &userDefaultRole() const;
 
     std::string toString() const override;
 

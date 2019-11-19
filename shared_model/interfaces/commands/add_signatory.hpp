@@ -20,11 +20,11 @@ namespace shared_model {
     /**
      * @return New signatory is identified with public key
      */
-    virtual const types::PubkeyType &pubkey() const = 0;
+    const types::PubkeyType &pubkey() const;
     /**
      * @return Account to which add new signatory
      */
-    virtual const types::AccountIdType &accountId() const = 0;
+    const types::AccountIdType &accountId() const;
 
     std::string toString() const override;
 

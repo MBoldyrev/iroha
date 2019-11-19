@@ -20,17 +20,17 @@ namespace shared_model {
     /**
      * @return Identity of asset
      */
-    virtual const types::AccountIdType &assetId() const = 0;
+    const types::AccountIdType &assetId() const;
 
     /**
      * @return Identity of domain
      */
-    virtual const types::DomainIdType &domainId() const = 0;
+    const types::DomainIdType &domainId() const;
 
     /**
      * @return Asset's fixed precision
      */
-    virtual types::PrecisionType precision() const = 0;
+    types::PrecisionType precision() const;
 
     /**
      * Stringify the data.

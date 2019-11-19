@@ -49,7 +49,7 @@ namespace shared_model {
     /**
      * @return reference to const variant with concrete error response
      */
-    virtual const QueryErrorResponseVariantType &get() const = 0;
+    const QueryErrorResponseVariantType &get() const;
 
     /// Message type
     using ErrorMessageType = std::string;
@@ -57,7 +57,7 @@ namespace shared_model {
     /**
      * @return error message if present, otherwise - an empty string
      */
-    virtual const ErrorMessageType &errorMessage() const = 0;
+    const ErrorMessageType &errorMessage() const;
 
     /// Error code type
     using ErrorCodeType = uint32_t;
@@ -69,7 +69,7 @@ namespace shared_model {
      *    2 - not enough permissions
      *    3 - invalid signatures
      */
-    virtual ErrorCodeType errorCode() const = 0;
+    ErrorCodeType errorCode() const;
 
     // ------------------------| Primitive override |-------------------------
 

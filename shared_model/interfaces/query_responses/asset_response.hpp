@@ -19,7 +19,7 @@ namespace shared_model {
     /**
      * @return Attached asset
      */
-    virtual const Asset &asset() const = 0;
+    const Asset &asset() const;
 
     std::string toString() const override;
 

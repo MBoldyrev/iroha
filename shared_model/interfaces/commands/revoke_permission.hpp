@@ -20,14 +20,14 @@ namespace shared_model {
     /**
      * @return account from which revoke permission
      */
-    virtual const types::AccountIdType &accountId() const = 0;
+    const types::AccountIdType &accountId() const;
 
     /**
      * @return Permission to revoke
      */
-    virtual permissions::Grantable permissionName() const = 0;
+    permissions::Grantable permissionName() const;
 
-    std::string toString() const override = 0;
+    std::string toString() const override;
 
     bool operator==(const ModelType &rhs) const override;
   };

@@ -19,7 +19,7 @@ namespace shared_model {
     /**
      * @return account_id of requested signatories
      */
-    virtual const types::AccountIdType &accountId() const = 0;
+    const types::AccountIdType &accountId() const;
 
     std::string toString() const override;
 

@@ -25,12 +25,12 @@ namespace shared_model {
     /**
      * @return creator of transaction
      */
-    virtual const types::AccountIdType &creatorAccountId() const = 0;
+    const types::AccountIdType &creatorAccountId() const;
 
     /**
      * @return quorum of transaction
      */
-    virtual types::QuorumType quorum() const = 0;
+    types::QuorumType quorum() const;
 
     /// Type of ordered collection of commands
     using CommandsType = boost::
@@ -39,23 +39,23 @@ namespace shared_model {
     /**
      * @return attached commands
      */
-    virtual CommandsType commands() const = 0;
+    CommandsType commands() const;
 
     /**
      * @return object payload (everything except signatures)
      */
-    virtual const types::BlobType &reducedPayload() const = 0;
+    const types::BlobType &reducedPayload() const;
 
     // TODO [IR-1874] Akvinikym 16.11.18: rename the field
     /**
      * @return hash of reduced payload
      */
-    virtual const types::HashType &reducedHash() const = 0;
+    const types::HashType &reducedHash() const;
 
     /*
      * @return Batch Meta if exists
      */
-    virtual boost::optional<std::shared_ptr<BatchMeta>> batchMeta() const = 0;
+    boost::optional<std::shared_ptr<BatchMeta>> batchMeta() const;
 
     std::string toString() const override;
   };

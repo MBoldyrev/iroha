@@ -24,7 +24,7 @@ namespace shared_model {
      * Get transactions list
      * @return list of transactions from the batch
      */
-    virtual const types::SharedTxsCollectionType &transactions() const = 0;
+    const types::SharedTxsCollectionType &transactions() const;
 
     // TODO [IR-1874] Akvinikym 16.11.18: rename the field
     /**
@@ -32,14 +32,14 @@ namespace shared_model {
      * @param reduced_hashes collection of reduced hashes
      * @return concatenated reduced hashes
      */
-    virtual const types::HashType &reducedHash() const = 0;
+    const types::HashType &reducedHash() const;
 
     /**
      * Checks if every transaction has quorum signatures
      * @return true if every transaction has quorum signatures, false
      * otherwise
      */
-    virtual bool hasAllSignatures() const = 0;
+    bool hasAllSignatures() const;
 
     /**
      * Add signature to concrete transaction in the batch
@@ -48,10 +48,9 @@ namespace shared_model {
      * @param public_key - public key of inserter
      * @return true if signature has been inserted
      */
-    virtual bool addSignature(
-        size_t number_of_tx,
-        const shared_model::crypto::Signed &signed_blob,
-        const shared_model::crypto::PublicKey &public_key) = 0;
+    bool addSignature(size_t number_of_tx,
+                      const shared_model::crypto::Signed &signed_blob,
+                      const shared_model::crypto::PublicKey &public_key);
 
     /// Pretty print the batch contents.
     std::string toString() const;

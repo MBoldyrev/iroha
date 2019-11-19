@@ -21,7 +21,7 @@ namespace shared_model {
     /**
      * @return string representation of class name
      */
-    virtual std::string className() const = 0;
+    std::string className() const;
 
    public:
     // ------------------------| Primitive override |-------------------------

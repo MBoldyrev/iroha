@@ -24,7 +24,7 @@ namespace shared_model {
     /**
      * @return a list of peers
      */
-    virtual PeersForwardCollectionType peers() const = 0;
+    PeersForwardCollectionType peers() const;
 
     std::string toString() const override;
 

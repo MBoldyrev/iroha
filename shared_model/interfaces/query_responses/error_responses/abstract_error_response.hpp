@@ -21,7 +21,7 @@ namespace shared_model {
     /**
      * @return string representation of error reason
      */
-    virtual std::string reason() const = 0;
+    std::string reason() const;
 
    public:
     // ------------------------| Primitive override |-------------------------

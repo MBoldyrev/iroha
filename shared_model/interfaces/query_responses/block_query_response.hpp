@@ -36,7 +36,7 @@ namespace shared_model {
     /**
      * @return reference to const variant with concrete qr
      */
-    virtual const QueryResponseVariantType &get() const = 0;
+    const QueryResponseVariantType &get() const;
 
     // ------------------------| Primitive override |-------------------------
 

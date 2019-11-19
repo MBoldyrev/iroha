@@ -22,10 +22,10 @@ namespace shared_model {
       std::string error;
     };
 
-    virtual iroha::expected::Result<std::unique_ptr<Interface>, Error> build(
-        Transport transport) const = 0;
+    iroha::expected::Result<std::unique_ptr<Interface>, Error> build(
+        Transport transport) const;
 
-    virtual ~AbstractTransportFactory() = default;
+    ~AbstractTransportFactory() = default;
   };
 
 }  // namespace shared_model

@@ -15,7 +15,7 @@ namespace shared_model {
     /**
      * @return Identity of user, for fetching data
      */
-    virtual const types::AccountIdType &accountId() const = 0;
+    const types::AccountIdType &accountId() const;
 
     std::string toString() const override;
 

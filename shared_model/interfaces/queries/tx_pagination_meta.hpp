@@ -16,10 +16,10 @@ namespace shared_model {
   class TxPaginationMeta : public ModelPrimitive<TxPaginationMeta> {
    public:
     /// Get the requested page size.
-    virtual types::TransactionsNumberType pageSize() const = 0;
+    types::TransactionsNumberType pageSize() const;
 
     /// Get the first requested transaction hash, if provided.
-    virtual boost::optional<types::HashType> firstTxHash() const = 0;
+    boost::optional<types::HashType> firstTxHash() const;
 
     std::string toString() const override;
 

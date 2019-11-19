@@ -36,17 +36,17 @@ namespace shared_model {
     /**
      * @return transactions from this page
      */
-    virtual types::TransactionsCollectionType transactions() const = 0;
+    types::TransactionsCollectionType transactions() const;
 
     /**
      * @return next batch info to query the following page if exists
      */
-    virtual boost::optional<BatchInfo> nextBatchInfo() const = 0;
+    boost::optional<BatchInfo> nextBatchInfo() const;
 
     /**
      * @return total number of transactions for the query
      */
-    virtual types::TransactionsNumberType allTransactionsSize() const = 0;
+    types::TransactionsNumberType allTransactionsSize() const;
 
     std::string toString() const override;
 

@@ -24,10 +24,10 @@ namespace shared_model {
      * @param block - block to be serialized
      * @return json string or an error
      */
-    virtual iroha::expected::Result<types::JsonType, std::string> serialize(
-        const Block &block) const = 0;
+    iroha::expected::Result<types::JsonType, std::string> serialize(
+        const Block &block) const;
 
-    virtual ~BlockJsonSerializer() = default;
+    ~BlockJsonSerializer() = default;
   };
 }  // namespace shared_model
 

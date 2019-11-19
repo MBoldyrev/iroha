@@ -19,7 +19,7 @@ namespace shared_model {
     /**
      * @return Attached error message
      */
-    virtual const types::DescriptionType &message() const = 0;
+    const types::DescriptionType &message() const;
 
     /**
      * Give string description of data.

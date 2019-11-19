@@ -19,11 +19,11 @@ namespace shared_model {
     /**
      * @return account from which remove signatory
      */
-    virtual const types::AccountIdType &accountId() const = 0;
+    const types::AccountIdType &accountId() const;
     /**
      * @return Public key to remove from account
      */
-    virtual const types::PubkeyType &pubkey() const = 0;
+    const types::PubkeyType &pubkey() const;
 
     std::string toString() const override;
 

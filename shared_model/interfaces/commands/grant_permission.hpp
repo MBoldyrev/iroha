@@ -20,13 +20,13 @@ namespace shared_model {
     /**
      * @return Id of the account to whom grant permission
      */
-    virtual const types::AccountIdType &accountId() const = 0;
+    const types::AccountIdType &accountId() const;
     /**
      * @return permission to grant
      */
-    virtual permissions::Grantable permissionName() const = 0;
+    permissions::Grantable permissionName() const;
 
-    std::string toString() const override = 0;
+    std::string toString() const override;
 
     bool operator==(const ModelType &rhs) const override;
   };

@@ -56,19 +56,19 @@ namespace shared_model {
     /**
      * @return reference to const variant with concrete command
      */
-    virtual const QueryVariantType &get() const = 0;
+    const QueryVariantType &get() const;
 
     /**
      * @return id of query creator
      */
-    virtual const types::AccountIdType &creatorAccountId() const = 0;
+    const types::AccountIdType &creatorAccountId() const;
 
     /**
      * Query counter - incremental variable reflect for number of sent to
      * system queries plus 1. Required for preventing replay attacks.
      * @return attached query counter
      */
-    virtual types::CounterType queryCounter() const = 0;
+    types::CounterType queryCounter() const;
 
     // ------------------------| Primitive override |-------------------------
 

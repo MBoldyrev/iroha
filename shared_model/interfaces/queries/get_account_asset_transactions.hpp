@@ -23,14 +23,14 @@ namespace shared_model {
     /**
      * @return account_id of requested transactions
      */
-    virtual const types::AccountIdType &accountId() const = 0;
+    const types::AccountIdType &accountId() const;
     /**
      * @return assetId of requested transactions
      */
-    virtual const types::AccountIdType &assetId() const = 0;
+    const types::AccountIdType &assetId() const;
 
     /// Get the query pagination metadata.
-    virtual const TxPaginationMeta &paginationMeta() const = 0;
+    const TxPaginationMeta &paginationMeta() const;
 
     std::string toString() const override;
 

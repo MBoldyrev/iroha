@@ -17,26 +17,26 @@ namespace shared_model {
     /**
      * @return block number in the ledger
      */
-    virtual types::HeightType height() const = 0;
+    types::HeightType height() const;
 
     /**
      * @return hash of a previous block
      */
-    virtual const types::HashType &prevHash() const = 0;
+    const types::HashType &prevHash() const;
     /**
      * @return amount of transactions in block
      */
-    virtual types::TransactionsNumberType txsNumber() const = 0;
+    types::TransactionsNumberType txsNumber() const;
 
     /**
      * @return collection of transactions
      */
-    virtual types::TransactionsCollectionType transactions() const = 0;
+    types::TransactionsCollectionType transactions() const;
 
     /**
      * @return collection of rejected transactions' hashes
      */
-    virtual types::HashCollectionType rejected_transactions_hashes() const = 0;
+    types::HashCollectionType rejected_transactions_hashes() const;
 
     std::string toString() const override;
   };

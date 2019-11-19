@@ -55,61 +55,51 @@ namespace shared_model {
     // ------------------------| Stateless statuses |-------------------------
 
     /// Creates stateless failed transaction status
-    virtual FactoryReturnType makeStatelessFail(
-        TransactionHashType,
-        TransactionError tx_error = TransactionError()) = 0;
+    FactoryReturnType makeStatelessFail(
+        TransactionHashType, TransactionError tx_error = TransactionError());
 
     /// Creates stateless valid transaction status
-    virtual FactoryReturnType makeStatelessValid(
-        TransactionHashType,
-        TransactionError tx_error = TransactionError()) = 0;
+    FactoryReturnType makeStatelessValid(
+        TransactionHashType, TransactionError tx_error = TransactionError());
 
     // ------------------------| Stateful statuses |--------------------------
 
     /// Creates stateful failed transaction status
-    virtual FactoryReturnType makeStatefulFail(
-        TransactionHashType,
-        TransactionError tx_error = TransactionError()) = 0;
+    FactoryReturnType makeStatefulFail(
+        TransactionHashType, TransactionError tx_error = TransactionError());
     /// Creates stateful valid transaction status
-    virtual FactoryReturnType makeStatefulValid(
-        TransactionHashType,
-        TransactionError tx_error = TransactionError()) = 0;
+    FactoryReturnType makeStatefulValid(
+        TransactionHashType, TransactionError tx_error = TransactionError());
 
     // --------------------------| Final statuses |---------------------------
 
     /// Creates committed transaction status
-    virtual FactoryReturnType makeCommitted(
-        TransactionHashType,
-        TransactionError tx_error = TransactionError()) = 0;
+    FactoryReturnType makeCommitted(
+        TransactionHashType, TransactionError tx_error = TransactionError());
 
     /// Creates rejected transaction status
-    virtual FactoryReturnType makeRejected(
-        TransactionHashType,
-        TransactionError tx_error = TransactionError()) = 0;
+    FactoryReturnType makeRejected(
+        TransactionHashType, TransactionError tx_error = TransactionError());
 
     // --------------------------| Rest statuses |----------------------------
 
     /// Creates transaction expired status
-    virtual FactoryReturnType makeMstExpired(
-        TransactionHashType,
-        TransactionError tx_error = TransactionError()) = 0;
+    FactoryReturnType makeMstExpired(
+        TransactionHashType, TransactionError tx_error = TransactionError());
 
     /// Creates transaction pending status
-    virtual FactoryReturnType makeMstPending(
-        TransactionHashType,
-        TransactionError tx_error = TransactionError()) = 0;
+    FactoryReturnType makeMstPending(
+        TransactionHashType, TransactionError tx_error = TransactionError());
 
     /// Creates transaction is not received status
-    virtual FactoryReturnType makeNotReceived(
-        TransactionHashType,
-        TransactionError tx_error = TransactionError()) = 0;
+    FactoryReturnType makeNotReceived(
+        TransactionHashType, TransactionError tx_error = TransactionError());
 
     /// Creates status which shows that enough signatures were collected
-    virtual FactoryReturnType makeEnoughSignaturesCollected(
-        TransactionHashType,
-        TransactionError tx_error = TransactionError()) = 0;
+    FactoryReturnType makeEnoughSignaturesCollected(
+        TransactionHashType, TransactionError tx_error = TransactionError());
 
-    virtual ~TxStatusFactory() = default;
+    ~TxStatusFactory() = default;
   };
 }  // namespace shared_model
 

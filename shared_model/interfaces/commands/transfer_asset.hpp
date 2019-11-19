@@ -20,23 +20,23 @@ namespace shared_model {
     /**
      * @return Id of the account from which transfer assets
      */
-    virtual const types::AccountIdType &srcAccountId() const = 0;
+    const types::AccountIdType &srcAccountId() const;
     /**
      * @return Id of the account to which transfer assets
      */
-    virtual const types::AccountIdType &destAccountId() const = 0;
+    const types::AccountIdType &destAccountId() const;
     /**
      * @return Id of the asset to transfer
      */
-    virtual const types::AssetIdType &assetId() const = 0;
+    const types::AssetIdType &assetId() const;
     /**
      * @return asset amount to transfer
      */
-    virtual const Amount &amount() const = 0;
+    const Amount &amount() const;
     /**
      * @return message of the transfer
      */
-    virtual const types::DescriptionType &description() const = 0;
+    const types::DescriptionType &description() const;
 
     std::string toString() const override;
 

@@ -21,22 +21,22 @@ namespace shared_model {
     /**
      * @return Identity of user, for fetching data
      */
-    virtual const types::AccountIdType &accountId() const = 0;
+    const types::AccountIdType &accountId() const;
 
     /**
      * @return Identity of domain, for fetching data
      */
-    virtual const types::DomainIdType &domainId() const = 0;
+    const types::DomainIdType &domainId() const;
 
     /**
      * @return Minimum quorum of signatures needed for transactions
      */
-    virtual types::QuorumType quorum() const = 0;
+    types::QuorumType quorum() const;
 
     /**
      * @return JSON data stored in account
      */
-    virtual const types::JsonType &jsonData() const = 0;
+    const types::JsonType &jsonData() const;
 
     /**
      * Stringify the data.

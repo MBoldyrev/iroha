@@ -25,12 +25,12 @@ namespace shared_model {
                          boost::forward_traversal_tag,
                          const Transaction &>;
 
-    virtual std::unique_ptr<Proposal> unsafeCreateProposal(
+    std::unique_ptr<Proposal> unsafeCreateProposal(
         types::HeightType height,
         types::TimestampType created_time,
-        TransactionsCollectionType transactions) = 0;
+        TransactionsCollectionType transactions);
 
-    virtual ~UnsafeProposalFactory() = default;
+    ~UnsafeProposalFactory() = default;
   };
 }  // namespace shared_model
 

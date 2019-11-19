@@ -22,14 +22,14 @@ namespace shared_model {
      * @param txs - list of transactions. If it empty, EmptyBlock is creted
      * @return BlockVariant with block or empty block
      */
-    virtual std::unique_ptr<Block> unsafeCreateBlock(
+    std::unique_ptr<Block> unsafeCreateBlock(
         types::HeightType height,
         const types::HashType &prev_hash,
         types::TimestampType created_time,
         const types::TransactionsCollectionType &txs,
-        const types::HashCollectionType &rejected_hashes) = 0;
+        const types::HashCollectionType &rejected_hashes);
 
-    virtual ~UnsafeBlockFactory() = default;
+    ~UnsafeBlockFactory() = default;
   };
 }  // namespace shared_model
 

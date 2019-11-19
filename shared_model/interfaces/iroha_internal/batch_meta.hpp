@@ -16,7 +16,7 @@ namespace shared_model {
    */
   class BatchMeta : public ModelPrimitive<BatchMeta> {
    public:
-    virtual types::BatchType type() const = 0;
+    types::BatchType type() const;
 
     std::string toString() const override {
       return detail::PrettyStringBuilder()
@@ -33,7 +33,7 @@ namespace shared_model {
     /**
      * @return Hashes of transactions to fetch
      */
-    virtual const ReducedHashesType &reducedHashes() const = 0;
+    const ReducedHashesType &reducedHashes() const;
     /**
      * Checks equality of objects inside
      * @param rhs - other wrapped value

@@ -19,17 +19,17 @@ namespace shared_model {
     /**
      * @return Asset name to create
      */
-    virtual const types::AssetNameType &assetName() const = 0;
+    const types::AssetNameType &assetName() const;
     /**
      * @return Iroha domain of the asset
      */
-    virtual const types::DomainIdType &domainId() const = 0;
+    const types::DomainIdType &domainId() const;
     /// Precision type
     using PrecisionType = uint8_t;
     /**
      * @return precision of the asset
      */
-    virtual const PrecisionType &precision() const = 0;
+    const PrecisionType &precision() const;
 
     std::string toString() const override;
 

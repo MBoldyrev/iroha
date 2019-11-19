@@ -30,21 +30,20 @@ namespace shared_model {
     /**
      * @return account identifier
      */
-    virtual const types::AccountIdType &accountId() const = 0;
+    const types::AccountIdType &accountId() const;
 
     /**
      * @return key from key-value storage
      */
-    virtual boost::optional<types::AccountDetailKeyType> key() const = 0;
+    boost::optional<types::AccountDetailKeyType> key() const;
 
     /**
      * @return account identifier of writer
      */
-    virtual boost::optional<types::AccountIdType> writer() const = 0;
+    boost::optional<types::AccountIdType> writer() const;
 
     /// Get the query pagination metadata.
-    virtual boost::optional<const AccountDetailPaginationMeta &>
-    paginationMeta() const = 0;
+    boost::optional<const AccountDetailPaginationMeta &> paginationMeta() const;
 
     std::string toString() const override;
 

@@ -20,12 +20,12 @@ namespace shared_model {
     /**
      * @return Identity of domain
      */
-    virtual const types::DomainIdType &domainId() const = 0;
+    const types::DomainIdType &domainId() const;
 
     /**
      * @return Default role of domain
      */
-    virtual const types::RoleIdType &defaultRole() const = 0;
+    const types::RoleIdType &defaultRole() const;
     /**
      * Stringify the data.
      * @return the content of asset.

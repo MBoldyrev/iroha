@@ -31,7 +31,7 @@ namespace shared_model {
     /**
      * @return public key of signatory
      */
-    virtual const PublicKeyType &publicKey() const = 0;
+    const PublicKeyType &publicKey() const;
 
     /**
      * Type of signed data
@@ -41,7 +41,7 @@ namespace shared_model {
     /**
      * @return signed data
      */
-    virtual const SignedType &signedData() const = 0;
+    const SignedType &signedData() const;
 
     bool operator==(const Signature &rhs) const override;
 

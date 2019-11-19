@@ -38,7 +38,7 @@ namespace shared_model {
      * @return priority of this transaction response; transaction response can
      * only be replaced with one with higher priority
      */
-    virtual int priority() const noexcept = 0;
+    int priority() const noexcept;
 
    public:
     /// Type of variant, that handle all concrete tx responses in the system
@@ -59,12 +59,12 @@ namespace shared_model {
     /**
      * @return hash of corresponding transaction
      */
-    virtual const TransactionHashType &transactionHash() const = 0;
+    const TransactionHashType &transactionHash() const;
 
     /**
      * @return attached concrete tx response
      */
-    virtual const ResponseVariantType &get() const = 0;
+    const ResponseVariantType &get() const;
 
     /// Type of stateless validation error or command name, which failed
     /// validation
@@ -72,22 +72,22 @@ namespace shared_model {
     /**
      * @return name of the failed command, if present; empty string otherwise
      */
-    virtual const StatelessErrorOrFailedCommandNameType &
-    statelessErrorOrCommandName() const = 0;
+    const StatelessErrorOrFailedCommandNameType &statelessErrorOrCommandName()
+        const;
 
     /// Type of command index, which failed validation
     using FailedCommandIndexType = size_t;
     /**
      * @return index of failed command
      */
-    virtual FailedCommandIndexType failedCommandIndex() const = 0;
+    FailedCommandIndexType failedCommandIndex() const;
 
     /// Type of command error code
     using ErrorCodeType = uint32_t;
     /**
      * @return error code, with which the command failed
      */
-    virtual ErrorCodeType errorCode() const = 0;
+    ErrorCodeType errorCode() const;
 
     /**
      * Enumeration for holding result of priorities comparison

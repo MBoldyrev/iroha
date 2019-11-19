@@ -23,8 +23,7 @@ namespace shared_model {
     /**
      *  Get the query pagination metadata.
      */
-    virtual boost::optional<const TxPaginationMeta &> paginationMeta()
-        const = 0;
+    boost::optional<const TxPaginationMeta &> paginationMeta() const;
 
     std::string toString() const override;
 

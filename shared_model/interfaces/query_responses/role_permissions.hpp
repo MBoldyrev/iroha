@@ -21,13 +21,13 @@ namespace shared_model {
     /**
      * @return role permissions
      */
-    virtual const RolePermissionSet &rolePermissions() const = 0;
+    const RolePermissionSet &rolePermissions() const;
 
     /**
      * Stringify the data.
      * @return string representation of data.
      */
-    std::string toString() const override = 0;
+    std::string toString() const override;
 
     bool operator==(const ModelType &rhs) const override;
   };

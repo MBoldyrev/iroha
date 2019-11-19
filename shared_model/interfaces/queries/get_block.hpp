@@ -16,7 +16,7 @@ namespace shared_model {
      * Get height of the block to be returned
      * @return block's height
      */
-    virtual types::HeightType height() const = 0;
+    types::HeightType height() const;
 
     std::string toString() const override;
 

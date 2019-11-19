@@ -30,52 +30,51 @@ namespace shared_model {
     /**
      * Create peer instance
      */
-    virtual FactoryResult<std::unique_ptr<Peer>> createPeer(
+    FactoryResult<std::unique_ptr<Peer>> createPeer(
         const types::AddressType &address,
         const types::PubkeyType &public_key,
         const boost::optional<types::TLSCertificateType> &tls_certificate =
-            boost::none) = 0;
+            boost::none);
 
     /**
      * Create account instance
      */
-    virtual FactoryResult<std::unique_ptr<Account>> createAccount(
+    FactoryResult<std::unique_ptr<Account>> createAccount(
         const types::AccountIdType &account_id,
         const types::DomainIdType &domain_id,
         types::QuorumType quorum,
-        const types::JsonType &jsonData) = 0;
+        const types::JsonType &jsonData);
 
     /**
      * Create account asset instance
      */
-    virtual FactoryResult<std::unique_ptr<AccountAsset>> createAccountAsset(
+    FactoryResult<std::unique_ptr<AccountAsset>> createAccountAsset(
         const types::AccountIdType &account_id,
         const types::AssetIdType &asset_id,
-        const Amount &balance) = 0;
+        const Amount &balance);
 
     /**
      * Create asset instance
      */
-    virtual FactoryResult<std::unique_ptr<Asset>> createAsset(
+    FactoryResult<std::unique_ptr<Asset>> createAsset(
         const types::AssetIdType &asset_id,
         const types::DomainIdType &domain_id,
-        types::PrecisionType precision) = 0;
+        types::PrecisionType precision);
 
     /**
      * Create domain instance
      */
-    virtual FactoryResult<std::unique_ptr<Domain>> createDomain(
+    FactoryResult<std::unique_ptr<Domain>> createDomain(
         const types::DomainIdType &domain_id,
-        const types::RoleIdType &default_role) = 0;
+        const types::RoleIdType &default_role);
 
     /**
      * Create signature instance
      */
-    virtual FactoryResult<std::unique_ptr<Signature>> createSignature(
-        const types::PubkeyType &key,
-        const Signature::SignedType &signed_data) = 0;
+    FactoryResult<std::unique_ptr<Signature>> createSignature(
+        const types::PubkeyType &key, const Signature::SignedType &signed_data);
 
-    virtual ~CommonObjectsFactory() = default;
+    ~CommonObjectsFactory() = default;
   };
 }  // namespace shared_model
 

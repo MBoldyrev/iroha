@@ -20,15 +20,15 @@ namespace shared_model {
     /**
      * @return Name of the account to create in Iroha
      */
-    virtual const types::AccountNameType &accountName() const = 0;
+    const types::AccountNameType &accountName() const;
     /**
      * @return Iroha domain in which account will be created
      */
-    virtual const types::DomainIdType &domainId() const = 0;
+    const types::DomainIdType &domainId() const;
     /**
      * @return Initial account public key
      */
-    virtual const types::PubkeyType &pubkey() const = 0;
+    const types::PubkeyType &pubkey() const;
 
     std::string toString() const override;
 

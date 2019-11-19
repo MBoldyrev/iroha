@@ -24,10 +24,10 @@ namespace shared_model {
      * @param json - json string for a block
      * @return pointer to a block if json was valid or an error
      */
-    virtual iroha::expected::Result<std::unique_ptr<Block>, std::string>
-    deserialize(const types::JsonType &json) const = 0;
+    iroha::expected::Result<std::unique_ptr<Block>, std::string> deserialize(
+        const types::JsonType &json) const;
 
-    virtual ~BlockJsonDeserializer() = default;
+    ~BlockJsonDeserializer() = default;
   };
 }  // namespace shared_model
 

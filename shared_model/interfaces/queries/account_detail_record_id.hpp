@@ -16,10 +16,10 @@ namespace shared_model {
   class AccountDetailRecordId : public ModelPrimitive<AccountDetailRecordId> {
    public:
     /// Get the writer.
-    virtual types::AccountIdType writer() const = 0;
+    types::AccountIdType writer() const;
 
     /// Get the key.
-    virtual types::AccountDetailKeyType key() const = 0;
+    types::AccountDetailKeyType key() const;
 
     std::string toString() const override;
 

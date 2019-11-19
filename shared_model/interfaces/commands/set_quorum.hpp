@@ -19,11 +19,11 @@ namespace shared_model {
     /**
      * @return Id of the account to set quorum
      */
-    virtual const types::AccountIdType &accountId() const = 0;
+    const types::AccountIdType &accountId() const;
     /**
      * @return value of a new quorum
      */
-    virtual types::QuorumType newQuorum() const = 0;
+    types::QuorumType newQuorum() const;
 
     std::string toString() const override;
 

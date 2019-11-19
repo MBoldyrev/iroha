@@ -23,23 +23,22 @@ namespace shared_model {
     /**
      * @return Identity of user to set account detail to
      */
-    virtual const types::AccountIdType &accountId() const = 0;
+    const types::AccountIdType &accountId() const;
 
     /**
      * @return key of data to store in the account
      */
-    virtual const types::AccountDetailKeyType &key() const = 0;
+    const types::AccountDetailKeyType &key() const;
 
     /**
      * @return detail value to store by given key
      */
-    virtual const types::AccountDetailValueType &value() const = 0;
+    const types::AccountDetailValueType &value() const;
 
     /**
      * @return the value expected before the change
      */
-    virtual const boost::optional<types::AccountDetailValueType> oldValue()
-        const = 0;
+    const boost::optional<types::AccountDetailValueType> oldValue() const;
 
     std::string toString() const override;
 

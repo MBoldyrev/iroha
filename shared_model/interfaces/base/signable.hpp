@@ -35,30 +35,30 @@ namespace shared_model {
     /**
      * @return attached signatures
      */
-    virtual types::SignatureRangeType signatures() const = 0;
+    types::SignatureRangeType signatures() const;
 
     /**
      * Attach signature to object
      * @param signature - signature object for insertion
      * @return true, if signature was added
      */
-    virtual bool addSignature(const crypto::Signed &signed_blob,
-                              const crypto::PublicKey &public_key) = 0;
+    bool addSignature(const crypto::Signed &signed_blob,
+                      const crypto::PublicKey &public_key);
 
     /**
      * @return time of creation
      */
-    virtual types::TimestampType createdTime() const = 0;
+    types::TimestampType createdTime() const;
 
     /**
      * @return object payload (everything except signatures)
      */
-    virtual const types::BlobType &payload() const = 0;
+    const types::BlobType &payload() const;
 
     /**
      * @return blob representation of object include signatures
      */
-    virtual const types::BlobType &blob() const = 0;
+    const types::BlobType &blob() const;
 
     /**
      * Provides comparison based on equality of objects and signatures.
@@ -82,7 +82,7 @@ namespace shared_model {
       return this->hash() == rhs.hash();
     }
 
-    virtual const types::HashType &hash() const = 0;
+    const types::HashType &hash() const;
 
     // ------------------------| Primitive override |-------------------------
 

@@ -21,7 +21,7 @@ namespace shared_model {
    */
   class TransactionBatchFactory {
    public:
-    virtual ~TransactionBatchFactory() = default;
+    ~TransactionBatchFactory() = default;
 
     template <typename BatchType>
     using FactoryResult = iroha::expected::Result<BatchType, std::string>;
@@ -32,9 +32,8 @@ namespace shared_model {
      * batch
      * @return valid batch of transactions or string error
      */
-    virtual FactoryResult<std::unique_ptr<TransactionBatch>>
-    createTransactionBatch(
-        const types::SharedTxsCollectionType &transactions) const = 0;
+    FactoryResult<std::unique_ptr<TransactionBatch>> createTransactionBatch(
+        const types::SharedTxsCollectionType &transactions) const;
 
     /**
      * Creates transaction batch from single transaction
@@ -43,8 +42,8 @@ namespace shared_model {
      * @return batch with single transaction or string error
      * @note transactions in such batches may not have batch meta information
      */
-    virtual FactoryResult<std::unique_ptr<TransactionBatch>>
-    createTransactionBatch(std::shared_ptr<Transaction> transaction) const = 0;
+    FactoryResult<std::unique_ptr<TransactionBatch>> createTransactionBatch(
+        std::shared_ptr<Transaction> transaction) const;
   };
 
 }  // namespace shared_model

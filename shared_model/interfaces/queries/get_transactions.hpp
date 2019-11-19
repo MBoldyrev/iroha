@@ -18,7 +18,7 @@ namespace shared_model {
     /**
      * @return Hashes of transactions to fetch
      */
-    virtual const TransactionHashesType &transactionHashes() const = 0;
+    const TransactionHashesType &transactionHashes() const;
 
     std::string toString() const override;
 

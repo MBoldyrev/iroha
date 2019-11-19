@@ -18,26 +18,26 @@ namespace shared_model {
     /**
      * @return transactions
      */
-    virtual types::TransactionsCollectionType transactions() const = 0;
+    types::TransactionsCollectionType transactions() const;
 
     /**
      * @return the height
      */
-    virtual types::HeightType height() const = 0;
+    types::HeightType height() const;
 
     /**
      * @return created time
      */
-    virtual types::TimestampType createdTime() const = 0;
+    types::TimestampType createdTime() const;
 
     bool operator==(const Proposal &rhs) const override {
       return transactions() == rhs.transactions() and height() == rhs.height()
           and createdTime() == rhs.createdTime();
     }
 
-    virtual const types::BlobType &blob() const = 0;
+    const types::BlobType &blob() const;
 
-    virtual const types::HashType &hash() const = 0;
+    const types::HashType &hash() const;
 
     std::string toString() const override {
       return detail::PrettyStringBuilder()

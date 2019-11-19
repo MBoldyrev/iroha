@@ -22,17 +22,17 @@ namespace shared_model {
     /**
      * @return transactions from this page
      */
-    virtual types::TransactionsCollectionType transactions() const = 0;
+    types::TransactionsCollectionType transactions() const;
 
     /**
      * @return hash of the first transaction from the next page
      */
-    virtual boost::optional<types::HashType> nextTxHash() const = 0;
+    boost::optional<types::HashType> nextTxHash() const;
 
     /**
      * @return total number of transactions for the query
      */
-    virtual types::TransactionsNumberType allTransactionsSize() const = 0;
+    types::TransactionsNumberType allTransactionsSize() const;
 
     std::string toString() const override;
 

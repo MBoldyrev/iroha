@@ -20,12 +20,12 @@ namespace shared_model {
     /**
      * @return key of data to store in settings
      */
-    virtual const types::SettingKeyType &key() const = 0;
+    const types::SettingKeyType &key() const;
 
     /**
      * @return setting value to store by given key
      */
-    virtual const types::SettingValueType &value() const = 0;
+    const types::SettingValueType &value() const;
 
     std::string toString() const override;
 

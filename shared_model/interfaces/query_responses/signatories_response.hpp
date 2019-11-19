@@ -19,7 +19,7 @@ namespace shared_model {
     /**
      * @return All public keys attached to account
      */
-    virtual const types::PublicKeyCollectionType &keys() const = 0;
+    const types::PublicKeyCollectionType &keys() const;
 
     std::string toString() const override;
 

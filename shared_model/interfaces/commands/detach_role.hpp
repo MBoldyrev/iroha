@@ -20,11 +20,11 @@ namespace shared_model {
     /**
      * @return Account to remove the role
      */
-    virtual const types::AccountIdType &accountId() const = 0;
+    const types::AccountIdType &accountId() const;
     /**
      * @return Role name to remove from account
      */
-    virtual const types::RoleIdType &roleName() const = 0;
+    const types::RoleIdType &roleName() const;
 
     std::string toString() const override;
 

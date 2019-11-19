@@ -67,7 +67,7 @@ namespace shared_model {
     /**
      * @return reference to const variant with concrete command
      */
-    virtual const CommandVariantType &get() const = 0;
+    const CommandVariantType &get() const;
 
     // ------------------------| Primitive override |-------------------------
 

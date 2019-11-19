@@ -21,7 +21,7 @@ namespace shared_model {
     /**
      * Return public key of peer to be removed by the command.
      */
-    virtual const types::PubkeyType &pubkey() const = 0;
+    const types::PubkeyType &pubkey() const;
 
     std::string toString() const override;
 

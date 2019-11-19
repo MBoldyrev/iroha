@@ -16,10 +16,10 @@ namespace shared_model {
   class AssetPaginationMeta : public ModelPrimitive<AssetPaginationMeta> {
    public:
     /// Get the requested page size.
-    virtual types::TransactionsNumberType pageSize() const = 0;
+    types::TransactionsNumberType pageSize() const;
 
     /// Get the first requested asset, if provided.
-    virtual boost::optional<types::AssetIdType> firstAssetId() const = 0;
+    boost::optional<types::AssetIdType> firstAssetId() const;
 
     std::string toString() const override;
 

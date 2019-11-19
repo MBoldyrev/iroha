@@ -21,11 +21,11 @@ namespace shared_model {
     /**
      * @return Account has Asset model
      */
-    virtual const types::AccountAssetCollectionType accountAssets() const = 0;
+    const types::AccountAssetCollectionType accountAssets() const;
 
-    virtual boost::optional<types::AssetIdType> nextAssetId() const = 0;
+    boost::optional<types::AssetIdType> nextAssetId() const;
 
-    virtual size_t totalAccountAssetsNumber() const = 0;
+    size_t totalAccountAssetsNumber() const;
 
     std::string toString() const override;
 

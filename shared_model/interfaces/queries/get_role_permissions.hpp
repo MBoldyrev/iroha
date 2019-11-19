@@ -19,7 +19,7 @@ namespace shared_model {
     /**
      * @return role identifier containing requested permissions
      */
-    virtual const types::RoleIdType &roleId() const = 0;
+    const types::RoleIdType &roleId() const;
 
     std::string toString() const override;
 

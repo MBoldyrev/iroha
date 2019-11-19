@@ -20,7 +20,7 @@ namespace shared_model {
     /**
      * @return Attached transactions
      */
-    virtual types::TransactionsCollectionType transactions() const = 0;
+    types::TransactionsCollectionType transactions() const;
 
     std::string toString() const override;
 

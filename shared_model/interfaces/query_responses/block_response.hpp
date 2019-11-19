@@ -22,7 +22,7 @@ namespace shared_model {
     /**
      * @return Attached block
      */
-    virtual const Block &block() const = 0;
+    const Block &block() const;
 
     /**
      * Stringify the data.

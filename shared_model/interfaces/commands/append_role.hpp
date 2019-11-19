@@ -20,11 +20,11 @@ namespace shared_model {
     /**
      * @return Account to add the role
      */
-    virtual const types::AccountIdType &accountId() const = 0;
+    const types::AccountIdType &accountId() const;
     /**
      * @return Role name to add to account
      */
-    virtual const types::RoleIdType &roleName() const = 0;
+    const types::RoleIdType &roleName() const;
 
     std::string toString() const override;
 

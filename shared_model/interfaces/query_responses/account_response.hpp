@@ -23,12 +23,12 @@ namespace shared_model {
     /**
      * @return the fetched account.
      */
-    virtual const Account &account() const = 0;
+    const Account &account() const;
 
     /**
      * @return roles attached to the account
      */
-    virtual const AccountRolesIdType &roles() const = 0;
+    const AccountRolesIdType &roles() const;
 
     std::string toString() const override;
 

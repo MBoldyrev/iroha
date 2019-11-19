@@ -18,11 +18,10 @@ namespace shared_model {
       : public ModelPrimitive<AccountDetailPaginationMeta> {
    public:
     /// Get the requested page size.
-    virtual size_t pageSize() const = 0;
+    size_t pageSize() const;
 
     /// Get the first requested record id, if provided.
-    virtual boost::optional<const AccountDetailRecordId &> firstRecordId()
-        const = 0;
+    boost::optional<const AccountDetailRecordId &> firstRecordId() const;
 
     std::string toString() const override;
 

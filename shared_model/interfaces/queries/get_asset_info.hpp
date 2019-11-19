@@ -18,7 +18,7 @@ namespace shared_model {
     /**
      * @return asset identifier to get asset's information
      */
-    virtual const types::AssetIdType &assetId() const = 0;
+    const types::AssetIdType &assetId() const;
 
     std::string toString() const override;
 

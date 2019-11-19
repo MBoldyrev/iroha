@@ -22,7 +22,7 @@ namespace shared_model {
     /**
      * @return all roles of the current system
      */
-    virtual const RolesIdType &roles() const = 0;
+    const RolesIdType &roles() const;
 
     std::string toString() const override;
 

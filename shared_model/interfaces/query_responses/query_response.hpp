@@ -56,12 +56,12 @@ namespace shared_model {
     /**
      * @return reference to const variant with concrete qr
      */
-    virtual const QueryResponseVariantType &get() const = 0;
+    const QueryResponseVariantType &get() const;
 
     /**
      * @return hash of corresponding query
      */
-    virtual const types::HashType &queryHash() const = 0;
+    const types::HashType &queryHash() const;
 
     // ------------------------| Primitive override |-------------------------
 

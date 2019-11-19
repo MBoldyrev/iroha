@@ -20,14 +20,14 @@ namespace shared_model {
     /**
      * @return Id of the domain to create
      */
-    virtual const types::RoleIdType &roleName() const = 0;
+    const types::RoleIdType &roleName() const;
 
     /**
      * @return permissions associated with the role
      */
-    virtual const RolePermissionSet &rolePermissions() const = 0;
+    const RolePermissionSet &rolePermissions() const;
 
-    std::string toString() const override = 0;
+    std::string toString() const override;
 
     bool operator==(const ModelType &rhs) const override;
   };

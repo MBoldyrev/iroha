@@ -20,19 +20,19 @@ namespace shared_model {
     /**
      * @return id of query creator
      */
-    virtual const types::AccountIdType &creatorAccountId() const = 0;
+    const types::AccountIdType &creatorAccountId() const;
 
     /**
      * Query counter - incremental variable reflect for number of sent to
      * system queries plus 1. Required for preventing replay attacks.
      * @return attached query counter
      */
-    virtual types::CounterType queryCounter() const = 0;
+    types::CounterType queryCounter() const;
 
     /**
      * @return time of creation
      */
-    virtual types::TimestampType createdTime() const = 0;
+    types::TimestampType createdTime() const;
 
     bool operator==(const ModelType &rhs) const override;
   };

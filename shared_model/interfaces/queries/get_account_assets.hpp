@@ -21,12 +21,11 @@ namespace shared_model {
     /**
      * @return account identifier
      */
-    virtual const types::AccountIdType &accountId() const = 0;
+    const types::AccountIdType &accountId() const;
 
     /// Get the query pagination metadata.
     // TODO 2019.05.24 mboldyrev IR-516 remove optional
-    virtual boost::optional<const AssetPaginationMeta &> paginationMeta()
-        const = 0;
+    boost::optional<const AssetPaginationMeta &> paginationMeta() const;
 
     std::string toString() const override;
 
