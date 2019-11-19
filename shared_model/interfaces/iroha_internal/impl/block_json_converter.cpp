@@ -8,7 +8,7 @@
 #include <google/protobuf/util/json_util.h>
 #include <string>
 
-#include "backend/protobuf/block.hpp"
+#include "interfaces/block.hpp"
 
 using namespace shared_model;
 using namespace shared_model::proto;

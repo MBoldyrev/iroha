@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "backend/protobuf/proto_tx_status_factory.hpp"
+#include "interfaces/proto_tx_status_factory.hpp"
 
 #include "cryptography/hash.hpp"
 #include "interfaces/common_objects/types.hpp"

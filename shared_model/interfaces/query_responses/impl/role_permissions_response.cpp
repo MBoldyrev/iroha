@@ -6,7 +6,7 @@
 #include "interfaces/query_responses/role_permissions_response.hpp"
 #include "utils/string_builder.hpp"
 
-#include "backend/protobuf/permissions.hpp"
+#include "interfaces/permissions.hpp"
 
 using namespace shared_model;
 

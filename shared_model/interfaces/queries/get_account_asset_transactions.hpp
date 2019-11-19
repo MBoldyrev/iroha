@@ -8,7 +8,7 @@
 
 #include <memory>
 
-#include "backend/protobuf/queries/proto_tx_pagination_meta.hpp"
+#include "interfaces/queries/proto_tx_pagination_meta.hpp"
 #include "queries.pb.h"
 
 #include "interfaces/base/model_primitive.hpp"

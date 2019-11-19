@@ -8,7 +8,7 @@
 
 #include "interfaces/base/model_primitive.hpp"
 
-#include "backend/protobuf/common_objects/asset.hpp"
+#include "interfaces/common_objects/asset.hpp"
 #include "qry_responses.pb.h"
 
 #include "interfaces/common_objects/asset.hpp"

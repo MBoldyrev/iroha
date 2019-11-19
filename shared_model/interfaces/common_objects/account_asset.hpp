@@ -8,10 +8,10 @@
 
 #include "interfaces/base/model_primitive.hpp"
 
-#include "backend/protobuf/common_objects/trivial_proto.hpp"
-#include "backend/protobuf/util.hpp"
 #include "interfaces/common_objects/amount.hpp"
+#include "interfaces/common_objects/trivial_proto.hpp"
 #include "interfaces/common_objects/types.hpp"
+#include "interfaces/util.hpp"
 #include "qry_responses.pb.h"
 #include "utils/string_builder.hpp"
 

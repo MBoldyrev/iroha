@@ -9,7 +9,7 @@
 #include <boost/optional.hpp>
 
 #include <boost/optional.hpp>
-#include "backend/protobuf/queries/proto_account_detail_pagination_meta.hpp"
+#include "interfaces/queries/proto_account_detail_pagination_meta.hpp"
 #include "queries.pb.h"
 
 #include "interfaces/base/model_primitive.hpp"

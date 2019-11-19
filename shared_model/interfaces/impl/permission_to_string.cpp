@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "backend/protobuf/proto_permission_to_string.hpp"
+#include "interfaces/proto_permission_to_string.hpp"
 
-#include "backend/protobuf/permissions.hpp"
+#include "interfaces/permissions.hpp"
 #include "primitive.pb.h"
 
 std::string ProtoPermissionToString::toString(permissions::Role r) {

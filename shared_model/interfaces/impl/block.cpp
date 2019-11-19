@@ -6,11 +6,10 @@
 #include "interfaces/block.hpp"
 
 #include <boost/range/adaptors.hpp>
-#include "backend/protobuf/common_objects/signature.hpp"
-#include "backend/protobuf/transaction.hpp"
-#include "backend/protobuf/util.hpp"
 #include "common/byteutils.hpp"
+#include "interfaces/common_objects/signature.hpp"
 #include "interfaces/transaction.hpp"
+#include "interfaces/util.hpp"
 #include "utils/string_builder.hpp"
 
 using namespace shared_model;

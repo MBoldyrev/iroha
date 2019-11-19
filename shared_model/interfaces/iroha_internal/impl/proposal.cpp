@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "backend/protobuf/proposal.hpp"
+#include "interfaces/proposal.hpp"
 
-#include "backend/protobuf/transaction.hpp"
-#include "backend/protobuf/util.hpp"
+#include "interfaces/transaction.hpp"
+#include "interfaces/util.hpp"
 
 using namespace types;
 

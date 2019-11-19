@@ -8,7 +8,7 @@
 
 #include "interfaces/base/model_primitive.hpp"
 
-#include "backend/protobuf/common_objects/peer.hpp"
+#include "interfaces/common_objects/peer.hpp"
 #include "qry_responses.pb.h"
 
 #include <boost/range/any_range.hpp>

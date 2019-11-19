@@ -10,10 +10,10 @@
 
 #include <boost/optional.hpp>
 
-#include "backend/protobuf/util.hpp"
 #include "cryptography/hash.hpp"
 #include "cryptography/public_key.hpp"
 #include "interfaces/common_objects/types.hpp"
+#include "interfaces/util.hpp"
 #include "primitive.pb.h"
 #include "utils/reference_holder.hpp"
 

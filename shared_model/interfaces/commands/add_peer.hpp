@@ -8,7 +8,6 @@
 
 #include "interfaces/base/model_primitive.hpp"
 
-#include "backend/protobuf/common_objects/peer.hpp"
 #include "commands.pb.h"
 #include "interfaces/common_objects/peer.hpp"
 

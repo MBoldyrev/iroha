@@ -8,8 +8,8 @@
 
 #include "interfaces/base/model_primitive.hpp"
 
-#include "backend/protobuf/common_objects/account_asset.hpp"
-#include "backend/protobuf/queries/proto_account_detail_record_id.hpp"
+#include "interfaces/common_objects/account_asset.hpp"
+#include "interfaces/queries/proto_account_detail_record_id.hpp"
 #include "qry_responses.pb.h"
 
 #include <boost/optional.hpp>

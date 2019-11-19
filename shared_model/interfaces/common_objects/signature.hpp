@@ -8,10 +8,10 @@
 
 #include "common/cloneable.hpp"
 
-#include "backend/protobuf/common_objects/trivial_proto.hpp"
 #include "cryptography/public_key.hpp"
 #include "cryptography/signed.hpp"
 #include "interfaces/base/model_primitive.hpp"
+#include "interfaces/common_objects/trivial_proto.hpp"
 #include "primitive.pb.h"
 #include "utils/string_builder.hpp"
 

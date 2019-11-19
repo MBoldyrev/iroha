@@ -8,7 +8,7 @@
 
 #include "interfaces/base/signable.hpp"
 
-#include "backend/protobuf/common_objects/signature.hpp"
+#include "interfaces/common_objects/signature.hpp"
 #include "interfaces/common_objects/types.hpp"
 #include "queries.pb.h"
 

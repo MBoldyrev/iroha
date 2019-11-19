@@ -8,8 +8,8 @@
 
 #include "interfaces/base/model_primitive.hpp"
 
-#include "backend/protobuf/transaction.hpp"
 #include "interfaces/common_objects/types.hpp"
+#include "interfaces/transaction.hpp"
 #include "qry_responses.pb.h"
 
 #include <boost/optional/optional_fwd.hpp>

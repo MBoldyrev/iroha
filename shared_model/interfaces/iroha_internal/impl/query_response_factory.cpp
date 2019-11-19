@@ -5,14 +5,14 @@
 
 #include "interfaces/iroha_internal/proto_query_response_factory.hpp"
 
-#include "backend/protobuf/block.hpp"
-#include "backend/protobuf/permissions.hpp"
-#include "backend/protobuf/query_responses/proto_block_query_response.hpp"
-#include "backend/protobuf/query_responses/proto_query_response.hpp"
-#include "backend/protobuf/transaction.hpp"
 #include "cryptography/public_key.hpp"
+#include "interfaces/block.hpp"
 #include "interfaces/common_objects/amount.hpp"
 #include "interfaces/common_objects/peer.hpp"
+#include "interfaces/permissions.hpp"
+#include "interfaces/query_responses/proto_block_query_response.hpp"
+#include "interfaces/query_responses/proto_query_response.hpp"
+#include "interfaces/transaction.hpp"
 
 namespace {
   /**

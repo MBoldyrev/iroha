@@ -9,10 +9,10 @@
 #include <boost/optional.hpp>
 
 #include <boost/optional.hpp>
-#include "backend/protobuf/queries/proto_account_detail_record_id.hpp"
 #include "interfaces/base/model_primitive.hpp"
 #include "interfaces/common_objects/types.hpp"
 #include "interfaces/queries/account_detail_record_id.hpp"
+#include "interfaces/queries/proto_account_detail_record_id.hpp"
 #include "queries.pb.h"
 
 namespace shared_model {
