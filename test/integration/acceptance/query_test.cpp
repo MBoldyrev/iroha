@@ -23,10 +23,10 @@ class QueryAcceptanceTest : public AcceptanceFixture {
    * @param perms are the permissions of the user
    * @return built tx and a hash of its payload
    */
-  auto makeUserWithPerms(const interface::RolePermissionSet &perms = {
-                             interface::permissions::Role::kGetMyTxs}) {
+  auto makeUserWithPerms(const RolePermissionSet &perms = {
+                             permissions::Role::kGetMyTxs}) {
     auto new_perms = perms;
-    new_perms.set(interface::permissions::Role::kSetQuorum);
+    new_perms.set(permissions::Role::kSetQuorum);
     return AcceptanceFixture::makeUserWithPerms(kNewRole, new_perms);
   }
 
@@ -66,8 +66,7 @@ TEST_F(QueryAcceptanceTest, ParallelBlockQuery) {
   auto check = [dummy_tx = dummy_tx](auto &status) {
     ASSERT_NO_THROW({
       const auto &resp =
-          boost::get<const shared_model::interface::TransactionsResponse &>(
-              status.get());
+          boost::get<const shared_model::TransactionsResponse &>(status.get());
       ASSERT_EQ(resp.transactions().size(), 1);
       ASSERT_EQ(resp.transactions().front(), dummy_tx);
     });

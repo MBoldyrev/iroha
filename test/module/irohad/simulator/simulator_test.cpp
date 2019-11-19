@@ -41,12 +41,12 @@ using ::testing::NiceMock;
 using ::testing::Return;
 using ::testing::ReturnArg;
 
-using wBlock = std::shared_ptr<shared_model::interface::Block>;
+using wBlock = std::shared_ptr<shared_model::Block>;
 
 class SimulatorTest : public ::testing::Test {
  public:
-  using CryptoSignerType = shared_model::crypto::MockAbstractCryptoModelSigner<
-      shared_model::interface::Block>;
+  using CryptoSignerType =
+      shared_model::crypto::MockAbstractCryptoModelSigner<shared_model::Block>;
 
   void SetUp() override {
     auto command_executor = std::make_unique<MockCommandExecutor>();
@@ -55,8 +55,8 @@ class SimulatorTest : public ::testing::Test {
     ordering_gate = std::make_shared<MockOrderingGate>();
     crypto_signer = std::make_shared<CryptoSignerType>();
     block_factory = std::make_unique<shared_model::proto::ProtoBlockFactory>(
-        std::make_unique<shared_model::validation::MockValidator<
-            shared_model::interface::Block>>(),
+        std::make_unique<
+            shared_model::validation::MockValidator<shared_model::Block>>(),
         std::make_unique<
             shared_model::validation::MockValidator<iroha::protocol::Block>>());
 
@@ -76,11 +76,11 @@ class SimulatorTest : public ::testing::Test {
   std::shared_ptr<MockTemporaryFactory> factory;
   std::shared_ptr<MockOrderingGate> ordering_gate;
   std::shared_ptr<CryptoSignerType> crypto_signer;
-  std::unique_ptr<shared_model::interface::UnsafeBlockFactory> block_factory;
+  std::unique_ptr<shared_model::UnsafeBlockFactory> block_factory;
   rxcpp::subjects::subject<OrderingEvent> ordering_events;
 
   std::shared_ptr<Simulator> simulator;
-  shared_model::interface::types::PeerList ledger_peers{
+  shared_model::types::PeerList ledger_peers{
       makePeer("127.0.0.1", shared_model::crypto::PublicKey("111"))};
 };
 
@@ -101,7 +101,7 @@ auto makeProposal(int height) {
                       .createdTime(iroha::time::now())
                       .transactions(txs)
                       .build();
-  return std::shared_ptr<const shared_model::interface::Proposal>(
+  return std::shared_ptr<const shared_model::Proposal>(
       std::make_shared<const shared_model::proto::Proposal>(
           std::move(proposal)));
 }
@@ -140,8 +140,7 @@ TEST_F(SimulatorTest, ValidWhenPreviousBlock) {
         return std::move(validation_result);
       }));
 
-  EXPECT_CALL(*crypto_signer, sign(A<shared_model::interface::Block &>()))
-      .Times(1);
+  EXPECT_CALL(*crypto_signer, sign(A<shared_model::Block &>())).Times(1);
 
   auto ledger_state = std::make_shared<LedgerState>(
       ledger_peers, proposal->height() - 1, shared_model::crypto::Hash{"hash"});
@@ -201,7 +200,7 @@ TEST_F(SimulatorTest, SomeFailingTxs) {
           .build());
   auto verified_proposal_and_errors =
       std::make_unique<VerifiedProposalAndErrors>();
-  const shared_model::interface::types::HeightType verified_proposal_height = 2;
+  const shared_model::types::HeightType verified_proposal_height = 2;
   const std::vector<shared_model::proto::Transaction>
       verified_proposal_transactions{txs[0]};
   verified_proposal_and_errors->verified_proposal =

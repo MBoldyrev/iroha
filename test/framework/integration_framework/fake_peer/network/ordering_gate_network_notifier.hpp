@@ -20,14 +20,13 @@ namespace integration_framework {
         : public iroha::network::OrderingGateNotification {
      public:
       void onProposal(
-          std::shared_ptr<shared_model::interface::Proposal> proposal) override;
+          std::shared_ptr<shared_model::Proposal> proposal) override;
 
-      rxcpp::observable<std::shared_ptr<shared_model::interface::Proposal>>
+      rxcpp::observable<std::shared_ptr<shared_model::Proposal>>
       getObservable();
 
      private:
-      rxcpp::subjects::subject<
-          std::shared_ptr<shared_model::interface::Proposal>>
+      rxcpp::subjects::subject<std::shared_ptr<shared_model::Proposal>>
           proposals_subject_;
       std::mutex proposals_subject_mutex_;
     };

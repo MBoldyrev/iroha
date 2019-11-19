@@ -18,7 +18,7 @@ class ProtoBlockFactoryTest : public ::testing::Test {
 
   ProtoBlockFactoryTest() {
     auto interface_validator =
-        std::make_unique<validation::MockValidator<interface::Block>>();
+        std::make_unique<validation::MockValidator<Block>>();
     auto proto_validator =
         std::make_unique<validation::MockValidator<iroha::protocol::Block>>();
     factory = std::make_unique<proto::ProtoBlockFactory>(

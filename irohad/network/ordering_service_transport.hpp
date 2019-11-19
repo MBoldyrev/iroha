@@ -23,7 +23,7 @@ namespace iroha {
        * @param batch object, in which transaction(s) are packed
        */
       virtual void onBatch(
-          std::unique_ptr<shared_model::interface::TransactionBatch> batch) = 0;
+          std::unique_ptr<shared_model::TransactionBatch> batch) = 0;
 
       virtual ~OrderingServiceNotification() = default;
     };
@@ -48,7 +48,7 @@ namespace iroha {
        * @param proposal : proposal to be published
        */
       virtual void publishProposal(
-          std::unique_ptr<shared_model::interface::Proposal> proposal,
+          std::unique_ptr<shared_model::Proposal> proposal,
           const std::vector<std::string> &peers) = 0;
 
       virtual ~OrderingServiceTransport() = default;

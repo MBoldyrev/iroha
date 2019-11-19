@@ -10,8 +10,8 @@
 using namespace integration_framework;
 
 using namespace shared_model;
-using namespace shared_model::interface;
-using namespace shared_model::interface::permissions;
+using namespace shared_model;
+using namespace shared_model::permissions;
 using namespace common_constants;
 
 /**
@@ -105,7 +105,7 @@ TEST_F(GrantablePermissionsFixture, RevokeWithoutPermission) {
   itf.setInitialState(kAdminKeypair);
   createTwoAccounts(itf, {}, {Role::kReceive})
       .sendTxAwait(
-          makeUserWithPerms({interface::permissions::Role::kSetMyQuorum}),
+          makeUserWithPerms({permissions::Role::kSetMyQuorum}),
           [](auto &block) { ASSERT_EQ(block->transactions().size(), 1); })
       .sendTxAwait(
           grantPermission(kUser,
@@ -180,7 +180,7 @@ namespace grantables {
   struct GrantableType {
     const Role can_grant_permission_;
     const Grantable grantable_permission_;
-    interface::types::HashType tx_hash_;
+    types::HashType tx_hash_;
 
     virtual IntegrationTestFramework &prepare(
         GrantablePermissionsFixture &fixture, IntegrationTestFramework &itf) {
@@ -371,7 +371,7 @@ namespace grantables {
             // permission was successfully revoked
             [](auto &block) { ASSERT_EQ(block->transactions().size(), 1); });
     auto last_check_tx = this->grantable_type_.testTransaction(*this);
-    std::vector<interface::types::HashType> hashes{last_check_tx.hash()};
+    std::vector<types::HashType> hashes{last_check_tx.hash()};
     auto last_tx_status_query = TestUnsignedQueryBuilder()
                                     .creatorAccountId(kAdminId)
                                     .createdTime(this->getUniqueTime())

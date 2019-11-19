@@ -8,7 +8,7 @@
 namespace iroha {
   namespace simulator {
 
-    std::shared_ptr<shared_model::interface::Block> getBlockUnsafe(
+    std::shared_ptr<shared_model::Block> getBlockUnsafe(
         const BlockCreatorEvent &event) {
       return event.round_data->block;
     }

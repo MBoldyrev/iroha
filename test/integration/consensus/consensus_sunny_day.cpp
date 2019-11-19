@@ -104,7 +104,7 @@ class ConsensusSunnyDayTest : public ::testing::Test {
         getTestLogger("AsyncCall"));
     network = std::make_shared<NetworkImpl>(
         async_call,
-        [](const shared_model::interface::Peer &peer) {
+        [](const shared_model::Peer &peer) {
           return iroha::network::createClient<proto::Yac>(peer.address());
         },
         getTestLogger("YacNetwork"));
@@ -142,9 +142,9 @@ class ConsensusSunnyDayTest : public ::testing::Test {
   }
 
   uint64_t delay_before, delay_after;
-  std::shared_ptr<shared_model::interface::Peer> my_peer;
+  std::shared_ptr<shared_model::Peer> my_peer;
   const std::string my_pub_key;
-  std::vector<std::shared_ptr<shared_model::interface::Peer>> default_peers;
+  std::vector<std::shared_ptr<shared_model::Peer>> default_peers;
   iroha::consensus::Round initial_round{1, 1};
 };
 

@@ -13,18 +13,16 @@
 #include "consensus/round.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class Block;
-    class Proposal;
-  }  // namespace interface
+  class Block;
+  class Proposal;
 }  // namespace shared_model
 
 namespace iroha {
   namespace simulator {
 
     struct RoundData {
-      std::shared_ptr<const shared_model::interface::Proposal> proposal;
-      std::shared_ptr<shared_model::interface::Block> block;
+      std::shared_ptr<const shared_model::Proposal> proposal;
+      std::shared_ptr<shared_model::Block> block;
     };
 
     /**
@@ -37,7 +35,7 @@ namespace iroha {
       std::shared_ptr<const LedgerState> ledger_state;
     };
 
-    std::shared_ptr<shared_model::interface::Block> getBlockUnsafe(
+    std::shared_ptr<shared_model::Block> getBlockUnsafe(
         const BlockCreatorEvent &event);
 
   }  // namespace simulator

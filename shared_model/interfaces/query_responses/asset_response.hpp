@@ -11,21 +11,19 @@
 #include "interfaces/common_objects/asset.hpp"
 
 namespace shared_model {
-  namespace interface {
+  /**
+   * Provide response with asset
+   */
+  class AssetResponse : public ModelPrimitive<AssetResponse> {
+   public:
     /**
-     * Provide response with asset
+     * @return Attached asset
      */
-    class AssetResponse : public ModelPrimitive<AssetResponse> {
-     public:
-      /**
-       * @return Attached asset
-       */
-      virtual const Asset &asset() const = 0;
+    virtual const Asset &asset() const = 0;
 
-      std::string toString() const override;
+    std::string toString() const override;
 
-      bool operator==(const ModelType &rhs) const override;
-    };
-  }  // namespace interface
+    bool operator==(const ModelType &rhs) const override;
+  };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_ASSET_RESPONSE_HPP

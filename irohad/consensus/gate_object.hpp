@@ -14,9 +14,7 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class Block;
-  }  // namespace interface
+  class Block;
 }  // namespace shared_model
 
 namespace iroha {
@@ -33,35 +31,33 @@ namespace iroha {
 
     /// Current pair is valid
     struct PairValid : public BaseGateObject {
-      std::shared_ptr<shared_model::interface::Block> block;
+      std::shared_ptr<shared_model::Block> block;
 
       PairValid(consensus::Round round,
                 std::shared_ptr<const LedgerState> ledger_state,
-                std::shared_ptr<shared_model::interface::Block> block)
+                std::shared_ptr<shared_model::Block> block)
           : BaseGateObject(std::move(round), std::move(ledger_state)),
             block(std::move(block)) {}
     };
 
     struct Synchronizable : public BaseGateObject {
-      shared_model::interface::types::PublicKeyCollectionType public_keys;
+      shared_model::types::PublicKeyCollectionType public_keys;
 
-      Synchronizable(
-          consensus::Round round,
-          std::shared_ptr<const LedgerState> ledger_state,
-          shared_model::interface::types::PublicKeyCollectionType public_keys)
+      Synchronizable(consensus::Round round,
+                     std::shared_ptr<const LedgerState> ledger_state,
+                     shared_model::types::PublicKeyCollectionType public_keys)
           : BaseGateObject(std::move(round), std::move(ledger_state)),
             public_keys(std::move(public_keys)) {}
     };
 
     /// Network votes for another pair and round
     struct VoteOther : public Synchronizable {
-      shared_model::interface::types::HashType hash;
+      shared_model::types::HashType hash;
 
-      VoteOther(
-          consensus::Round round,
-          std::shared_ptr<const LedgerState> ledger_state,
-          shared_model::interface::types::PublicKeyCollectionType public_keys,
-          shared_model::interface::types::HashType hash)
+      VoteOther(consensus::Round round,
+                std::shared_ptr<const LedgerState> ledger_state,
+                shared_model::types::PublicKeyCollectionType public_keys,
+                shared_model::types::HashType hash)
           : Synchronizable(std::move(round),
                            std::move(ledger_state),
                            std::move(public_keys)),

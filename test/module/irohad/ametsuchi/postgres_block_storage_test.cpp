@@ -28,7 +28,7 @@ using ::testing::NiceMock;
 using ::testing::Return;
 using ::testing::ReturnRef;
 
-using MockBlockIValidator = MockValidator<shared_model::interface::Block>;
+using MockBlockIValidator = MockValidator<shared_model::Block>;
 using MockBlockPValidator = MockValidator<iroha::protocol::Block>;
 
 class PostgresBlockStorageTest : public ::testing::Test {
@@ -94,7 +94,7 @@ class PostgresBlockStorageTest : public ::testing::Test {
       std::make_shared<NiceMock<MockBlock>>();
   std::shared_ptr<MockBlock> mock_other_block_ =
       std::make_shared<NiceMock<MockBlock>>();
-  shared_model::interface::types::HeightType height_ = 6;
+  shared_model::types::HeightType height_ = 6;
   shared_model::crypto::Blob blob_ = shared_model::crypto::Blob(
       shared_model::crypto::Blob::Bytes{0, 1, 5, 17, 66, 255});
   std::string creator_ = "user1@test";

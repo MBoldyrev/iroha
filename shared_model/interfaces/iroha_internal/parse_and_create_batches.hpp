@@ -13,13 +13,11 @@
 #include "interfaces/transaction.hpp"
 
 namespace shared_model {
-  namespace interface {
 
-    iroha::expected::Result<types::BatchesCollectionType, std::string>
-    parseAndCreateBatches(const TransactionBatchParser &batch_parser,
-                          const TransactionBatchFactory &batch_factory,
-                          const types::SharedTxsCollectionType &transactions);
-  }  // namespace interface
+  iroha::expected::Result<types::BatchesCollectionType, std::string>
+  parseAndCreateBatches(const TransactionBatchParser &batch_parser,
+                        const TransactionBatchFactory &batch_factory,
+                        const types::SharedTxsCollectionType &transactions);
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_INTERFACE_PARSE_AND_CREATE_BATCHES_HPP

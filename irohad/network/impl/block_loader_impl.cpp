@@ -19,7 +19,7 @@
 using namespace iroha::ametsuchi;
 using namespace iroha::network;
 using namespace shared_model::crypto;
-using namespace shared_model::interface;
+using namespace shared_model;
 
 namespace {
   const char *kPeerNotFound = "Cannot find peer";
@@ -37,7 +37,7 @@ BlockLoaderImpl::BlockLoaderImpl(
       log_(std::move(log)) {}
 
 rxcpp::observable<std::shared_ptr<Block>> BlockLoaderImpl::retrieveBlocks(
-    const shared_model::interface::types::HeightType height,
+    const shared_model::types::HeightType height,
     const PublicKey &peer_pubkey) {
   return rxcpp::observable<>::create<std::shared_ptr<Block>>(
       [this, height, &peer_pubkey](auto subscriber) {
@@ -110,8 +110,8 @@ boost::optional<std::shared_ptr<Block>> BlockLoaderImpl::retrieveBlock(
           });
 }
 
-boost::optional<std::shared_ptr<shared_model::interface::Peer>>
-BlockLoaderImpl::findPeer(const shared_model::crypto::PublicKey &pubkey) {
+boost::optional<std::shared_ptr<shared_model::Peer>> BlockLoaderImpl::findPeer(
+    const shared_model::crypto::PublicKey &pubkey) {
   auto peers = peer_query_factory_->createPeerQuery() |
       [](const auto &query) { return query->getLedgerPeers(); };
   if (not peers) {
@@ -132,7 +132,7 @@ BlockLoaderImpl::findPeer(const shared_model::crypto::PublicKey &pubkey) {
 }
 
 proto::Loader::StubInterface &BlockLoaderImpl::getPeerStub(
-    const shared_model::interface::Peer &peer) {
+    const shared_model::Peer &peer) {
   auto it = peer_connections_.find(peer.address());
   if (it == peer_connections_.end()) {
     it = peer_connections_

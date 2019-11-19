@@ -17,11 +17,11 @@
 using namespace common_constants;
 using namespace executor_testing;
 using namespace framework::expected;
-using namespace shared_model::interface::types;
+using namespace shared_model::types;
 
 using iroha::ametsuchi::QueryExecutorResult;
-using shared_model::interface::SignatoriesResponse;
-using shared_model::interface::permissions::Role;
+using shared_model::SignatoriesResponse;
+using shared_model::permissions::Role;
 
 struct GetSignatoriesTest : public ExecutorTestBase {
   /**
@@ -80,7 +80,7 @@ using GetSignatoriesBasicTest = BasicExecutorTest<GetSignatoriesTest>;
  * @then there is an error
  */
 TEST_P(GetSignatoriesBasicTest, InvalidNoAccount) {
-  checkQueryError<shared_model::interface::NoSignatoriesErrorResponse>(
+  checkQueryError<shared_model::NoSignatoriesErrorResponse>(
       getItf().executeQuery(
           *getItf().getMockQueryFactory()->constructGetSignatories(kUserId)),
       error_codes::kNoStatefulError);

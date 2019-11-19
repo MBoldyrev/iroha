@@ -10,19 +10,17 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class GetBlock : public ModelPrimitive<GetBlock> {
-     public:
-      /**
-       * Get height of the block to be returned
-       * @return block's height
-       */
-      virtual types::HeightType height() const = 0;
+  class GetBlock : public ModelPrimitive<GetBlock> {
+   public:
+    /**
+     * Get height of the block to be returned
+     * @return block's height
+     */
+    virtual types::HeightType height() const = 0;
 
-      std::string toString() const override;
+    std::string toString() const override;
 
-      bool operator==(const ModelType &rhs) const override;
-    };
-  }  // namespace interface
+    bool operator==(const ModelType &rhs) const override;
+  };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_GET_BLOCK_HPP

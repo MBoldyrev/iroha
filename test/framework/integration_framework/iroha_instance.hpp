@@ -20,10 +20,8 @@
 #include "torii/tls_params.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class Block;
-    class Peer;
-  }  // namespace interface
+  class Block;
+  class Peer;
   namespace crypto {
     class Keypair;
   }  // namespace crypto
@@ -60,11 +58,9 @@ namespace integration_framework {
     /// Initialize Irohad. Throws on error.
     void init();
 
-    void makeGenesis(
-        std::shared_ptr<const shared_model::interface::Block> block);
+    void makeGenesis(std::shared_ptr<const shared_model::Block> block);
 
-    void rawInsertBlock(
-        std::shared_ptr<const shared_model::interface::Block> block);
+    void rawInsertBlock(std::shared_ptr<const shared_model::Block> block);
 
     void setMstGossipParams(
         std::chrono::milliseconds mst_gossip_emitting_period,

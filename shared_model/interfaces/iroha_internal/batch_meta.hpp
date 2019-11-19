@@ -10,41 +10,39 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
+
+  /**
+   * Representation of fixed point number
+   */
+  class BatchMeta : public ModelPrimitive<BatchMeta> {
+   public:
+    virtual types::BatchType type() const = 0;
+
+    std::string toString() const override {
+      return detail::PrettyStringBuilder()
+          .init("BatchMeta")
+          .append("Type",
+                  type() == types::BatchType::ATOMIC ? "ATOMIC" : "ORDERED")
+          .appendAll(reducedHashes(),
+                     [](auto &hash) { return hash.toString(); })
+          .finalize();
+    }
+    /// type of hashes collection
+    using ReducedHashesType = std::vector<types::HashType>;
 
     /**
-     * Representation of fixed point number
+     * @return Hashes of transactions to fetch
      */
-    class BatchMeta : public ModelPrimitive<BatchMeta> {
-     public:
-      virtual types::BatchType type() const = 0;
-
-      std::string toString() const override {
-        return detail::PrettyStringBuilder()
-            .init("BatchMeta")
-            .append("Type",
-                    type() == types::BatchType::ATOMIC ? "ATOMIC" : "ORDERED")
-            .appendAll(reducedHashes(),
-                       [](auto &hash) { return hash.toString(); })
-            .finalize();
-      }
-      /// type of hashes collection
-      using ReducedHashesType = std::vector<interface::types::HashType>;
-
-      /**
-       * @return Hashes of transactions to fetch
-       */
-      virtual const ReducedHashesType &reducedHashes() const = 0;
-      /**
-       * Checks equality of objects inside
-       * @param rhs - other wrapped value
-       * @return true, if wrapped objects are same
-       */
-      bool operator==(const ModelType &rhs) const override {
-        return boost::equal(reducedHashes(), rhs.reducedHashes())
-            and type() == rhs.type();
-      }
-    };
-  }  // namespace interface
+    virtual const ReducedHashesType &reducedHashes() const = 0;
+    /**
+     * Checks equality of objects inside
+     * @param rhs - other wrapped value
+     * @return true, if wrapped objects are same
+     */
+    bool operator==(const ModelType &rhs) const override {
+      return boost::equal(reducedHashes(), rhs.reducedHashes())
+          and type() == rhs.type();
+    }
+  };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_BATCH_META_HPP

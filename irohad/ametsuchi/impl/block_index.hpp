@@ -9,9 +9,7 @@
 #include <memory>
 
 namespace shared_model {
-  namespace interface {
-    class Block;
-  }  // namespace interface
+  class Block;
 }  // namespace shared_model
 
 namespace iroha {
@@ -27,7 +25,7 @@ namespace iroha {
        * Create necessary indexes for block
        * @param block to be indexed
        */
-      virtual void index(const shared_model::interface::Block &) = 0;
+      virtual void index(const shared_model::Block &) = 0;
     };
   }  // namespace ametsuchi
 }  // namespace iroha

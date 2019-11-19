@@ -13,24 +13,24 @@
 
 namespace boost {
   extern template class variant<
-      const shared_model::interface::AddAssetQuantity &,
-      const shared_model::interface::AddPeer &,
-      const shared_model::interface::AddSignatory &,
-      const shared_model::interface::AppendRole &,
-      const shared_model::interface::CreateAccount &,
-      const shared_model::interface::CreateAsset &,
-      const shared_model::interface::CreateDomain &,
-      const shared_model::interface::CreateRole &,
-      const shared_model::interface::DetachRole &,
-      const shared_model::interface::GrantPermission &,
-      const shared_model::interface::RemoveSignatory &,
-      const shared_model::interface::RevokePermission &,
-      const shared_model::interface::SetAccountDetail &,
-      const shared_model::interface::SetQuorum &,
-      const shared_model::interface::SubtractAssetQuantity &,
-      const shared_model::interface::TransferAsset &,
-      const shared_model::interface::CompareAndSetAccountDetail &,
-      const shared_model::interface::SetSettingValue &>;
+      const shared_model::AddAssetQuantity &,
+      const shared_model::AddPeer &,
+      const shared_model::AddSignatory &,
+      const shared_model::AppendRole &,
+      const shared_model::CreateAccount &,
+      const shared_model::CreateAsset &,
+      const shared_model::CreateDomain &,
+      const shared_model::CreateRole &,
+      const shared_model::DetachRole &,
+      const shared_model::GrantPermission &,
+      const shared_model::RemoveSignatory &,
+      const shared_model::RevokePermission &,
+      const shared_model::SetAccountDetail &,
+      const shared_model::SetQuorum &,
+      const shared_model::SubtractAssetQuantity &,
+      const shared_model::TransferAsset &,
+      const shared_model::CompareAndSetAccountDetail &,
+      const shared_model::SetSettingValue &>;
 }  // namespace boost
 
 #endif  // IROHA_SHARED_MODEL_COMMAND_VARIANT_HPP

@@ -15,19 +15,17 @@ namespace iroha {
 
     class MockWsvQuery : public WsvQuery {
      public:
-      MOCK_METHOD1(getSignatories,
-                   boost::optional<
-                       std::vector<shared_model::interface::types::PubkeyType>>(
-                       const std::string &account_id));
+      MOCK_METHOD1(
+          getSignatories,
+          boost::optional<std::vector<shared_model::types::PubkeyType>>(
+              const std::string &account_id));
       MOCK_METHOD0(
           getPeers,
-          boost::optional<
-              std::vector<std::shared_ptr<shared_model::interface::Peer>>>());
+          boost::optional<std::vector<std::shared_ptr<shared_model::Peer>>>());
 
-      MOCK_METHOD1(
-          getPeerByPublicKey,
-          boost::optional<std::shared_ptr<shared_model::interface::Peer>>(
-              const shared_model::interface::types::PubkeyType &public_key));
+      MOCK_METHOD1(getPeerByPublicKey,
+                   boost::optional<std::shared_ptr<shared_model::Peer>>(
+                       const shared_model::types::PubkeyType &public_key));
     };
 
   }  // namespace ametsuchi

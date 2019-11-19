@@ -27,9 +27,8 @@ using namespace common_constants;
  */
 TEST_F(AcceptanceFixture, CanGetRolePermissions) {
   auto check_query = [](auto &query_response) {
-    ASSERT_NO_THROW(
-        boost::get<const shared_model::interface::RolePermissionsResponse &>(
-            query_response.get()));
+    ASSERT_NO_THROW(boost::get<const shared_model::RolePermissionsResponse &>(
+        query_response.get()));
   };
 
   auto query = complete(baseQry().getRolePermissions(kRole));
@@ -37,8 +36,7 @@ TEST_F(AcceptanceFixture, CanGetRolePermissions) {
   IntegrationTestFramework(1)
       .setInitialState(kAdminKeypair)
       .sendTxAwait(
-          makeUserWithPerms(
-              {shared_model::interface::permissions::Role::kGetRoles}),
+          makeUserWithPerms({shared_model::permissions::Role::kGetRoles}),
           [](auto &block) { ASSERT_EQ(block->transactions().size(), 1); })
       .sendQuery(query, check_query);
 }
@@ -60,7 +58,7 @@ TEST_F(AcceptanceFixture, CanNotGetRolePermissions) {
       .sendTxAwait(
           makeUserWithPerms({}),
           [](auto &block) { ASSERT_EQ(block->transactions().size(), 1); })
-      .sendQuery(query,
-                 checkQueryErrorResponse<
-                     shared_model::interface::StatefulFailedErrorResponse>());
+      .sendQuery(
+          query,
+          checkQueryErrorResponse<shared_model::StatefulFailedErrorResponse>());
 }

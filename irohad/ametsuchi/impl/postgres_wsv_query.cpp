@@ -14,10 +14,10 @@
 
 namespace {
   template <typename T>
-  boost::optional<std::vector<std::shared_ptr<shared_model::interface::Peer>>>
+  boost::optional<std::vector<std::shared_ptr<shared_model::Peer>>>
   getPeersFromSociRowSet(T &&rowset) {
     return iroha::ametsuchi::flatMapValues<
-        std::vector<std::shared_ptr<shared_model::interface::Peer>>>(
+        std::vector<std::shared_ptr<shared_model::Peer>>>(
         std::forward<T>(rowset),
         [&](auto &public_key, auto &address, auto &tls_certificate) {
           return boost::make_optional(
@@ -33,10 +33,10 @@ namespace {
 namespace iroha {
   namespace ametsuchi {
 
-    using shared_model::interface::types::AccountIdType;
-    using shared_model::interface::types::AddressType;
-    using shared_model::interface::types::PubkeyType;
-    using shared_model::interface::types::TLSCertificateType;
+    using shared_model::types::AccountIdType;
+    using shared_model::types::AddressType;
+    using shared_model::types::PubkeyType;
+    using shared_model::types::TLSCertificateType;
 
     PostgresWsvQuery::PostgresWsvQuery(soci::session &sql,
                                        logger::LoggerPtr log)
@@ -72,7 +72,7 @@ namespace iroha {
       });
     }
 
-    boost::optional<std::vector<std::shared_ptr<shared_model::interface::Peer>>>
+    boost::optional<std::vector<std::shared_ptr<shared_model::Peer>>>
     PostgresWsvQuery::getPeers() {
       using T = boost::
           tuple<std::string, AddressType, boost::optional<TLSCertificateType>>;
@@ -84,7 +84,7 @@ namespace iroha {
       return getPeersFromSociRowSet(result);
     }
 
-    boost::optional<std::shared_ptr<shared_model::interface::Peer>>
+    boost::optional<std::shared_ptr<shared_model::Peer>>
     PostgresWsvQuery::getPeerByPublicKey(const PubkeyType &public_key) {
       using T = boost::
           tuple<std::string, AddressType, boost::optional<TLSCertificateType>>;

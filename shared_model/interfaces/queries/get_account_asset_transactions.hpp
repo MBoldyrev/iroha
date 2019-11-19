@@ -12,33 +12,31 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class TxPaginationMeta;
+  class TxPaginationMeta;
 
+  /**
+   * Query for getting transactions of given asset of an account
+   */
+  class GetAccountAssetTransactions
+      : public ModelPrimitive<GetAccountAssetTransactions> {
+   public:
     /**
-     * Query for getting transactions of given asset of an account
+     * @return account_id of requested transactions
      */
-    class GetAccountAssetTransactions
-        : public ModelPrimitive<GetAccountAssetTransactions> {
-     public:
-      /**
-       * @return account_id of requested transactions
-       */
-      virtual const types::AccountIdType &accountId() const = 0;
-      /**
-       * @return assetId of requested transactions
-       */
-      virtual const types::AccountIdType &assetId() const = 0;
+    virtual const types::AccountIdType &accountId() const = 0;
+    /**
+     * @return assetId of requested transactions
+     */
+    virtual const types::AccountIdType &assetId() const = 0;
 
-      /// Get the query pagination metadata.
-      virtual const TxPaginationMeta &paginationMeta() const = 0;
+    /// Get the query pagination metadata.
+    virtual const TxPaginationMeta &paginationMeta() const = 0;
 
-      std::string toString() const override;
+    std::string toString() const override;
 
-      bool operator==(const ModelType &rhs) const override;
-    };
+    bool operator==(const ModelType &rhs) const override;
+  };
 
-  }  // namespace interface
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_GET_ACCOUNT_ASSET_TRANSACTIONS_HPP

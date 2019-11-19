@@ -30,15 +30,13 @@ using ::testing::SetArgPointee;
 class OnDemandOsClientGrpcTest : public ::testing::Test {
  public:
   using ProtoProposalTransportFactory =
-      shared_model::proto::ProtoTransportFactory<
-          shared_model::interface::Proposal,
-          shared_model::proto::Proposal>;
-  using ProposalTransportFactory =
-      shared_model::interface::AbstractTransportFactory<
-          shared_model::interface::Proposal,
-          shared_model::proto::Proposal::TransportType>;
-  using MockProposalValidator = shared_model::validation::MockValidator<
-      shared_model::interface::Proposal>;
+      shared_model::proto::ProtoTransportFactory<shared_model::Proposal,
+                                                 shared_model::proto::Proposal>;
+  using ProposalTransportFactory = shared_model::AbstractTransportFactory<
+      shared_model::Proposal,
+      shared_model::proto::Proposal::TransportType>;
+  using MockProposalValidator =
+      shared_model::validation::MockValidator<shared_model::Proposal>;
   using MockProtoProposalValidator =
       shared_model::validation::MockValidator<iroha::protocol::Proposal>;
 
@@ -92,10 +90,9 @@ TEST_F(OnDemandOsClientGrpcTest, onBatches) {
   protocol::Transaction tx;
   tx.mutable_payload()->mutable_reduced_payload()->set_creator_account_id(
       creator);
-  collection.push_back(
-      std::make_unique<shared_model::interface::TransactionBatchImpl>(
-          shared_model::interface::types::SharedTxsCollectionType{
-              std::make_unique<shared_model::proto::Transaction>(tx)}));
+  collection.push_back(std::make_unique<shared_model::TransactionBatchImpl>(
+      shared_model::types::SharedTxsCollectionType{
+          std::make_unique<shared_model::proto::Transaction>(tx)}));
   client->onBatches(std::move(collection));
 
   ASSERT_EQ(request.transactions()

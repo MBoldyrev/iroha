@@ -22,7 +22,7 @@ class ProposalValidatorTest : public ValidatorsTest {
   ProposalValidatorTest() : validator_(iroha::test::kTestsValidatorsConfig) {}
 
   using BatchTypeAndCreatorPair =
-      std::pair<shared_model::interface::types::BatchType, std::string>;
+      std::pair<shared_model::types::BatchType, std::string>;
 
   DefaultProposalValidator validator_;
 
@@ -71,10 +71,10 @@ class ProposalValidatorTest : public ValidatorsTest {
 TEST_F(ProposalValidatorTest, IncompleteBatch) {
   auto txs = framework::batch::createBatchOneSignTransactions(
       std::vector<BatchTypeAndCreatorPair>{
-          BatchTypeAndCreatorPair{
-              shared_model::interface::types::BatchType::ATOMIC, "a@domain"},
-          BatchTypeAndCreatorPair{
-              shared_model::interface::types::BatchType::ATOMIC, "b@domain"}});
+          BatchTypeAndCreatorPair{shared_model::types::BatchType::ATOMIC,
+                                  "a@domain"},
+          BatchTypeAndCreatorPair{shared_model::types::BatchType::ATOMIC,
+                                  "b@domain"}});
   std::vector<shared_model::proto::Transaction> proto_txs;
   proto_txs.push_back(*std::move(
       std::static_pointer_cast<shared_model::proto::Transaction>(txs[0])));

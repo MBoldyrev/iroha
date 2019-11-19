@@ -12,38 +12,36 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
+  /**
+   * Grant permission to account
+   */
+  class TransferAsset : public ModelPrimitive<TransferAsset> {
+   public:
     /**
-     * Grant permission to account
+     * @return Id of the account from which transfer assets
      */
-    class TransferAsset : public ModelPrimitive<TransferAsset> {
-     public:
-      /**
-       * @return Id of the account from which transfer assets
-       */
-      virtual const types::AccountIdType &srcAccountId() const = 0;
-      /**
-       * @return Id of the account to which transfer assets
-       */
-      virtual const types::AccountIdType &destAccountId() const = 0;
-      /**
-       * @return Id of the asset to transfer
-       */
-      virtual const types::AssetIdType &assetId() const = 0;
-      /**
-       * @return asset amount to transfer
-       */
-      virtual const Amount &amount() const = 0;
-      /**
-       * @return message of the transfer
-       */
-      virtual const types::DescriptionType &description() const = 0;
+    virtual const types::AccountIdType &srcAccountId() const = 0;
+    /**
+     * @return Id of the account to which transfer assets
+     */
+    virtual const types::AccountIdType &destAccountId() const = 0;
+    /**
+     * @return Id of the asset to transfer
+     */
+    virtual const types::AssetIdType &assetId() const = 0;
+    /**
+     * @return asset amount to transfer
+     */
+    virtual const Amount &amount() const = 0;
+    /**
+     * @return message of the transfer
+     */
+    virtual const types::DescriptionType &description() const = 0;
 
-      std::string toString() const override;
+    std::string toString() const override;
 
-      bool operator==(const ModelType &rhs) const override;
-    };
-  }  // namespace interface
+    bool operator==(const ModelType &rhs) const override;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_TRANSFER_ASSET_HPP

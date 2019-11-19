@@ -17,15 +17,14 @@ namespace iroha {
      public:
       FlatFileBlockStorageFactory(
           std::function<std::string()> path_provider,
-          std::shared_ptr<shared_model::interface::BlockJsonConverter>
+          std::shared_ptr<shared_model::BlockJsonConverter>
               json_block_converter,
           logger::LoggerManagerTreePtr log_manager);
       std::unique_ptr<BlockStorage> create() override;
 
      private:
       std::function<std::string()> path_provider_;
-      std::shared_ptr<shared_model::interface::BlockJsonConverter>
-          json_block_converter_;
+      std::shared_ptr<shared_model::BlockJsonConverter> json_block_converter_;
       logger::LoggerManagerTreePtr log_manager_;
     };
   }  // namespace ametsuchi

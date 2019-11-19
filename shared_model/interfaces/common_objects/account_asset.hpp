@@ -12,51 +12,49 @@
 #include "utils/string_builder.hpp"
 
 namespace shared_model {
-  namespace interface {
+
+  /**
+   * Representation of wallet in system
+   */
+  class AccountAsset : public ModelPrimitive<AccountAsset> {
+   public:
+    /**
+     * @return Identity of user, for fetching data
+     */
+    virtual const types::AccountIdType &accountId() const = 0;
 
     /**
-     * Representation of wallet in system
+     * @return Identity of asset, for fetching data
      */
-    class AccountAsset : public ModelPrimitive<AccountAsset> {
-     public:
-      /**
-       * @return Identity of user, for fetching data
-       */
-      virtual const types::AccountIdType &accountId() const = 0;
+    virtual const types::AssetIdType &assetId() const = 0;
 
-      /**
-       * @return Identity of asset, for fetching data
-       */
-      virtual const types::AssetIdType &assetId() const = 0;
+    /**
+     * @return Current balance
+     */
+    virtual const Amount &balance() const = 0;
 
-      /**
-       * @return Current balance
-       */
-      virtual const Amount &balance() const = 0;
+    /**
+     * Stringify the data.
+     * @return the content of account asset.
+     */
+    std::string toString() const override {
+      return detail::PrettyStringBuilder()
+          .init("AccountAsset")
+          .append("accountId", accountId())
+          .append("assetId", assetId())
+          .append("balance", balance().toString())
+          .finalize();
+    }
 
-      /**
-       * Stringify the data.
-       * @return the content of account asset.
-       */
-      std::string toString() const override {
-        return detail::PrettyStringBuilder()
-            .init("AccountAsset")
-            .append("accountId", accountId())
-            .append("assetId", assetId())
-            .append("balance", balance().toString())
-            .finalize();
-      }
-
-      /**
-       * Checks equality of objects inside
-       * @param rhs - other wrapped value
-       * @return true, if wrapped objects are same
-       */
-      bool operator==(const ModelType &rhs) const override {
-        return accountId() == rhs.accountId() and assetId() == rhs.assetId()
-            and balance() == rhs.balance();
-      }
-    };
-  }  // namespace interface
+    /**
+     * Checks equality of objects inside
+     * @param rhs - other wrapped value
+     * @return true, if wrapped objects are same
+     */
+    bool operator==(const ModelType &rhs) const override {
+      return accountId() == rhs.accountId() and assetId() == rhs.assetId()
+          and balance() == rhs.balance();
+    }
+  };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_ACCOUNT_ASSET_HPP

@@ -25,7 +25,7 @@
 using namespace common_constants;
 using namespace shared_model;
 using namespace integration_framework;
-using namespace shared_model::interface::permissions;
+using namespace shared_model::permissions;
 
 using ::testing::_;
 using ::testing::Invoke;
@@ -111,7 +111,7 @@ TEST_F(FakePeerFixture, SynchronizeTheRightVersionOfForkedLedger) {
   for (decltype(top_height) i = 1; i <= top_height; ++i) {
     auto block_result = block_query->getBlock(i);
 
-    std::shared_ptr<shared_model::interface::Block> block =
+    std::shared_ptr<shared_model::Block> block =
         boost::get<decltype(block_result)::ValueType>(std::move(block_result))
             .value;
     valid_block_storage->storeBlock(
@@ -218,7 +218,7 @@ TEST_F(FakePeerFixture, SynchronizeTheRightVersionOfForkedLedger) {
       ->getStorage()
       ->on_commit()
       .tap([&valid_block_storage](
-               const std::shared_ptr<const shared_model::interface::Block>
+               const std::shared_ptr<const shared_model::Block>
                    &committed_block) {
         const auto valid_hash =
             valid_block_storage->getBlockByHeight(committed_block->height())
@@ -275,7 +275,7 @@ TEST_F(FakePeerFixture, OnDemandOrderingProposalAfterValidCommandReceived) {
       ->getStorage()
       ->on_commit()
       .flat_map([](const auto &block) {
-        std::vector<shared_model::interface::types::HashType> hashes;
+        std::vector<shared_model::types::HashType> hashes;
         hashes.reserve(boost::size(block->transactions()));
         for (const auto &tx : block->transactions()) {
           hashes.emplace_back(tx.reducedHash());

@@ -7,7 +7,7 @@
 
 #include "interfaces/iroha_internal/transaction_batch.hpp"
 
-using TransactionBatch = shared_model::interface::TransactionBatch;
+using TransactionBatch = shared_model::TransactionBatch;
 
 namespace integration_framework {
   namespace fake_peer {
@@ -18,8 +18,7 @@ namespace integration_framework {
       batches_subject_.get_subscriber().on_next(std::move(batch_ptr));
     }
 
-    rxcpp::observable<
-        std::shared_ptr<shared_model::interface::TransactionBatch>>
+    rxcpp::observable<std::shared_ptr<shared_model::TransactionBatch>>
     OsNetworkNotifier::getObservable() {
       return batches_subject_.get_observable();
     }

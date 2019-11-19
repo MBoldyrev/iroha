@@ -5,7 +5,7 @@
 
 #include "interfaces/queries/account_detail_record_id.hpp"
 
-using namespace shared_model::interface;
+using namespace shared_model;
 
 bool AccountDetailRecordId::operator==(const ModelType &rhs) const {
   return writer() == rhs.writer() and key() == rhs.key();

@@ -11,17 +11,15 @@
 #include "utils/string_builder.hpp"
 
 namespace shared_model {
-  namespace interface {
-    /**
-     * Error response of broken query, account has no specified account assets.
-     */
-    class NoAccountAssetsErrorResponse
-        : public AbstractErrorResponse<NoAccountAssetsErrorResponse> {
-     private:
-      std::string reason() const override {
-        return "NoAccountAssetsErrorResponse";
-      }
-    };
-  }  // namespace interface
+  /**
+   * Error response of broken query, account has no specified account assets.
+   */
+  class NoAccountAssetsErrorResponse
+      : public AbstractErrorResponse<NoAccountAssetsErrorResponse> {
+   private:
+    std::string reason() const override {
+      return "NoAccountAssetsErrorResponse";
+    }
+  };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_NO_ACCOUNT_ASSETS_ERROR_REPONSE_HPP

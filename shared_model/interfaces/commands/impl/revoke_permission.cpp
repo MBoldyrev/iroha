@@ -6,12 +6,10 @@
 #include "interfaces/commands/revoke_permission.hpp"
 
 namespace shared_model {
-  namespace interface {
 
-    bool RevokePermission::operator==(const ModelType &rhs) const {
-      return accountId() == rhs.accountId()
-          and permissionName() == rhs.permissionName();
-    }
+  bool RevokePermission::operator==(const ModelType &rhs) const {
+    return accountId() == rhs.accountId()
+        and permissionName() == rhs.permissionName();
+  }
 
-  }  // namespace interface
 }  // namespace shared_model

@@ -13,9 +13,7 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class Block;
-  }  // namespace interface
+  class Block;
 }  // namespace shared_model
 
 namespace iroha {
@@ -36,15 +34,13 @@ namespace iroha {
        *  - LedgerState - the state of ledger on which the block is applied
        */
       using MutableStoragePredicate = std::function<bool(
-          std::shared_ptr<const shared_model::interface::Block>,
-          const LedgerState &)>;
+          std::shared_ptr<const shared_model::Block>, const LedgerState &)>;
 
       /**
        * Applies block without additional validation function
        * @see apply(block, function)
        */
-      virtual bool apply(
-          std::shared_ptr<const shared_model::interface::Block> block) = 0;
+      virtual bool apply(std::shared_ptr<const shared_model::Block> block) = 0;
 
       /**
        * Applies an observable of blocks to current mutable state using logic
@@ -55,8 +51,7 @@ namespace iroha {
        * @return True if blocks were successfully applied, false otherwise.
        */
       virtual bool apply(
-          rxcpp::observable<std::shared_ptr<shared_model::interface::Block>>
-              blocks,
+          rxcpp::observable<std::shared_ptr<shared_model::Block>> blocks,
           MutableStoragePredicate predicate) = 0;
 
       virtual ~MutableStorage() = default;

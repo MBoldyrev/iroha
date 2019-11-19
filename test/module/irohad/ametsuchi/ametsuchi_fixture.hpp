@@ -133,7 +133,7 @@ namespace iroha {
        * @param block to apply
        */
       void apply(const std::shared_ptr<StorageImpl> &storage,
-                 std::shared_ptr<const shared_model::interface::Block> block) {
+                 std::shared_ptr<const shared_model::Block> block) {
         auto ms = createMutableStorage();
         ASSERT_TRUE(ms->apply(block));
         ASSERT_TRUE(
@@ -163,13 +163,12 @@ namespace iroha {
       static std::shared_ptr<CommandExecutor> command_executor;
       static std::unique_ptr<framework::ametsuchi::SqlQuery> sql_query;
 
-      static std::shared_ptr<shared_model::interface::PermissionToString>
-          perm_converter_;
+      static std::shared_ptr<shared_model::PermissionToString> perm_converter_;
 
       static std::shared_ptr<MockPendingTransactionStorage>
           pending_txs_storage_;
 
-      static std::shared_ptr<shared_model::interface::QueryResponseFactory>
+      static std::shared_ptr<shared_model::QueryResponseFactory>
           query_response_factory_;
 
       static std::unique_ptr<iroha::ametsuchi::ReconnectionStrategyFactory>
@@ -203,13 +202,13 @@ namespace iroha {
     std::shared_ptr<iroha::ametsuchi::PoolWrapper>
         AmetsuchiTest::pool_wrapper_ = nullptr;
 
-    std::shared_ptr<shared_model::interface::PermissionToString>
+    std::shared_ptr<shared_model::PermissionToString>
         AmetsuchiTest::perm_converter_ = nullptr;
 
     std::shared_ptr<MockPendingTransactionStorage>
         AmetsuchiTest::pending_txs_storage_ = nullptr;
 
-    std::shared_ptr<shared_model::interface::QueryResponseFactory>
+    std::shared_ptr<shared_model::QueryResponseFactory>
         AmetsuchiTest::query_response_factory_ = nullptr;
 
     std::unique_ptr<iroha::ametsuchi::ReconnectionStrategyFactory>

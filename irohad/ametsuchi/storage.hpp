@@ -18,9 +18,7 @@
 #include "common/result.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class Block;
-  }
+  class Block;
 }  // namespace shared_model
 
 namespace iroha {
@@ -52,7 +50,7 @@ namespace iroha {
        * @return true if inserted
        */
       virtual bool insertBlock(
-          std::shared_ptr<const shared_model::interface::Block> block) = 0;
+          std::shared_ptr<const shared_model::Block> block) = 0;
 
       /**
        * Create new command executor that holds a database session within.
@@ -67,7 +65,7 @@ namespace iroha {
        * @return error reason if not inserted
        */
       virtual expected::Result<void, std::string> insertPeer(
-          const shared_model::interface::Peer &peer) = 0;
+          const shared_model::Peer &peer) = 0;
 
       using MutableFactory::createMutableStorage;
 
@@ -83,8 +81,7 @@ namespace iroha {
        * method called when block is written to the storage
        * @return observable with the Block committed
        */
-      virtual rxcpp::observable<
-          std::shared_ptr<const shared_model::interface::Block>>
+      virtual rxcpp::observable<std::shared_ptr<const shared_model::Block>>
       on_commit() = 0;
 
       /**

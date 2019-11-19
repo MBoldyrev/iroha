@@ -22,40 +22,39 @@ struct HexKeys : public AcceptanceFixture {
   HexKeys() : itf(1), kNow(iroha::time::now()) {}
 
   void SetUp() override {
-    using Role = interface::permissions::Role;
-    const interface::RolePermissionSet permissions = {Role::kAddSignatory,
-                                                      Role::kRemoveSignatory,
-                                                      Role::kAddPeer,
-                                                      Role::kCreateAccount,
-                                                      Role::kAppendRole};
+    using Role = permissions::Role;
+    const RolePermissionSet permissions = {Role::kAddSignatory,
+                                           Role::kRemoveSignatory,
+                                           Role::kAddPeer,
+                                           Role::kCreateAccount,
+                                           Role::kAppendRole};
 
     itf.setInitialState(common_constants::kAdminKeypair)
         .sendTxAwait(AcceptanceFixture::makeUserWithPerms(permissions),
                      CHECK_TXS_QUANTITY(1));
   }
 
-  auto addSignatory(
-      std::string key,
-      interface::types::TimestampType time,
-      interface::types::AccountIdType user_id = common_constants::kUserId) {
+  auto addSignatory(std::string key,
+                    types::TimestampType time,
+                    types::AccountIdType user_id = common_constants::kUserId) {
     return AcceptanceFixture::baseTx().createdTime(time).addSignatoryRaw(
         user_id, key);
   }
 
   auto removeSignatory(
       std::string key,
-      interface::types::TimestampType time,
-      interface::types::AccountIdType user_id = common_constants::kUserId) {
+      types::TimestampType time,
+      types::AccountIdType user_id = common_constants::kUserId) {
     return AcceptanceFixture::baseTx().createdTime(time).removeSignatoryRaw(
         user_id, key);
   }
 
-  auto createAccount(std::string key, interface::types::TimestampType time) {
+  auto createAccount(std::string key, types::TimestampType time) {
     return AcceptanceFixture::baseTx().createdTime(time).createAccountRaw(
         common_constants::kSecondUser, common_constants::kDomain, key);
   }
 
-  auto addPeer(std::string key, interface::types::TimestampType time) {
+  auto addPeer(std::string key, types::TimestampType time) {
     const auto imaginary_address = "192.168.23.149:50051";
     return AcceptanceFixture::baseTx().createdTime(time).addPeerRaw(
         imaginary_address, key);
@@ -93,7 +92,7 @@ struct HexKeys : public AcceptanceFixture {
   const std::string kAnotherPublicKey = anotherKeypair.publicKey().hex();
   const std::string kAnotherPrivateKey = anotherKeypair.privateKey().hex();
 
-  const interface::types::TimestampType kNow;
+  const types::TimestampType kNow;
 };
 
 /**

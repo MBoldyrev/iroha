@@ -43,7 +43,7 @@ TEST(YacHashProviderTest, MakeYacHashTest) {
   auto peer = makePeer("127.0.0.1", shared_model::crypto::PublicKey("111"));
   shared_model::crypto::Hash block_hash("hash");
   auto ledger_state = std::make_shared<LedgerState>(
-      shared_model::interface::types::PeerList{std::move(peer)}, 1, block_hash);
+      shared_model::types::PeerList{std::move(peer)}, 1, block_hash);
   auto proposal = std::make_shared<const MockProposal>();
   EXPECT_CALL(*proposal, hash())
       .WillRepeatedly(
@@ -58,8 +58,8 @@ TEST(YacHashProviderTest, MakeYacHashTest) {
   EXPECT_CALL(*block, signatures())
       .WillRepeatedly(
           Return(boost::make_shared_container_range(
-                     boost::make_shared<std::vector<
-                         std::shared_ptr<shared_model::interface::Signature>>>(
+                     boost::make_shared<
+                         std::vector<std::shared_ptr<shared_model::Signature>>>(
                          1, signature()))
                  | boost::adaptors::indirected));
 
@@ -80,7 +80,7 @@ TEST(YacHashProviderTest, ToModelHashTest) {
   auto peer = makePeer("127.0.0.1", shared_model::crypto::PublicKey("111"));
   shared_model::crypto::Hash block_hash("hash");
   auto ledger_state = std::make_shared<LedgerState>(
-      shared_model::interface::types::PeerList{std::move(peer)}, 1, block_hash);
+      shared_model::types::PeerList{std::move(peer)}, 1, block_hash);
   auto proposal = std::make_shared<MockProposal>();
   EXPECT_CALL(*proposal, hash())
       .WillRepeatedly(
@@ -93,8 +93,8 @@ TEST(YacHashProviderTest, ToModelHashTest) {
   EXPECT_CALL(*block, signatures())
       .WillRepeatedly(
           Return(boost::make_shared_container_range(
-                     boost::make_shared<std::vector<
-                         std::shared_ptr<shared_model::interface::Signature>>>(
+                     boost::make_shared<
+                         std::vector<std::shared_ptr<shared_model::Signature>>>(
                          1, signature()))
                  | boost::adaptors::indirected));
   EXPECT_CALL(*block, hash())

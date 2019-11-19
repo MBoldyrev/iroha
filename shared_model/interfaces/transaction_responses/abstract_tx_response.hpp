@@ -11,31 +11,29 @@
 #include "utils/string_builder.hpp"
 
 namespace shared_model {
-  namespace interface {
+  /**
+   * Abstract transaction response
+   * @tparam Model - concrete model transaction response
+   */
+  template <typename Model>
+  class AbstractTxResponse : public ModelPrimitive<Model> {
+   private:
     /**
-     * Abstract transaction response
-     * @tparam Model - concrete model transaction response
+     * @return string representation of class name
      */
-    template <typename Model>
-    class AbstractTxResponse : public ModelPrimitive<Model> {
-     private:
-      /**
-       * @return string representation of class name
-       */
-      virtual std::string className() const = 0;
+    virtual std::string className() const = 0;
 
-     public:
-      // ------------------------| Primitive override |-------------------------
+   public:
+    // ------------------------| Primitive override |-------------------------
 
-      std::string toString() const override {
-        return detail::PrettyStringBuilder().init(className()).finalize();
-      }
+    std::string toString() const override {
+      return detail::PrettyStringBuilder().init(className()).finalize();
+    }
 
-      bool operator==(const Model &rhs) const override {
-        return true;
-      }
-    };
-  }  // namespace interface
+    bool operator==(const Model &rhs) const override {
+      return true;
+    }
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_ABSTRACT_TX_RESPONSE_HPP

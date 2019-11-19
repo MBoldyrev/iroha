@@ -14,9 +14,7 @@
 #include "logger/logger_fwd.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class Block;
-  }
+  class Block;
 }  // namespace shared_model
 
 namespace iroha {
@@ -36,8 +34,8 @@ namespace iroha {
        * @param data - raw presenetation of block
        * @return object if operation done successfully, nullopt otherwise
        */
-      boost::optional<std::shared_ptr<shared_model::interface::Block>>
-      parseBlock(const std::string &data);
+      boost::optional<std::shared_ptr<shared_model::Block>> parseBlock(
+          const std::string &data);
 
       /**
        * Loading file from target path

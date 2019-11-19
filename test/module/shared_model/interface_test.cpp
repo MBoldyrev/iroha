@@ -17,7 +17,7 @@ class TransactionFixture : public ::testing::Test {
         time(iroha::time::now()) {}
 
   shared_model::crypto::Keypair keypair;
-  shared_model::interface::types::TimestampType time;
+  shared_model::types::TimestampType time;
 
   logger::LoggerPtr log = getTestLogger("TransactionFixture");
 

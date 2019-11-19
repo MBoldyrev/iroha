@@ -10,33 +10,31 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
+
+  /**
+   * Class BlocksQuery provides container with one of concrete query available
+   * in system. General note: this class is container for queries but not a
+   * base class.
+   */
+  class BlocksQuery : public Signable<BlocksQuery> {
+   public:
+    /**
+     * @return id of query creator
+     */
+    virtual const types::AccountIdType &creatorAccountId() const = 0;
 
     /**
-     * Class BlocksQuery provides container with one of concrete query available
-     * in system. General note: this class is container for queries but not a
-     * base class.
+     * Query counter - incremental variable reflect for number of sent to
+     * system queries plus 1. Required for preventing replay attacks.
+     * @return attached query counter
      */
-    class BlocksQuery : public Signable<BlocksQuery> {
-     public:
-      /**
-       * @return id of query creator
-       */
-      virtual const types::AccountIdType &creatorAccountId() const = 0;
+    virtual types::CounterType queryCounter() const = 0;
 
-      /**
-       * Query counter - incremental variable reflect for number of sent to
-       * system queries plus 1. Required for preventing replay attacks.
-       * @return attached query counter
-       */
-      virtual types::CounterType queryCounter() const = 0;
+    // ------------------------| Primitive override |-------------------------
 
-      // ------------------------| Primitive override |-------------------------
+    std::string toString() const override;
 
-      std::string toString() const override;
-
-      bool operator==(const ModelType &rhs) const override;
-    };
-  }  // namespace interface
+    bool operator==(const ModelType &rhs) const override;
+  };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_BLOCKS_QUERY_HPP

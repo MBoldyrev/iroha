@@ -14,21 +14,20 @@
 
 template <size_t N>
 void checkBlockHasNTxs(
-    const std::shared_ptr<const shared_model::interface::Block> &block) {
+    const std::shared_ptr<const shared_model::Block> &block) {
   ASSERT_EQ(block->transactions().size(), N);
 }
 
-auto makePeerPointeeMatcher(shared_model::interface::types::AddressType address,
-                            shared_model::interface::types::PubkeyType pubkey) {
+auto makePeerPointeeMatcher(shared_model::types::AddressType address,
+                            shared_model::types::PubkeyType pubkey) {
   return ::testing::Truly(
-      [address = std::move(address), pubkey = std::move(pubkey)](
-          std::shared_ptr<shared_model::interface::Peer> peer) {
+      [address = std::move(address),
+       pubkey = std::move(pubkey)](std::shared_ptr<shared_model::Peer> peer) {
         return peer->address() == address and peer->pubkey() == pubkey;
       });
 }
 
-auto makePeerPointeeMatcher(
-    std::shared_ptr<shared_model::interface::Peer> peer) {
+auto makePeerPointeeMatcher(std::shared_ptr<shared_model::Peer> peer) {
   // TODO [IR-658] artyom-yurin 30.09.2019: Rewrite using operator ==
   return makePeerPointeeMatcher(peer->address(), peer->pubkey());
 }
@@ -58,9 +57,9 @@ class FakePeerFixture : public AcceptanceFixture {
   integration_framework::IntegrationTestFramework &prepareState() {
     itf_->setGenesisBlock(itf_->defaultBlock()).subscribeQueuesAndRun();
 
-    auto permissions = shared_model::interface::RolePermissionSet(
-        {shared_model::interface::permissions::Role::kReceive,
-         shared_model::interface::permissions::Role::kTransfer});
+    auto permissions = shared_model::RolePermissionSet(
+        {shared_model::permissions::Role::kReceive,
+         shared_model::permissions::Role::kTransfer});
 
     return itf_
         ->sendTxAwait(makeUserWithPerms(permissions), checkBlockHasNTxs<1>)

@@ -46,10 +46,9 @@ namespace iroha {
         std::unique_ptr<ametsuchi::PostgresOptions> postgres_options,
         std::unique_ptr<BlockStorage> block_store,
         std::shared_ptr<PoolWrapper> pool_wrapper,
-        std::shared_ptr<shared_model::interface::PermissionToString>
-            perm_converter,
+        std::shared_ptr<shared_model::PermissionToString> perm_converter,
         std::shared_ptr<PendingTransactionStorage> pending_txs_storage,
-        std::shared_ptr<shared_model::interface::QueryResponseFactory>
+        std::shared_ptr<shared_model::QueryResponseFactory>
             query_response_factory,
         std::unique_ptr<BlockStorageFactory> temporary_block_storage_factory,
         size_t pool_size,
@@ -117,8 +116,8 @@ namespace iroha {
     boost::optional<std::shared_ptr<QueryExecutor>>
     StorageImpl::createQueryExecutor(
         std::shared_ptr<PendingTransactionStorage> pending_txs_storage,
-        std::shared_ptr<shared_model::interface::QueryResponseFactory>
-            response_factory) const {
+        std::shared_ptr<shared_model::QueryResponseFactory> response_factory)
+        const {
       std::shared_lock<std::shared_timed_mutex> lock(drop_mutex_);
       if (not connection_) {
         log_->info(
@@ -142,7 +141,7 @@ namespace iroha {
     }
 
     bool StorageImpl::insertBlock(
-        std::shared_ptr<const shared_model::interface::Block> block) {
+        std::shared_ptr<const shared_model::Block> block) {
       log_->info("create mutable storage");
       return createCommandExecutor().match(
           [&, this](auto &&command_executor) {
@@ -160,7 +159,7 @@ namespace iroha {
     }
 
     expected::Result<void, std::string> StorageImpl::insertPeer(
-        const shared_model::interface::Peer &peer) {
+        const shared_model::Peer &peer) {
       log_->info("Insert peer {}", peer.pubkey().hex());
       soci::session sql(*connection_);
       PostgresWsvCommand wsv_command(sql);
@@ -272,10 +271,9 @@ namespace iroha {
     StorageImpl::create(
         std::unique_ptr<ametsuchi::PostgresOptions> postgres_options,
         std::shared_ptr<PoolWrapper> pool_wrapper,
-        std::shared_ptr<shared_model::interface::PermissionToString>
-            perm_converter,
+        std::shared_ptr<shared_model::PermissionToString> perm_converter,
         std::shared_ptr<PendingTransactionStorage> pending_txs_storage,
-        std::shared_ptr<shared_model::interface::QueryResponseFactory>
+        std::shared_ptr<shared_model::QueryResponseFactory>
             query_response_factory,
         std::unique_ptr<BlockStorageFactory> temporary_block_storage_factory,
         std::unique_ptr<BlockStorage> persistent_block_storage,
@@ -303,10 +301,10 @@ namespace iroha {
                   });
         };
 
-        auto get_ledger_peers = [&]()
-            -> expected::Result<
-                std::vector<std::shared_ptr<shared_model::interface::Peer>>,
-                std::string> {
+        auto get_ledger_peers =
+            [&]() -> expected::Result<
+                      std::vector<std::shared_ptr<shared_model::Peer>>,
+                      std::string> {
           PostgresWsvQuery peer_query(
               sql, log_manager->getChild("WsvQuery")->getLogger());
           auto peers = peer_query.getPeers();
@@ -379,7 +377,7 @@ namespace iroha {
     }
 
     CommitResult StorageImpl::commitPrepared(
-        std::shared_ptr<const shared_model::interface::Block> block) {
+        std::shared_ptr<const shared_model::Block> block) {
       if (not prepared_blocks_enabled_) {
         return expected::makeError(
             std::string{"prepared blocks are not enabled"});
@@ -469,7 +467,7 @@ namespace iroha {
       return boost::make_optional(std::move(setting_query_ptr));
     }
 
-    rxcpp::observable<std::shared_ptr<const shared_model::interface::Block>>
+    rxcpp::observable<std::shared_ptr<const shared_model::Block>>
     StorageImpl::on_commit() {
       return notifier_.get_observable();
     }
@@ -503,7 +501,7 @@ namespace iroha {
     }
 
     StorageImpl::StoreBlockResult StorageImpl::storeBlock(
-        std::shared_ptr<const shared_model::interface::Block> block) {
+        std::shared_ptr<const shared_model::Block> block) {
       if (block_store_->insert(block)) {
         notifier_.get_subscriber().on_next(block);
         return {};

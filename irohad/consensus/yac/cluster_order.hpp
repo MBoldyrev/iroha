@@ -13,9 +13,7 @@
 #include "consensus/yac/yac_types.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class Peer;
-  }
+  class Peer;
 }  // namespace shared_model
 
 namespace iroha {
@@ -33,13 +31,12 @@ namespace iroha {
          * @return false if vector is empty, true otherwise
          */
         static boost::optional<ClusterOrdering> create(
-            const std::vector<std::shared_ptr<shared_model::interface::Peer>>
-                &order);
+            const std::vector<std::shared_ptr<shared_model::Peer>> &order);
 
         /**
          * Provide current leader peer
          */
-        const shared_model::interface::Peer &currentLeader();
+        const shared_model::Peer &currentLeader();
 
         /**
          * Switch to next peer as leader
@@ -52,8 +49,8 @@ namespace iroha {
          */
         bool hasNext() const;
 
-        const std::vector<std::shared_ptr<shared_model::interface::Peer>>
-            &getPeers() const;
+        const std::vector<std::shared_ptr<shared_model::Peer>> &getPeers()
+            const;
 
         PeersNumberType getNumberOfPeers() const;
 
@@ -64,9 +61,9 @@ namespace iroha {
        private:
         // prohibit creation of the object not from create method
         explicit ClusterOrdering(
-            std::vector<std::shared_ptr<shared_model::interface::Peer>> order);
+            std::vector<std::shared_ptr<shared_model::Peer>> order);
 
-        std::vector<std::shared_ptr<shared_model::interface::Peer>> order_;
+        std::vector<std::shared_ptr<shared_model::Peer>> order_;
         PeersNumberType index_ = 0;
       };
     }  // namespace yac

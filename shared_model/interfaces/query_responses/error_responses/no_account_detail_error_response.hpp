@@ -11,17 +11,15 @@
 #include "utils/string_builder.hpp"
 
 namespace shared_model {
-  namespace interface {
-    /**
-     * Error response of broken query, account has no specified account detail.
-     */
-    class NoAccountDetailErrorResponse
-        : public AbstractErrorResponse<NoAccountDetailErrorResponse> {
-     private:
-      std::string reason() const override {
-        return "NoAccountDetailErrorResponse";
-      }
-    };
-  }  // namespace interface
+  /**
+   * Error response of broken query, account has no specified account detail.
+   */
+  class NoAccountDetailErrorResponse
+      : public AbstractErrorResponse<NoAccountDetailErrorResponse> {
+   private:
+    std::string reason() const override {
+      return "NoAccountDetailErrorResponse";
+    }
+  };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_NO_ACCOUNT_DETAIL_ERROR_REPONSE_HPP

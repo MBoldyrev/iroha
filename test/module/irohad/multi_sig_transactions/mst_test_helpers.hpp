@@ -23,10 +23,10 @@ inline auto makeKey() {
 }
 
 inline auto txBuilder(
-    const shared_model::interface::types::CounterType &counter,
+    const shared_model::types::CounterType &counter,
     iroha::TimeType created_time = iroha::time::now(),
-    shared_model::interface::types::QuorumType quorum = 3,
-    shared_model::interface::types::AccountIdType account_id = "user@test") {
+    shared_model::types::QuorumType quorum = 3,
+    shared_model::types::AccountIdType account_id = "user@test") {
   return TestTransactionBuilder()
       .createdTime(created_time)
       .creatorAccountId(account_id)
@@ -87,7 +87,7 @@ inline auto makeSignature(const std::string &sign,
                         shared_model::crypto::PublicKey(public_key));
 }
 
-inline auto makeTx(const shared_model::interface::types::CounterType &counter,
+inline auto makeTx(const shared_model::types::CounterType &counter,
                    iroha::TimeType created_time = iroha::time::now(),
                    shared_model::crypto::Keypair keypair = makeKey(),
                    uint8_t quorum = 3) {

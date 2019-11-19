@@ -17,8 +17,8 @@ using namespace common_constants;
 using namespace executor_testing;
 using namespace framework::expected;
 
-using shared_model::interface::permissions::Grantable;
-using shared_model::interface::permissions::Role;
+using shared_model::permissions::Grantable;
+using shared_model::permissions::Role;
 
 struct AddSignatoryTest : public ExecutorTestBase {
   const shared_model::crypto::Keypair new_keypair_ =

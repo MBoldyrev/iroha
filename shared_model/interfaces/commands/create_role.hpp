@@ -12,27 +12,25 @@
 #include "interfaces/permissions.hpp"
 
 namespace shared_model {
-  namespace interface {
+  /**
+   * Create new role in Iroha
+   */
+  class CreateRole : public ModelPrimitive<CreateRole> {
+   public:
     /**
-     * Create new role in Iroha
+     * @return Id of the domain to create
      */
-    class CreateRole : public ModelPrimitive<CreateRole> {
-     public:
-      /**
-       * @return Id of the domain to create
-       */
-      virtual const types::RoleIdType &roleName() const = 0;
+    virtual const types::RoleIdType &roleName() const = 0;
 
-      /**
-       * @return permissions associated with the role
-       */
-      virtual const RolePermissionSet &rolePermissions() const = 0;
+    /**
+     * @return permissions associated with the role
+     */
+    virtual const RolePermissionSet &rolePermissions() const = 0;
 
-      std::string toString() const override = 0;
+    std::string toString() const override = 0;
 
-      bool operator==(const ModelType &rhs) const override;
-    };
-  }  // namespace interface
+    bool operator==(const ModelType &rhs) const override;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_CREATE_ROLE_HPP

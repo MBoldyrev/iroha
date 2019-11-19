@@ -11,17 +11,15 @@
 #include "utils/string_builder.hpp"
 
 namespace shared_model {
-  namespace interface {
-    /**
-     * Error response of broken query, no signatories
-     */
-    class NoSignatoriesErrorResponse
-        : public AbstractErrorResponse<NoSignatoriesErrorResponse> {
-     private:
-      std::string reason() const override {
-        return "NoSignatoriesErrorResponse";
-      }
-    };
-  }  // namespace interface
+  /**
+   * Error response of broken query, no signatories
+   */
+  class NoSignatoriesErrorResponse
+      : public AbstractErrorResponse<NoSignatoriesErrorResponse> {
+   private:
+    std::string reason() const override {
+      return "NoSignatoriesErrorResponse";
+    }
+  };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_NO_SIGNATORIES_ERROR_RESPONSE_HPP

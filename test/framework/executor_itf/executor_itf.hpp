@@ -28,11 +28,9 @@ namespace shared_model {
   namespace crypto {
     class PublicKey;
   }
-  namespace interface {
-    class MockCommandFactory;
-    class MockQueryFactory;
-    class Transaction;
-  }  // namespace interface
+  class MockCommandFactory;
+  class MockQueryFactory;
+  class Transaction;
 }  // namespace shared_model
 
 namespace iroha {
@@ -66,7 +64,7 @@ namespace iroha {
        * @return Result of command execution.
        */
       iroha::ametsuchi::CommandResult executeCommandAsAccount(
-          const shared_model::interface::Command &cmd,
+          const shared_model::Command &cmd,
           const std::string &account_id,
           bool do_validation) const;
 
@@ -85,9 +83,8 @@ namespace iroha {
           const SpecificCommand &specific_cmd,
           const std::string &account_id,
           bool do_validation) const {
-        shared_model::interface::Command::CommandVariantType variant{
-            specific_cmd};
-        shared_model::interface::MockCommand cmd;
+        shared_model::Command::CommandVariantType variant{specific_cmd};
+        shared_model::MockCommand cmd;
         EXPECT_CALL(cmd, get()).WillRepeatedly(::testing::ReturnRef(variant));
         return executeCommandAsAccount(cmd, account_id, do_validation);
       }
@@ -111,9 +108,8 @@ namespace iroha {
        * @return Error in case of failure.
        */
       iroha::expected::Result<void, iroha::ametsuchi::TxExecutionError>
-      executeTransaction(
-          const shared_model::interface::Transaction &transaction,
-          bool do_validation = true) const;
+      executeTransaction(const shared_model::Transaction &transaction,
+                         bool do_validation = true) const;
 
       // ------------------------- execute queries -----------------------------
 
@@ -123,7 +119,7 @@ namespace iroha {
        * @return Result of query execution.
        */
       iroha::ametsuchi::QueryExecutorResult executeQuery(
-          const shared_model::interface::Query &query) const;
+          const shared_model::Query &query) const;
 
       /**
        * Execute a query as account.
@@ -140,11 +136,11 @@ namespace iroha {
       iroha::ametsuchi::QueryExecutorResult executeQuery(
           const SpecificQuery &specific_query,
           const std::string &account_id,
-          boost::optional<shared_model::interface::types::CounterType>
-              query_counter = boost::none) {
-        shared_model::interface::Query::QueryVariantType variant{
+          boost::optional<shared_model::types::CounterType> query_counter =
+              boost::none) {
+        shared_model::Query::QueryVariantType variant{
             detail::getInterfaceQueryRef(specific_query)};
-        shared_model::interface::MockQuery query;
+        shared_model::MockQuery query;
         EXPECT_CALL(query, get()).WillRepeatedly(::testing::ReturnRef(variant));
         EXPECT_CALL(query, creatorAccountId())
             .WillRepeatedly(::testing::ReturnRef(account_id));
@@ -157,7 +153,7 @@ namespace iroha {
         }
         EXPECT_CALL(query, hash())
             .WillRepeatedly(::testing::ReturnRefOfCopy(
-                shared_model::interface::types::HashType{query.toString()}));
+                shared_model::types::HashType{query.toString()}));
         return executeQuery(query);
       }
 
@@ -168,10 +164,10 @@ namespace iroha {
        * @return Result of query execution.
        */
       template <typename T>
-      auto executeQuery(const T &query) -> decltype(
-          executeQuery(query,
-                       std::string{},
-                       shared_model::interface::types::CounterType{})) {
+      auto executeQuery(const T &query)
+          -> decltype(executeQuery(query,
+                                   std::string{},
+                                   shared_model::types::CounterType{})) {
         return executeQuery(
             query, common_constants::kAdminId, ++query_counter_);
       }
@@ -218,11 +214,11 @@ namespace iroha {
       // -------------- mock command and query factories getters ---------------
 
       /// Get mock command factory.
-      const std::unique_ptr<shared_model::interface::MockCommandFactory>
+      const std::unique_ptr<shared_model::MockCommandFactory>
           &getMockCommandFactory() const;
 
       /// Get mock query factory.
-      const std::unique_ptr<shared_model::interface::MockQueryFactory>
+      const std::unique_ptr<shared_model::MockQueryFactory>
           &getMockQueryFactory() const;
 
       // ------------------ helper functions to prepare state ------------------
@@ -235,8 +231,7 @@ namespace iroha {
        */
       iroha::ametsuchi::CommandResult createRoleWithPerms(
           const std::string &role_id,
-          const shared_model::interface::RolePermissionSet &role_permissions)
-          const;
+          const shared_model::RolePermissionSet &role_permissions) const;
 
       /**
        * Create an account.
@@ -254,7 +249,7 @@ namespace iroha {
           const std::string &account_name,
           const std::string &domain,
           const shared_model::crypto::PublicKey &pubkey,
-          const shared_model::interface::RolePermissionSet &role_perms) const;
+          const shared_model::RolePermissionSet &role_perms) const;
 
       /**
        * Create a domain.
@@ -294,7 +289,7 @@ namespace iroha {
           const std::string &account_name,
           const std::string &domain,
           const shared_model::crypto::PublicKey &pubkey,
-          const shared_model::interface::RolePermissionSet &role_perms) const;
+          const shared_model::RolePermissionSet &role_perms) const;
 
       /// Grant all grantable permissions of the given account to admin.
       iroha::ametsuchi::CommandResult grantAllToAdmin(
@@ -303,16 +298,15 @@ namespace iroha {
       logger::LoggerManagerTreePtr log_manager_;
       logger::LoggerPtr log_;
 
-      const std::unique_ptr<shared_model::interface::MockCommandFactory>
+      const std::unique_ptr<shared_model::MockCommandFactory>
           mock_command_factory_;
-      const std::unique_ptr<shared_model::interface::MockQueryFactory>
-          mock_query_factory_;
+      const std::unique_ptr<shared_model::MockQueryFactory> mock_query_factory_;
 
       std::shared_ptr<iroha::ametsuchi::CommandExecutor> cmd_executor_;
       std::shared_ptr<iroha::ametsuchi::TransactionExecutor> tx_executor_;
       std::shared_ptr<iroha::ametsuchi::SpecificQueryExecutor> query_executor_;
 
-      shared_model::interface::types::CounterType query_counter_;
+      shared_model::types::CounterType query_counter_;
     };
 
   }  // namespace integration_framework

@@ -26,7 +26,7 @@ namespace iroha {
 
     boost::optional<TxPresenceCache::BatchStatusCollectionType>
     TxPresenceCacheImpl::check(
-        const shared_model::interface::TransactionBatch &batch) const {
+        const shared_model::TransactionBatch &batch) const {
       TxPresenceCache::BatchStatusCollectionType batch_statuses;
       for (const auto &tx : batch.transactions()) {
         if (auto status = check(tx->hash())) {

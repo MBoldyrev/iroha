@@ -15,14 +15,12 @@ namespace iroha {
 
     class MockBlockQuery : public BlockQuery {
      public:
-      MOCK_METHOD1(
-          getBlock,
-          BlockQuery::BlockResult(shared_model::interface::types::HeightType));
+      MOCK_METHOD1(getBlock,
+                   BlockQuery::BlockResult(shared_model::types::HeightType));
       MOCK_METHOD1(checkTxPresence,
                    boost::optional<TxCacheStatusType>(
                        const shared_model::crypto::Hash &));
-      MOCK_METHOD0(getTopBlockHeight,
-                   shared_model::interface::types::HeightType());
+      MOCK_METHOD0(getTopBlockHeight, shared_model::types::HeightType());
     };
 
   }  // namespace ametsuchi

@@ -24,7 +24,7 @@ namespace iroha {
           std::shared_ptr<network::AsyncGrpcClient<google::protobuf::Empty>>
               async_call,
           std::function<std::unique_ptr<proto::Yac::StubInterface>(
-              const shared_model::interface::Peer &)> client_creator,
+              const shared_model::Peer &)> client_creator,
           logger::LoggerPtr log)
           : async_call_(async_call),
             client_creator_(client_creator),
@@ -35,7 +35,7 @@ namespace iroha {
         handler_ = handler;
       }
 
-      void NetworkImpl::sendState(const shared_model::interface::Peer &to,
+      void NetworkImpl::sendState(const shared_model::Peer &to,
                                   const std::vector<VoteMessage> &state) {
         createPeerConnection(to);
 
@@ -84,8 +84,7 @@ namespace iroha {
         return grpc::Status::OK;
       }
 
-      void NetworkImpl::createPeerConnection(
-          const shared_model::interface::Peer &peer) {
+      void NetworkImpl::createPeerConnection(const shared_model::Peer &peer) {
         if (peers_.count(peer.address()) == 0) {
           peers_[peer.address()] = client_creator_(peer);
         }

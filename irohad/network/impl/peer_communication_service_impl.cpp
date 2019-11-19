@@ -26,8 +26,7 @@ namespace iroha {
           log_{std::move(log)} {}
 
     void PeerCommunicationServiceImpl::propagate_batch(
-        std::shared_ptr<shared_model::interface::TransactionBatch> batch)
-        const {
+        std::shared_ptr<shared_model::TransactionBatch> batch) const {
       log_->info("propagate batch");
       ordering_gate_->propagateBatch(batch);
     }

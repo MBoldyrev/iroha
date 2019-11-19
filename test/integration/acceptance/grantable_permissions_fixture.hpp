@@ -32,10 +32,10 @@ class GrantablePermissionsFixture : public AcceptanceFixture {
    * @return proto::Transaction
    */
   shared_model::proto::Transaction makeAccountWithPerms(
-      const shared_model::interface::types::AccountNameType &user,
+      const shared_model::types::AccountNameType &user,
       const shared_model::crypto::Keypair &key,
-      const shared_model::interface::RolePermissionSet &perms,
-      const shared_model::interface::types::RoleIdType &role);
+      const shared_model::RolePermissionSet &perms,
+      const shared_model::types::RoleIdType &role);
 
   /**
    * Creates two accounts with corresponding permission sets.
@@ -49,8 +49,8 @@ class GrantablePermissionsFixture : public AcceptanceFixture {
    */
   integration_framework::IntegrationTestFramework &createTwoAccounts(
       integration_framework::IntegrationTestFramework &itf,
-      const shared_model::interface::RolePermissionSet &perm1,
-      const shared_model::interface::RolePermissionSet &perm2);
+      const shared_model::RolePermissionSet &perm1,
+      const shared_model::RolePermissionSet &perm2);
 
   /**
    * Create a transaction such that the creator grants permittee a permission
@@ -62,12 +62,10 @@ class GrantablePermissionsFixture : public AcceptanceFixture {
    * @return proto::Transaction
    */
   shared_model::proto::Transaction grantPermission(
-      const shared_model::interface::types::AccountNameType
-          &creator_account_name,
+      const shared_model::types::AccountNameType &creator_account_name,
       const shared_model::crypto::Keypair &creator_key,
-      const shared_model::interface::types::AccountNameType
-          &permittee_account_name,
-      const shared_model::interface::permissions::Grantable &grant_permission);
+      const shared_model::types::AccountNameType &permittee_account_name,
+      const shared_model::permissions::Grantable &grant_permission);
 
   /**
    * Forms a transaction such that creator of transaction revokes a permission
@@ -80,12 +78,10 @@ class GrantablePermissionsFixture : public AcceptanceFixture {
    * @return proto::Transaction
    */
   shared_model::proto::Transaction revokePermission(
-      const shared_model::interface::types::AccountNameType
-          &creator_account_name,
+      const shared_model::types::AccountNameType &creator_account_name,
       const shared_model::crypto::Keypair &creator_key,
-      const shared_model::interface::types::AccountNameType
-          &permittee_account_name,
-      const shared_model::interface::permissions::Grantable &revoke_permission);
+      const shared_model::types::AccountNameType &permittee_account_name,
+      const shared_model::permissions::Grantable &revoke_permission);
 
   /**
    * Forms a transaction that either adds or removes signatory of an account
@@ -96,13 +92,11 @@ class GrantablePermissionsFixture : public AcceptanceFixture {
    * @return a transaction
    */
   shared_model::proto::Transaction permitteeModifySignatory(
-      TxBuilder (TxBuilder::*f)(
-          const shared_model::interface::types::AccountIdType &,
-          const shared_model::interface::types::PubkeyType &) const,
-      const shared_model::interface::types::AccountNameType
-          &permittee_account_name,
+      TxBuilder (TxBuilder::*f)(const shared_model::types::AccountIdType &,
+                                const shared_model::types::PubkeyType &) const,
+      const shared_model::types::AccountNameType &permittee_account_name,
       const shared_model::crypto::Keypair &permittee_key,
-      const shared_model::interface::types::AccountNameType &account_name);
+      const shared_model::types::AccountNameType &account_name);
 
   /**
    * Forms a transaction that allows permitted user to modify quorum field
@@ -113,11 +107,10 @@ class GrantablePermissionsFixture : public AcceptanceFixture {
    * @return a transaction
    */
   shared_model::proto::Transaction setQuorum(
-      const shared_model::interface::types::AccountNameType
-          &permittee_account_name,
+      const shared_model::types::AccountNameType &permittee_account_name,
       const shared_model::crypto::Keypair &permittee_key,
-      const shared_model::interface::types::AccountNameType &account_name,
-      shared_model::interface::types::QuorumType quorum);
+      const shared_model::types::AccountNameType &account_name,
+      shared_model::types::QuorumType quorum);
 
   /**
    * Forms a transaction that allows permitted user to set details of the
@@ -130,12 +123,11 @@ class GrantablePermissionsFixture : public AcceptanceFixture {
    * @return a transaction
    */
   shared_model::proto::Transaction setAccountDetail(
-      const shared_model::interface::types::AccountNameType
-          &permittee_account_name,
+      const shared_model::types::AccountNameType &permittee_account_name,
       const shared_model::crypto::Keypair &permittee_key,
-      const shared_model::interface::types::AccountNameType &account_name,
-      const shared_model::interface::types::AccountDetailKeyType &key,
-      const shared_model::interface::types::AccountDetailValueType &detail);
+      const shared_model::types::AccountNameType &account_name,
+      const shared_model::types::AccountDetailKeyType &key,
+      const shared_model::types::AccountDetailValueType &detail);
 
   /**
    * Adds specified amount of an asset and transfers it
@@ -146,10 +138,10 @@ class GrantablePermissionsFixture : public AcceptanceFixture {
    * @return a transaction
    */
   shared_model::proto::Transaction addAssetAndTransfer(
-      const shared_model::interface::types::AccountNameType &creator_name,
+      const shared_model::types::AccountNameType &creator_name,
       const shared_model::crypto::Keypair &creator_key,
-      const shared_model::interface::types::AccountNameType &amount,
-      const shared_model::interface::types::AccountNameType &receiver_name);
+      const shared_model::types::AccountNameType &amount,
+      const shared_model::types::AccountNameType &receiver_name);
 
   /**
    * Transaction, that transfers default asset (from default ITF genesis block)
@@ -162,12 +154,11 @@ class GrantablePermissionsFixture : public AcceptanceFixture {
    * @return a transaction
    */
   shared_model::proto::Transaction transferAssetFromSource(
-      const shared_model::interface::types::AccountNameType &creator_name,
+      const shared_model::types::AccountNameType &creator_name,
       const shared_model::crypto::Keypair &creator_key,
-      const shared_model::interface::types::AccountNameType
-          &source_account_name,
+      const shared_model::types::AccountNameType &source_account_name,
       const std::string &amount,
-      const shared_model::interface::types::AccountNameType &receiver_name);
+      const shared_model::types::AccountNameType &receiver_name);
 
   /**
    * Get signatories of an account (same as transaction creator)
@@ -176,7 +167,7 @@ class GrantablePermissionsFixture : public AcceptanceFixture {
    * @return a query
    */
   shared_model::proto::Query querySignatories(
-      const shared_model::interface::types::AccountNameType &account_name,
+      const shared_model::types::AccountNameType &account_name,
       const shared_model::crypto::Keypair &account_key);
 
   /**
@@ -186,7 +177,7 @@ class GrantablePermissionsFixture : public AcceptanceFixture {
    * @return a query
    */
   shared_model::proto::Query queryAccount(
-      const shared_model::interface::types::AccountNameType &account_name,
+      const shared_model::types::AccountNameType &account_name,
       const shared_model::crypto::Keypair &account_key);
 
   /**
@@ -196,7 +187,7 @@ class GrantablePermissionsFixture : public AcceptanceFixture {
    * @return a query
    */
   shared_model::proto::Query queryAccountDetail(
-      const shared_model::interface::types::AccountNameType &account_name,
+      const shared_model::types::AccountNameType &account_name,
       const shared_model::crypto::Keypair &account_key);
 
   /**
@@ -213,7 +204,7 @@ class GrantablePermissionsFixture : public AcceptanceFixture {
                const shared_model::proto::QueryResponse &query_response) {
       ASSERT_NO_THROW({
         const auto &resp =
-            boost::get<const shared_model::interface::SignatoriesResponse &>(
+            boost::get<const shared_model::SignatoriesResponse &>(
                 query_response.get());
 
         ASSERT_EQ(resp.keys().size(), quantity);
@@ -236,9 +227,8 @@ class GrantablePermissionsFixture : public AcceptanceFixture {
     return [quorum_quantity](
                const shared_model::proto::QueryResponse &query_response) {
       ASSERT_NO_THROW({
-        const auto &resp =
-            boost::get<const shared_model::interface::AccountResponse &>(
-                query_response.get());
+        const auto &resp = boost::get<const shared_model::AccountResponse &>(
+            query_response.get());
 
         ASSERT_EQ(resp.account().quorum(), quorum_quantity);
       });
@@ -257,7 +247,7 @@ class GrantablePermissionsFixture : public AcceptanceFixture {
             &detail](const shared_model::proto::QueryResponse &query_response) {
       ASSERT_NO_THROW({
         const auto &resp =
-            boost::get<const shared_model::interface::AccountDetailResponse &>(
+            boost::get<const shared_model::AccountDetailResponse &>(
                 query_response.get());
         ASSERT_TRUE(resp.detail().find(key) != std::string::npos);
         ASSERT_TRUE(resp.detail().find(detail) != std::string::npos);
@@ -279,20 +269,19 @@ class GrantablePermissionsFixture : public AcceptanceFixture {
   const std::string kAccountDetailKey = "some_key";
   const std::string kAccountDetailValue = "some_value";
 
-  const shared_model::interface::RolePermissionSet kCanGrantAll{
-      shared_model::interface::permissions::Role::kAddMySignatory,
-      shared_model::interface::permissions::Role::kRemoveMySignatory,
-      shared_model::interface::permissions::Role::kSetMyQuorum,
-      shared_model::interface::permissions::Role::kSetMyAccountDetail,
-      shared_model::interface::permissions::Role::kTransferMyAssets};
+  const shared_model::RolePermissionSet kCanGrantAll{
+      shared_model::permissions::Role::kAddMySignatory,
+      shared_model::permissions::Role::kRemoveMySignatory,
+      shared_model::permissions::Role::kSetMyQuorum,
+      shared_model::permissions::Role::kSetMyAccountDetail,
+      shared_model::permissions::Role::kTransferMyAssets};
 
-  const std::vector<shared_model::interface::permissions::Grantable>
-      kAllGrantable{
-          shared_model::interface::permissions::Grantable::kAddMySignatory,
-          shared_model::interface::permissions::Grantable::kRemoveMySignatory,
-          shared_model::interface::permissions::Grantable::kSetMyQuorum,
-          shared_model::interface::permissions::Grantable::kSetMyAccountDetail,
-          shared_model::interface::permissions::Grantable::kTransferMyAssets};
+  const std::vector<shared_model::permissions::Grantable> kAllGrantable{
+      shared_model::permissions::Grantable::kAddMySignatory,
+      shared_model::permissions::Grantable::kRemoveMySignatory,
+      shared_model::permissions::Grantable::kSetMyQuorum,
+      shared_model::permissions::Grantable::kSetMyAccountDetail,
+      shared_model::permissions::Grantable::kTransferMyAssets};
 };
 
 #endif  // IROHA_GRANTABLE_PERMISSIONS_FIXTURE_HPP

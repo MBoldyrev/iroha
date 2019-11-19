@@ -5,7 +5,7 @@
 
 #include "interfaces/queries/account_detail_pagination_meta.hpp"
 
-using namespace shared_model::interface;
+using namespace shared_model;
 
 bool AccountDetailPaginationMeta::operator==(const ModelType &rhs) const {
   return pageSize() == rhs.pageSize()

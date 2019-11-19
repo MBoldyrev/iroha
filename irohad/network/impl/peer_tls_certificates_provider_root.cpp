@@ -7,14 +7,14 @@
 
 using namespace iroha::network;
 using namespace iroha::expected;
-using namespace shared_model::interface::types;
+using namespace shared_model::types;
 
 PeerTlsCertificatesProviderRoot::PeerTlsCertificatesProviderRoot(
     TLSCertificateType root_certificate)
     : root_certificate_(std::move(root_certificate)) {}
 
 Result<TLSCertificateType, std::string> PeerTlsCertificatesProviderRoot::get(
-    const shared_model::interface::Peer &) const {
+    const shared_model::Peer &) const {
   return makeValue(root_certificate_);
 }
 

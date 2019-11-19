@@ -22,8 +22,7 @@ namespace iroha {
         std::shared_ptr<ametsuchi::Storage> storage,
         std::shared_ptr<ametsuchi::QueryExecutorFactory> qry_exec,
         std::shared_ptr<iroha::PendingTransactionStorage> pending_transactions,
-        std::shared_ptr<shared_model::interface::QueryResponseFactory>
-            response_factory,
+        std::shared_ptr<shared_model::QueryResponseFactory> response_factory,
         logger::LoggerPtr log)
         : storage_{std::move(storage)},
           qry_exec_{std::move(qry_exec)},
@@ -31,7 +30,7 @@ namespace iroha {
           response_factory_{std::move(response_factory)},
           log_{std::move(log)} {
       storage_->on_commit().subscribe(
-          [this](std::shared_ptr<const shared_model::interface::Block> block) {
+          [this](std::shared_ptr<const shared_model::Block> block) {
             auto block_response =
                 response_factory_->createBlockQueryResponse(block);
             blocks_query_subject_.get_subscriber().on_next(
@@ -39,8 +38,8 @@ namespace iroha {
           });
     }
 
-    std::unique_ptr<shared_model::interface::QueryResponse>
-    QueryProcessorImpl::queryHandle(const shared_model::interface::Query &qry) {
+    std::unique_ptr<shared_model::QueryResponse>
+    QueryProcessorImpl::queryHandle(const shared_model::Query &qry) {
       auto executor = qry_exec_->createQueryExecutor(pending_transactions_,
                                                      response_factory_);
       if (not executor) {
@@ -51,16 +50,15 @@ namespace iroha {
       return executor.value()->validateAndExecute(qry, true);
     }
 
-    rxcpp::observable<
-        std::shared_ptr<shared_model::interface::BlockQueryResponse>>
+    rxcpp::observable<std::shared_ptr<shared_model::BlockQueryResponse>>
     QueryProcessorImpl::blocksQueryHandle(
-        const shared_model::interface::BlocksQuery &qry) {
+        const shared_model::BlocksQuery &qry) {
       auto exec = qry_exec_->createQueryExecutor(pending_transactions_,
                                                  response_factory_);
       if (not exec or not(exec | [&qry](const auto &executor) {
             return executor->validate(qry, true);
           })) {
-        std::shared_ptr<shared_model::interface::BlockQueryResponse> response =
+        std::shared_ptr<shared_model::BlockQueryResponse> response =
             response_factory_->createBlockQueryResponse("stateful invalid");
         return rxcpp::observable<>::just(std::move(response));
       }

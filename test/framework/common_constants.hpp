@@ -50,9 +50,9 @@ namespace common_constants {
   extern const Keypair kSecondDomainUserKeypair;
 
   // misc
-  extern const shared_model::interface::Amount
+  extern const shared_model::Amount
       kAmountPrec1Max;  // maximum amount of asset with precision 1
-  extern const shared_model::interface::Amount
+  extern const shared_model::Amount
       kAmountPrec2Max;  // maximum amount of asset with precision 2
 }  // namespace common_constants
 

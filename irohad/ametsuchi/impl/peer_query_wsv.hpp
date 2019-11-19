@@ -36,8 +36,7 @@ namespace iroha {
        * @return the peer if found, none otherwise
        */
       boost::optional<PeerQuery::wPeer> getLedgerPeerByPublicKey(
-          const shared_model::interface::types::PubkeyType &public_key)
-          const override;
+          const shared_model::types::PubkeyType &public_key) const override;
 
      private:
       std::shared_ptr<WsvQuery> wsv_;

@@ -46,13 +46,13 @@ static grpc::internal::GrpcLibraryInitializer g_gli_initializer;
 class CommandServiceTransportGrpcTest : public testing::Test {
  private:
   using ProtoTxTransportFactory = shared_model::proto::ProtoTransportFactory<
-      shared_model::interface::Transaction,
+      shared_model::Transaction,
       shared_model::proto::Transaction>;
-  using TxTransportFactory = shared_model::interface::AbstractTransportFactory<
-      shared_model::interface::Transaction,
+  using TxTransportFactory = shared_model::AbstractTransportFactory<
+      shared_model::Transaction,
       shared_model::proto::Transaction::TransportType>;
-  using MockTxValidator = shared_model::validation::MockValidator<
-      shared_model::interface::Transaction>;
+  using MockTxValidator =
+      shared_model::validation::MockValidator<shared_model::Transaction>;
   using MockProtoTxValidator =
       shared_model::validation::MockValidator<iroha::protocol::Transaction>;
 
@@ -71,8 +71,7 @@ class CommandServiceTransportGrpcTest : public testing::Test {
     transaction_factory = std::make_shared<ProtoTxTransportFactory>(
         std::move(validator), std::move(proto_validator));
 
-    batch_parser =
-        std::make_shared<shared_model::interface::TransactionBatchParserImpl>();
+    batch_parser = std::make_shared<shared_model::TransactionBatchParserImpl>();
     batch_factory = std::make_shared<MockTransactionBatchFactory>();
   }
 
@@ -99,10 +98,10 @@ class CommandServiceTransportGrpcTest : public testing::Test {
   const MockProtoTxValidator *proto_tx_validator;
 
   std::shared_ptr<TxTransportFactory> transaction_factory;
-  std::shared_ptr<shared_model::interface::TransactionBatchParser> batch_parser;
+  std::shared_ptr<shared_model::TransactionBatchParser> batch_parser;
   std::shared_ptr<MockTransactionBatchFactory> batch_factory;
 
-  std::shared_ptr<shared_model::interface::TxStatusFactory> status_factory;
+  std::shared_ptr<shared_model::TxStatusFactory> status_factory;
 
   std::shared_ptr<MockCommandService> command_service;
   std::shared_ptr<CommandServiceTransportGrpc> transport_grpc;
@@ -130,7 +129,7 @@ TEST_F(CommandServiceTransportGrpcTest, Status) {
   tx_request.set_tx_hash(hash.hex());
 
   iroha::protocol::ToriiResponse toriiResponse;
-  std::shared_ptr<shared_model::interface::TransactionResponse> response =
+  std::shared_ptr<shared_model::TransactionResponse> response =
       status_factory->makeEnoughSignaturesCollected(hash, {});
 
   EXPECT_CALL(*command_service, getStatus(hash)).WillOnce(Return(response));
@@ -161,10 +160,9 @@ TEST_F(CommandServiceTransportGrpcTest, ListTorii) {
   EXPECT_CALL(*tx_validator, validate(_))
       .Times(kTimes)
       .WillRepeatedly(Return(shared_model::validation::Answer{}));
-  EXPECT_CALL(
-      *batch_factory,
-      createTransactionBatch(
-          A<const shared_model::interface::types::SharedTxsCollectionType &>()))
+  EXPECT_CALL(*batch_factory,
+              createTransactionBatch(
+                  A<const shared_model::types::SharedTxsCollectionType &>()))
       .Times(kTimes);
 
   EXPECT_CALL(*command_service, handleTransactionBatch(_)).Times(kTimes);
@@ -231,10 +229,9 @@ TEST_F(CommandServiceTransportGrpcTest, ListToriiPartialInvalid) {
         }
         return res;
       }));
-  EXPECT_CALL(
-      *batch_factory,
-      createTransactionBatch(
-          A<const shared_model::interface::types::SharedTxsCollectionType &>()))
+  EXPECT_CALL(*batch_factory,
+              createTransactionBatch(
+                  A<const shared_model::types::SharedTxsCollectionType &>()))
       .Times(0);
 
   EXPECT_CALL(*command_service, handleTransactionBatch(_)).Times(0);
@@ -259,8 +256,8 @@ TEST_F(CommandServiceTransportGrpcTest, StatusStreamEmpty) {
   iroha::protocol::TxStatusRequest request;
 
   EXPECT_CALL(*command_service, getStatusStream(_))
-      .WillOnce(Return(rxcpp::observable<>::empty<std::shared_ptr<
-                           shared_model::interface::TransactionResponse>>()));
+      .WillOnce(Return(rxcpp::observable<>::empty<
+                       std::shared_ptr<shared_model::TransactionResponse>>()));
 
   ASSERT_TRUE(transport_grpc->StatusStream(&context, &request, nullptr).ok());
 }
@@ -276,8 +273,7 @@ TEST_F(CommandServiceTransportGrpcTest, StatusStreamOnNotReceived) {
   iroha::protocol::TxStatusRequest request;
   iroha::MockServerWriter<iroha::protocol::ToriiResponse> response_writer;
 
-  std::vector<std::shared_ptr<shared_model::interface::TransactionResponse>>
-      responses;
+  std::vector<std::shared_ptr<shared_model::TransactionResponse>> responses;
   shared_model::crypto::Hash hash("1");
   responses.emplace_back(status_factory->makeNotReceived(hash, {}));
   EXPECT_CALL(*command_service, getStatusStream(_))

@@ -14,9 +14,7 @@
 #include "logger/logger_manager_fwd.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class PermissionToString;
-  }
+  class PermissionToString;
 }  // namespace shared_model
 
 namespace iroha {
@@ -50,7 +48,7 @@ namespace iroha {
           logger::LoggerManagerTreePtr log_manager);
 
       expected::Result<void, validation::CommandError> apply(
-          const shared_model::interface::Transaction &transaction) override;
+          const shared_model::Transaction &transaction) override;
 
       std::unique_ptr<TemporaryWsv::SavepointWrapper> createSavepoint(
           const std::string &name) override;
@@ -63,7 +61,7 @@ namespace iroha {
        * are a subset of creator account signatories
        */
       expected::Result<void, validation::CommandError> validateSignatures(
-          const shared_model::interface::Transaction &transaction);
+          const shared_model::Transaction &transaction);
 
       soci::session &sql_;
       std::unique_ptr<TransactionExecutor> transaction_executor_;

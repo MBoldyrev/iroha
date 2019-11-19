@@ -6,12 +6,10 @@
 #include "interfaces/commands/create_role.hpp"
 
 namespace shared_model {
-  namespace interface {
 
-    bool CreateRole::operator==(const ModelType &rhs) const {
-      return roleName() == rhs.roleName()
-          and rolePermissions() == rhs.rolePermissions();
-    }
+  bool CreateRole::operator==(const ModelType &rhs) const {
+    return roleName() == rhs.roleName()
+        and rolePermissions() == rhs.rolePermissions();
+  }
 
-  }  // namespace interface
 }  // namespace shared_model

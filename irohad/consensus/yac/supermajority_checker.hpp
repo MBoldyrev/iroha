@@ -16,9 +16,7 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class Peer;
-  }
+  class Peer;
 }  // namespace shared_model
 
 namespace iroha {

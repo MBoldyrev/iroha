@@ -33,7 +33,7 @@ using testing::NiceMock;
 using testing::Ref;
 using testing::Return;
 
-using shared_model::interface::Proposal;
+using shared_model::Proposal;
 using shared_model::validation::MockValidator;
 using MockProposalValidator = MockValidator<Proposal>;
 
@@ -58,11 +58,8 @@ class OnDemandOsTest : public ::testing::Test {
         std::make_unique<NiceMock<iroha::ametsuchi::MockTxPresenceCache>>();
     mock_cache = tx_cache.get();
     // every batch is new by default
-    ON_CALL(
-        *mock_cache,
-        check(
-            testing::Matcher<const shared_model::interface::TransactionBatch &>(
-                _)))
+    ON_CALL(*mock_cache,
+            check(testing::Matcher<const shared_model::TransactionBatch &>(_)))
         .WillByDefault(Return(std::vector<iroha::ametsuchi::TxCacheStatusType>{
             iroha::ametsuchi::tx_cache_status_responses::Missing()}));
 
@@ -90,24 +87,23 @@ class OnDemandOsTest : public ::testing::Test {
 
   OnDemandOrderingService::CollectionType generateTransactions(
       std::pair<uint64_t, uint64_t> range,
-      shared_model::interface::types::TimestampType now = iroha::time::now()) {
+      shared_model::types::TimestampType now = iroha::time::now()) {
     OnDemandOrderingService::CollectionType collection;
 
     for (auto i = range.first; i < range.second; ++i) {
-      collection.push_back(
-          std::make_unique<shared_model::interface::TransactionBatchImpl>(
-              shared_model::interface::types::SharedTxsCollectionType{
-                  std::make_unique<shared_model::proto::Transaction>(
-                      shared_model::proto::TransactionBuilder()
-                          .createdTime(now + i)
-                          .creatorAccountId("foo@bar")
-                          .createAsset("asset", "domain", 1)
-                          .quorum(1)
-                          .build()
-                          .signAndAddSignature(
-                              shared_model::crypto::DefaultCryptoAlgorithmType::
-                                  generateKeypair())
-                          .finish())}));
+      collection.push_back(std::make_unique<shared_model::TransactionBatchImpl>(
+          shared_model::types::SharedTxsCollectionType{
+              std::make_unique<shared_model::proto::Transaction>(
+                  shared_model::proto::TransactionBuilder()
+                      .createdTime(now + i)
+                      .creatorAccountId("foo@bar")
+                      .createAsset("asset", "domain", 1)
+                      .quorum(1)
+                      .build()
+                      .signAndAddSignature(
+                          shared_model::crypto::DefaultCryptoAlgorithmType::
+                              generateKeypair())
+                      .finish())}));
     }
     return collection;
   }
@@ -201,8 +197,7 @@ TEST_F(OnDemandOsTest, UseFactoryForProposal) {
   auto mock_factory = factory.get();
   auto tx_cache =
       std::make_unique<NiceMock<iroha::ametsuchi::MockTxPresenceCache>>();
-  ON_CALL(*tx_cache,
-          check(A<const shared_model::interface::TransactionBatch &>()))
+  ON_CALL(*tx_cache, check(A<const shared_model::TransactionBatch &>()))
       .WillByDefault(Invoke([](const auto &batch) {
         iroha::ametsuchi::TxPresenceCache::BatchStatusCollectionType result;
         std::transform(
@@ -236,8 +231,8 @@ TEST_F(OnDemandOsTest, UseFactoryForProposal) {
 
 // Return matcher for batch, which passes it by const &
 // used when passing batch as an argument to check() in transaction cache
-auto batchRef(const shared_model::interface::TransactionBatch &batch) {
-  return Matcher<const shared_model::interface::TransactionBatch &>(Ref(batch));
+auto batchRef(const shared_model::TransactionBatch &batch) {
+  return Matcher<const shared_model::TransactionBatch &>(Ref(batch));
 }
 
 /**

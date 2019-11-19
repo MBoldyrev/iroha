@@ -12,7 +12,7 @@
 #include <gtest/gtest.h>
 #include <boost/math/special_functions/sign.hpp>
 
-using namespace shared_model::interface;
+using namespace shared_model;
 
 struct AmountTest : public ::testing::Test {
   /// Check sign, precision and string representation of a valid amount.

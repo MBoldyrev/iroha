@@ -7,11 +7,9 @@
 #include "utils/string_builder.hpp"
 
 namespace shared_model {
-  namespace interface {
 
-    bool RolePermissionsResponse::operator==(const ModelType &rhs) const {
-      return rolePermissions() == rhs.rolePermissions();
-    }
+  bool RolePermissionsResponse::operator==(const ModelType &rhs) const {
+    return rolePermissions() == rhs.rolePermissions();
+  }
 
-  }  // namespace interface
 }  // namespace shared_model

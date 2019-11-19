@@ -9,8 +9,7 @@
 
 using namespace common_constants;
 
-static constexpr shared_model::interface::types::TransactionsNumberType
-    kTxPageSize(10);
+static constexpr shared_model::types::TransactionsNumberType kTxPageSize(10);
 
 QueryPermissionTxs::QueryPermissionTxs()
     : QueryPermissionTestBase({Role::kGetMyAccTxs},
@@ -19,7 +18,7 @@ QueryPermissionTxs::QueryPermissionTxs()
 
 IntegrationTestFramework &QueryPermissionTxs::prepareState(
     AcceptanceFixture &fixture,
-    const interface::RolePermissionSet &spectator_permissions) {
+    const RolePermissionSet &spectator_permissions) {
   auto target_permissions = spectator_permissions;
   target_permissions.set(Role::kReceive);
   target_permissions.set(Role::kTransfer);
@@ -59,19 +58,17 @@ QueryPermissionTxs::getGeneralResponseChecker() {
   return [this](const proto::QueryResponse &response) {
     ASSERT_NO_THROW({
       const auto &resp =
-          boost::get<const interface::TransactionsPageResponse &>(
-              response.get());
+          boost::get<const TransactionsPageResponse &>(response.get());
 
       const auto &transactions = resp.transactions();
       ASSERT_EQ(boost::size(transactions), tx_hashes_.size());
-      std::vector<shared_model::interface::types::HashType> resp_tx_hashes;
+      std::vector<shared_model::types::HashType> resp_tx_hashes;
       resp_tx_hashes.reserve(tx_hashes_.size());
-      std::transform(resp.transactions().begin(),
-                     resp.transactions().end(),
-                     std::back_inserter(resp_tx_hashes),
-                     [](const shared_model::interface::Transaction &tx) {
-                       return tx.hash();
-                     });
+      std::transform(
+          resp.transactions().begin(),
+          resp.transactions().end(),
+          std::back_inserter(resp_tx_hashes),
+          [](const shared_model::Transaction &tx) { return tx.hash(); });
       for (const auto &tx_hash : tx_hashes_) {
         ASSERT_NE(
             std::find(resp_tx_hashes.cbegin(), resp_tx_hashes.cend(), tx_hash),
@@ -86,8 +83,8 @@ QueryPermissionTxs::getGeneralResponseChecker() {
 
 shared_model::proto::Query QueryPermissionTxs::makeQuery(
     AcceptanceFixture &fixture,
-    const interface::types::AccountIdType &target,
-    const interface::types::AccountIdType &spectator,
+    const types::AccountIdType &target,
+    const types::AccountIdType &spectator,
     const crypto::Keypair &spectator_keypair) {
   return fixture.complete(
       fixture.baseQry(spectator).getAccountTransactions(target, kTxPageSize),

@@ -21,7 +21,7 @@
 
 using namespace iroha::ametsuchi;
 using namespace framework::test_subscriber;
-using namespace shared_model::interface::permissions;
+using namespace shared_model::permissions;
 using framework::expected::err;
 using framework::expected::val;
 
@@ -31,11 +31,9 @@ auto fake_pubkey = shared_model::crypto::PublicKey(zero_string);
 
 // Allows to print amount string in case of test failure
 namespace shared_model {
-  namespace interface {
-    void PrintTo(const Amount &amount, std::ostream *os) {
-      *os << amount.toString();
-    }
-  }  // namespace interface
+  void PrintTo(const Amount &amount, std::ostream *os) {
+    *os << amount.toString();
+  }
 }  // namespace shared_model
 
 /**
@@ -50,7 +48,7 @@ template <typename W>
 void validateAccountAsset(W &&wsv,
                           const std::string &account,
                           const std::string &asset,
-                          const shared_model::interface::Amount &amount) {
+                          const shared_model::Amount &amount) {
   auto account_asset = wsv->getAccountAsset(account, asset);
   ASSERT_TRUE(account_asset);
   ASSERT_EQ((*account_asset)->accountId(), account);
@@ -84,11 +82,11 @@ TEST_F(AmetsuchiTest, GetBlocksCompletedWhenCalled) {
 
   apply(storage, block);
 
-  ASSERT_EQ(*boost::get<iroha::expected::Value<
-                 std::unique_ptr<shared_model::interface::Block>>>(
-                 blocks->getBlock(1))
-                 .value,
-            *block);
+  ASSERT_EQ(
+      *boost::get<iroha::expected::Value<std::unique_ptr<shared_model::Block>>>(
+           blocks->getBlock(1))
+           .value,
+      *block);
 }
 
 TEST_F(AmetsuchiTest, SampleTest) {
@@ -130,17 +128,17 @@ TEST_F(AmetsuchiTest, SampleTest) {
 
   apply(storage, block2);
   validateAccountAsset(
-      sql_query, user1id, assetid, shared_model::interface::Amount("50.0"));
+      sql_query, user1id, assetid, shared_model::Amount("50.0"));
   validateAccountAsset(
-      sql_query, user2id, assetid, shared_model::interface::Amount("100.0"));
+      sql_query, user2id, assetid, shared_model::Amount("100.0"));
 
   // Block store tests
   auto hashes = {block1->hash(), block2->hash()};
 
   for (size_t i = 0; i < hashes.size(); i++) {
     EXPECT_EQ(*(hashes.begin() + i),
-              boost::get<iroha::expected::Value<
-                  std::unique_ptr<shared_model::interface::Block>>>(
+              boost::get<
+                  iroha::expected::Value<std::unique_ptr<shared_model::Block>>>(
                   blocks->getBlock(i + 1))
                   .value->hash());
   }
@@ -330,7 +328,7 @@ TEST_F(AmetsuchiTest, AddSignatoryTest) {
   }
 }
 
-std::shared_ptr<const shared_model::interface::Block> getBlock() {
+std::shared_ptr<const shared_model::Block> getBlock() {
   std::vector<shared_model::proto::Transaction> txs;
   txs.push_back(TestTransactionBuilder()
                     .creatorAccountId("adminone")
@@ -500,7 +498,7 @@ TEST_F(AmetsuchiTest, TestingWsvAfterCommitBlock) {
       make_test_subscriber<CallExact>(storage->on_commit(), 1);
   wrapper.subscribe([&](const auto &block) {
     ASSERT_EQ(*block, *expected_block);
-    shared_model::interface::Amount resultingAmount("10.00");
+    shared_model::Amount resultingAmount("10.00");
     validateAccountAsset(
         sql_query, "receiver@test", "coin#test", resultingAmount);
   });
@@ -561,10 +559,10 @@ class PreparedBlockTest : public AmetsuchiTest {
   std::string default_role{"admin"};
   std::unique_ptr<shared_model::proto::Transaction> genesis_tx;
   std::unique_ptr<shared_model::proto::Transaction> initial_tx;
-  std::shared_ptr<const shared_model::interface::Block> genesis_block;
+  std::shared_ptr<const shared_model::Block> genesis_block;
   std::shared_ptr<iroha::ametsuchi::CommandExecutor> command_executor;
   std::unique_ptr<iroha::ametsuchi::TemporaryWsv> temp_wsv;
-  shared_model::interface::Amount base_balance{"5.00"};
+  shared_model::Amount base_balance{"5.00"};
 };
 
 /**
@@ -573,10 +571,8 @@ class PreparedBlockTest : public AmetsuchiTest {
  * @then state of the ledger remains unchanged
  */
 TEST_F(PreparedBlockTest, PrepareBlockNoStateChanged) {
-  validateAccountAsset(sql_query,
-                       "admin@test",
-                       "coin#test",
-                       shared_model::interface::Amount(base_balance));
+  validateAccountAsset(
+      sql_query, "admin@test", "coin#test", shared_model::Amount(base_balance));
 
   auto result = temp_wsv->apply(*initial_tx);
   ASSERT_FALSE(framework::expected::err(result));
@@ -605,7 +601,7 @@ TEST_F(PreparedBlockTest, CommitPreparedStateChanged) {
   ASSERT_TRUE(val(commited))
       << "Error in commitPrepared: " << err(commited)->error;
 
-  shared_model::interface::Amount resultingAmount("10.00");
+  shared_model::Amount resultingAmount("10.00");
 
   validateAccountAsset(sql_query, "admin@test", "coin#test", resultingAmount);
 }
@@ -628,7 +624,7 @@ TEST_F(PreparedBlockTest, PrepareBlockCommitDifferentBlock) {
 
   apply(storage, block);
 
-  shared_model::interface::Amount resultingBalance{"15.00"};
+  shared_model::Amount resultingBalance{"15.00"};
   validateAccountAsset(sql_query, "admin@test", "coin#test", resultingBalance);
 }
 
@@ -656,7 +652,7 @@ TEST_F(PreparedBlockTest, CommitPreparedFailsAfterCommit) {
 
   EXPECT_TRUE(err(commited));
 
-  shared_model::interface::Amount resultingBalance{"15.00"};
+  shared_model::Amount resultingBalance{"15.00"};
   validateAccountAsset(sql_query, "admin@test", "coin#test", resultingBalance);
 }
 

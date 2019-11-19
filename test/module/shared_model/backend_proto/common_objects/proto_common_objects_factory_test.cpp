@@ -75,12 +75,12 @@ TEST_F(PeerTest, InvalidPeerInitialization) {
 
 class AccountTest : public ProtoFixture {
  public:
-  interface::types::AccountIdType valid_account_id = "hello@world";
-  interface::types::DomainIdType valid_domain_id = "bit.connect";
-  interface::types::QuorumType valid_quorum = 1;
-  interface::types::JsonType valid_json = R"({"name": "json" })";
+  types::AccountIdType valid_account_id = "hello@world";
+  types::DomainIdType valid_domain_id = "bit.connect";
+  types::QuorumType valid_quorum = 1;
+  types::JsonType valid_json = R"({"name": "json" })";
 
-  interface::types::AccountIdType invalid_account_id = "hello123";
+  types::AccountIdType invalid_account_id = "hello123";
 };
 
 /**
@@ -117,11 +117,11 @@ TEST_F(AccountTest, InvalidAccountInitialization) {
 
 class AccountAssetTest : public ProtoFixture {
  public:
-  interface::types::AccountIdType valid_account_id = "hello@world";
-  interface::types::AssetIdType valid_asset_id = "bit#connect";
-  interface::Amount valid_amount = interface::Amount("10.00");
+  types::AccountIdType valid_account_id = "hello@world";
+  types::AssetIdType valid_asset_id = "bit#connect";
+  Amount valid_amount = Amount("10.00");
 
-  interface::types::AccountIdType invalid_account_id = "hello123";
+  types::AccountIdType invalid_account_id = "hello123";
 };
 
 /**
@@ -157,11 +157,11 @@ TEST_F(AccountAssetTest, InvalidAccountAssetInitialization) {
 
 class AssetTest : public ProtoFixture {
  public:
-  interface::types::AssetIdType valid_asset_id = "bit#connect";
-  interface::types::DomainIdType valid_domain_id = "iroha.com";
-  interface::types::PrecisionType valid_precision = 2;
+  types::AssetIdType valid_asset_id = "bit#connect";
+  types::DomainIdType valid_domain_id = "iroha.com";
+  types::PrecisionType valid_precision = 2;
 
-  interface::types::AssetIdType invalid_asset_id = "bit";
+  types::AssetIdType invalid_asset_id = "bit";
 };
 
 /**
@@ -197,10 +197,10 @@ TEST_F(AssetTest, InvalidAssetInitialization) {
 
 class DomainTest : public ProtoFixture {
  public:
-  interface::types::DomainIdType valid_domain_id = "iroha.com";
-  interface::types::RoleIdType valid_role_id = "admin";
+  types::DomainIdType valid_domain_id = "iroha.com";
+  types::RoleIdType valid_role_id = "admin";
 
-  interface::types::DomainIdType invalid_domain_id = "123irohacom";
+  types::DomainIdType invalid_domain_id = "123irohacom";
 };
 
 /**

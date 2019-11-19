@@ -11,17 +11,15 @@
 #include "utils/string_builder.hpp"
 
 namespace shared_model {
-  namespace interface {
-    /**
-     * Error response of broken query, no specified roles
-     */
-    class NoRolesErrorResponse
-        : public AbstractErrorResponse<NoRolesErrorResponse> {
-     private:
-      std::string reason() const override {
-        return "NoRolesErrorResponse";
-      }
-    };
-  }  // namespace interface
+  /**
+   * Error response of broken query, no specified roles
+   */
+  class NoRolesErrorResponse
+      : public AbstractErrorResponse<NoRolesErrorResponse> {
+   private:
+    std::string reason() const override {
+      return "NoRolesErrorResponse";
+    }
+  };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_NO_ROLES_ERROR_RESPONSE_HPP

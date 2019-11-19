@@ -67,20 +67,18 @@ using AlwaysValidProtoCommonObjectsFactory =
     shared_model::proto::ProtoCommonObjectsFactory<
         shared_model::validation::AlwaysValidFieldValidator>;
 using ProtoTransactionFactory = shared_model::proto::ProtoTransportFactory<
-    shared_model::interface::Transaction,
+    shared_model::Transaction,
     shared_model::proto::Transaction>;
 using AbstractTransactionValidator =
-    shared_model::validation::AbstractValidator<
-        shared_model::interface::Transaction>;
+    shared_model::validation::AbstractValidator<shared_model::Transaction>;
 using AlwaysValidInterfaceTransactionValidator =
     shared_model::validation::AlwaysValidModelValidator<
-        shared_model::interface::Transaction>;
+        shared_model::Transaction>;
 using AlwaysValidProtoTransactionValidator =
     shared_model::validation::AlwaysValidModelValidator<
         iroha::protocol::Transaction>;
 using AlwaysValidProtoProposalValidator =
-    shared_model::validation::AlwaysValidModelValidator<
-        shared_model::interface::Proposal>;
+    shared_model::validation::AlwaysValidModelValidator<shared_model::Proposal>;
 using AlwaysMissingTxPresenceCache = iroha::ametsuchi::TxPresenceCacheStub<
     iroha::ametsuchi::tx_cache_status_responses::Missing>;
 using FakePeer = integration_framework::fake_peer::FakePeer;
@@ -145,8 +143,8 @@ namespace integration_framework {
       : log_(log_manager->getLogger()),
         log_manager_(std::move(log_manager)),
         proposal_queue_(
-            std::make_unique<CheckerQueue<
-                std::shared_ptr<const shared_model::interface::Proposal>>>(
+            std::make_unique<
+                CheckerQueue<std::shared_ptr<const shared_model::Proposal>>>(
                 proposal_waiting)),
         verified_proposal_queue_(
             std::make_unique<CheckerQueue<VerifiedProposalType>>(
@@ -180,14 +178,13 @@ namespace integration_framework {
         transaction_factory_(std::make_shared<ProtoTransactionFactory>(
             std::make_unique<AlwaysValidInterfaceTransactionValidator>(),
             std::make_unique<AlwaysValidProtoTransactionValidator>())),
-        batch_parser_(std::make_shared<
-                      shared_model::interface::TransactionBatchParserImpl>()),
+        batch_parser_(
+            std::make_shared<shared_model::TransactionBatchParserImpl>()),
         batch_validator_(
             std::make_shared<shared_model::validation::BatchValidator>(
                 iroha::test::kTestsValidatorsConfig)),
         transaction_batch_factory_(
-            std::make_shared<
-                shared_model::interface::TransactionBatchFactoryImpl>(
+            std::make_shared<shared_model::TransactionBatchFactoryImpl>(
                 batch_validator_)),
         proposal_factory_([] {
           std::shared_ptr<shared_model::validation::AbstractValidator<
@@ -195,7 +192,7 @@ namespace integration_framework {
               proto_transaction_validator =
                   std::make_shared<AlwaysValidProtoTransactionValidator>();
           std::unique_ptr<shared_model::validation::AbstractValidator<
-              shared_model::interface::Proposal>>
+              shared_model::Proposal>>
               proposal_validator =
                   std::make_unique<AlwaysValidProtoProposalValidator>();
           std::unique_ptr<shared_model::validation::AbstractValidator<
@@ -204,7 +201,7 @@ namespace integration_framework {
                   shared_model::validation::ProtoProposalValidator>(
                   std::move(proto_transaction_validator));
           return std::make_shared<shared_model::proto::ProtoTransportFactory<
-              shared_model::interface::Proposal,
+              shared_model::Proposal,
               shared_model::proto::Proposal>>(
               std::move(proposal_validator),
               std::move(proto_proposal_validator));
@@ -212,7 +209,7 @@ namespace integration_framework {
         tx_presence_cache_(std::make_shared<AlwaysMissingTxPresenceCache>()),
         yac_transport_(std::make_shared<iroha::consensus::yac::NetworkImpl>(
             async_call_,
-            [](const shared_model::interface::Peer &peer) {
+            [](const shared_model::Peer &peer) {
               return iroha::network::createClient<
                   iroha::consensus::yac::proto::Yac>(peer.address());
             },
@@ -268,9 +265,9 @@ namespace integration_framework {
 
   shared_model::proto::Block IntegrationTestFramework::defaultBlock(
       const shared_model::crypto::Keypair &key) const {
-    shared_model::interface::RolePermissionSet all_perms{};
+    shared_model::RolePermissionSet all_perms{};
     for (size_t i = 0; i < all_perms.size(); ++i) {
-      auto perm = static_cast<shared_model::interface::permissions::Role>(i);
+      auto perm = static_cast<shared_model::permissions::Role>(i);
       all_perms.set(perm);
     }
     auto genesis_tx_builder =
@@ -312,7 +309,7 @@ namespace integration_framework {
   }
 
   IntegrationTestFramework &IntegrationTestFramework::setGenesisBlock(
-      const shared_model::interface::Block &block) {
+      const shared_model::Block &block) {
     iroha_instance_->makeGenesis(clone(block));
     iroha_instance_->init();
     return *this;
@@ -336,7 +333,7 @@ namespace integration_framework {
   }
 
   IntegrationTestFramework &IntegrationTestFramework::setInitialState(
-      const Keypair &keypair, const shared_model::interface::Block &block) {
+      const Keypair &keypair, const shared_model::Block &block) {
     initPipeline(keypair);
     setGenesisBlock(block);
     log_->info("added genesis block");
@@ -431,8 +428,8 @@ namespace integration_framework {
     iroha_instance_->run();
   }
 
-  std::shared_ptr<shared_model::interface::Peer>
-  IntegrationTestFramework::getThisPeer() const {
+  std::shared_ptr<shared_model::Peer> IntegrationTestFramework::getThisPeer()
+      const {
     return this_peer_;
   }
 
@@ -557,7 +554,7 @@ namespace integration_framework {
   }
 
   IntegrationTestFramework &IntegrationTestFramework::sendTxSequence(
-      const shared_model::interface::TransactionSequence &tx_sequence,
+      const shared_model::TransactionSequence &tx_sequence,
       std::function<void(std::vector<shared_model::proto::TransactionResponse>
                              &)> validation) {
     log_->info("send transactions");
@@ -579,9 +576,9 @@ namespace integration_framework {
                 // check if status is either stateless valid or failed
                 bool is_stateless_status = iroha::visit_in_place(
                     s->get(),
-                    [](const shared_model::interface::StatelessFailedTxResponse
+                    [](const shared_model::StatelessFailedTxResponse
                            &stateless_failed_response) { return true; },
-                    [](const shared_model::interface::StatelessValidTxResponse
+                    [](const shared_model::StatelessValidTxResponse
                            &stateless_valid_response) { return true; },
                     [](const auto &other_responses) { return false; });
                 return is_stateless_status
@@ -619,7 +616,7 @@ namespace integration_framework {
   }
 
   IntegrationTestFramework &IntegrationTestFramework::sendTxSequenceAwait(
-      const shared_model::interface::TransactionSequence &tx_sequence,
+      const shared_model::TransactionSequence &tx_sequence,
       std::function<void(const BlockType &)> check) {
     sendTxSequence(tx_sequence)
         .skipProposal()
@@ -666,7 +663,7 @@ namespace integration_framework {
     return *this;
   }
 
-  boost::optional<std::shared_ptr<const shared_model::interface::Proposal>>
+  boost::optional<std::shared_ptr<const shared_model::Proposal>>
   IntegrationTestFramework::requestProposal(
       const iroha::consensus::Round &round, std::chrono::milliseconds timeout) {
     auto on_demand_os_transport =
@@ -695,8 +692,7 @@ namespace integration_framework {
   }
 
   IntegrationTestFramework &IntegrationTestFramework::checkProposal(
-      std::function<void(
-          const std::shared_ptr<const shared_model::interface::Proposal> &)>
+      std::function<void(const std::shared_ptr<const shared_model::Proposal> &)>
           validation) {
     log_->info("check proposal");
     // fetch first proposal from proposal queue
@@ -714,8 +710,7 @@ namespace integration_framework {
   }
 
   IntegrationTestFramework &IntegrationTestFramework::checkVerifiedProposal(
-      std::function<void(
-          const std::shared_ptr<const shared_model::interface::Proposal> &)>
+      std::function<void(const std::shared_ptr<const shared_model::Proposal> &)>
           validation) {
     log_->info("check verified proposal");
     // fetch first proposal from proposal queue
@@ -750,7 +745,7 @@ namespace integration_framework {
   }
 
   IntegrationTestFramework &IntegrationTestFramework::checkStatus(
-      const shared_model::interface::types::HashType &tx_hash,
+      const shared_model::types::HashType &tx_hash,
       std::function<void(const shared_model::proto::TransactionResponse &)>
           validation) {
     // fetch first response associated with the tx from related queue

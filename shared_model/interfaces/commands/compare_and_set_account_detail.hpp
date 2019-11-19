@@ -12,41 +12,39 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
+
+  /**
+   * Set key-value pair of given account if the current value matches provided
+   * expectation
+   */
+  class CompareAndSetAccountDetail
+      : public ModelPrimitive<CompareAndSetAccountDetail> {
+   public:
+    /**
+     * @return Identity of user to set account detail to
+     */
+    virtual const types::AccountIdType &accountId() const = 0;
 
     /**
-     * Set key-value pair of given account if the current value matches provided
-     * expectation
+     * @return key of data to store in the account
      */
-    class CompareAndSetAccountDetail
-        : public ModelPrimitive<CompareAndSetAccountDetail> {
-     public:
-      /**
-       * @return Identity of user to set account detail to
-       */
-      virtual const types::AccountIdType &accountId() const = 0;
+    virtual const types::AccountDetailKeyType &key() const = 0;
 
-      /**
-       * @return key of data to store in the account
-       */
-      virtual const types::AccountDetailKeyType &key() const = 0;
+    /**
+     * @return detail value to store by given key
+     */
+    virtual const types::AccountDetailValueType &value() const = 0;
 
-      /**
-       * @return detail value to store by given key
-       */
-      virtual const types::AccountDetailValueType &value() const = 0;
+    /**
+     * @return the value expected before the change
+     */
+    virtual const boost::optional<types::AccountDetailValueType> oldValue()
+        const = 0;
 
-      /**
-       * @return the value expected before the change
-       */
-      virtual const boost::optional<types::AccountDetailValueType> oldValue()
-          const = 0;
+    std::string toString() const override;
 
-      std::string toString() const override;
-
-      bool operator==(const ModelType &rhs) const override;
-    };
-  }  // namespace interface
+    bool operator==(const ModelType &rhs) const override;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_COMPARE_AND_SET_ACCOUNT_DETAIL_HPP

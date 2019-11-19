@@ -30,19 +30,17 @@ namespace iroha {
      public:
       using SenderFactory = std::function<
           std::unique_ptr<transport::MstTransportGrpc::StubInterface>(
-              const shared_model::interface::Peer &)>;
+              const shared_model::Peer &)>;
       using TransportFactoryType =
-          shared_model::interface::AbstractTransportFactory<
-              shared_model::interface::Transaction,
-              iroha::protocol::Transaction>;
+          shared_model::AbstractTransportFactory<shared_model::Transaction,
+                                                 iroha::protocol::Transaction>;
 
       MstTransportGrpc(
           std::shared_ptr<network::AsyncGrpcClient<google::protobuf::Empty>>
               async_call,
           std::shared_ptr<TransportFactoryType> transaction_factory,
-          std::shared_ptr<shared_model::interface::TransactionBatchParser>
-              batch_parser,
-          std::shared_ptr<shared_model::interface::TransactionBatchFactory>
+          std::shared_ptr<shared_model::TransactionBatchParser> batch_parser,
+          std::shared_ptr<shared_model::TransactionBatchFactory>
               transaction_batch_factory,
           std::shared_ptr<iroha::ametsuchi::TxPresenceCache> tx_presence_cache,
           std::shared_ptr<Completer> mst_completer,
@@ -66,7 +64,7 @@ namespace iroha {
       void subscribe(
           std::shared_ptr<MstTransportNotification> notification) override;
 
-      void sendState(const shared_model::interface::Peer &to,
+      void sendState(const shared_model::Peer &to,
                      ConstRefState providing_state) override;
 
      private:
@@ -74,10 +72,8 @@ namespace iroha {
       std::shared_ptr<network::AsyncGrpcClient<google::protobuf::Empty>>
           async_call_;
       std::shared_ptr<TransportFactoryType> transaction_factory_;
-      std::shared_ptr<shared_model::interface::TransactionBatchParser>
-          batch_parser_;
-      std::shared_ptr<shared_model::interface::TransactionBatchFactory>
-          batch_factory_;
+      std::shared_ptr<shared_model::TransactionBatchParser> batch_parser_;
+      std::shared_ptr<shared_model::TransactionBatchFactory> batch_factory_;
       std::shared_ptr<iroha::ametsuchi::TxPresenceCache> tx_presence_cache_;
       /// source peer key for MST propogation messages
       std::shared_ptr<Completer> mst_completer_;
@@ -90,7 +86,7 @@ namespace iroha {
       boost::optional<SenderFactory> sender_factory_;
     };
 
-    void sendStateAsync(const shared_model::interface::Peer &to,
+    void sendStateAsync(const shared_model::Peer &to,
                         iroha::ConstRefState state,
                         const shared_model::crypto::PublicKey &sender_key,
                         AsyncGrpcClient<google::protobuf::Empty> &async_call);

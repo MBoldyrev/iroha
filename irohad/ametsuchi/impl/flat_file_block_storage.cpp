@@ -15,14 +15,14 @@ using namespace iroha::ametsuchi;
 
 FlatFileBlockStorage::FlatFileBlockStorage(
     std::unique_ptr<FlatFile> flat_file,
-    std::shared_ptr<shared_model::interface::BlockJsonConverter> json_converter,
+    std::shared_ptr<shared_model::BlockJsonConverter> json_converter,
     logger::LoggerPtr log)
     : flat_file_storage_(std::move(flat_file)),
       json_converter_(std::move(json_converter)),
       log_(std::move(log)) {}
 
 bool FlatFileBlockStorage::insert(
-    std::shared_ptr<const shared_model::interface::Block> block) {
+    std::shared_ptr<const shared_model::Block> block) {
   return json_converter_->serialize(*block).match(
       [&](const auto &block_json) {
         return flat_file_storage_->add(block->height(),
@@ -34,9 +34,8 @@ bool FlatFileBlockStorage::insert(
       });
 }
 
-boost::optional<std::shared_ptr<const shared_model::interface::Block>>
-FlatFileBlockStorage::fetch(
-    shared_model::interface::types::HeightType height) const {
+boost::optional<std::shared_ptr<const shared_model::Block>>
+FlatFileBlockStorage::fetch(shared_model::types::HeightType height) const {
   auto storage_block = flat_file_storage_->get(height);
   if (not storage_block) {
     return boost::none;
@@ -46,12 +45,11 @@ FlatFileBlockStorage::fetch(
       .match(
           [&](auto &&block) {
             return boost::make_optional<
-                std::shared_ptr<const shared_model::interface::Block>>(
+                std::shared_ptr<const shared_model::Block>>(
                 std::move(block.value));
           },
           [&](const auto &error)
-              -> boost::optional<
-                  std::shared_ptr<const shared_model::interface::Block>> {
+              -> boost::optional<std::shared_ptr<const shared_model::Block>> {
             log_->warn("Error while block deserialization: {}", error.error);
             return boost::none;
           });

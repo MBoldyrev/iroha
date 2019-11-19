@@ -11,73 +11,71 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
 
-    class GetAccount;
-    class GetBlock;
-    class GetSignatories;
-    class GetAccountTransactions;
-    class GetAccountAssetTransactions;
-    class GetTransactions;
-    class GetAccountAssets;
-    class GetAccountDetail;
-    class GetRoles;
-    class GetRolePermissions;
-    class GetAssetInfo;
-    class GetPendingTransactions;
-    class GetPeers;
+  class GetAccount;
+  class GetBlock;
+  class GetSignatories;
+  class GetAccountTransactions;
+  class GetAccountAssetTransactions;
+  class GetTransactions;
+  class GetAccountAssets;
+  class GetAccountDetail;
+  class GetRoles;
+  class GetRolePermissions;
+  class GetAssetInfo;
+  class GetPendingTransactions;
+  class GetPeers;
+
+  /**
+   * Class Query provides container with one of concrete query available in
+   * system.
+   * General note: this class is container for queries but not a base class.
+   */
+  class Query : public Signable<Query> {
+   private:
+    /// Shortcut type for const reference
+    template <typename... Value>
+    using wrap = boost::variant<const Value &...>;
+
+   public:
+    /// Type of variant, that handle concrete query
+    using QueryVariantType = wrap<GetAccount,
+                                  GetSignatories,
+                                  GetAccountTransactions,
+                                  GetAccountAssetTransactions,
+                                  GetTransactions,
+                                  GetAccountAssets,
+                                  GetAccountDetail,
+                                  GetRoles,
+                                  GetRolePermissions,
+                                  GetAssetInfo,
+                                  GetPendingTransactions,
+                                  GetBlock,
+                                  GetPeers>;
 
     /**
-     * Class Query provides container with one of concrete query available in
-     * system.
-     * General note: this class is container for queries but not a base class.
+     * @return reference to const variant with concrete command
      */
-    class Query : public Signable<Query> {
-     private:
-      /// Shortcut type for const reference
-      template <typename... Value>
-      using wrap = boost::variant<const Value &...>;
+    virtual const QueryVariantType &get() const = 0;
 
-     public:
-      /// Type of variant, that handle concrete query
-      using QueryVariantType = wrap<GetAccount,
-                                    GetSignatories,
-                                    GetAccountTransactions,
-                                    GetAccountAssetTransactions,
-                                    GetTransactions,
-                                    GetAccountAssets,
-                                    GetAccountDetail,
-                                    GetRoles,
-                                    GetRolePermissions,
-                                    GetAssetInfo,
-                                    GetPendingTransactions,
-                                    GetBlock,
-                                    GetPeers>;
+    /**
+     * @return id of query creator
+     */
+    virtual const types::AccountIdType &creatorAccountId() const = 0;
 
-      /**
-       * @return reference to const variant with concrete command
-       */
-      virtual const QueryVariantType &get() const = 0;
+    /**
+     * Query counter - incremental variable reflect for number of sent to
+     * system queries plus 1. Required for preventing replay attacks.
+     * @return attached query counter
+     */
+    virtual types::CounterType queryCounter() const = 0;
 
-      /**
-       * @return id of query creator
-       */
-      virtual const types::AccountIdType &creatorAccountId() const = 0;
+    // ------------------------| Primitive override |-------------------------
 
-      /**
-       * Query counter - incremental variable reflect for number of sent to
-       * system queries plus 1. Required for preventing replay attacks.
-       * @return attached query counter
-       */
-      virtual types::CounterType queryCounter() const = 0;
+    std::string toString() const override;
 
-      // ------------------------| Primitive override |-------------------------
-
-      std::string toString() const override;
-
-      bool operator==(const ModelType &rhs) const override;
-    };
-  }  // namespace interface
+    bool operator==(const ModelType &rhs) const override;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_QUERY_HPP

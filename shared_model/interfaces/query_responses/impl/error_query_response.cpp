@@ -8,19 +8,17 @@
 #include "utils/visitor_apply_for_all.hpp"
 
 namespace shared_model {
-  namespace interface {
 
-    std::string ErrorQueryResponse::toString() const {
-      return detail::PrettyStringBuilder()
-          .init("ErrorQueryResponse")
-          .append(boost::apply_visitor(detail::ToStringVisitor(), get()))
-          .append("errorMessage", errorMessage())
-          .finalize();
-    }
+  std::string ErrorQueryResponse::toString() const {
+    return detail::PrettyStringBuilder()
+        .init("ErrorQueryResponse")
+        .append(boost::apply_visitor(detail::ToStringVisitor(), get()))
+        .append("errorMessage", errorMessage())
+        .finalize();
+  }
 
-    bool ErrorQueryResponse::operator==(const ModelType &rhs) const {
-      return get() == rhs.get();
-    }
+  bool ErrorQueryResponse::operator==(const ModelType &rhs) const {
+    return get() == rhs.get();
+  }
 
-  }  // namespace interface
 }  // namespace shared_model

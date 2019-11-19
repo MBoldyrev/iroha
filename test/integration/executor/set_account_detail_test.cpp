@@ -18,12 +18,12 @@
 using namespace common_constants;
 using namespace executor_testing;
 using namespace framework::expected;
-using namespace shared_model::interface::types;
+using namespace shared_model::types;
 
 using iroha::ametsuchi::QueryExecutorResult;
-using shared_model::interface::AccountDetailResponse;
-using shared_model::interface::permissions::Grantable;
-using shared_model::interface::permissions::Role;
+using shared_model::AccountDetailResponse;
+using shared_model::permissions::Grantable;
+using shared_model::permissions::Role;
 using shared_model::plain::AccountDetailRecordId;
 
 static const AccountDetailKeyType kKey{"key"};

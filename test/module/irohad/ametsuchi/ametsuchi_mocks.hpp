@@ -38,57 +38,46 @@ namespace iroha {
                                     const std::string &role_name));
       MOCK_METHOD2(
           insertRolePermissions,
-          WsvCommandResult(
-              const std::string &role_id,
-              const shared_model::interface::RolePermissionSet &permissions));
+          WsvCommandResult(const std::string &role_id,
+                           const shared_model::RolePermissionSet &permissions));
 
       MOCK_METHOD3(
           insertAccountGrantablePermission,
-          WsvCommandResult(
-              const std::string &permittee_account_id,
-              const std::string &account_id,
-              shared_model::interface::permissions::Grantable permission));
+          WsvCommandResult(const std::string &permittee_account_id,
+                           const std::string &account_id,
+                           shared_model::permissions::Grantable permission));
 
       MOCK_METHOD3(
           deleteAccountGrantablePermission,
-          WsvCommandResult(
-              const std::string &permittee_account_id,
-              const std::string &account_id,
-              shared_model::interface::permissions::Grantable permission));
+          WsvCommandResult(const std::string &permittee_account_id,
+                           const std::string &account_id,
+                           shared_model::permissions::Grantable permission));
       MOCK_METHOD1(insertAccount,
-                   WsvCommandResult(const shared_model::interface::Account &));
+                   WsvCommandResult(const shared_model::Account &));
       MOCK_METHOD1(updateAccount,
-                   WsvCommandResult(const shared_model::interface::Account &));
-      MOCK_METHOD1(insertAsset,
-                   WsvCommandResult(const shared_model::interface::Asset &));
-      MOCK_METHOD1(
-          upsertAccountAsset,
-          WsvCommandResult(const shared_model::interface::AccountAsset &));
-      MOCK_METHOD1(
-          insertSignatory,
-          WsvCommandResult(const shared_model::interface::types::PubkeyType &));
-      MOCK_METHOD1(
-          deleteSignatory,
-          WsvCommandResult(const shared_model::interface::types::PubkeyType &));
+                   WsvCommandResult(const shared_model::Account &));
+      MOCK_METHOD1(insertAsset, WsvCommandResult(const shared_model::Asset &));
+      MOCK_METHOD1(upsertAccountAsset,
+                   WsvCommandResult(const shared_model::AccountAsset &));
+      MOCK_METHOD1(insertSignatory,
+                   WsvCommandResult(const shared_model::types::PubkeyType &));
+      MOCK_METHOD1(deleteSignatory,
+                   WsvCommandResult(const shared_model::types::PubkeyType &));
 
-      MOCK_METHOD2(
-          insertAccountSignatory,
-          WsvCommandResult(const std::string &,
-                           const shared_model::interface::types::PubkeyType &));
+      MOCK_METHOD2(insertAccountSignatory,
+                   WsvCommandResult(const std::string &,
+                                    const shared_model::types::PubkeyType &));
 
-      MOCK_METHOD2(
-          deleteAccountSignatory,
-          WsvCommandResult(const std::string &,
-                           const shared_model::interface::types::PubkeyType &));
+      MOCK_METHOD2(deleteAccountSignatory,
+                   WsvCommandResult(const std::string &,
+                                    const shared_model::types::PubkeyType &));
 
-      MOCK_METHOD1(insertPeer,
-                   WsvCommandResult(const shared_model::interface::Peer &));
+      MOCK_METHOD1(insertPeer, WsvCommandResult(const shared_model::Peer &));
 
-      MOCK_METHOD1(deletePeer,
-                   WsvCommandResult(const shared_model::interface::Peer &));
+      MOCK_METHOD1(deletePeer, WsvCommandResult(const shared_model::Peer &));
 
       MOCK_METHOD1(insertDomain,
-                   WsvCommandResult(const shared_model::interface::Domain &));
+                   WsvCommandResult(const shared_model::Domain &));
       MOCK_METHOD4(setAccountKV,
                    WsvCommandResult(const std::string &,
                                     const std::string &,
@@ -100,7 +89,7 @@ namespace iroha {
      public:
       MOCK_METHOD1(apply,
                    expected::Result<void, validation::CommandError>(
-                       const shared_model::interface::Transaction &));
+                       const shared_model::Transaction &));
       MOCK_METHOD1(
           createSavepoint,
           std::unique_ptr<TemporaryWsv::SavepointWrapper>(const std::string &));

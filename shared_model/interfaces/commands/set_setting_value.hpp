@@ -11,28 +11,26 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
+
+  /**
+   * Set key-value pair of settings
+   */
+  class SetSettingValue : public ModelPrimitive<SetSettingValue> {
+   public:
+    /**
+     * @return key of data to store in settings
+     */
+    virtual const types::SettingKeyType &key() const = 0;
 
     /**
-     * Set key-value pair of settings
+     * @return setting value to store by given key
      */
-    class SetSettingValue : public ModelPrimitive<SetSettingValue> {
-     public:
-      /**
-       * @return key of data to store in settings
-       */
-      virtual const types::SettingKeyType &key() const = 0;
+    virtual const types::SettingValueType &value() const = 0;
 
-      /**
-       * @return setting value to store by given key
-       */
-      virtual const types::SettingValueType &value() const = 0;
+    std::string toString() const override;
 
-      std::string toString() const override;
-
-      bool operator==(const ModelType &rhs) const override;
-    };
-  }  // namespace interface
+    bool operator==(const ModelType &rhs) const override;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_SET_SETTING_VALUE_HPP

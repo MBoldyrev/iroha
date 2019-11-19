@@ -16,9 +16,7 @@ namespace shared_model {
     class Hash;
   }  // namespace crypto
 
-  namespace interface {
-    class TransactionBatch;
-  }  // namespace interface
+  class TransactionBatch;
 }  // namespace shared_model
 
 namespace iroha {
@@ -46,7 +44,7 @@ namespace iroha {
        * if storage queries were successful, boost::none otherwise
        */
       virtual boost::optional<BatchStatusCollectionType> check(
-          const shared_model::interface::TransactionBatch &batch) const = 0;
+          const shared_model::TransactionBatch &batch) const = 0;
 
       // TODO: 09/11/2018 @muratovv add method for processing collection of
       // batches IR-1857

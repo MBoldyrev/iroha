@@ -8,18 +8,16 @@
 #include "cryptography/public_key.hpp"
 
 namespace shared_model {
-  namespace interface {
 
-    std::string RemovePeer::toString() const {
-      return detail::PrettyStringBuilder()
-          .init("RemovePeer")
-          .append(pubkey().toString())
-          .finalize();
-    }
+  std::string RemovePeer::toString() const {
+    return detail::PrettyStringBuilder()
+        .init("RemovePeer")
+        .append(pubkey().toString())
+        .finalize();
+  }
 
-    bool RemovePeer::operator==(const ModelType &rhs) const {
-      return pubkey() == rhs.pubkey();
-    }
+  bool RemovePeer::operator==(const ModelType &rhs) const {
+    return pubkey() == rhs.pubkey();
+  }
 
-  }  // namespace interface
 }  // namespace shared_model

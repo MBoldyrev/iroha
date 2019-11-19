@@ -27,8 +27,8 @@ using namespace common_constants;
  */
 TEST_F(AcceptanceFixture, CanGetRoles) {
   auto checkQuery = [](auto &query_response) {
-    ASSERT_NO_THROW(boost::get<const shared_model::interface::RolesResponse &>(
-        query_response.get()));
+    ASSERT_NO_THROW(
+        boost::get<const shared_model::RolesResponse &>(query_response.get()));
   };
 
   auto query = TestUnsignedQueryBuilder()
@@ -42,8 +42,7 @@ TEST_F(AcceptanceFixture, CanGetRoles) {
 
   IntegrationTestFramework(1)
       .setInitialState(kAdminKeypair)
-      .sendTx(makeUserWithPerms(
-          {shared_model::interface::permissions::Role::kGetRoles}))
+      .sendTx(makeUserWithPerms({shared_model::permissions::Role::kGetRoles}))
       .skipProposal()
       .checkBlock(
           [](auto &block) { ASSERT_EQ(boost::size(block->transactions()), 1); })
@@ -62,9 +61,9 @@ TEST_F(AcceptanceFixture, CanNotGetRoles) {
   auto checkQuery = [](auto &query_response) {
     ASSERT_NO_THROW({
       const auto &error_rsp =
-          boost::get<const shared_model::interface::ErrorQueryResponse &>(
+          boost::get<const shared_model::ErrorQueryResponse &>(
               query_response.get());
-      boost::get<const shared_model::interface::StatefulFailedErrorResponse &>(
+      boost::get<const shared_model::StatefulFailedErrorResponse &>(
           error_rsp.get());
     });
   };

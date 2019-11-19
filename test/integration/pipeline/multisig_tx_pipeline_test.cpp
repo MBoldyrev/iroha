@@ -30,16 +30,15 @@ class MstPipelineTest : public AcceptanceFixture {
    */
   IntegrationTestFramework &makeMstUser(IntegrationTestFramework &itf,
                                         size_t sigs = kSignatories) {
-    auto create_user_tx =
-        createUserWithPerms(kUser,
-                            kUserKeypair.publicKey(),
-                            kNewRole,
-                            {interface::permissions::Role::kSetQuorum,
-                             interface::permissions::Role::kAddSignatory,
-                             interface::permissions::Role::kSetDetail})
-            .build()
-            .signAndAddSignature(kAdminKeypair)
-            .finish();
+    auto create_user_tx = createUserWithPerms(kUser,
+                                              kUserKeypair.publicKey(),
+                                              kNewRole,
+                                              {permissions::Role::kSetQuorum,
+                                               permissions::Role::kAddSignatory,
+                                               permissions::Role::kSetDetail})
+                              .build()
+                              .signAndAddSignature(kAdminKeypair)
+                              .finish();
     auto add_signatories_tx = baseTx().quorum(1);
     for (size_t i = 0; i < sigs; ++i) {
       signatories.push_back(
@@ -105,9 +104,8 @@ class MstPipelineTest : public AcceptanceFixture {
   auto makeGetPendingTxsQuery(
       const std::string &creator,
       const crypto::Keypair &key,
-      const interface::types::TransactionsNumberType &page_size,
-      const boost::optional<interface::types::HashType> &first_tx_hash =
-          boost::none) {
+      const types::TransactionsNumberType &page_size,
+      const boost::optional<types::HashType> &first_tx_hash = boost::none) {
     return shared_model::proto::QueryBuilder()
         .createdTime(getUniqueTime())
         .creatorAccountId(creator)
@@ -127,7 +125,7 @@ class MstPipelineTest : public AcceptanceFixture {
   static void oldNoTxsCheck(const proto::QueryResponse &response) {
     ASSERT_NO_THROW({
       const auto &pending_txs_resp =
-          boost::get<const interface::TransactionsResponse &>(response.get());
+          boost::get<const TransactionsResponse &>(response.get());
 
       ASSERT_TRUE(pending_txs_resp.transactions().empty());
     });
@@ -140,8 +138,7 @@ class MstPipelineTest : public AcceptanceFixture {
   static void noTxsCheck(const proto::QueryResponse &response) {
     ASSERT_NO_THROW({
       const auto &pending_txs_resp =
-          boost::get<const interface::PendingTransactionsPageResponse &>(
-              response.get());
+          boost::get<const PendingTransactionsPageResponse &>(response.get());
 
       ASSERT_TRUE(pending_txs_resp.transactions().empty());
     });
@@ -159,7 +156,7 @@ class MstPipelineTest : public AcceptanceFixture {
     return [expected_signatures_number](const auto &response) {
       ASSERT_NO_THROW({
         const auto &pending_txs_resp =
-            boost::get<const interface::TransactionsResponse &>(response.get());
+            boost::get<const TransactionsResponse &>(response.get());
 
         ASSERT_EQ(
             boost::size(pending_txs_resp.transactions().front().signatures()),
@@ -178,8 +175,7 @@ class MstPipelineTest : public AcceptanceFixture {
     return [expected_signatures_number](const auto &response) {
       ASSERT_NO_THROW({
         const auto &pending_txs_resp =
-            boost::get<const interface::PendingTransactionsPageResponse &>(
-                response.get());
+            boost::get<const PendingTransactionsPageResponse &>(response.get());
 
         ASSERT_EQ(
             boost::size(pending_txs_resp.transactions().front().signatures()),
@@ -241,7 +237,7 @@ TEST_F(MstPipelineTest, OldGetPendingTxsAwaitingForThisPeer) {
   auto pending_tx_check = [pending_hash = signed_tx.hash()](auto &response) {
     ASSERT_NO_THROW({
       const auto &pending_tx_resp =
-          boost::get<const interface::TransactionsResponse &>(response.get());
+          boost::get<const TransactionsResponse &>(response.get());
       ASSERT_EQ(pending_tx_resp.transactions().front().hash(), pending_hash);
     });
   };
@@ -345,8 +341,7 @@ TEST_F(MstPipelineTest, GetPendingTxsAwaitingForThisPeer) {
   auto pending_tx_check = [pending_hash = signed_tx.hash()](auto &response) {
     ASSERT_NO_THROW({
       const auto &pending_tx_resp =
-          boost::get<const interface::PendingTransactionsPageResponse &>(
-              response.get());
+          boost::get<const PendingTransactionsPageResponse &>(response.get());
       ASSERT_EQ(pending_tx_resp.transactions().front().hash(), pending_hash);
     });
   };

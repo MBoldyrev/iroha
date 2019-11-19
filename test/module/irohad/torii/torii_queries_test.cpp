@@ -36,8 +36,7 @@
 #include "utils/query_error_response_visitor.hpp"
 
 constexpr size_t TimesFind = 1;
-static constexpr shared_model::interface::types::TransactionsNumberType
-    kTxPageSize(10);
+static constexpr shared_model::types::TransactionsNumberType kTxPageSize(10);
 
 using ::testing::_;
 using ::testing::A;
@@ -46,11 +45,10 @@ using ::testing::Return;
 
 using namespace iroha::ametsuchi;
 using namespace iroha::torii;
-using namespace shared_model::interface::permissions;
+using namespace shared_model::permissions;
 
-using wTransaction = std::shared_ptr<shared_model::interface::Transaction>;
-using ErrorQueryType =
-    shared_model::interface::QueryResponseFactory::ErrorQueryType;
+using wTransaction = std::shared_ptr<shared_model::Transaction>;
+using ErrorQueryType = shared_model::QueryResponseFactory::ErrorQueryType;
 
 // TODO kamilsa 22.06.18 IR-1472 rework this test so that query service is
 // mocked
@@ -98,8 +96,8 @@ class ToriiQueriesTest : public testing::Test {
   }
 
   void initQueryFactory() {
-    std::unique_ptr<shared_model::validation::AbstractValidator<
-        shared_model::interface::Query>>
+    std::unique_ptr<
+        shared_model::validation::AbstractValidator<shared_model::Query>>
         query_validator = std::make_unique<
             shared_model::validation::DefaultSignedQueryValidator>(
             iroha::test::kTestsValidatorsConfig);
@@ -107,10 +105,10 @@ class ToriiQueriesTest : public testing::Test {
         shared_model::validation::AbstractValidator<iroha::protocol::Query>>
         proto_query_validator =
             std::make_unique<shared_model::validation::ProtoQueryValidator>();
-    query_factory = std::make_shared<shared_model::proto::ProtoTransportFactory<
-        shared_model::interface::Query,
-        shared_model::proto::Query>>(std::move(query_validator),
-                                     std::move(proto_query_validator));
+    query_factory = std::make_shared<
+        shared_model::proto::ProtoTransportFactory<shared_model::Query,
+                                                   shared_model::proto::Query>>(
+        std::move(query_validator), std::move(proto_query_validator));
 
     auto blocks_query_validator = std::make_unique<
         shared_model::validation::DefaultSignedBlocksQueryValidator>(
@@ -120,7 +118,7 @@ class ToriiQueriesTest : public testing::Test {
 
     blocks_query_factory =
         std::make_shared<shared_model::proto::ProtoTransportFactory<
-            shared_model::interface::BlocksQuery,
+            shared_model::BlocksQuery,
             shared_model::proto::BlocksQuery>>(
             std::move(blocks_query_validator),
             std::move(proto_blocks_query_validator));
@@ -129,16 +127,14 @@ class ToriiQueriesTest : public testing::Test {
   std::unique_ptr<iroha::network::ServerRunner> runner;
   shared_model::crypto::Keypair pair =
       shared_model::crypto::DefaultCryptoAlgorithmType::generateKeypair();
-  std::vector<shared_model::interface::types::PubkeyType> signatories = {
-      pair.publicKey()};
+  std::vector<shared_model::types::PubkeyType> signatories = {pair.publicKey()};
 
   std::shared_ptr<MockWsvQuery> wsv_query;
   std::shared_ptr<MockBlockQuery> block_query;
   std::shared_ptr<MockQueryExecutor> query_executor;
   std::shared_ptr<MockStorage> storage;
   std::shared_ptr<iroha::MockPendingTransactionStorage> pending_txs_storage;
-  std::shared_ptr<shared_model::interface::QueryResponseFactory>
-      query_response_factory;
+  std::shared_ptr<shared_model::QueryResponseFactory> query_response_factory;
   std::shared_ptr<QueryService::QueryFactoryType> query_factory;
   std::shared_ptr<QueryService::BlocksQueryFactoryType> blocks_query_factory;
 
@@ -192,10 +188,10 @@ TEST_F(ToriiQueriesTest, FindWhenResponseInvalid) {
       iroha::protocol::QueryResponse{response}};
   ASSERT_TRUE(stat.ok());
   // Must return Error Response
-  ASSERT_TRUE(boost::apply_visitor(
-      shared_model::interface::QueryErrorResponseChecker<
-          shared_model::interface::StatelessFailedErrorResponse>(),
-      resp.get()));
+  ASSERT_TRUE(
+      boost::apply_visitor(shared_model::QueryErrorResponseChecker<
+                               shared_model::StatelessFailedErrorResponse>(),
+                           resp.get()));
 
   ASSERT_EQ(query.hash(), resp.queryHash());
 }
@@ -238,10 +234,10 @@ TEST_F(ToriiQueriesTest, FindAccountWhenNoGrantPermissions) {
       iroha::protocol::QueryResponse{response}};
   // Must be invalid due to failed stateful validation caused by no permission
   // to read account
-  ASSERT_TRUE(boost::apply_visitor(
-      shared_model::interface::QueryErrorResponseChecker<
-          shared_model::interface::StatefulFailedErrorResponse>(),
-      resp.get()));
+  ASSERT_TRUE(
+      boost::apply_visitor(shared_model::QueryErrorResponseChecker<
+                               shared_model::StatefulFailedErrorResponse>(),
+                           resp.get()));
 
   ASSERT_EQ(model_query.hash(), resp.queryHash());
 }
@@ -287,8 +283,7 @@ TEST_F(ToriiQueriesTest, FindAccountWhenHasReadPermissions) {
 
   ASSERT_NO_THROW({
     const auto &account_resp =
-        boost::get<const shared_model::interface::AccountResponse &>(
-            resp.get());
+        boost::get<const shared_model::AccountResponse &>(resp.get());
 
     ASSERT_EQ(account_resp.account().accountId(), accountB_id);
     ASSERT_EQ(account_resp.roles().size(), 1);
@@ -333,8 +328,7 @@ TEST_F(ToriiQueriesTest, FindAccountWhenHasRolePermission) {
 
   ASSERT_NO_THROW({
     const auto &detail_resp =
-        boost::get<const shared_model::interface::AccountResponse &>(
-            resp.get());
+        boost::get<const shared_model::AccountResponse &>(resp.get());
 
     ASSERT_EQ(detail_resp.account().accountId(), account_id);
     ASSERT_EQ(detail_resp.account().domainId(), domain_id);
@@ -380,10 +374,10 @@ TEST_F(ToriiQueriesTest, FindAccountAssetWhenNoGrantPermissions) {
   ASSERT_TRUE(stat.ok());
   // Must be invalid due to failed stateful validation caused by no permission
   // to read account asset
-  ASSERT_TRUE(boost::apply_visitor(
-      shared_model::interface::QueryErrorResponseChecker<
-          shared_model::interface::StatefulFailedErrorResponse>(),
-      resp.get()));
+  ASSERT_TRUE(
+      boost::apply_visitor(shared_model::QueryErrorResponseChecker<
+                               shared_model::StatefulFailedErrorResponse>(),
+                           resp.get()));
 
   ASSERT_EQ(model_query.hash(), resp.queryHash());
 }
@@ -391,7 +385,7 @@ TEST_F(ToriiQueriesTest, FindAccountAssetWhenNoGrantPermissions) {
 TEST_F(ToriiQueriesTest, FindAccountAssetWhenHasRolePermissions) {
   std::string account_id = "accountA";
   std::string asset_id = "usd";
-  auto amount = shared_model::interface::Amount("1.00");
+  auto amount = shared_model::Amount("1.00");
 
   auto creator = "a@domain";
   EXPECT_CALL(*wsv_query, getSignatories(creator))
@@ -408,9 +402,9 @@ TEST_F(ToriiQueriesTest, FindAccountAssetWhenHasRolePermissions) {
                          .signAndAddSignature(pair)
                          .finish();
 
-  std::vector<std::tuple<shared_model::interface::types::AccountIdType,
-                         shared_model::interface::types::AssetIdType,
-                         shared_model::interface::Amount>>
+  std::vector<std::tuple<shared_model::types::AccountIdType,
+                         shared_model::types::AssetIdType,
+                         shared_model::Amount>>
       assets;
   assets.push_back(std::make_tuple(account_id, asset_id, amount));
   auto *r = query_response_factory
@@ -434,8 +428,7 @@ TEST_F(ToriiQueriesTest, FindAccountAssetWhenHasRolePermissions) {
       iroha::protocol::QueryResponse{response}};
   ASSERT_NO_THROW({
     const auto &asset_resp =
-        boost::get<const shared_model::interface::AccountAssetResponse &>(
-            resp.get());
+        boost::get<const shared_model::AccountAssetResponse &>(resp.get());
     // Check if the fields in account asset response are correct
     ASSERT_EQ(asset_resp.accountAssets()[0].assetId(), asset_id);
     ASSERT_EQ(asset_resp.accountAssets()[0].accountId(), account_id);
@@ -451,9 +444,8 @@ TEST_F(ToriiQueriesTest, FindAccountAssetWhenHasRolePermissions) {
 TEST_F(ToriiQueriesTest, FindSignatoriesWhenNoGrantPermissions) {
   iroha::pubkey_t pubkey;
   std::fill(pubkey.begin(), pubkey.end(), 0x1);
-  std::vector<shared_model::interface::types::PubkeyType> keys;
-  keys.push_back(
-      shared_model::interface::types::PubkeyType(pubkey.to_string()));
+  std::vector<shared_model::types::PubkeyType> keys;
+  keys.push_back(shared_model::types::PubkeyType(pubkey.to_string()));
 
   auto creator = "a@domain";
   EXPECT_CALL(*wsv_query, getSignatories(creator))
@@ -485,10 +477,10 @@ TEST_F(ToriiQueriesTest, FindSignatoriesWhenNoGrantPermissions) {
   // to read account
   shared_model::proto::QueryResponse resp{
       iroha::protocol::QueryResponse{response}};
-  ASSERT_TRUE(boost::apply_visitor(
-      shared_model::interface::QueryErrorResponseChecker<
-          shared_model::interface::StatefulFailedErrorResponse>(),
-      resp.get()));
+  ASSERT_TRUE(
+      boost::apply_visitor(shared_model::QueryErrorResponseChecker<
+                               shared_model::StatefulFailedErrorResponse>(),
+                           resp.get()));
 
   ASSERT_EQ(model_query.hash(), resp.queryHash());
 }
@@ -497,9 +489,9 @@ TEST_F(ToriiQueriesTest, FindSignatoriesHasRolePermissions) {
   auto creator = "a@domain";
   iroha::pubkey_t pubkey;
   std::fill(pubkey.begin(), pubkey.end(), 0x1);
-  std::vector<shared_model::interface::types::PubkeyType> keys;
-  keys.emplace_back(shared_model::interface::types::PubkeyType::fromHexString(
-      pubkey.to_hexstring()));
+  std::vector<shared_model::types::PubkeyType> keys;
+  keys.emplace_back(
+      shared_model::types::PubkeyType::fromHexString(pubkey.to_hexstring()));
 
   EXPECT_CALL(*wsv_query, getSignatories(creator))
       .WillRepeatedly(Return(signatories));
@@ -527,11 +519,10 @@ TEST_F(ToriiQueriesTest, FindSignatoriesHasRolePermissions) {
   shared_model::proto::QueryResponse shared_response{
       iroha::protocol::QueryResponse{response}};
   ASSERT_NO_THROW({
-    auto resp_pubkey =
-        *boost::get<const shared_model::interface::SignatoriesResponse &>(
-             shared_response.get())
-             .keys()
-             .begin();
+    auto resp_pubkey = *boost::get<const shared_model::SignatoriesResponse &>(
+                            shared_response.get())
+                            .keys()
+                            .begin();
 
     ASSERT_TRUE(stat.ok());
     /// Should not return Error Response because tx is stateless and stateful
@@ -553,7 +544,7 @@ TEST_F(ToriiQueriesTest, FindTransactionsWhenValid) {
   std::vector<wTransaction> txs;
   std::vector<shared_model::proto::Transaction> proto_txs;
   for (size_t i = 0; i < 3; ++i) {
-    std::shared_ptr<shared_model::interface::Transaction> current =
+    std::shared_ptr<shared_model::Transaction> current =
         clone(TestTransactionBuilder().creatorAccountId(account_id).build());
     txs.push_back(current);
     proto_txs.push_back(
@@ -574,8 +565,7 @@ TEST_F(ToriiQueriesTest, FindTransactionsWhenValid) {
                          .signAndAddSignature(pair)
                          .finish();
 
-  std::vector<std::unique_ptr<shared_model::interface::Transaction>>
-      response_txs;
+  std::vector<std::unique_ptr<shared_model::Transaction>> response_txs;
   std::transform(std::begin(proto_txs),
                  std::end(proto_txs),
                  std::back_inserter(response_txs),
@@ -598,8 +588,7 @@ TEST_F(ToriiQueriesTest, FindTransactionsWhenValid) {
       iroha::protocol::QueryResponse{response}};
   ASSERT_NO_THROW({
     const auto &tx_resp =
-        boost::get<const shared_model::interface::TransactionsResponse &>(
-            resp.get());
+        boost::get<const shared_model::TransactionsResponse &>(resp.get());
 
     const auto &txs = tx_resp.transactions();
     for (const auto &tx : txs) {
@@ -628,10 +617,10 @@ TEST_F(ToriiQueriesTest, FindManyTimesWhereQueryServiceSync) {
     shared_model::proto::QueryResponse resp{
         iroha::protocol::QueryResponse{response}};
     // Must return Error Response
-    ASSERT_TRUE(boost::apply_visitor(
-        shared_model::interface::QueryErrorResponseChecker<
-            shared_model::interface::StatelessFailedErrorResponse>(),
-        resp.get()));
+    ASSERT_TRUE(
+        boost::apply_visitor(shared_model::QueryErrorResponseChecker<
+                                 shared_model::StatelessFailedErrorResponse>(),
+                             resp.get()));
 
     ASSERT_EQ(model_query.hash(), resp.queryHash());
   }

@@ -65,7 +65,7 @@ class OnDemandOrderingGateTest : public ::testing::Test {
 
     auto peer = makePeer("127.0.0.1", shared_model::crypto::PublicKey("111"));
     ledger_state = std::make_shared<LedgerState>(
-        shared_model::interface::types::PeerList{std::move(peer)},
+        shared_model::types::PeerList{std::move(peer)},
         round.block_round,
         shared_model::crypto::Hash{"hash"});
   }
@@ -113,7 +113,7 @@ class OnDemandOrderingGateTest : public ::testing::Test {
  * @then it is passed to the ordering service
  */
 TEST_F(OnDemandOrderingGateTest, propagateBatch) {
-  auto hash1 = shared_model::interface::types::HashType("");
+  auto hash1 = shared_model::types::HashType("");
   auto batch = createMockBatchWithHash(hash1);
   OdOsNotification::CollectionType collection{batch};
 
@@ -261,7 +261,7 @@ TEST_F(OnDemandOrderingGateTest, ReplayedTransactionInProposal) {
   auto proposal = std::make_shared<const NiceMock<MockProposal>>();
   ON_CALL(*proposal, transactions()).WillByDefault(Return(tx_range));
   auto arriving_proposal = boost::make_optional(
-      std::static_pointer_cast<const shared_model::interface::Proposal>(
+      std::static_pointer_cast<const shared_model::Proposal>(
           std::move(proposal)));
 
   // set expectations for ordering service
@@ -279,8 +279,7 @@ TEST_F(OnDemandOrderingGateTest, ReplayedTransactionInProposal) {
 
   ON_CALL(*factory_proposal, transactions())
       .WillByDefault(
-          Return<shared_model::interface::types::TransactionsCollectionType>(
-              {}));
+          Return<shared_model::types::TransactionsCollectionType>({}));
   EXPECT_CALL(
       *factory,
       unsafeCreateProposal(
@@ -318,7 +317,7 @@ TEST_F(OnDemandOrderingGateTest, RepeatedTransactionInProposal) {
   ON_CALL(*proposal, transactions()).WillByDefault(Return(txs));
 
   auto arriving_proposal = boost::make_optional(
-      std::static_pointer_cast<const shared_model::interface::Proposal>(
+      std::static_pointer_cast<const shared_model::Proposal>(
           std::move(proposal)));
 
   // set expectations for ordering service
@@ -358,10 +357,10 @@ TEST_F(OnDemandOrderingGateTest, RepeatedTransactionInProposal) {
  */
 TEST_F(OnDemandOrderingGateTest, PopNonEmptyBatchesFromTheCache) {
   // prepare internals of mock batches
-  shared_model::interface::types::HashType hash1("hash1");
+  shared_model::types::HashType hash1("hash1");
   auto tx1 = createMockTransactionWithHash(hash1);
 
-  shared_model::interface::types::HashType hash2("hash2");
+  shared_model::types::HashType hash2("hash2");
   auto tx2 = createMockTransactionWithHash(hash2);
 
   // prepare batches
@@ -406,8 +405,8 @@ TEST_F(OnDemandOrderingGateTest, PopEmptyBatchesFromTheCache) {
  */
 TEST_F(OnDemandOrderingGateTest, BatchesRemoveFromCache) {
   // prepare hashes for mock batches
-  shared_model::interface::types::HashType hash1("hash1");
-  shared_model::interface::types::HashType hash2("hash2");
+  shared_model::types::HashType hash1("hash1");
+  shared_model::types::HashType hash2("hash2");
 
   // prepare batches
   auto batch1 = createMockBatchWithHash(hash1);

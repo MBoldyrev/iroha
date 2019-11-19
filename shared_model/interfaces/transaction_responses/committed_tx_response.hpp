@@ -9,17 +9,15 @@
 #include "interfaces/transaction_responses/abstract_tx_response.hpp"
 
 namespace shared_model {
-  namespace interface {
-    /**
-     * Tx pipeline succeeded, tx is committed in ledger
-     */
-    class CommittedTxResponse : public AbstractTxResponse<CommittedTxResponse> {
-     private:
-      std::string className() const override {
-        return "CommittedTxResponse";
-      }
-    };
+  /**
+   * Tx pipeline succeeded, tx is committed in ledger
+   */
+  class CommittedTxResponse : public AbstractTxResponse<CommittedTxResponse> {
+   private:
+    std::string className() const override {
+      return "CommittedTxResponse";
+    }
+  };
 
-  }  // namespace interface
 }  // namespace shared_model
 #endif  // IROHA_COMMITTED_TX_RESPONSE_HPP

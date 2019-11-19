@@ -12,64 +12,62 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
 
-    class AccountAssetResponse;
-    class AccountDetailResponse;
-    class AccountResponse;
-    class BlockResponse;
-    class ErrorQueryResponse;
-    class SignatoriesResponse;
-    class TransactionsResponse;
-    class PendingTransactionsPageResponse;
-    class AssetResponse;
-    class RolesResponse;
-    class RolePermissionsResponse;
-    class TransactionsPageResponse;
-    class PeersResponse;
+  class AccountAssetResponse;
+  class AccountDetailResponse;
+  class AccountResponse;
+  class BlockResponse;
+  class ErrorQueryResponse;
+  class SignatoriesResponse;
+  class TransactionsResponse;
+  class PendingTransactionsPageResponse;
+  class AssetResponse;
+  class RolesResponse;
+  class RolePermissionsResponse;
+  class TransactionsPageResponse;
+  class PeersResponse;
+  /**
+   * Class QueryResponse(qr) provides container with concrete query responses
+   * available in the system.
+   * General note: this class is container for QRs but not a base class.
+   */
+  class QueryResponse : public ModelPrimitive<QueryResponse> {
+   private:
+    /// Shortcut type for const reference
+    template <typename... Value>
+    using w = boost::variant<const Value &...>;
+
+   public:
+    /// Type of container with all concrete query response
+    using QueryResponseVariantType = w<AccountAssetResponse,
+                                       AccountDetailResponse,
+                                       AccountResponse,
+                                       ErrorQueryResponse,
+                                       SignatoriesResponse,
+                                       TransactionsResponse,
+                                       AssetResponse,
+                                       RolesResponse,
+                                       RolePermissionsResponse,
+                                       TransactionsPageResponse,
+                                       PendingTransactionsPageResponse,
+                                       BlockResponse,
+                                       PeersResponse>;
+
     /**
-     * Class QueryResponse(qr) provides container with concrete query responses
-     * available in the system.
-     * General note: this class is container for QRs but not a base class.
+     * @return reference to const variant with concrete qr
      */
-    class QueryResponse : public ModelPrimitive<QueryResponse> {
-     private:
-      /// Shortcut type for const reference
-      template <typename... Value>
-      using w = boost::variant<const Value &...>;
+    virtual const QueryResponseVariantType &get() const = 0;
 
-     public:
-      /// Type of container with all concrete query response
-      using QueryResponseVariantType = w<AccountAssetResponse,
-                                         AccountDetailResponse,
-                                         AccountResponse,
-                                         ErrorQueryResponse,
-                                         SignatoriesResponse,
-                                         TransactionsResponse,
-                                         AssetResponse,
-                                         RolesResponse,
-                                         RolePermissionsResponse,
-                                         TransactionsPageResponse,
-                                         PendingTransactionsPageResponse,
-                                         BlockResponse,
-                                         PeersResponse>;
+    /**
+     * @return hash of corresponding query
+     */
+    virtual const types::HashType &queryHash() const = 0;
 
-      /**
-       * @return reference to const variant with concrete qr
-       */
-      virtual const QueryResponseVariantType &get() const = 0;
+    // ------------------------| Primitive override |-------------------------
 
-      /**
-       * @return hash of corresponding query
-       */
-      virtual const interface::types::HashType &queryHash() const = 0;
+    std::string toString() const override;
 
-      // ------------------------| Primitive override |-------------------------
-
-      std::string toString() const override;
-
-      bool operator==(const ModelType &rhs) const override;
-    };
-  }  // namespace interface
+    bool operator==(const ModelType &rhs) const override;
+  };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_QUERY_RESPONSE_HPP

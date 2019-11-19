@@ -111,8 +111,7 @@ logger::LoggerManagerTreePtr getDefaultLogManager() {
       logger::LogLevel::kInfo, logger::getDefaultLogPatterns()});
 }
 
-std::shared_ptr<shared_model::interface::CommonObjectsFactory>
-getCommonObjectsFactory() {
+std::shared_ptr<shared_model::CommonObjectsFactory> getCommonObjectsFactory() {
   auto validators_config =
       std::make_shared<shared_model::validation::ValidatorsConfig>(0);
   return std::make_shared<shared_model::proto::ProtoCommonObjectsFactory<

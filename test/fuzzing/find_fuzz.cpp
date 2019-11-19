@@ -48,8 +48,8 @@ struct QueryFixture {
         query_response_factory_,
         logger::getDummyLoggerPtr());
 
-    std::unique_ptr<shared_model::validation::AbstractValidator<
-        shared_model::interface::Query>>
+    std::unique_ptr<
+        shared_model::validation::AbstractValidator<shared_model::Query>>
         query_validator = std::make_unique<
             shared_model::validation::DefaultSignedQueryValidator>(
             iroha::test::kTestsValidatorsConfig);
@@ -57,11 +57,10 @@ struct QueryFixture {
         shared_model::validation::AbstractValidator<iroha::protocol::Query>>
         proto_query_validator =
             std::make_unique<shared_model::validation::ProtoQueryValidator>();
-    auto query_factory =
-        std::make_shared<shared_model::proto::ProtoTransportFactory<
-            shared_model::interface::Query,
-            shared_model::proto::Query>>(std::move(query_validator),
-                                         std::move(proto_query_validator));
+    auto query_factory = std::make_shared<
+        shared_model::proto::ProtoTransportFactory<shared_model::Query,
+                                                   shared_model::proto::Query>>(
+        std::move(query_validator), std::move(proto_query_validator));
 
     auto blocks_query_validator = std::make_unique<
         shared_model::validation::DefaultSignedBlocksQueryValidator>(
@@ -70,7 +69,7 @@ struct QueryFixture {
         std::make_unique<shared_model::validation::ProtoBlocksQueryValidator>();
     auto blocks_query_factory =
         std::make_shared<shared_model::proto::ProtoTransportFactory<
-            shared_model::interface::BlocksQuery,
+            shared_model::BlocksQuery,
             shared_model::proto::BlocksQuery>>(
             std::move(blocks_query_validator),
             std::move(proto_blocks_query_validator));

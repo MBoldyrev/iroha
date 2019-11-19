@@ -12,10 +12,10 @@
 
 namespace executor_testing {
   // account details, {writer -> {key -> value}}
-  using DetailsByKeyByWriter = std::map<
-      shared_model::interface::types::AccountIdType,
-      std::map<shared_model::interface::types::AccountDetailKeyType,
-               shared_model::interface::types::AccountDetailValueType>>;
+  using DetailsByKeyByWriter =
+      std::map<shared_model::types::AccountIdType,
+               std::map<shared_model::types::AccountDetailKeyType,
+                        shared_model::types::AccountDetailValueType>>;
 
   /// Check JSON data against reference map.
   void checkJsonData(const std::string &test_data,

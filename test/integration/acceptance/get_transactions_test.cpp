@@ -25,10 +25,10 @@ class GetTransactions : public AcceptanceFixture {
    * @param perms are the permissions of the user
    * @return built tx and a hash of its payload
    */
-  auto makeUserWithPerms(const interface::RolePermissionSet &perms = {
-                             interface::permissions::Role::kGetMyTxs}) {
+  auto makeUserWithPerms(const RolePermissionSet &perms = {
+                             permissions::Role::kGetMyTxs}) {
     auto new_perms = perms;
-    new_perms.set(interface::permissions::Role::kSetQuorum);
+    new_perms.set(permissions::Role::kSetQuorum);
     return AcceptanceFixture::makeUserWithPerms(kNewRole, new_perms);
   }
 
@@ -65,16 +65,15 @@ class GetTransactions : public AcceptanceFixture {
  */
 TEST_F(GetTransactions, HaveNoGetPerms) {
   auto check = [](auto &status) {
-    ASSERT_TRUE(
-        boost::apply_visitor(interface::QueryErrorResponseChecker<
-                                 interface::StatefulFailedErrorResponse>(),
-                             status.get()));
+    ASSERT_TRUE(boost::apply_visitor(
+        QueryErrorResponseChecker<StatefulFailedErrorResponse>(),
+        status.get()));
   };
 
   auto dummy_tx = dummyTx();
   IntegrationTestFramework(1)
       .setInitialState(kAdminKeypair)
-      .sendTx(makeUserWithPerms({interface::permissions::Role::kReadAssets}))
+      .sendTx(makeUserWithPerms({permissions::Role::kReadAssets}))
       .skipProposal()
       .skipBlock()
       .sendTxAwait(
@@ -97,8 +96,7 @@ TEST_F(GetTransactions, HaveGetAllTx) {
   auto check = [&dummy_tx](auto &status) {
     ASSERT_NO_THROW({
       const auto &resp =
-          boost::get<const shared_model::interface::TransactionsResponse &>(
-              status.get());
+          boost::get<const shared_model::TransactionsResponse &>(status.get());
       ASSERT_EQ(resp.transactions().size(), 1);
       ASSERT_EQ(resp.transactions().front(), dummy_tx);
     });
@@ -106,7 +104,7 @@ TEST_F(GetTransactions, HaveGetAllTx) {
 
   IntegrationTestFramework(1)
       .setInitialState(kAdminKeypair)
-      .sendTx(makeUserWithPerms({interface::permissions::Role::kGetAllTxs}))
+      .sendTx(makeUserWithPerms({permissions::Role::kGetAllTxs}))
       .skipProposal()
       .skipBlock()
       .sendTxAwait(
@@ -129,8 +127,7 @@ TEST_F(GetTransactions, HaveGetMyTx) {
   auto check = [&dummy_tx](auto &status) {
     ASSERT_NO_THROW({
       const auto &resp =
-          boost::get<const shared_model::interface::TransactionsResponse &>(
-              status.get());
+          boost::get<const shared_model::TransactionsResponse &>(status.get());
       ASSERT_EQ(resp.transactions().size(), 1);
       ASSERT_EQ(resp.transactions().front(), dummy_tx);
     });
@@ -161,9 +158,8 @@ TEST_F(GetTransactions, InvalidSignatures) {
   auto check = [](auto &status) {
     ASSERT_NO_THROW({
       const auto &error_rsp =
-          boost::get<const shared_model::interface::ErrorQueryResponse &>(
-              status.get());
-      boost::get<const shared_model::interface::StatefulFailedErrorResponse &>(
+          boost::get<const shared_model::ErrorQueryResponse &>(status.get());
+      boost::get<const shared_model::StatefulFailedErrorResponse &>(
           error_rsp.get());
     });
   };
@@ -197,13 +193,11 @@ TEST_F(GetTransactions, NonexistentHash) {
   auto check = [](auto &status) {
     ASSERT_NO_THROW({
       const auto &resp =
-          boost::get<const shared_model::interface::ErrorQueryResponse &>(
-              status.get());
+          boost::get<const shared_model::ErrorQueryResponse &>(status.get());
       // TODO [IR-1816] Akvinikym 03.12.18: replace magic number 4
       // with a named constant
       ASSERT_EQ(resp.errorCode(), 4);
-      boost::get<const shared_model::interface::StatefulFailedErrorResponse &>(
-          resp.get());
+      boost::get<const shared_model::StatefulFailedErrorResponse &>(resp.get());
     });
   };
 
@@ -230,8 +224,7 @@ TEST_F(GetTransactions, OtherUserTx) {
   auto check = [](auto &status) {
     ASSERT_NO_THROW({
       const auto &resp =
-          boost::get<const shared_model::interface::TransactionsResponse &>(
-              status.get());
+          boost::get<const shared_model::TransactionsResponse &>(status.get());
       ASSERT_EQ(resp.transactions().size(), 0);
     });
   };

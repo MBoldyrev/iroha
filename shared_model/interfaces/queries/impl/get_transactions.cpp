@@ -9,19 +9,17 @@
 #include "utils/string_builder.hpp"
 
 namespace shared_model {
-  namespace interface {
 
-    std::string GetTransactions::toString() const {
-      return detail::PrettyStringBuilder()
-          .init("GetTransactions")
-          .appendAll(transactionHashes(),
-                     [](const auto &s) { return s.toString(); })
-          .finalize();
-    }
+  std::string GetTransactions::toString() const {
+    return detail::PrettyStringBuilder()
+        .init("GetTransactions")
+        .appendAll(transactionHashes(),
+                   [](const auto &s) { return s.toString(); })
+        .finalize();
+  }
 
-    bool GetTransactions::operator==(const ModelType &rhs) const {
-      return transactionHashes() == rhs.transactionHashes();
-    }
+  bool GetTransactions::operator==(const ModelType &rhs) const {
+    return transactionHashes() == rhs.transactionHashes();
+  }
 
-  }  // namespace interface
 }  // namespace shared_model

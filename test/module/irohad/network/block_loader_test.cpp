@@ -37,7 +37,7 @@ using testing::A;
 using testing::ByMove;
 using testing::Return;
 
-using wPeer = std::shared_ptr<shared_model::interface::Peer>;
+using wPeer = std::shared_ptr<shared_model::Peer>;
 
 class BlockLoaderTest : public testing::Test {
  public:
@@ -53,8 +53,7 @@ class BlockLoaderTest : public testing::Test {
         .WillRepeatedly(testing::Return(boost::make_optional(
             std::shared_ptr<iroha::ametsuchi::BlockQuery>(storage))));
     block_cache = std::make_shared<iroha::consensus::ConsensusResultCache>();
-    auto validator_ptr =
-        std::make_unique<MockValidator<shared_model::interface::Block>>();
+    auto validator_ptr = std::make_unique<MockValidator<shared_model::Block>>();
     validator = validator_ptr.get();
     loader = std::make_shared<BlockLoaderImpl>(
         peer_query_factory,
@@ -79,10 +78,9 @@ class BlockLoaderTest : public testing::Test {
     ASSERT_NE(port, 0);
   }
 
-  auto getBaseBlockBuilder(
-      const Hash &prev_hash =
-          Hash(std::string(DefaultCryptoAlgorithmType::kHashLength, '0')),
-      shared_model::interface::types::HeightType height = 1) const {
+  auto getBaseBlockBuilder(const Hash &prev_hash = Hash(std::string(
+                               DefaultCryptoAlgorithmType::kHashLength, '0')),
+                           shared_model::types::HeightType height = 1) const {
     std::vector<shared_model::proto::Transaction> txs;
     txs.push_back(TestUnsignedTransactionBuilder()
                       .creatorAccountId("account@domain")
@@ -116,7 +114,7 @@ class BlockLoaderTest : public testing::Test {
   std::shared_ptr<BlockLoaderService> service;
   std::unique_ptr<grpc::Server> server;
   std::shared_ptr<iroha::consensus::ConsensusResultCache> block_cache;
-  MockValidator<shared_model::interface::Block> *validator;
+  MockValidator<shared_model::Block> *validator;
 };
 
 /**
@@ -166,8 +164,8 @@ TEST_F(BlockLoaderTest, ValidWhenOneBlock) {
   EXPECT_CALL(*storage, getTopBlockHeight())
       .WillOnce(Return(top_block.height()));
   EXPECT_CALL(*storage, getBlock(top_block.height()))
-      .WillOnce(Return(ByMove(iroha::expected::makeValue(
-          clone<shared_model::interface::Block>(top_block)))));
+      .WillOnce(Return(ByMove(
+          iroha::expected::makeValue(clone<shared_model::Block>(top_block)))));
   auto wrapper =
       make_test_subscriber<CallExact>(loader->retrieveBlocks(1, peer_key), 1);
   wrapper.subscribe([&top_block](auto block) { ASSERT_EQ(*block, top_block); });
@@ -203,8 +201,8 @@ TEST_F(BlockLoaderTest, ValidWhenMultipleBlocks) {
                    .finish();
 
     EXPECT_CALL(*storage, getBlock(i))
-        .WillOnce(Return(ByMove(iroha::expected::makeValue(
-            clone<shared_model::interface::Block>(blk)))));
+        .WillOnce(Return(ByMove(
+            iroha::expected::makeValue(clone<shared_model::Block>(blk)))));
   }
 
   EXPECT_CALL(*peer_query, getLedgerPeers())
@@ -265,7 +263,7 @@ TEST_F(BlockLoaderTest, ValidWhenBlockMissing) {
       .WillOnce(Return(std::vector<wPeer>{peer}));
   EXPECT_CALL(*storage, getBlock(prev_block->height()))
       .WillOnce(Return(ByMove(iroha::expected::makeValue(
-          clone<shared_model::interface::Block>(*prev_block)))));
+          clone<shared_model::Block>(*prev_block)))));
 
   auto block = loader->retrieveBlock(peer_key, prev_block->height());
   ASSERT_TRUE(block);
@@ -291,7 +289,7 @@ TEST_F(BlockLoaderTest, ValidWithEmptyCache) {
       .WillOnce(Return(std::vector<wPeer>{peer}));
   EXPECT_CALL(*storage, getBlock(prev_block->height()))
       .WillOnce(Return(ByMove(iroha::expected::makeValue(
-          clone<shared_model::interface::Block>(*prev_block)))));
+          clone<shared_model::Block>(*prev_block)))));
 
   auto block = loader->retrieveBlock(peer_key, prev_block->height());
   ASSERT_TRUE(block);

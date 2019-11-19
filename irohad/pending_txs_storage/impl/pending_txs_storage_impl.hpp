@@ -21,11 +21,11 @@ namespace iroha {
 
   class PendingTransactionStorageImpl : public PendingTransactionStorage {
    public:
-    using AccountIdType = shared_model::interface::types::AccountIdType;
-    using HashType = shared_model::interface::types::HashType;
+    using AccountIdType = shared_model::types::AccountIdType;
+    using HashType = shared_model::types::HashType;
     using SharedTxsCollectionType =
-        shared_model::interface::types::SharedTxsCollectionType;
-    using TransactionBatch = shared_model::interface::TransactionBatch;
+        shared_model::types::SharedTxsCollectionType;
+    using TransactionBatch = shared_model::TransactionBatch;
     using SharedState = std::shared_ptr<MstState>;
     using SharedBatch = std::shared_ptr<TransactionBatch>;
     using StateObservable = rxcpp::observable<SharedState>;
@@ -45,10 +45,10 @@ namespace iroha {
         const AccountIdType &account_id) const override;
 
     expected::Result<Response, ErrorCode> getPendingTransactions(
-        const shared_model::interface::types::AccountIdType &account_id,
-        const shared_model::interface::types::TransactionsNumberType page_size,
-        const boost::optional<shared_model::interface::types::HashType>
-            &first_tx_hash) const override;
+        const shared_model::types::AccountIdType &account_id,
+        const shared_model::types::TransactionsNumberType page_size,
+        const boost::optional<shared_model::types::HashType> &first_tx_hash)
+        const override;
 
    private:
     void updatedBatchesHandler(const SharedState &updated_batches);

@@ -28,7 +28,7 @@ class ProposalFactoryTest : public ::testing::Test {
       validation::DefaultProposalValidator>
       factory;
 
-  interface::types::HeightType height{1};
+  types::HeightType height{1};
   iroha::time::time_t time{iroha::time::now()};
 
   std::vector<proto::Transaction> txs;

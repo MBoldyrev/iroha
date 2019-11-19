@@ -51,7 +51,7 @@ class NetworkUtil {
     return result;
   }
 
-  std::vector<std::shared_ptr<shared_model::interface::Peer>> peers_;
+  std::vector<std::shared_ptr<shared_model::Peer>> peers_;
   boost::optional<ClusterOrdering> order_;
 };
 

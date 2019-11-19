@@ -35,15 +35,12 @@ namespace iroha {
           std::shared_ptr<network::PeerCommunicationService> pcs,
           std::shared_ptr<MstProcessor> mst_processor,
           std::shared_ptr<iroha::torii::StatusBus> status_bus,
-          std::shared_ptr<shared_model::interface::TxStatusFactory>
-              status_factory,
-          rxcpp::observable<
-              std::shared_ptr<const shared_model::interface::Block>> commits,
+          std::shared_ptr<shared_model::TxStatusFactory> status_factory,
+          rxcpp::observable<std::shared_ptr<const shared_model::Block>> commits,
           logger::LoggerPtr log);
 
-      void batchHandle(
-          std::shared_ptr<shared_model::interface::TransactionBatch>
-              transaction_batch) const override;
+      void batchHandle(std::shared_ptr<shared_model::TransactionBatch>
+                           transaction_batch) const override;
 
      private:
       // connections
@@ -56,14 +53,14 @@ namespace iroha {
 
       // internal
       rxcpp::subjects::subject<
-          std::shared_ptr<shared_model::interface::TransactionResponse>>
+          std::shared_ptr<shared_model::TransactionResponse>>
           notifier_;
 
       // keeps hashes of transaction, which were committed during this round
-      std::vector<shared_model::interface::types::HashType> current_txs_hashes_;
+      std::vector<shared_model::types::HashType> current_txs_hashes_;
 
       // creates transaction status
-      std::shared_ptr<shared_model::interface::TxStatusFactory> status_factory_;
+      std::shared_ptr<shared_model::TxStatusFactory> status_factory_;
 
       logger::LoggerPtr log_;
 
@@ -100,8 +97,7 @@ namespace iroha {
        * @param txs - collection of those transactions
        */
       void publishEnoughSignaturesStatus(
-          const shared_model::interface::types::SharedTxsCollectionType &txs)
-          const;
+          const shared_model::types::SharedTxsCollectionType &txs) const;
     };
   }  // namespace torii
 }  // namespace iroha

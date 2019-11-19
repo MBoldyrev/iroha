@@ -11,7 +11,7 @@ namespace iroha {
     void MstTransportStub::subscribe(
         std::shared_ptr<MstTransportNotification>) {}
 
-    void MstTransportStub::sendState(const shared_model::interface::Peer &,
+    void MstTransportStub::sendState(const shared_model::Peer &,
                                      ConstRefState) {}
   }  // namespace network
 }  // namespace iroha

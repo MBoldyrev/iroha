@@ -7,20 +7,18 @@
 #include "utils/string_builder.hpp"
 
 namespace shared_model {
-  namespace interface {
 
-    std::string AccountResponse::toString() const {
-      return detail::PrettyStringBuilder()
-          .init("AccountResponse")
-          .append(account().toString())
-          .append("roles")
-          .appendAll(roles(), [](auto s) { return s; })
-          .finalize();
-    }
+  std::string AccountResponse::toString() const {
+    return detail::PrettyStringBuilder()
+        .init("AccountResponse")
+        .append(account().toString())
+        .append("roles")
+        .appendAll(roles(), [](auto s) { return s; })
+        .finalize();
+  }
 
-    bool AccountResponse::operator==(const ModelType &rhs) const {
-      return account() == rhs.account() and roles() == rhs.roles();
-    }
+  bool AccountResponse::operator==(const ModelType &rhs) const {
+    return account() == rhs.account() and roles() == rhs.roles();
+  }
 
-  }  // namespace interface
 }  // namespace shared_model

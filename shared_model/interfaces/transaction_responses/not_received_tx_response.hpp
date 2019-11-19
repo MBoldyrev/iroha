@@ -9,18 +9,16 @@
 #include "interfaces/transaction_responses/abstract_tx_response.hpp"
 
 namespace shared_model {
-  namespace interface {
-    /**
-     * Transaction not found
-     */
-    class NotReceivedTxResponse
-        : public AbstractTxResponse<NotReceivedTxResponse> {
-     private:
-      std::string className() const override {
-        return "NotReceivedTxResponse";
-      }
-    };
+  /**
+   * Transaction not found
+   */
+  class NotReceivedTxResponse
+      : public AbstractTxResponse<NotReceivedTxResponse> {
+   private:
+    std::string className() const override {
+      return "NotReceivedTxResponse";
+    }
+  };
 
-  }  // namespace interface
 }  // namespace shared_model
 #endif  // IROHA_UNKNOWN_TX_RESPONSE_HPP

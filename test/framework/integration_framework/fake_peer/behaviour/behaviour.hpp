@@ -44,11 +44,11 @@ namespace integration_framework {
 
       /// This method gets subscribed on Fake Peer's OS messages.
       virtual void processOsBatch(
-          std::shared_ptr<shared_model::interface::TransactionBatch> batch) = 0;
+          std::shared_ptr<shared_model::TransactionBatch> batch) = 0;
 
       /// This method gets subscribed on Fake Peer's OG messages.
       virtual void processOgProposal(
-          std::shared_ptr<shared_model::interface::Proposal> proposal) = 0;
+          std::shared_ptr<shared_model::Proposal> proposal) = 0;
 
       /// This method handles block requests for Fake Peer's.
       virtual LoaderBlockRequestResult processLoaderBlockRequest(

@@ -42,19 +42,19 @@ class YacPeerOrdererTest : public ::testing::Test {
     orderer = PeerOrdererImpl(pbfactory);
   }
 
-  std::vector<std::shared_ptr<shared_model::interface::Peer>> peers = [] {
-    std::vector<std::shared_ptr<shared_model::interface::Peer>> result;
+  std::vector<std::shared_ptr<shared_model::Peer>> peers = [] {
+    std::vector<std::shared_ptr<shared_model::Peer>> result;
     for (size_t i = 1; i <= kPeersQuantity; ++i) {
-      auto peer = makePeer(
-          std::to_string(i),
-          shared_model::interface::types::PubkeyType(std::string(32, '0')));
+      auto peer =
+          makePeer(std::to_string(i),
+                   shared_model::types::PubkeyType(std::string(32, '0')));
       result.push_back(std::move(peer));
     }
     return result;
   }();
 
-  std::vector<std::shared_ptr<shared_model::interface::Peer>> s_peers = [] {
-    std::vector<std::shared_ptr<shared_model::interface::Peer>> result;
+  std::vector<std::shared_ptr<shared_model::Peer>> s_peers = [] {
+    std::vector<std::shared_ptr<shared_model::Peer>> result;
     for (size_t i = 1; i <= kPeersQuantity; ++i) {
       auto tmp = iroha::consensus::yac::makePeer(std::to_string(i));
       auto peer = makePeer(tmp->address(), tmp->pubkey());

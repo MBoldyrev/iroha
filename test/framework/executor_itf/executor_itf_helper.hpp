@@ -45,44 +45,41 @@ namespace iroha {
        * variant manually.
        */
       typedef boost::mpl::map<
-          boost::mpl::pair<shared_model::interface::GetAccount,
-                           shared_model::interface::AccountResponse>,
-          boost::mpl::pair<shared_model::interface::GetSignatories,
-                           shared_model::interface::SignatoriesResponse>,
-          boost::mpl::pair<shared_model::interface::GetAccountTransactions,
-                           shared_model::interface::TransactionsResponse>,
-          boost::mpl::pair<shared_model::interface::GetAccountAssetTransactions,
-                           shared_model::interface::TransactionsResponse>,
-          boost::mpl::pair<shared_model::interface::GetTransactions,
-                           shared_model::interface::TransactionsResponse>,
-          boost::mpl::pair<shared_model::interface::GetAccountAssets,
-                           shared_model::interface::AccountAssetResponse>,
-          boost::mpl::pair<shared_model::interface::GetAccountDetail,
-                           shared_model::interface::AccountDetailResponse>,
-          boost::mpl::pair<shared_model::interface::GetRoles,
-                           shared_model::interface::RolesResponse>,
-          boost::mpl::pair<shared_model::interface::GetRolePermissions,
-                           shared_model::interface::RolePermissionsResponse>,
-          boost::mpl::pair<shared_model::interface::GetAssetInfo,
-                           shared_model::interface::AssetResponse>,
-          boost::mpl::pair<
-              shared_model::interface::GetPendingTransactions,
-              shared_model::interface::PendingTransactionsPageResponse>,
-          boost::mpl::pair<shared_model::interface::GetBlock,
-                           shared_model::interface::BlockResponse>>
+          boost::mpl::pair<shared_model::GetAccount,
+                           shared_model::AccountResponse>,
+          boost::mpl::pair<shared_model::GetSignatories,
+                           shared_model::SignatoriesResponse>,
+          boost::mpl::pair<shared_model::GetAccountTransactions,
+                           shared_model::TransactionsResponse>,
+          boost::mpl::pair<shared_model::GetAccountAssetTransactions,
+                           shared_model::TransactionsResponse>,
+          boost::mpl::pair<shared_model::GetTransactions,
+                           shared_model::TransactionsResponse>,
+          boost::mpl::pair<shared_model::GetAccountAssets,
+                           shared_model::AccountAssetResponse>,
+          boost::mpl::pair<shared_model::GetAccountDetail,
+                           shared_model::AccountDetailResponse>,
+          boost::mpl::pair<shared_model::GetRoles, shared_model::RolesResponse>,
+          boost::mpl::pair<shared_model::GetRolePermissions,
+                           shared_model::RolePermissionsResponse>,
+          boost::mpl::pair<shared_model::GetAssetInfo,
+                           shared_model::AssetResponse>,
+          boost::mpl::pair<shared_model::GetPendingTransactions,
+                           shared_model::PendingTransactionsPageResponse>,
+          boost::mpl::pair<shared_model::GetBlock, shared_model::BlockResponse>>
           SpecificQueryResponses;
 
       /// true for specific commands
       template <typename T>
-      constexpr bool isSpecificCommand = boost::mpl::contains<
-          shared_model::interface::Command::CommandVariantType::types,
-          const std::decay_t<T> &>::type::value;
+      constexpr bool isSpecificCommand =
+          boost::mpl::contains<shared_model::Command::CommandVariantType::types,
+                               const std::decay_t<T> &>::type::value;
 
       /// true for specific queries
       template <typename T>
-      constexpr bool isSpecificQuery = boost::mpl::contains<
-          shared_model::interface::Query::QueryVariantType::types,
-          const std::decay_t<T> &>::type::value;
+      constexpr bool isSpecificQuery =
+          boost::mpl::contains<shared_model::Query::QueryVariantType::types,
+                               const std::decay_t<T> &>::type::value;
 
       template <typename T>
       std::enable_if_t<isSpecificQuery<T>, const T &> getInterfaceQueryRef(

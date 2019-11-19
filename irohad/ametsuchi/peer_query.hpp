@@ -12,9 +12,7 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class Peer;
-  }  // namespace interface
+  class Peer;
 }  // namespace shared_model
 
 namespace iroha {
@@ -25,7 +23,7 @@ namespace iroha {
      */
     class PeerQuery {
      protected:
-      using wPeer = std::shared_ptr<shared_model::interface::Peer>;
+      using wPeer = std::shared_ptr<shared_model::Peer>;
 
      public:
       // TODO andrei 17.10.18 IR-1764 Make PeerQuery::getLedgerPeers const
@@ -41,8 +39,7 @@ namespace iroha {
        * @return the peer if found, none otherwise
        */
       virtual boost::optional<PeerQuery::wPeer> getLedgerPeerByPublicKey(
-          const shared_model::interface::types::PubkeyType &public_key)
-          const = 0;
+          const shared_model::types::PubkeyType &public_key) const = 0;
 
       virtual ~PeerQuery() = default;
     };

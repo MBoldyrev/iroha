@@ -31,14 +31,13 @@ namespace fuzzing {
   struct OrderingServiceFixture {
     std::shared_ptr<OnDemandOsServerGrpc::TransportFactoryType>
         transaction_factory_;
-    std::shared_ptr<shared_model::interface::TransactionBatchParser>
-        batch_parser_;
-    std::shared_ptr<shared_model::interface::TransactionBatchFactory>
+    std::shared_ptr<shared_model::TransactionBatchParser> batch_parser_;
+    std::shared_ptr<shared_model::TransactionBatchFactory>
         transaction_batch_factory_;
 
     OrderingServiceFixture() {
       std::unique_ptr<shared_model::validation::AbstractValidator<
-          shared_model::interface::Transaction>>
+          shared_model::Transaction>>
           interface_transaction_validator =
               std::make_unique<shared_model::validation::
                                    DefaultOptionalSignedTransactionValidator>(
@@ -50,21 +49,21 @@ namespace fuzzing {
 
       transaction_factory_ =
           std::make_shared<shared_model::proto::ProtoTransportFactory<
-              shared_model::interface::Transaction,
+              shared_model::Transaction,
               shared_model::proto::Transaction>>(
               std::move(interface_transaction_validator),
               std::move(proto_transaction_validator));
 
-      batch_parser_ = std::make_shared<
-          shared_model::interface::TransactionBatchParserImpl>();
+      batch_parser_ =
+          std::make_shared<shared_model::TransactionBatchParserImpl>();
       std::shared_ptr<shared_model::validation::AbstractValidator<
-          shared_model::interface::TransactionBatch>>
+          shared_model::TransactionBatch>>
           batch_validator =
               std::make_shared<shared_model::validation::BatchValidator>(
                   iroha::test::kTestsValidatorsConfig);
-      transaction_batch_factory_ = std::make_shared<
-          shared_model::interface::TransactionBatchFactoryImpl>(
-          batch_validator);
+      transaction_batch_factory_ =
+          std::make_shared<shared_model::TransactionBatchFactoryImpl>(
+              batch_validator);
     }
   };
 }  // namespace fuzzing

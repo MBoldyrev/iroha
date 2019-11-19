@@ -13,34 +13,30 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
+  /**
+   * Response for paginated queries
+   */
+  class TransactionsPageResponse
+      : public ModelPrimitive<TransactionsPageResponse> {
+   public:
     /**
-     * Response for paginated queries
+     * @return transactions from this page
      */
-    class TransactionsPageResponse
-        : public ModelPrimitive<TransactionsPageResponse> {
-     public:
-      /**
-       * @return transactions from this page
-       */
-      virtual types::TransactionsCollectionType transactions() const = 0;
+    virtual types::TransactionsCollectionType transactions() const = 0;
 
-      /**
-       * @return hash of the first transaction from the next page
-       */
-      virtual boost::optional<interface::types::HashType> nextTxHash()
-          const = 0;
+    /**
+     * @return hash of the first transaction from the next page
+     */
+    virtual boost::optional<types::HashType> nextTxHash() const = 0;
 
-      /**
-       * @return total number of transactions for the query
-       */
-      virtual interface::types::TransactionsNumberType allTransactionsSize()
-          const = 0;
+    /**
+     * @return total number of transactions for the query
+     */
+    virtual types::TransactionsNumberType allTransactionsSize() const = 0;
 
-      std::string toString() const override;
+    std::string toString() const override;
 
-      bool operator==(const ModelType &rhs) const override;
-    };
-  }  // namespace interface
+    bool operator==(const ModelType &rhs) const override;
+  };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_TRANSACTIONS_PAGE_RESPONSE_HPP

@@ -57,7 +57,7 @@ namespace iroha {
             async_call,
         std::shared_ptr<TransportFactoryType> proposal_transport_factory,
         std::chrono::milliseconds delay,
-        std::vector<shared_model::interface::types::HashType> initial_hashes,
+        std::vector<shared_model::types::HashType> initial_hashes,
         const logger::LoggerManagerTreePtr &ordering_log_manager) {
       // since top block will be the first in commit_notifier observable,
       // hashes of two previous blocks are prepended
@@ -187,8 +187,7 @@ namespace iroha {
         std::shared_ptr<ordering::OnDemandOrderingService> ordering_service,
         std::shared_ptr<ordering::transport::OdOsNotification> network_client,
         std::shared_ptr<ordering::cache::OrderingGateCache> cache,
-        std::shared_ptr<shared_model::interface::UnsafeProposalFactory>
-            proposal_factory,
+        std::shared_ptr<shared_model::UnsafeProposalFactory> proposal_factory,
         std::shared_ptr<ametsuchi::TxPresenceCache> tx_cache,
         std::shared_ptr<ordering::ProposalCreationStrategy> creation_strategy,
         std::function<std::chrono::milliseconds(
@@ -287,8 +286,7 @@ namespace iroha {
 
     auto OnDemandOrderingInit::createService(
         size_t max_number_of_transactions,
-        std::shared_ptr<shared_model::interface::UnsafeProposalFactory>
-            proposal_factory,
+        std::shared_ptr<shared_model::UnsafeProposalFactory> proposal_factory,
         std::shared_ptr<ametsuchi::TxPresenceCache> tx_cache,
         std::shared_ptr<ordering::ProposalCreationStrategy> creation_strategy,
         const logger::LoggerManagerTreePtr &ordering_log_manager) {
@@ -309,18 +307,16 @@ namespace iroha {
     OnDemandOrderingInit::initOrderingGate(
         size_t max_number_of_transactions,
         std::chrono::milliseconds delay,
-        std::vector<shared_model::interface::types::HashType> initial_hashes,
+        std::vector<shared_model::types::HashType> initial_hashes,
         std::shared_ptr<
             ordering::transport::OnDemandOsServerGrpc::TransportFactoryType>
             transaction_factory,
-        std::shared_ptr<shared_model::interface::TransactionBatchParser>
-            batch_parser,
-        std::shared_ptr<shared_model::interface::TransactionBatchFactory>
+        std::shared_ptr<shared_model::TransactionBatchParser> batch_parser,
+        std::shared_ptr<shared_model::TransactionBatchFactory>
             transaction_batch_factory,
         std::shared_ptr<network::AsyncGrpcClient<google::protobuf::Empty>>
             async_call,
-        std::shared_ptr<shared_model::interface::UnsafeProposalFactory>
-            proposal_factory,
+        std::shared_ptr<shared_model::UnsafeProposalFactory> proposal_factory,
         std::shared_ptr<TransportFactoryType> proposal_transport_factory,
         std::shared_ptr<ametsuchi::TxPresenceCache> tx_cache,
         std::shared_ptr<ordering::ProposalCreationStrategy> creation_strategy,

@@ -10,23 +10,21 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
 
+  /**
+   * Get all permissions related to specific role
+   */
+  class GetRolePermissions : public ModelPrimitive<GetRolePermissions> {
+   public:
     /**
-     * Get all permissions related to specific role
+     * @return role identifier containing requested permissions
      */
-    class GetRolePermissions : public ModelPrimitive<GetRolePermissions> {
-     public:
-      /**
-       * @return role identifier containing requested permissions
-       */
-      virtual const types::RoleIdType &roleId() const = 0;
+    virtual const types::RoleIdType &roleId() const = 0;
 
-      std::string toString() const override;
+    std::string toString() const override;
 
-      bool operator==(const ModelType &rhs) const override;
-    };
-  }  // namespace interface
+    bool operator==(const ModelType &rhs) const override;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_GET_ROLES_HPP

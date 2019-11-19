@@ -29,10 +29,9 @@ namespace iroha {
                          BlockStorage &block_storage,
                          logger::LoggerPtr log);
 
-      BlockResult getBlock(
-          shared_model::interface::types::HeightType height) override;
+      BlockResult getBlock(shared_model::types::HeightType height) override;
 
-      shared_model::interface::types::HeightType getTopBlockHeight() override;
+      shared_model::types::HeightType getTopBlockHeight() override;
 
       boost::optional<TxCacheStatusType> checkTxPresence(
           const shared_model::crypto::Hash &hash) override;

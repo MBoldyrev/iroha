@@ -47,13 +47,13 @@ namespace iroha {
      * @then peer list successfully received
      */
     TEST_F(WsvQueryTest, GetPeers) {
-      std::shared_ptr<shared_model::interface::Peer> peer1 =
+      std::shared_ptr<shared_model::Peer> peer1 =
           std::make_shared<shared_model::plain::Peer>(
               "some-address",
               shared_model::crypto::PublicKey("some-public-key"),
               boost::none);
       command->insertPeer(*peer1);
-      std::shared_ptr<shared_model::interface::Peer> peer2 =
+      std::shared_ptr<shared_model::Peer> peer2 =
           std::make_shared<shared_model::plain::Peer>(
               "another-address",
               shared_model::crypto::PublicKey("another-public-key"),

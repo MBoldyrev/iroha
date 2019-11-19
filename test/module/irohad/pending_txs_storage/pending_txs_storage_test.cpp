@@ -16,7 +16,7 @@
 // TODO igor-egorov 2019-06-24 IR-573 Refactor pending txs storage tests
 class PendingTxsStorageFixture : public ::testing::Test {
  public:
-  using Batch = shared_model::interface::TransactionBatch;
+  using Batch = shared_model::TransactionBatch;
 
   /**
    * Get the closest to now timestamp from the future but never return the same
@@ -40,8 +40,8 @@ class PendingTxsStorageFixture : public ::testing::Test {
 
   auto dummyPreparedTxsObservable() {
     return rxcpp::observable<>::empty<
-        std::pair<shared_model::interface::types::AccountIdType,
-                  shared_model::interface::types::HashType>>();
+        std::pair<shared_model::types::AccountIdType,
+                  shared_model::types::HashType>>();
   }
 
   auto updatesObservable(std::vector<std::shared_ptr<iroha::MstState>> states) {
@@ -182,8 +182,8 @@ TEST_F(PendingTxsStorageFixture, CompletedTransactionsAreRemoved) {
   auto updates = updatesObservable({state});
   auto prepared = updates.flat_map([&transactions](const auto &) {
     return rxcpp::observable<>::just<
-        std::pair<shared_model::interface::types::AccountIdType,
-                  shared_model::interface::types::HashType>>(
+        std::pair<shared_model::types::AccountIdType,
+                  shared_model::types::HashType>>(
         std::make_pair(transactions->transactions().front()->creatorAccountId(),
                        transactions->transactions().front()->hash()));
   });
@@ -520,11 +520,10 @@ TEST_F(PendingTxsStorageFixture, SeparateBatchesDoNotOverwriteStorage) {
  */
 TEST_F(PendingTxsStorageFixture, PreparedBatch) {
   auto state = emptyState();
-  std::shared_ptr<shared_model::interface::TransactionBatch> batch =
-      addSignatures(
-          makeTestBatch(txBuilder(3, getUniqueTime(), 3, "alice@iroha")),
-          0,
-          makeSignature("1", "pub_key_1"));
+  std::shared_ptr<shared_model::TransactionBatch> batch = addSignatures(
+      makeTestBatch(txBuilder(3, getUniqueTime(), 3, "alice@iroha")),
+      0,
+      makeSignature("1", "pub_key_1"));
   *state += batch;
 
   rxcpp::subjects::subject<decltype(batch)> prepared_batches_subject;
@@ -563,11 +562,10 @@ TEST_F(PendingTxsStorageFixture, PreparedBatch) {
  */
 TEST_F(PendingTxsStorageFixture, ExpiredBatch) {
   auto state = emptyState();
-  std::shared_ptr<shared_model::interface::TransactionBatch> batch =
-      addSignatures(
-          makeTestBatch(txBuilder(3, getUniqueTime(), 3, "alice@iroha")),
-          0,
-          makeSignature("1", "pub_key_1"));
+  std::shared_ptr<shared_model::TransactionBatch> batch = addSignatures(
+      makeTestBatch(txBuilder(3, getUniqueTime(), 3, "alice@iroha")),
+      0,
+      makeSignature("1", "pub_key_1"));
   *state += batch;
 
   rxcpp::subjects::subject<decltype(batch)> expired_batches_subject;

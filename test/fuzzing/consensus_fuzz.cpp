@@ -35,7 +35,7 @@ namespace fuzzing {
     std::shared_ptr<iroha::consensus::yac::CleanupStrategy> cleanup_strategy_;
     std::function<
         std::unique_ptr<iroha::consensus::yac::proto::Yac::StubInterface>(
-            const shared_model::interface::Peer &)>
+            const shared_model::Peer &)>
         client_creator_;
     const shared_model::crypto::Keypair keypair_;
     std::shared_ptr<iroha::consensus::yac::YacNetworkNotifications> yac_;
@@ -48,7 +48,7 @@ namespace fuzzing {
         : timer_(std::make_shared<iroha::consensus::yac::MockTimer>()),
           cleanup_strategy_(std::make_shared<
                             iroha::consensus::yac::BufferedCleanupStrategy>()),
-          client_creator_([](const shared_model::interface::Peer &peer) {
+          client_creator_([](const shared_model::Peer &peer) {
             return std::make_unique<
                 iroha::consensus::yac::proto::MockYacStub>();
           }),
@@ -64,15 +64,13 @@ namespace fuzzing {
       crypto_provider_ =
           std::make_shared<iroha::consensus::yac::CryptoProviderImpl>(keypair_);
 
-      std::vector<std::shared_ptr<shared_model::interface::Peer>>
-          default_peers = [] {
-            std::vector<std::shared_ptr<shared_model::interface::Peer>> result;
-            for (size_t i = 0; i < 1; ++i) {
-              result.push_back(
-                  iroha::consensus::yac::makePeer(std::to_string(i)));
-            }
-            return result;
-          }();
+      std::vector<std::shared_ptr<shared_model::Peer>> default_peers = [] {
+        std::vector<std::shared_ptr<shared_model::Peer>> result;
+        for (size_t i = 0; i < 1; ++i) {
+          result.push_back(iroha::consensus::yac::makePeer(std::to_string(i)));
+        }
+        return result;
+      }();
       auto initial_order =
           iroha::consensus::yac::ClusterOrdering::create(default_peers);
 

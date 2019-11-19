@@ -103,8 +103,7 @@ class Validator : public testing::Test {
     factory = std::make_unique<shared_model::proto::ProtoProposalFactory<
         shared_model::validation::DefaultProposalValidator>>(
         iroha::test::kTestsValidatorsConfig);
-    parser =
-        std::make_shared<shared_model::interface::TransactionBatchParserImpl>();
+    parser = std::make_shared<shared_model::TransactionBatchParserImpl>();
     sfv = std::make_shared<StatefulValidatorImpl>(
         std::move(factory),
         std::move(parser),
@@ -113,8 +112,8 @@ class Validator : public testing::Test {
   }
 
   auto createBatch(std::vector<std::string> creators,
-                   shared_model::interface::types::BatchType batch_type) {
-    std::vector<shared_model::interface::types::HashType> reduced_hashes;
+                   shared_model::types::BatchType batch_type) {
+    std::vector<shared_model::types::HashType> reduced_hashes;
     std::vector<shared_model::proto::Transaction> txs;
     auto current_time = iroha::time::now();
 
@@ -141,9 +140,9 @@ class Validator : public testing::Test {
   }
 
   std::shared_ptr<StatefulValidator> sfv;
-  std::unique_ptr<shared_model::interface::UnsafeProposalFactory> factory;
+  std::unique_ptr<shared_model::UnsafeProposalFactory> factory;
   std::shared_ptr<iroha::ametsuchi::MockTemporaryWsv> temp_wsv_mock;
-  std::shared_ptr<shared_model::interface::TransactionBatchParser> parser;
+  std::shared_ptr<shared_model::TransactionBatchParser> parser;
 
   const uint32_t sample_error_code = 2;
   const std::string sample_error_extra = "account_id: doge@account";
@@ -265,13 +264,13 @@ TEST_F(Validator, Batches) {
                        .build();
   auto success_atomic_batch =
       createBatch(std::vector<std::string>{"creator@d1", "creator@d2"},
-                  shared_model::interface::types::BatchType::ATOMIC);
+                  shared_model::types::BatchType::ATOMIC);
   auto failed_atomic_batch =
       createBatch(std::vector<std::string>{"creator@d3", "creator@d4"},
-                  shared_model::interface::types::BatchType::ATOMIC);
+                  shared_model::types::BatchType::ATOMIC);
   auto ordered_batch =
       createBatch(std::vector<std::string>{"creator@d5", "creator@d6"},
-                  shared_model::interface::types::BatchType::ORDERED);
+                  shared_model::types::BatchType::ORDERED);
 
   std::vector<shared_model::proto::Transaction> txs;
   txs.push_back(std::move(single_tx));

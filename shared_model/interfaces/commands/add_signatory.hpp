@@ -11,27 +11,25 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
 
+  /**
+   * Add new signatory to account
+   */
+  class AddSignatory : public ModelPrimitive<AddSignatory> {
+   public:
     /**
-     * Add new signatory to account
+     * @return New signatory is identified with public key
      */
-    class AddSignatory : public ModelPrimitive<AddSignatory> {
-     public:
-      /**
-       * @return New signatory is identified with public key
-       */
-      virtual const types::PubkeyType &pubkey() const = 0;
-      /**
-       * @return Account to which add new signatory
-       */
-      virtual const types::AccountIdType &accountId() const = 0;
+    virtual const types::PubkeyType &pubkey() const = 0;
+    /**
+     * @return Account to which add new signatory
+     */
+    virtual const types::AccountIdType &accountId() const = 0;
 
-      std::string toString() const override;
+    std::string toString() const override;
 
-      bool operator==(const ModelType &rhs) const override;
-    };
-  }  // namespace interface
+    bool operator==(const ModelType &rhs) const override;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_ADD_SIGNATORY_HPP

@@ -39,12 +39,12 @@
 using namespace shared_model::crypto;
 using namespace framework::expected;
 
-static std::shared_ptr<shared_model::interface::Peer> createPeer(
-    const std::shared_ptr<shared_model::interface::CommonObjectsFactory>
+static std::shared_ptr<shared_model::Peer> createPeer(
+    const std::shared_ptr<shared_model::CommonObjectsFactory>
         &common_objects_factory,
     const std::string &address,
     const PublicKey &key) {
-  std::shared_ptr<shared_model::interface::Peer> peer;
+  std::shared_ptr<shared_model::Peer> peer;
   common_objects_factory->createPeer(address, key)
       .match([&peer](auto &&result) { peer = std::move(result.value); },
              [&address](const auto &error) {
@@ -62,13 +62,12 @@ namespace integration_framework {
         const std::string &listen_ip,
         size_t internal_port,
         const boost::optional<Keypair> &key,
-        std::shared_ptr<shared_model::interface::Peer> real_peer,
-        const std::shared_ptr<shared_model::interface::CommonObjectsFactory>
+        std::shared_ptr<shared_model::Peer> real_peer,
+        const std::shared_ptr<shared_model::CommonObjectsFactory>
             &common_objects_factory,
         std::shared_ptr<TransportFactoryType> transaction_factory,
-        std::shared_ptr<shared_model::interface::TransactionBatchParser>
-            batch_parser,
-        std::shared_ptr<shared_model::interface::TransactionBatchFactory>
+        std::shared_ptr<shared_model::TransactionBatchParser> batch_parser,
+        std::shared_ptr<shared_model::TransactionBatchFactory>
             transaction_batch_factory,
         std::shared_ptr<iroha::ordering::transport::OnDemandOsClientGrpc::
                             TransportFactoryType> proposal_factory,
@@ -107,7 +106,7 @@ namespace integration_framework {
               mst_log_manager_->getChild("Transport")->getLogger())),
           yac_transport_(std::make_shared<YacTransport>(
               async_call_,
-              [](const shared_model::interface::Peer &peer) {
+              [](const shared_model::Peer &peer) {
                 return iroha::network::createClient<
                     iroha::consensus::yac::proto::Yac>(peer.address());
               },
@@ -225,8 +224,7 @@ namespace integration_framework {
       return *keypair_;
     }
 
-    std::shared_ptr<shared_model::interface::Peer> FakePeer::getThisPeer()
-        const {
+    std::shared_ptr<shared_model::Peer> FakePeer::getThisPeer() const {
       return this_peer_;
     }
 
@@ -240,13 +238,12 @@ namespace integration_framework {
       return yac_network_notifier_->getObservable();
     }
 
-    rxcpp::observable<
-        std::shared_ptr<shared_model::interface::TransactionBatch>>
+    rxcpp::observable<std::shared_ptr<shared_model::TransactionBatch>>
     FakePeer::getOsBatchesObservable() {
       return os_network_notifier_->getObservable();
     }
 
-    rxcpp::observable<std::shared_ptr<shared_model::interface::Proposal>>
+    rxcpp::observable<std::shared_ptr<shared_model::Proposal>>
     FakePeer::getOgProposalsObservable() {
       return og_network_notifier_->getObservable();
     }
@@ -275,12 +272,12 @@ namespace integration_framework {
       return od_os_network_notifier_->getBatchesObservable();
     }
 
-    std::shared_ptr<shared_model::interface::Signature> FakePeer::makeSignature(
+    std::shared_ptr<shared_model::Signature> FakePeer::makeSignature(
         const shared_model::crypto::Blob &hash) const {
       auto bare_signature =
           shared_model::crypto::DefaultCryptoAlgorithmType::sign(hash,
                                                                  *keypair_);
-      std::shared_ptr<shared_model::interface::Signature> signature_with_pubkey;
+      std::shared_ptr<shared_model::Signature> signature_with_pubkey;
       common_objects_factory_
           ->createSignature(keypair_->publicKey(), bare_signature)
           .match(
@@ -351,8 +348,7 @@ namespace integration_framework {
     }
 
     void FakePeer::proposeBatches(BatchesCollection batches) {
-      std::vector<std::shared_ptr<shared_model::interface::Transaction>>
-          transactions;
+      std::vector<std::shared_ptr<shared_model::Transaction>> transactions;
       for (auto &batch : batches) {
         std::copy(batch->transactions().begin(),
                   batch->transactions().end(),
@@ -362,8 +358,7 @@ namespace integration_framework {
     }
 
     void FakePeer::proposeTransactions(
-        std::vector<std::shared_ptr<shared_model::interface::Transaction>>
-            transactions) {
+        std::vector<std::shared_ptr<shared_model::Transaction>> transactions) {
       iroha::ordering::proto::BatchesRequest request;
       for (auto &transaction : transactions) {
         *request.add_transactions() =
@@ -378,7 +373,7 @@ namespace integration_framework {
       client->SendBatches(&context, request, &result);
     }
 
-    boost::optional<std::shared_ptr<const shared_model::interface::Proposal>>
+    boost::optional<std::shared_ptr<const shared_model::Proposal>>
     FakePeer::sendProposalRequest(iroha::consensus::Round round,
                                   std::chrono::milliseconds timeout) const {
       auto on_demand_os_transport =

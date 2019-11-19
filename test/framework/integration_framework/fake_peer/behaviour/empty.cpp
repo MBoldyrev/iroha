@@ -13,9 +13,9 @@ namespace integration_framework {
     void EmptyBehaviour::processYacMessage(
         std::shared_ptr<const YacMessage> message) {}
     void EmptyBehaviour::processOsBatch(
-        std::shared_ptr<shared_model::interface::TransactionBatch> batch) {}
+        std::shared_ptr<shared_model::TransactionBatch> batch) {}
     void EmptyBehaviour::processOgProposal(
-        std::shared_ptr<shared_model::interface::Proposal> proposal) {}
+        std::shared_ptr<shared_model::Proposal> proposal) {}
     LoaderBlockRequestResult EmptyBehaviour::processLoaderBlockRequest(
         LoaderBlockRequest request) {
       return {};

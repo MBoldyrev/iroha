@@ -11,31 +11,29 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
 
-    class Block;
+  class Block;
+
+  /**
+   * Provide response with block
+   */
+  class BlockResponse : public ModelPrimitive<BlockResponse> {
+   public:
+    /**
+     * @return Attached block
+     */
+    virtual const Block &block() const = 0;
 
     /**
-     * Provide response with block
+     * Stringify the data.
+     * @return string representation of data.
      */
-    class BlockResponse : public ModelPrimitive<BlockResponse> {
-     public:
-      /**
-       * @return Attached block
-       */
-      virtual const Block &block() const = 0;
+    std::string toString() const override;
 
-      /**
-       * Stringify the data.
-       * @return string representation of data.
-       */
-      std::string toString() const override;
-
-      /**
-       * @return true if the data are same.
-       */
-      bool operator==(const ModelType &rhs) const override;
-    };
-  }  // namespace interface
+    /**
+     * @return true if the data are same.
+     */
+    bool operator==(const ModelType &rhs) const override;
+  };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_BLOCK_RESPONSE_HPP

@@ -19,9 +19,8 @@ namespace iroha {
         MOCK_CONST_METHOD1(makeHash,
                            YacHash(const simulator::BlockCreatorEvent &event));
 
-        MOCK_CONST_METHOD1(
-            toModelHash,
-            shared_model::interface::types::HashType(const YacHash &));
+        MOCK_CONST_METHOD1(toModelHash,
+                           shared_model::types::HashType(const YacHash &));
 
         MockYacHashProvider() = default;
 

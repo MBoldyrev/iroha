@@ -8,10 +8,8 @@
 #include <memory>
 
 namespace shared_model {
-  namespace interface {
-    class TransactionBatch;
-    class Proposal;
-  }  // namespace interface
+  class TransactionBatch;
+  class Proposal;
 }  // namespace shared_model
 
 namespace iroha {
@@ -27,8 +25,7 @@ namespace iroha {
        * Callback on receiving proposal
        * @param proposal - proposal object itself
        */
-      virtual void onProposal(
-          std::shared_ptr<shared_model::interface::Proposal>) = 0;
+      virtual void onProposal(std::shared_ptr<shared_model::Proposal>) = 0;
 
       virtual ~OrderingGateNotification() = default;
     };
@@ -53,7 +50,7 @@ namespace iroha {
        * @param batch to be propagated
        */
       virtual void propagateBatch(
-          std::shared_ptr<shared_model::interface::TransactionBatch> batch) = 0;
+          std::shared_ptr<shared_model::TransactionBatch> batch) = 0;
 
       virtual ~OrderingGateTransport() = default;
     };

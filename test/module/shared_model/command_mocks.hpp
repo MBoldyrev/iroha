@@ -34,138 +34,128 @@
 using testing::Return;
 
 namespace shared_model {
-  namespace interface {
-    struct MockCommand : public shared_model::interface::Command {
-      MOCK_CONST_METHOD0(get, const Command::CommandVariantType &());
-    };
+  struct MockCommand : public shared_model::Command {
+    MOCK_CONST_METHOD0(get, const Command::CommandVariantType &());
+  };
 
-    struct MockAddAssetQuantity
-        : public shared_model::interface::AddAssetQuantity {
-      MOCK_CONST_METHOD0(assetId, const types::AssetIdType &());
-      MOCK_CONST_METHOD0(amount, const Amount &());
-    };
+  struct MockAddAssetQuantity : public shared_model::AddAssetQuantity {
+    MOCK_CONST_METHOD0(assetId, const types::AssetIdType &());
+    MOCK_CONST_METHOD0(amount, const Amount &());
+  };
 
-    struct MockAddPeer : public shared_model::interface::AddPeer {
-      MOCK_CONST_METHOD0(peer, const Peer &());
-    };
+  struct MockAddPeer : public shared_model::AddPeer {
+    MOCK_CONST_METHOD0(peer, const Peer &());
+  };
 
-    struct MockRemovePeer : public shared_model::interface::RemovePeer {
-      MOCK_CONST_METHOD0(pubkey, const types::PubkeyType &());
-    };
+  struct MockRemovePeer : public shared_model::RemovePeer {
+    MOCK_CONST_METHOD0(pubkey, const types::PubkeyType &());
+  };
 
-    struct MockAddSignatory : public shared_model::interface::AddSignatory {
-      MOCK_CONST_METHOD0(pubkey, const types::PubkeyType &());
-      MOCK_CONST_METHOD0(accountId, const types::AccountIdType &());
-    };
+  struct MockAddSignatory : public shared_model::AddSignatory {
+    MOCK_CONST_METHOD0(pubkey, const types::PubkeyType &());
+    MOCK_CONST_METHOD0(accountId, const types::AccountIdType &());
+  };
 
-    struct MockAppendRole : public shared_model::interface::AppendRole {
-      MOCK_CONST_METHOD0(accountId, const types::AccountIdType &());
-      MOCK_CONST_METHOD0(roleName, const types::RoleIdType &());
-    };
+  struct MockAppendRole : public shared_model::AppendRole {
+    MOCK_CONST_METHOD0(accountId, const types::AccountIdType &());
+    MOCK_CONST_METHOD0(roleName, const types::RoleIdType &());
+  };
 
-    struct MockCreateAccount : public shared_model::interface::CreateAccount {
-      MOCK_CONST_METHOD0(accountName, const types::AccountNameType &());
-      MOCK_CONST_METHOD0(domainId, const types::DomainIdType &());
-      MOCK_CONST_METHOD0(pubkey, const types::PubkeyType &());
-    };
+  struct MockCreateAccount : public shared_model::CreateAccount {
+    MOCK_CONST_METHOD0(accountName, const types::AccountNameType &());
+    MOCK_CONST_METHOD0(domainId, const types::DomainIdType &());
+    MOCK_CONST_METHOD0(pubkey, const types::PubkeyType &());
+  };
 
-    struct MockCreateAsset : public shared_model::interface::CreateAsset {
-      MOCK_CONST_METHOD0(assetName, const types::AssetNameType &());
-      MOCK_CONST_METHOD0(domainId, const types::DomainIdType &());
-      MOCK_CONST_METHOD0(precision, const PrecisionType &());
-    };
+  struct MockCreateAsset : public shared_model::CreateAsset {
+    MOCK_CONST_METHOD0(assetName, const types::AssetNameType &());
+    MOCK_CONST_METHOD0(domainId, const types::DomainIdType &());
+    MOCK_CONST_METHOD0(precision, const PrecisionType &());
+  };
 
-    struct MockCreateDomain : public shared_model::interface::CreateDomain {
-      MOCK_CONST_METHOD0(domainId, const types::DomainIdType &());
-      MOCK_CONST_METHOD0(userDefaultRole, const types::RoleIdType &());
-    };
+  struct MockCreateDomain : public shared_model::CreateDomain {
+    MOCK_CONST_METHOD0(domainId, const types::DomainIdType &());
+    MOCK_CONST_METHOD0(userDefaultRole, const types::RoleIdType &());
+  };
 
-    struct MockCreateRole : public shared_model::interface::CreateRole {
-      MockCreateRole() {
-        ON_CALL(*this, toString()).WillByDefault(Return("MockCreateRole"));
-      }
+  struct MockCreateRole : public shared_model::CreateRole {
+    MockCreateRole() {
+      ON_CALL(*this, toString()).WillByDefault(Return("MockCreateRole"));
+    }
 
-      MOCK_CONST_METHOD0(roleName, const types::RoleIdType &());
-      MOCK_CONST_METHOD0(rolePermissions, const RolePermissionSet &());
-      MOCK_CONST_METHOD0(toString, std::string());
-    };
+    MOCK_CONST_METHOD0(roleName, const types::RoleIdType &());
+    MOCK_CONST_METHOD0(rolePermissions, const RolePermissionSet &());
+    MOCK_CONST_METHOD0(toString, std::string());
+  };
 
-    struct MockDetachRole : public shared_model::interface::DetachRole {
-      MOCK_CONST_METHOD0(accountId, const types::AccountIdType &());
-      MOCK_CONST_METHOD0(roleName, const types::RoleIdType &());
-    };
+  struct MockDetachRole : public shared_model::DetachRole {
+    MOCK_CONST_METHOD0(accountId, const types::AccountIdType &());
+    MOCK_CONST_METHOD0(roleName, const types::RoleIdType &());
+  };
 
-    struct MockGrantPermission
-        : public shared_model::interface::GrantPermission {
-      MockGrantPermission() {
-        ON_CALL(*this, toString())
-            .WillByDefault(Return("MockGrantPermissions"));
-      }
+  struct MockGrantPermission : public shared_model::GrantPermission {
+    MockGrantPermission() {
+      ON_CALL(*this, toString()).WillByDefault(Return("MockGrantPermissions"));
+    }
 
-      MOCK_CONST_METHOD0(accountId, const types::AccountIdType &());
-      MOCK_CONST_METHOD0(permissionName, permissions::Grantable());
-      MOCK_CONST_METHOD0(toString, std::string());
-    };
+    MOCK_CONST_METHOD0(accountId, const types::AccountIdType &());
+    MOCK_CONST_METHOD0(permissionName, permissions::Grantable());
+    MOCK_CONST_METHOD0(toString, std::string());
+  };
 
-    struct MockRemoveSignatory
-        : public shared_model::interface::RemoveSignatory {
-      MOCK_CONST_METHOD0(accountId, const types::AccountIdType &());
-      MOCK_CONST_METHOD0(pubkey, const types::PubkeyType &());
-    };
+  struct MockRemoveSignatory : public shared_model::RemoveSignatory {
+    MOCK_CONST_METHOD0(accountId, const types::AccountIdType &());
+    MOCK_CONST_METHOD0(pubkey, const types::PubkeyType &());
+  };
 
-    struct MockRevokePermission
-        : public shared_model::interface::RevokePermission {
-      MockRevokePermission() {
-        ON_CALL(*this, toString())
-            .WillByDefault(Return("MockRevokePermission"));
-      }
+  struct MockRevokePermission : public shared_model::RevokePermission {
+    MockRevokePermission() {
+      ON_CALL(*this, toString()).WillByDefault(Return("MockRevokePermission"));
+    }
 
-      MOCK_CONST_METHOD0(accountId, const types::AccountIdType &());
-      MOCK_CONST_METHOD0(permissionName, permissions::Grantable());
-      MOCK_CONST_METHOD0(toString, std::string());
-    };
+    MOCK_CONST_METHOD0(accountId, const types::AccountIdType &());
+    MOCK_CONST_METHOD0(permissionName, permissions::Grantable());
+    MOCK_CONST_METHOD0(toString, std::string());
+  };
 
-    struct MockSetAccountDetail
-        : public shared_model::interface::SetAccountDetail {
-      MOCK_CONST_METHOD0(accountId, const types::AccountIdType &());
-      MOCK_CONST_METHOD0(key, const types::AccountDetailKeyType &());
-      MOCK_CONST_METHOD0(value, const types::AccountDetailValueType &());
-    };
+  struct MockSetAccountDetail : public shared_model::SetAccountDetail {
+    MOCK_CONST_METHOD0(accountId, const types::AccountIdType &());
+    MOCK_CONST_METHOD0(key, const types::AccountDetailKeyType &());
+    MOCK_CONST_METHOD0(value, const types::AccountDetailValueType &());
+  };
 
-    struct MockSetQuorum : public shared_model::interface::SetQuorum {
-      MOCK_CONST_METHOD0(accountId, const types::AccountIdType &());
-      MOCK_CONST_METHOD0(newQuorum, types::QuorumType());
-    };
+  struct MockSetQuorum : public shared_model::SetQuorum {
+    MOCK_CONST_METHOD0(accountId, const types::AccountIdType &());
+    MOCK_CONST_METHOD0(newQuorum, types::QuorumType());
+  };
 
-    struct MockSubtractAssetQuantity
-        : public shared_model::interface::SubtractAssetQuantity {
-      MOCK_CONST_METHOD0(assetId, const types::AssetIdType &());
-      MOCK_CONST_METHOD0(amount, const Amount &());
-    };
+  struct MockSubtractAssetQuantity
+      : public shared_model::SubtractAssetQuantity {
+    MOCK_CONST_METHOD0(assetId, const types::AssetIdType &());
+    MOCK_CONST_METHOD0(amount, const Amount &());
+  };
 
-    struct MockTransferAsset : public shared_model::interface::TransferAsset {
-      MOCK_CONST_METHOD0(srcAccountId, const types::AccountIdType &());
-      MOCK_CONST_METHOD0(destAccountId, const types::AccountIdType &());
-      MOCK_CONST_METHOD0(assetId, const types::AssetIdType &());
-      MOCK_CONST_METHOD0(amount, const Amount &());
-      MOCK_CONST_METHOD0(description, const types::DescriptionType &());
-    };
+  struct MockTransferAsset : public shared_model::TransferAsset {
+    MOCK_CONST_METHOD0(srcAccountId, const types::AccountIdType &());
+    MOCK_CONST_METHOD0(destAccountId, const types::AccountIdType &());
+    MOCK_CONST_METHOD0(assetId, const types::AssetIdType &());
+    MOCK_CONST_METHOD0(amount, const Amount &());
+    MOCK_CONST_METHOD0(description, const types::DescriptionType &());
+  };
 
-    struct MockCompareAndSetAccountDetail
-        : public shared_model::interface::CompareAndSetAccountDetail {
-      MOCK_CONST_METHOD0(accountId, const types::AccountIdType &());
-      MOCK_CONST_METHOD0(key, const types::AccountDetailKeyType &());
-      MOCK_CONST_METHOD0(value, const types::AccountDetailValueType &());
-      MOCK_CONST_METHOD0(
-          oldValue, const boost::optional<types::AccountDetailValueType>());
-    };
+  struct MockCompareAndSetAccountDetail
+      : public shared_model::CompareAndSetAccountDetail {
+    MOCK_CONST_METHOD0(accountId, const types::AccountIdType &());
+    MOCK_CONST_METHOD0(key, const types::AccountDetailKeyType &());
+    MOCK_CONST_METHOD0(value, const types::AccountDetailValueType &());
+    MOCK_CONST_METHOD0(oldValue,
+                       const boost::optional<types::AccountDetailValueType>());
+  };
 
-    struct MockSetSettingValue
-        : public shared_model::interface::SetSettingValue {
-      MOCK_CONST_METHOD0(key, const types::SettingKeyType &());
-      MOCK_CONST_METHOD0(value, const types::SettingValueType &());
-    };
-  }  // namespace interface
+  struct MockSetSettingValue : public shared_model::SetSettingValue {
+    MOCK_CONST_METHOD0(key, const types::SettingKeyType &());
+    MOCK_CONST_METHOD0(value, const types::SettingValueType &());
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_COMMAND_MOCKS_HPP

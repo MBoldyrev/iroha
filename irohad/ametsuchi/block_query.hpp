@@ -29,8 +29,7 @@ namespace iroha {
       };
 
       using BlockResult =
-          expected::Result<std::unique_ptr<shared_model::interface::Block>,
-                           GetBlockError>;
+          expected::Result<std::unique_ptr<shared_model::Block>, GetBlockError>;
 
       virtual ~BlockQuery() = default;
 
@@ -39,15 +38,13 @@ namespace iroha {
        * @param height - height of a block to retrieve
        * @return block with given height
        */
-      virtual BlockResult getBlock(
-          shared_model::interface::types::HeightType height) = 0;
+      virtual BlockResult getBlock(shared_model::types::HeightType height) = 0;
 
       /**
        * Get height of the top block.
        * @return height
        */
-      virtual shared_model::interface::types::HeightType
-      getTopBlockHeight() = 0;
+      virtual shared_model::types::HeightType getTopBlockHeight() = 0;
 
       /**
        * Synchronously checks whether transaction with given hash is present in

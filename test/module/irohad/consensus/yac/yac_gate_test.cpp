@@ -52,11 +52,9 @@ class YacGateTest : public ::testing::Test {
     EXPECT_CALL(*block, createdTime()).WillRepeatedly(Return(1));
     EXPECT_CALL(*block, transactions())
         .WillRepeatedly(
-            Return<shared_model::interface::types::TransactionsCollectionType>(
-                {}));
+            Return<shared_model::types::TransactionsCollectionType>({}));
     EXPECT_CALL(*block, signatures())
-        .WillRepeatedly(
-            Return<shared_model::interface::types::SignatureRangeType>({}));
+        .WillRepeatedly(Return<shared_model::types::SignatureRangeType>({}));
     auto prev_hash = Hash("prev hash");
     auto current_hash = Hash("current hash");
     EXPECT_CALL(*block, prevHash())
@@ -101,7 +99,7 @@ class YacGateTest : public ::testing::Test {
 
     auto peer = makePeer("127.0.0.1", shared_model::crypto::PublicKey("111"));
     ledger_state = std::make_shared<iroha::LedgerState>(
-        shared_model::interface::types::PeerList{std::move(peer)},
+        shared_model::types::PeerList{std::move(peer)},
         block->height() - 1,
         block->prevHash());
   }
@@ -112,8 +110,8 @@ class YacGateTest : public ::testing::Test {
   Signed expected_signed{"expected_signed"};
   Hash prev_hash{"prev hash"};
   YacHash expected_hash;
-  std::shared_ptr<const shared_model::interface::Proposal> expected_proposal;
-  std::shared_ptr<shared_model::interface::Block> expected_block;
+  std::shared_ptr<const shared_model::Proposal> expected_proposal;
+  std::shared_ptr<shared_model::Block> expected_block;
   VoteMessage message;
   CommitMessage commit_message;
   Answer expected_commit{commit_message};

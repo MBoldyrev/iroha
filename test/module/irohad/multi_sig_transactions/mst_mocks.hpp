@@ -21,7 +21,7 @@ namespace iroha {
     MOCK_METHOD1(subscribe,
                  void(std::shared_ptr<network::MstTransportNotification>));
     MOCK_METHOD2(sendState,
-                 void(const shared_model::interface::Peer &to,
+                 void(const shared_model::Peer &to,
                       const MstState &providing_state));
   };
 

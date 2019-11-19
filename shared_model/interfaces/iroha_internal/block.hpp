@@ -11,39 +11,36 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
 
-    class Block : public Signable<Block>, public Cloneable<Block> {
-     public:
-      /**
-       * @return block number in the ledger
-       */
-      virtual types::HeightType height() const = 0;
+  class Block : public Signable<Block>, public Cloneable<Block> {
+   public:
+    /**
+     * @return block number in the ledger
+     */
+    virtual types::HeightType height() const = 0;
 
-      /**
-       * @return hash of a previous block
-       */
-      virtual const types::HashType &prevHash() const = 0;
-      /**
-       * @return amount of transactions in block
-       */
-      virtual types::TransactionsNumberType txsNumber() const = 0;
+    /**
+     * @return hash of a previous block
+     */
+    virtual const types::HashType &prevHash() const = 0;
+    /**
+     * @return amount of transactions in block
+     */
+    virtual types::TransactionsNumberType txsNumber() const = 0;
 
-      /**
-       * @return collection of transactions
-       */
-      virtual types::TransactionsCollectionType transactions() const = 0;
+    /**
+     * @return collection of transactions
+     */
+    virtual types::TransactionsCollectionType transactions() const = 0;
 
-      /**
-       * @return collection of rejected transactions' hashes
-       */
-      virtual interface::types::HashCollectionType
-      rejected_transactions_hashes() const = 0;
+    /**
+     * @return collection of rejected transactions' hashes
+     */
+    virtual types::HashCollectionType rejected_transactions_hashes() const = 0;
 
-      std::string toString() const override;
-    };
+    std::string toString() const override;
+  };
 
-  }  // namespace interface
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_BLOCK_HPP

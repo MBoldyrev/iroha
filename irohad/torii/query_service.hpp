@@ -19,10 +19,8 @@
 #include "torii/processor/query_processor.hpp"
 
 namespace shared_model {
-  namespace interface {
-    template <typename Interface, typename Transport>
-    class AbstractTransportFactory;
-  }
+  template <typename Interface, typename Transport>
+  class AbstractTransportFactory;
 }  // namespace shared_model
 
 namespace iroha {
@@ -35,13 +33,11 @@ namespace iroha {
     class QueryService : public iroha::protocol::QueryService_v1::Service {
      public:
       using QueryFactoryType =
-          shared_model::interface::AbstractTransportFactory<
-              shared_model::interface::Query,
-              iroha::protocol::Query>;
+          shared_model::AbstractTransportFactory<shared_model::Query,
+                                                 iroha::protocol::Query>;
       using BlocksQueryFactoryType =
-          shared_model::interface::AbstractTransportFactory<
-              shared_model::interface::BlocksQuery,
-              iroha::protocol::BlocksQuery>;
+          shared_model::AbstractTransportFactory<shared_model::BlocksQuery,
+                                                 iroha::protocol::BlocksQuery>;
 
       QueryService(
           std::shared_ptr<iroha::torii::QueryProcessor> query_processor,

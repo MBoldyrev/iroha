@@ -18,7 +18,7 @@ static PermType getRole(int i) {
 class RolePermType {
  public:
   using Proto = iroha::protocol::RolePermission;
-  using Model = shared_model::interface::permissions::Role;
+  using Model = shared_model::permissions::Role;
 
   static auto descriptor() {
     return iroha::protocol::RolePermission_descriptor();
@@ -36,7 +36,7 @@ class RolePermType {
 class GrantablePermType {
  public:
   using Proto = iroha::protocol::GrantablePermission;
-  using Model = shared_model::interface::permissions::Grantable;
+  using Model = shared_model::permissions::Grantable;
 
   static auto descriptor() {
     return iroha::protocol::GrantablePermission_descriptor();
@@ -125,8 +125,8 @@ TYPED_TEST(ProtoPermission, SizesMatch) {
 }
 
 TEST(ProtoPermission, PermissionSet) {
-  using Role = shared_model::interface::permissions::Role;
-  using PermSet = shared_model::interface::PermissionSet<Role>;
+  using Role = shared_model::permissions::Role;
+  using PermSet = shared_model::PermissionSet<Role>;
   PermSet set({Role::kAppendRole, Role::kAddAssetQty, Role::kAddPeer});
   ASSERT_TRUE(set.isSet(Role::kAppendRole));
   ASSERT_TRUE(set.isSet(Role::kAddAssetQty));
@@ -139,8 +139,8 @@ TEST(ProtoPermission, PermissionSet) {
 }
 
 TEST(ProtoPermission, PermissionSubset) {
-  using Role = shared_model::interface::permissions::Role;
-  using PermSet = shared_model::interface::PermissionSet<Role>;
+  using Role = shared_model::permissions::Role;
+  using PermSet = shared_model::PermissionSet<Role>;
   PermSet big({Role::kAppendRole,
                Role::kCreateRole,
                Role::kDetachRole,

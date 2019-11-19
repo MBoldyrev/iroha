@@ -24,10 +24,9 @@ namespace integration_framework {
       void processYacMessage(
           std::shared_ptr<const YacMessage> message) override;
       void processOsBatch(
-          std::shared_ptr<shared_model::interface::TransactionBatch> batch)
-          override;
+          std::shared_ptr<shared_model::TransactionBatch> batch) override;
       void processOgProposal(
-          std::shared_ptr<shared_model::interface::Proposal> proposal) override;
+          std::shared_ptr<shared_model::Proposal> proposal) override;
       LoaderBlockRequestResult processLoaderBlockRequest(
           LoaderBlockRequest request) override;
       LoaderBlocksRequestResult processLoaderBlocksRequest(

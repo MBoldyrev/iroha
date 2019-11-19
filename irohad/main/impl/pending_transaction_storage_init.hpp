@@ -12,9 +12,7 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class TransactionBatch;
-  }
+  class TransactionBatch;
 }  // namespace shared_model
 
 namespace iroha {
@@ -44,15 +42,12 @@ namespace iroha {
    protected:
     rxcpp::composite_subscription pending_storage_lifetime;
     rxcpp::subjects::subject<std::shared_ptr<iroha::MstState>> updated_batches;
-    rxcpp::subjects::subject<
-        std::shared_ptr<shared_model::interface::TransactionBatch>>
+    rxcpp::subjects::subject<std::shared_ptr<shared_model::TransactionBatch>>
         prepared_batch;
-    rxcpp::subjects::subject<
-        std::shared_ptr<shared_model::interface::TransactionBatch>>
+    rxcpp::subjects::subject<std::shared_ptr<shared_model::TransactionBatch>>
         expired_batch;
-    rxcpp::subjects::subject<
-        std::pair<shared_model::interface::types::AccountIdType,
-                  shared_model::interface::types::HashType>>
+    rxcpp::subjects::subject<std::pair<shared_model::types::AccountIdType,
+                                       shared_model::types::HashType>>
         prepared_txs;
   };
 }  // namespace iroha

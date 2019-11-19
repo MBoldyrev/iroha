@@ -72,10 +72,8 @@ namespace shared_model {
   namespace crypto {
     class Keypair;
   }
-  namespace interface {
-    class QueryResponseFactory;
-    class TransactionBatchFactory;
-  }  // namespace interface
+  class QueryResponseFactory;
+  class TransactionBatchFactory;
 }  // namespace shared_model
 
 class Irohad {
@@ -122,8 +120,7 @@ class Irohad {
          const shared_model::crypto::Keypair &keypair,
          std::chrono::milliseconds max_rounds_delay,
          size_t stale_stream_max_rounds,
-         boost::optional<shared_model::interface::types::PeerList>
-             opt_alternative_peers,
+         boost::optional<shared_model::types::PeerList> opt_alternative_peers,
          logger::LoggerManagerTreePtr logger_manager,
          const boost::optional<iroha::GossipPropagationStrategyParams>
              &opt_mst_gossip_params = boost::none,
@@ -223,8 +220,7 @@ class Irohad {
   std::chrono::minutes mst_expiration_time_;
   std::chrono::milliseconds max_rounds_delay_;
   size_t stale_stream_max_rounds_;
-  const boost::optional<shared_model::interface::types::PeerList>
-      opt_alternative_peers_;
+  const boost::optional<shared_model::types::PeerList> opt_alternative_peers_;
   boost::optional<iroha::GossipPropagationStrategyParams>
       opt_mst_gossip_params_;
   boost::optional<IrohadConfig::InterPeerTls> inter_peer_tls_config_;
@@ -244,8 +240,7 @@ class Irohad {
   std::shared_ptr<iroha::PendingTransactionStorage> pending_txs_storage_;
 
   // query response factory
-  std::shared_ptr<shared_model::interface::QueryResponseFactory>
-      query_response_factory_;
+  std::shared_ptr<shared_model::QueryResponseFactory> query_response_factory_;
 
   // ------------------------| internal dependencies |-------------------------
  public:
@@ -267,12 +262,12 @@ class Irohad {
   std::shared_ptr<iroha::ametsuchi::WsvRestorer> wsv_restorer_;
 
   // crypto provider
-  std::shared_ptr<shared_model::crypto::AbstractCryptoModelSigner<
-      shared_model::interface::Block>>
+  std::shared_ptr<
+      shared_model::crypto::AbstractCryptoModelSigner<shared_model::Block>>
       crypto_signer_;
 
   // batch parser
-  std::shared_ptr<shared_model::interface::TransactionBatchParser> batch_parser;
+  std::shared_ptr<shared_model::TransactionBatchParser> batch_parser;
 
   // validators
   std::shared_ptr<shared_model::validation::ValidatorsConfig>
@@ -289,34 +284,34 @@ class Irohad {
       async_call_;
 
   // transaction batch factory
-  std::shared_ptr<shared_model::interface::TransactionBatchFactory>
+  std::shared_ptr<shared_model::TransactionBatchFactory>
       transaction_batch_factory_;
 
   // transaction factory
-  std::shared_ptr<shared_model::interface::AbstractTransportFactory<
-      shared_model::interface::Transaction,
-      iroha::protocol::Transaction>>
+  std::shared_ptr<
+      shared_model::AbstractTransportFactory<shared_model::Transaction,
+                                             iroha::protocol::Transaction>>
       transaction_factory;
 
   // query factory
-  std::shared_ptr<shared_model::interface::AbstractTransportFactory<
-      shared_model::interface::Query,
-      iroha::protocol::Query>>
+  std::shared_ptr<
+      shared_model::AbstractTransportFactory<shared_model::Query,
+                                             iroha::protocol::Query>>
       query_factory;
 
   // blocks query factory
-  std::shared_ptr<shared_model::interface::AbstractTransportFactory<
-      shared_model::interface::BlocksQuery,
-      iroha::protocol::BlocksQuery>>
+  std::shared_ptr<
+      shared_model::AbstractTransportFactory<shared_model::BlocksQuery,
+                                             iroha::protocol::BlocksQuery>>
       blocks_query_factory;
 
   // persistent cache
   std::shared_ptr<iroha::ametsuchi::TxPresenceCache> persistent_cache;
 
   // proposal factory
-  std::shared_ptr<shared_model::interface::AbstractTransportFactory<
-      shared_model::interface::Proposal,
-      iroha::protocol::Proposal>>
+  std::shared_ptr<
+      shared_model::AbstractTransportFactory<shared_model::Proposal,
+                                             iroha::protocol::Proposal>>
       proposal_factory;
 
   // ordering gate

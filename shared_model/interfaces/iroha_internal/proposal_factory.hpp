@@ -13,30 +13,28 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class Proposal;
+  class Proposal;
 
-    /**
-     * ProposalFactory creates proposal
-     */
-    class ProposalFactory {
-     public:
-      template <typename T>
-      using FactoryResult = iroha::expected::Result<T, std::string>;
+  /**
+   * ProposalFactory creates proposal
+   */
+  class ProposalFactory {
+   public:
+    template <typename T>
+    using FactoryResult = iroha::expected::Result<T, std::string>;
 
-      using TransactionsCollectionType =
-          boost::any_range<Transaction,
-                           boost::forward_traversal_tag,
-                           const Transaction &>;
+    using TransactionsCollectionType =
+        boost::any_range<Transaction,
+                         boost::forward_traversal_tag,
+                         const Transaction &>;
 
-      virtual FactoryResult<std::unique_ptr<Proposal>> createProposal(
-          types::HeightType height,
-          types::TimestampType created_time,
-          TransactionsCollectionType transactions) = 0;
+    virtual FactoryResult<std::unique_ptr<Proposal>> createProposal(
+        types::HeightType height,
+        types::TimestampType created_time,
+        TransactionsCollectionType transactions) = 0;
 
-      virtual ~ProposalFactory() = default;
-    };
-  }  // namespace interface
+    virtual ~ProposalFactory() = default;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_PROPOSAL_FACTORY_HPP

@@ -34,8 +34,7 @@ namespace framework {
     class SqlQuery {
      public:
       SqlQuery(soci::session &sql,
-               std::shared_ptr<shared_model::interface::CommonObjectsFactory>
-                   factory,
+               std::shared_ptr<shared_model::CommonObjectsFactory> factory,
                logger::LoggerPtr log = getTestLogger("SqlQuery"));
 
       /**
@@ -46,78 +45,70 @@ namespace framework {
        * @return true if has permission, false otherwise
        */
       bool hasAccountGrantablePermission(
-          const shared_model::interface::types::AccountIdType
-              &permitee_account_id,
-          const shared_model::interface::types::AccountIdType &account_id,
-          shared_model::interface::permissions::Grantable permission);
+          const shared_model::types::AccountIdType &permitee_account_id,
+          const shared_model::types::AccountIdType &account_id,
+          shared_model::permissions::Grantable permission);
 
       /**
        * Get iroha domain
        * @param domain_id - id in the system
        * @return Domain if exist, nullopt otherwise
        */
-      boost::optional<std::shared_ptr<shared_model::interface::Domain>>
-      getDomain(const shared_model::interface::types::DomainIdType &domain_id);
+      boost::optional<std::shared_ptr<shared_model::Domain>> getDomain(
+          const shared_model::types::DomainIdType &domain_id);
 
       /**
        * Get account's roles
        * @param account_id
        * @return
        */
-      boost::optional<std::vector<shared_model::interface::types::RoleIdType>>
-      getAccountRoles(
-          const shared_model::interface::types::AccountIdType &account_id);
+      boost::optional<std::vector<shared_model::types::RoleIdType>>
+      getAccountRoles(const shared_model::types::AccountIdType &account_id);
       /**
        * Get all permissions of a role
        * @param role_name
        * @return
        */
-      boost::optional<shared_model::interface::RolePermissionSet>
-      getRolePermissions(
-          const shared_model::interface::types::RoleIdType &role_name);
+      boost::optional<shared_model::RolePermissionSet> getRolePermissions(
+          const shared_model::types::RoleIdType &role_name);
 
       /**
        * @return All roles currently in the system
        */
-      boost::optional<std::vector<shared_model::interface::types::RoleIdType>>
-      getRoles();
+      boost::optional<std::vector<shared_model::types::RoleIdType>> getRoles();
 
       /**
        * Get account by user account_id
        * @param account_id
        * @return
        */
-      boost::optional<std::shared_ptr<shared_model::interface::Account>>
-      getAccount(
-          const shared_model::interface::types::AccountIdType &account_id);
+      boost::optional<std::shared_ptr<shared_model::Account>> getAccount(
+          const shared_model::types::AccountIdType &account_id);
 
       /**
        * Get asset by its name
        * @param asset_id
        * @return
        */
-      boost::optional<std::shared_ptr<shared_model::interface::Asset>> getAsset(
-          const shared_model::interface::types::AssetIdType &asset_id);
+      boost::optional<std::shared_ptr<shared_model::Asset>> getAsset(
+          const shared_model::types::AssetIdType &asset_id);
 
       /**
        * Get account assets
        * @param account_id
        * @return
        */
-      boost::optional<
-          std::vector<std::shared_ptr<shared_model::interface::AccountAsset>>>
-      getAccountAssets(
-          const shared_model::interface::types::AccountIdType &account_id);
+      boost::optional<std::vector<std::shared_ptr<shared_model::AccountAsset>>>
+      getAccountAssets(const shared_model::types::AccountIdType &account_id);
       /**
        *
        * @param account_id
        * @param asset_id
        * @return
        */
-      boost::optional<std::shared_ptr<shared_model::interface::AccountAsset>>
-      getAccountAsset(
-          const shared_model::interface::types::AccountIdType &account_id,
-          const shared_model::interface::types::AssetIdType &asset_id);
+      boost::optional<std::shared_ptr<shared_model::AccountAsset>>
+      getAccountAsset(const shared_model::types::AccountIdType &account_id,
+                      const shared_model::types::AssetIdType &asset_id);
 
       /**
        * Get accounts information from its key-value storage
@@ -129,22 +120,21 @@ namespace framework {
        * @return optional of account details
        */
       boost::optional<std::string> getAccountDetail(
-          const shared_model::interface::types::AccountIdType &account_id,
-          const shared_model::interface::types::AccountDetailKeyType &key = "",
-          const shared_model::interface::types::AccountIdType &writer = "");
+          const shared_model::types::AccountIdType &account_id,
+          const shared_model::types::AccountDetailKeyType &key = "",
+          const shared_model::types::AccountIdType &writer = "");
 
       /**
        * Get setting value by its key
        * @param setting_key
        * @return if key exist then value otherwise none
        */
-      boost::optional<shared_model::interface::types::SettingValueType>
-      getSettingValue(
-          const shared_model::interface::types::SettingKeyType &setting_key);
+      boost::optional<shared_model::types::SettingValueType> getSettingValue(
+          const shared_model::types::SettingKeyType &setting_key);
 
      private:
       soci::session &sql_;
-      std::shared_ptr<shared_model::interface::CommonObjectsFactory> factory_;
+      std::shared_ptr<shared_model::CommonObjectsFactory> factory_;
       logger::LoggerPtr log_;
 
       /**
@@ -164,8 +154,8 @@ namespace framework {
        */
       template <typename T>
       boost::optional<std::shared_ptr<T>> fromResult(
-          shared_model::interface::CommonObjectsFactory::FactoryResult<
-              std::unique_ptr<T>> &&result);
+          shared_model::CommonObjectsFactory::FactoryResult<std::unique_ptr<T>>
+              &&result);
     };
 
   }  // namespace ametsuchi

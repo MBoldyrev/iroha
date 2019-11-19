@@ -20,19 +20,15 @@ namespace shared_model {
     class Query;
   }
 
-  namespace interface {
-
-    class Block;
-    class AccountDetailResponse;
-    class AccountAssetResponse;
-    class AccountResponse;
-    class AssetResponse;
-    class RolePermissionsResponse;
-    class RolesResponse;
-    class SignatoriesResponse;
-    class TransactionsResponse;
-
-  }  // namespace interface
+  class Block;
+  class AccountDetailResponse;
+  class AccountAssetResponse;
+  class AccountResponse;
+  class AssetResponse;
+  class RolePermissionsResponse;
+  class RolesResponse;
+  class SignatoriesResponse;
+  class TransactionsResponse;
 
 }  // namespace shared_model
 
@@ -143,7 +139,7 @@ class BinaryTestFixture : public ::testing::Test {
    * @param result - Block object
    */
   static void blockWithTransactionValidation(
-      const std::shared_ptr<const shared_model::interface::Block> &result) {
+      const std::shared_ptr<const shared_model::Block> &result) {
     ASSERT_EQ(result->transactions().size(), 1);
   }
 

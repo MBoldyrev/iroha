@@ -47,8 +47,7 @@ struct CommandFixture {
   rxcpp::subjects::subject<iroha::network::OrderingEvent> prop_notifier_;
   rxcpp::subjects::subject<iroha::simulator::VerifiedProposalCreatorEvent>
       vprop_notifier_;
-  rxcpp::subjects::subject<
-      std::shared_ptr<const shared_model::interface::Block>>
+  rxcpp::subjects::subject<std::shared_ptr<const shared_model::Block>>
       commit_notifier_;
   rxcpp::subjects::subject<iroha::DataType> mst_notifier_;
   rxcpp::subjects::subject<std::shared_ptr<iroha::MstState>>
@@ -82,8 +81,8 @@ struct CommandFixture {
         commit_notifier_.get_observable(),
         logger::getDummyLoggerPtr());
 
-    std::unique_ptr<shared_model::validation::AbstractValidator<
-        shared_model::interface::Transaction>>
+    std::unique_ptr<
+        shared_model::validation::AbstractValidator<shared_model::Transaction>>
         transaction_validator =
             std::make_unique<shared_model::validation::
                                  DefaultOptionalSignedTransactionValidator>(
@@ -92,27 +91,26 @@ struct CommandFixture {
         iroha::protocol::Transaction>>
         proto_transaction_validator = std::make_unique<
             shared_model::validation::ProtoTransactionValidator>();
-    std::shared_ptr<shared_model::interface::AbstractTransportFactory<
-        shared_model::interface::Transaction,
-        iroha::protocol::Transaction>>
+    std::shared_ptr<
+        shared_model::AbstractTransportFactory<shared_model::Transaction,
+                                               iroha::protocol::Transaction>>
         transaction_factory =
             std::make_shared<shared_model::proto::ProtoTransportFactory<
-                shared_model::interface::Transaction,
+                shared_model::Transaction,
                 shared_model::proto::Transaction>>(
                 std::move(transaction_validator),
                 std::move(proto_transaction_validator));
-    std::shared_ptr<shared_model::interface::TransactionBatchParser>
-        batch_parser = std::make_shared<
-            shared_model::interface::TransactionBatchParserImpl>();
+    std::shared_ptr<shared_model::TransactionBatchParser> batch_parser =
+        std::make_shared<shared_model::TransactionBatchParserImpl>();
     std::shared_ptr<shared_model::validation::AbstractValidator<
-        shared_model::interface::TransactionBatch>>
+        shared_model::TransactionBatch>>
         batch_validator =
             std::make_shared<shared_model::validation::BatchValidator>(
                 iroha::test::kTestsValidatorsConfig);
-    std::shared_ptr<shared_model::interface::TransactionBatchFactory>
-        transaction_batch_factory = std::make_shared<
-            shared_model::interface::TransactionBatchFactoryImpl>(
-            batch_validator);
+    std::shared_ptr<shared_model::TransactionBatchFactory>
+        transaction_batch_factory =
+            std::make_shared<shared_model::TransactionBatchFactoryImpl>(
+                batch_validator);
 
     storage_ = std::make_shared<iroha::ametsuchi::MockStorage>();
     bq_ = std::make_shared<iroha::ametsuchi::MockBlockQuery>();

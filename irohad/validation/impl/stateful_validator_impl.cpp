@@ -30,7 +30,7 @@ namespace iroha {
     static bool checkTransactions(
         ametsuchi::TemporaryWsv &temporary_wsv,
         validation::TransactionsErrors &transactions_errors_log,
-        const shared_model::interface::Transaction &tx) {
+        const shared_model::Transaction &tx) {
       return temporary_wsv.apply(tx).match(
           [](const auto &) { return true; },
           [&tx, &transactions_errors_log](auto &&error) {
@@ -50,10 +50,10 @@ namespace iroha {
      * @return range of transactions, which passed stateful validation
      */
     static auto validateTransactions(
-        const shared_model::interface::types::TransactionsCollectionType &txs,
+        const shared_model::types::TransactionsCollectionType &txs,
         ametsuchi::TemporaryWsv &temporary_wsv,
         validation::TransactionsErrors &transactions_errors_log,
-        const shared_model::interface::TransactionBatchParser &batch_parser) {
+        const shared_model::TransactionBatchParser &batch_parser) {
       std::vector<bool> validation_results;
       validation_results.reserve(boost::size(txs));
 
@@ -63,7 +63,7 @@ namespace iroha {
         };
         if (batch.front().batchMeta()
             and batch.front().batchMeta()->get()->type()
-                == shared_model::interface::types::BatchType::ATOMIC) {
+                == shared_model::types::BatchType::ATOMIC) {
           // check all batch's transactions for validness
           auto savepoint = temporary_wsv.createSavepoint(
               "batch_" + batch.front().hash().hex());
@@ -112,18 +112,16 @@ namespace iroha {
     }
 
     StatefulValidatorImpl::StatefulValidatorImpl(
-        std::unique_ptr<shared_model::interface::UnsafeProposalFactory> factory,
-        std::shared_ptr<shared_model::interface::TransactionBatchParser>
-            batch_parser,
+        std::unique_ptr<shared_model::UnsafeProposalFactory> factory,
+        std::shared_ptr<shared_model::TransactionBatchParser> batch_parser,
         logger::LoggerPtr log)
         : factory_(std::move(factory)),
           batch_parser_(std::move(batch_parser)),
           log_(std::move(log)) {}
 
     std::unique_ptr<validation::VerifiedProposalAndErrors>
-    StatefulValidatorImpl::validate(
-        const shared_model::interface::Proposal &proposal,
-        ametsuchi::TemporaryWsv &temporaryWsv) {
+    StatefulValidatorImpl::validate(const shared_model::Proposal &proposal,
+                                    ametsuchi::TemporaryWsv &temporaryWsv) {
       log_->info("transactions in proposal: {}",
                  proposal.transactions().size());
 
@@ -138,8 +136,8 @@ namespace iroha {
       // All transactions are validated as well
       // This allows for unsafe construction of proposal
       validation_result->verified_proposal =
-          std::const_pointer_cast<const shared_model::interface::Proposal>(
-              std::shared_ptr<shared_model::interface::Proposal>(
+          std::const_pointer_cast<const shared_model::Proposal>(
+              std::shared_ptr<shared_model::Proposal>(
                   factory_->unsafeCreateProposal(
                       proposal.height(), proposal.createdTime(), valid_txs)));
 

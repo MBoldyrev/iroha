@@ -13,9 +13,9 @@
 
 using namespace shared_model;
 using namespace integration_framework;
-using namespace shared_model::interface::permissions;
+using namespace shared_model::permissions;
 
-using BlockType = std::shared_ptr<const shared_model::interface::Block>;
+using BlockType = std::shared_ptr<const shared_model::Block>;
 
 /**
  * @return a functor that verifies that query response contains specific error
@@ -24,16 +24,15 @@ template <typename TError>
 auto inline getQueryErrorChecker() {
   return [](auto &response) {
     ASSERT_TRUE(boost::apply_visitor(
-        shared_model::interface::QueryErrorResponseChecker<TError>(),
-        response.get()))
+        shared_model::QueryErrorResponseChecker<TError>(), response.get()))
         << "Actual response: " << response.toString();
   };
 }
 
 static auto &getQueryStatefullyInvalidChecker =
-    getQueryErrorChecker<shared_model::interface::StatefulFailedErrorResponse>;
+    getQueryErrorChecker<shared_model::StatefulFailedErrorResponse>;
 static auto &getQueryStatelesslyInvalidChecker =
-    getQueryErrorChecker<shared_model::interface::StatelessFailedErrorResponse>;
+    getQueryErrorChecker<shared_model::StatelessFailedErrorResponse>;
 
 /**
  * @return a functor that checks that a block contains exactly the specified
@@ -47,9 +46,9 @@ class QueryPermissionTestBase {
   std::unique_ptr<IntegrationTestFramework> itf_;
 
   QueryPermissionTestBase(
-      const interface::RolePermissionSet &permission_to_query_myself,
-      const interface::RolePermissionSet &permission_to_query_my_domain,
-      const interface::RolePermissionSet &permission_to_query_everyone);
+      const RolePermissionSet &permission_to_query_myself,
+      const RolePermissionSet &permission_to_query_my_domain,
+      const RolePermissionSet &permission_to_query_everyone);
 
   virtual ~QueryPermissionTestBase() = default;
 
@@ -67,8 +66,8 @@ class QueryPermissionTestBase {
    */
   IntegrationTestFramework &prepareState(
       AcceptanceFixture &fixture,
-      const interface::RolePermissionSet &spectator_permissions,
-      const interface::RolePermissionSet &target_permissions);
+      const RolePermissionSet &spectator_permissions,
+      const RolePermissionSet &target_permissions);
 
   /**
    * Implementations must define this function to create the tested query.
@@ -79,8 +78,8 @@ class QueryPermissionTestBase {
    */
   virtual shared_model::proto::Query makeQuery(
       AcceptanceFixture &fixture,
-      const interface::types::AccountIdType &target,
-      const interface::types::AccountIdType &spectator,
+      const types::AccountIdType &target,
+      const types::AccountIdType &spectator,
       const crypto::Keypair &spectator_keypair) = 0;
 
   /**
@@ -90,9 +89,9 @@ class QueryPermissionTestBase {
   virtual std::function<void(const proto::QueryResponse &response)>
   getGeneralResponseChecker() = 0;
 
-  const interface::RolePermissionSet kPermissionToQueryMyself;
-  const interface::RolePermissionSet kPermissionToQueryMyDomain;
-  const interface::RolePermissionSet kPermissionToQueryEveryone;
+  const RolePermissionSet kPermissionToQueryMyself;
+  const RolePermissionSet kPermissionToQueryMyDomain;
+  const RolePermissionSet kPermissionToQueryEveryone;
 };
 
 #endif /* QUERY_PERMISSION_TEST_BASE_HPP_ */

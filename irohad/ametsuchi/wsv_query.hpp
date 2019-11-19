@@ -25,26 +25,22 @@ namespace iroha {
        * @param account_id
        * @return
        */
-      virtual boost::optional<
-          std::vector<shared_model::interface::types::PubkeyType>>
-      getSignatories(
-          const shared_model::interface::types::AccountIdType &account_id) = 0;
+      virtual boost::optional<std::vector<shared_model::types::PubkeyType>>
+      getSignatories(const shared_model::types::AccountIdType &account_id) = 0;
 
       /**
        * Fetch peers stored in ledger
        * @return list of peers in insertion to ledger order
        */
-      virtual boost::optional<
-          std::vector<std::shared_ptr<shared_model::interface::Peer>>>
+      virtual boost::optional<std::vector<std::shared_ptr<shared_model::Peer>>>
       getPeers() = 0;
 
       /**
        * Fetch peer with given public key from ledger
        * @return the peer if found, none otherwise
        */
-      virtual boost::optional<std::shared_ptr<shared_model::interface::Peer>>
-      getPeerByPublicKey(
-          const shared_model::interface::types::PubkeyType &public_key) = 0;
+      virtual boost::optional<std::shared_ptr<shared_model::Peer>>
+      getPeerByPublicKey(const shared_model::types::PubkeyType &public_key) = 0;
     };
 
   }  // namespace ametsuchi

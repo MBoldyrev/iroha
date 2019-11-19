@@ -79,12 +79,12 @@ class FieldValidatorTest : public ValidatorsTest {
             std::make_shared<const shared_model::validation::Settings>(
                 std::move(testSettings)));
 
-    field_validators.insert(makeTransformValidator(
-        "public_key",
-        &FieldValidator::validatePubkey,
-        &FieldValidatorTest::public_key,
-        [](auto &&x) { return interface::types::PubkeyType(x); },
-        public_key_test_cases));
+    field_validators.insert(
+        makeTransformValidator("public_key",
+                               &FieldValidator::validatePubkey,
+                               &FieldValidatorTest::public_key,
+                               [](auto &&x) { return types::PubkeyType(x); },
+                               public_key_test_cases));
 
     for (const auto &field : {"role_name", "default_role", "role_id"}) {
       field_validators.insert(makeValidator(field,
@@ -602,7 +602,7 @@ class FieldValidatorTest : public ValidatorsTest {
   std::vector<FieldTestCase> permissionTestCases(F ValidatorsTest::*field) {
     std::vector<FieldTestCase> cases;
 
-    // using PermType = shared_model::interface::permissions::Role;
+    // using PermType = shared_model::permissions::Role;
     for (size_t i = 0; i < static_cast<size_t>(PermType::COUNT); ++i) {
       cases.push_back(makeValidCase(field, static_cast<PermType>(i)));
     }
@@ -617,10 +617,10 @@ class FieldValidatorTest : public ValidatorsTest {
   }
 
   std::vector<FieldTestCase> role_permission_test_cases =
-      permissionTestCases<shared_model::interface::permissions::Role>(
+      permissionTestCases<shared_model::permissions::Role>(
           &FieldValidatorTest::model_role_permission);
   std::vector<FieldTestCase> grantable_permission_test_cases =
-      permissionTestCases<shared_model::interface::permissions::Grantable>(
+      permissionTestCases<shared_model::permissions::Grantable>(
           &FieldValidatorTest::model_grantable_permission);
 
   std::vector<FieldTestCase> meta_test_cases = [&]() {
@@ -718,12 +718,11 @@ class FieldValidatorTest : public ValidatorsTest {
                     &FieldValidator::validateAssetId,
                     &FieldValidatorTest::asset_id,
                     asset_id_test_cases),
-      makeTransformValidator(
-          "amount",
-          &FieldValidator::validateAmount,
-          &FieldValidatorTest::amount,
-          [](auto &&x) { return shared_model::interface::Amount(x); },
-          amount_test_cases),
+      makeTransformValidator("amount",
+                             &FieldValidator::validateAmount,
+                             &FieldValidatorTest::amount,
+                             [](auto &&x) { return shared_model::Amount(x); },
+                             amount_test_cases),
       makeTransformValidator("peer",
                              &FieldValidator::validatePeer,
                              &FieldValidatorTest::peer,
@@ -752,8 +751,8 @@ class FieldValidatorTest : public ValidatorsTest {
       makeValidator(
           "created_time",
           static_cast<void (FieldValidator::*)(validation::ReasonsGroupType &,
-                                               interface::types::TimestampType)
-                          const>(&FieldValidator::validateCreatedTime),
+                                               types::TimestampType) const>(
+              &FieldValidator::validateCreatedTime),
           &FieldValidatorTest::created_time,
           created_time_test_cases),
       makeTransformValidator(

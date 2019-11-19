@@ -16,15 +16,14 @@ namespace iroha {
     class MockQueryExecutor : public QueryExecutor {
      public:
       MOCK_METHOD1(validateAndExecute_,
-                   shared_model::interface::QueryResponse *(
-                       const shared_model::interface::Query &));
+                   shared_model::QueryResponse *(const shared_model::Query &));
       QueryExecutorResult validateAndExecute(
-          const shared_model::interface::Query &q,
+          const shared_model::Query &q,
           bool validate_signatories = true) override {
         return QueryExecutorResult(validateAndExecute_(q));
       }
       MOCK_METHOD2(validate,
-                   bool(const shared_model::interface::BlocksQuery &,
+                   bool(const shared_model::BlocksQuery &,
                         const bool validate_signatories));
     };
 

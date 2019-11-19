@@ -9,8 +9,7 @@
 using namespace common_constants;
 using AccountAssetTxsFixture = QueryPermissionFixture<QueryPermissionAssetTxs>;
 
-static constexpr shared_model::interface::types::TransactionsNumberType
-    kTxPageSize(10);
+static constexpr shared_model::types::TransactionsNumberType kTxPageSize(10);
 
 /**
  * TODO mboldyrev 18.01.2019 IR-209 remove, covered by field validator test
@@ -22,7 +21,7 @@ static constexpr shared_model::interface::types::TransactionsNumberType
  * @then the query recognized as stateless invalid
  */
 TEST_F(AccountAssetTxsFixture, ReadEmptyAssetHavingAllTxsPermission) {
-  const interface::types::AssetIdType empty = "";
+  const types::AssetIdType empty = "";
   impl_.prepareState(*this, {Role::kGetAllAccAstTxs})
       .sendQuery(complete(baseQry().getAccountAssetTransactions(
                      kUserId, empty, kTxPageSize)),
@@ -44,7 +43,7 @@ TEST_F(AccountAssetTxsFixture, ReadEmptyAssetHavingAllTxsPermission) {
  */
 TEST_F(AccountAssetTxsFixture,
        DISABLED_ReadNonExistingAssetHavingAllTxsPermission) {
-  const interface::types::AssetIdType non_existing = "nonexisting#" + kDomain;
+  const types::AssetIdType non_existing = "nonexisting#" + kDomain;
   impl_.prepareState(*this, {Role::kGetAllAccAstTxs})
       .sendQuery(complete(baseQry().getAccountAssetTransactions(
                      kUserId, non_existing, kTxPageSize)),

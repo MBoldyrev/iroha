@@ -12,26 +12,24 @@
 #include "interfaces/permissions.hpp"
 
 namespace shared_model {
-  namespace interface {
+  /**
+   * Response with all permissions related to role
+   */
+  class RolePermissionsResponse
+      : public ModelPrimitive<RolePermissionsResponse> {
+   public:
     /**
-     * Response with all permissions related to role
+     * @return role permissions
      */
-    class RolePermissionsResponse
-        : public ModelPrimitive<RolePermissionsResponse> {
-     public:
-      /**
-       * @return role permissions
-       */
-      virtual const RolePermissionSet &rolePermissions() const = 0;
+    virtual const RolePermissionSet &rolePermissions() const = 0;
 
-      /**
-       * Stringify the data.
-       * @return string representation of data.
-       */
-      std::string toString() const override = 0;
+    /**
+     * Stringify the data.
+     * @return string representation of data.
+     */
+    std::string toString() const override = 0;
 
-      bool operator==(const ModelType &rhs) const override;
-    };
-  }  // namespace interface
+    bool operator==(const ModelType &rhs) const override;
+  };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_ROLE_PERMISSIONS_RESPONSE_HPP

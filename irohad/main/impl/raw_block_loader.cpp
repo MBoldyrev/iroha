@@ -15,8 +15,8 @@
 namespace iroha {
   namespace main {
 
+    using shared_model::Block;
     using shared_model::converters::protobuf::jsonToProto;
-    using shared_model::interface::Block;
 
     BlockLoader::BlockLoader(logger::LoggerPtr log) : log_(std::move(log)) {}
 

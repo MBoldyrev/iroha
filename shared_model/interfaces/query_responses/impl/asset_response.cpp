@@ -7,18 +7,16 @@
 #include "utils/string_builder.hpp"
 
 namespace shared_model {
-  namespace interface {
 
-    std::string AssetResponse::toString() const {
-      return detail::PrettyStringBuilder()
-          .init("AssetResponse")
-          .append(asset().toString())
-          .finalize();
-    }
+  std::string AssetResponse::toString() const {
+    return detail::PrettyStringBuilder()
+        .init("AssetResponse")
+        .append(asset().toString())
+        .finalize();
+  }
 
-    bool AssetResponse::operator==(const ModelType &rhs) const {
-      return asset() == rhs.asset();
-    }
+  bool AssetResponse::operator==(const ModelType &rhs) const {
+    return asset() == rhs.asset();
+  }
 
-  }  // namespace interface
 }  // namespace shared_model

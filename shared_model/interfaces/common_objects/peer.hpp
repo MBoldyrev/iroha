@@ -12,34 +12,32 @@
 #include <boost/optional/optional_fwd.hpp>
 
 namespace shared_model {
-  namespace interface {
+
+  /**
+   * Representation of a network participant.
+   */
+  class Peer : public ModelPrimitive<Peer> {
+   public:
+    /**
+     * @return Peer address, for fetching data
+     */
+    virtual const types::AddressType &address() const = 0;
 
     /**
-     * Representation of a network participant.
+     * @return Peer TLS certficate
      */
-    class Peer : public ModelPrimitive<Peer> {
-     public:
-      /**
-       * @return Peer address, for fetching data
-       */
-      virtual const interface::types::AddressType &address() const = 0;
+    virtual const boost::optional<types::TLSCertificateType> &tlsCertificate()
+        const = 0;
 
-      /**
-       * @return Peer TLS certficate
-       */
-      virtual const boost::optional<interface::types::TLSCertificateType>
-          &tlsCertificate() const = 0;
+    /**
+     * @return Public key, for fetching data
+     */
+    virtual const types::PubkeyType &pubkey() const = 0;
 
-      /**
-       * @return Public key, for fetching data
-       */
-      virtual const interface::types::PubkeyType &pubkey() const = 0;
+    std::string toString() const override;
 
-      std::string toString() const override;
-
-      bool operator==(const ModelType &rhs) const override;
-    };
-  }  // namespace interface
+    bool operator==(const ModelType &rhs) const override;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_PEER_HPP

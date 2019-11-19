@@ -17,7 +17,7 @@
 
 using namespace shared_model;
 using namespace common_constants;
-using interface::permissions::Role;
+using permissions::Role;
 using ::testing::ElementsAre;
 using ::testing::get;
 using ::testing::IsEmpty;
@@ -26,9 +26,8 @@ using ::testing::Truly;
 using ::testing::Values;
 using ::testing::WithParamInterface;
 
-class BatchPipelineTest
-    : public AcceptanceFixture,
-      public WithParamInterface<interface::types::BatchType> {
+class BatchPipelineTest : public AcceptanceFixture,
+                          public WithParamInterface<types::BatchType> {
  public:
   /**
    * Create transaction to create first user
@@ -102,8 +101,8 @@ class BatchPipelineTest
    * @param keypair is used to sign transaction
    * @return transaction with create asset and add asset quantity commands
    */
-  auto createAndAddAssets(const interface::types::AccountIdType &account_id,
-                          const interface::types::AssetNameType &asset_name,
+  auto createAndAddAssets(const types::AccountIdType &account_id,
+                          const types::AssetNameType &asset_name,
                           const std::string &amount,
                           const crypto::Keypair &keypair) {
     return proto::TransactionBuilder()
@@ -127,12 +126,11 @@ class BatchPipelineTest
    * @param quorum for the transaction
    * @return transaction builder with transfer asset command
    */
-  auto prepareTransferAssetBuilder(
-      const interface::types::AccountIdType &src_account_id,
-      const interface::types::AccountIdType &dest_account_id,
-      const interface::types::AssetNameType &asset_name,
-      const std::string &amount,
-      const interface::types::QuorumType &quorum = 1) {
+  auto prepareTransferAssetBuilder(const types::AccountIdType &src_account_id,
+                                   const types::AccountIdType &dest_account_id,
+                                   const types::AssetNameType &asset_name,
+                                   const std::string &amount,
+                                   const types::QuorumType &quorum = 1) {
     return TestTransactionBuilder()
         .creatorAccountId(src_account_id)
         .quorum(quorum)
@@ -150,19 +148,18 @@ class BatchPipelineTest
    * @param keypair to sign
    * @return signed transaction
    */
-  auto signedTx(std::shared_ptr<interface::Transaction> tx,
+  auto signedTx(std::shared_ptr<Transaction> tx,
                 const crypto::Keypair &keypair) {
     auto signed_blob =
         crypto::DefaultCryptoAlgorithmType::sign(tx->payload(), keypair);
     auto clone_tx = clone(tx.get());
     clone_tx->addSignature(signed_blob, keypair.publicKey());
-    return std::shared_ptr<interface::Transaction>(std::move(clone_tx));
+    return std::shared_ptr<Transaction>(std::move(clone_tx));
   }
 
-  auto createTransactionSequence(
-      const interface::types::SharedTxsCollectionType &txs) {
+  auto createTransactionSequence(const types::SharedTxsCollectionType &txs) {
     auto transaction_sequence_result =
-        interface::TransactionSequenceFactory::createTransactionSequence(
+        TransactionSequenceFactory::createTransactionSequence(
             txs,
             validation::DefaultUnsignedTransactionsValidator(
                 iroha::test::kTestsValidatorsConfig),
@@ -176,11 +173,9 @@ class BatchPipelineTest
     return transaction_sequence_value.value().value;
   }
 
-  auto batchToSequence(
-      const std::shared_ptr<interface::TransactionBatch> &batch) {
-    return interface::TransactionSequence(
-        std::vector<std::shared_ptr<shared_model::interface::TransactionBatch>>{
-            batch});
+  auto batchToSequence(const std::shared_ptr<TransactionBatch> &batch) {
+    return TransactionSequence(
+        std::vector<std::shared_ptr<shared_model::TransactionBatch>>{batch});
   };
 
   integration_framework::IntegrationTestFramework &prepareState(
@@ -266,7 +261,7 @@ TEST_P(BatchPipelineTest, ValidBatch) {
  */
 TEST_F(BatchPipelineTest, InvalidAtomicBatch) {
   auto batch_transactions = framework::batch::makeTestBatchTransactions(
-      interface::types::BatchType::ATOMIC,
+      types::BatchType::ATOMIC,
       prepareTransferAssetBuilder(kFirstUserId, kSecondUserId, kAssetA, "1.0"),
       prepareTransferAssetBuilder(kSecondUserId,
                                   kFirstUserId,
@@ -286,8 +281,8 @@ TEST_F(BatchPipelineTest, InvalidAtomicBatch) {
           [](const auto &statuses) {
             for (const auto &status : statuses) {
               EXPECT_NO_THROW(
-                  boost::get<const shared_model::interface::
-                                 StatelessValidTxResponse &>(status.get()));
+                  boost::get<const shared_model::StatelessValidTxResponse &>(
+                      status.get()));
             }
           })
       .checkStatus(batch_transactions[0]->hash(), CHECK_STATELESS_VALID)
@@ -316,7 +311,7 @@ TEST_F(BatchPipelineTest, InvalidAtomicBatch) {
  */
 TEST_F(BatchPipelineTest, InvalidOrderedBatch) {
   auto batch_transactions = framework::batch::makeTestBatchTransactions(
-      interface::types::BatchType::ORDERED,
+      types::BatchType::ORDERED,
       prepareTransferAssetBuilder(kFirstUserId, kSecondUserId, kAssetA, "0.3"),
       prepareTransferAssetBuilder(
           kSecondUserId,
@@ -346,8 +341,8 @@ INSTANTIATE_TEST_CASE_P(BatchPipelineParameterizedTest,
                         BatchPipelineTest,
                         // note additional comma is needed to make it compile
                         // https://github.com/google/googletest/issues/1419
-                        Values(interface::types::BatchType::ATOMIC,
-                               interface::types::BatchType::ORDERED), );
+                        Values(types::BatchType::ATOMIC,
+                               types::BatchType::ORDERED), );
 
 /**
  * Test that a batch would not be passed to stateful validation when one

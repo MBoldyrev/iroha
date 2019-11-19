@@ -14,11 +14,9 @@
 #include "consensus/round.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class TransactionBatch;
-    class Proposal;
-    class Peer;
-  }  // namespace interface
+  class TransactionBatch;
+  class Proposal;
+  class Peer;
 }  // namespace shared_model
 
 namespace iroha {
@@ -33,13 +31,13 @@ namespace iroha {
         /**
          * Type of stored proposals
          */
-        using ProposalType = shared_model::interface::Proposal;
+        using ProposalType = shared_model::Proposal;
 
         /**
          * Type of stored transaction batches
          */
         using TransactionBatchType =
-            std::shared_ptr<shared_model::interface::TransactionBatch>;
+            std::shared_ptr<shared_model::TransactionBatch>;
 
         /**
          * Type of inserted collections
@@ -76,7 +74,7 @@ namespace iroha {
          * @return connection represented with OdOsNotification interface
          */
         virtual std::unique_ptr<OdOsNotification> create(
-            const shared_model::interface::Peer &to) = 0;
+            const shared_model::Peer &to) = 0;
 
         virtual ~OdOsNotificationFactory() = default;
       };

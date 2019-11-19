@@ -38,8 +38,7 @@ using ::testing::Eq;
 using ::testing::InSequence;
 using ::testing::Return;
 
-using Chain =
-    rxcpp::observable<std::shared_ptr<shared_model::interface::Block>>;
+using Chain = rxcpp::observable<std::shared_ptr<shared_model::Block>>;
 
 /**
  * Factory for mock mutable storage generation.
@@ -52,7 +51,7 @@ createMockMutableStorage() {
       std::make_unique<MockMutableStorage>());
 }
 
-static constexpr shared_model::interface::types::HeightType kHeight{5};
+static constexpr shared_model::types::HeightType kHeight{5};
 
 class SynchronizerTest : public ::testing::Test {
  public:
@@ -75,11 +74,11 @@ class SynchronizerTest : public ::testing::Test {
     }
 
     commit_message = makeCommit();
-    public_keys = boost::copy_range<
-        shared_model::interface::types::PublicKeyCollectionType>(
-        commit_message->signatures()
-        | boost::adaptors::transformed(
-              [](auto &signature) { return signature.publicKey(); }));
+    public_keys =
+        boost::copy_range<shared_model::types::PublicKeyCollectionType>(
+            commit_message->signatures()
+            | boost::adaptors::transformed(
+                  [](auto &signature) { return signature.publicKey(); }));
     hash = commit_message->hash();
 
     EXPECT_CALL(*consensus_gate, onOutcome())
@@ -112,8 +111,8 @@ class SynchronizerTest : public ::testing::Test {
         ledger_peers, commit_message->height() - 1, commit_message->prevHash());
   }
 
-  std::shared_ptr<shared_model::interface::Block> makeCommit(
-      shared_model::interface::types::HeightType height = kHeight,
+  std::shared_ptr<shared_model::Block> makeCommit(
+      shared_model::types::HeightType height = kHeight,
       size_t time = iroha::time::now()) const {
     shared_model::proto::UnsignedWrapper<shared_model::proto::Block> block{
         TestUnsignedBlockBuilder().height(height).createdTime(time).build()};
@@ -131,10 +130,10 @@ class SynchronizerTest : public ::testing::Test {
   std::shared_ptr<MockConsensusGate> consensus_gate;
   std::shared_ptr<MockBlockQuery> block_query;
 
-  std::shared_ptr<shared_model::interface::Block> commit_message;
-  shared_model::interface::types::PublicKeyCollectionType public_keys;
-  shared_model::interface::types::HashType hash;
-  shared_model::interface::types::PeerList ledger_peers;
+  std::shared_ptr<shared_model::Block> commit_message;
+  shared_model::types::PublicKeyCollectionType public_keys;
+  shared_model::types::HashType hash;
+  shared_model::types::PeerList ledger_peers;
   std::shared_ptr<LedgerState> ledger_state;
   std::vector<shared_model::crypto::Keypair> ledger_peer_keys;
 
@@ -146,8 +145,7 @@ class SynchronizerTest : public ::testing::Test {
 class ChainMatcher : public ::testing::MatcherInterface<Chain> {
  public:
   explicit ChainMatcher(
-      std::vector<std::shared_ptr<shared_model::interface::Block>>
-          expected_chain)
+      std::vector<std::shared_ptr<shared_model::Block>> expected_chain)
       : expected_chain_(std::move(expected_chain)) {}
 
   bool MatchAndExplain(
@@ -178,19 +176,17 @@ class ChainMatcher : public ::testing::MatcherInterface<Chain> {
   }
 
  private:
-  const std::vector<std::shared_ptr<shared_model::interface::Block>>
-      expected_chain_;
+  const std::vector<std::shared_ptr<shared_model::Block>> expected_chain_;
 };
 
 inline ::testing::Matcher<Chain> ChainEq(
-    std::vector<std::shared_ptr<shared_model::interface::Block>>
-        expected_chain) {
+    std::vector<std::shared_ptr<shared_model::Block>> expected_chain) {
   return ::testing::MakeMatcher(new ChainMatcher(expected_chain));
 }
 
 void mutableStorageExpectChain(
     iroha::ametsuchi::MockMutableFactory &mutable_factory,
-    std::vector<std::shared_ptr<shared_model::interface::Block>> chain) {
+    std::vector<std::shared_ptr<shared_model::Block>> chain) {
   const bool must_create_storage = not chain.empty();
   auto create_mutable_storage =
       [chain = std::move(chain)](auto) -> std::unique_ptr<MutableStorage> {
@@ -202,8 +198,7 @@ void mutableStorageExpectChain(
       for (const auto &block : chain) {
         EXPECT_CALL(
             *mutable_storage,
-            apply(std::const_pointer_cast<const shared_model::interface::Block>(
-                block)))
+            apply(std::const_pointer_cast<const shared_model::Block>(block)))
             .WillOnce(Return(true));
       }
     }
@@ -292,8 +287,8 @@ TEST_F(SynchronizerTest, ValidWhenValidChainMultipleBlocks) {
   EXPECT_CALL(*mutable_factory, commit_(_))
       .WillOnce(Return(ByMove(expected::makeValue(std::make_shared<LedgerState>(
           ledger_peers, target_height, target_commit->hash())))));
-  std::vector<std::shared_ptr<shared_model::interface::Block>> commits{
-      commit_message, target_commit};
+  std::vector<std::shared_ptr<shared_model::Block>> commits{commit_message,
+                                                            target_commit};
   EXPECT_CALL(*chain_validator, validateAndApply(ChainEq(commits), _))
       .WillOnce(Return(true));
   EXPECT_CALL(*block_loader, retrieveBlocks(_, _))
@@ -334,8 +329,8 @@ TEST_F(SynchronizerTest, ExactlyThreeRetrievals) {
         .WillOnce(Return(true));
   }
   EXPECT_CALL(*block_loader, retrieveBlocks(_, _))
-      .WillOnce(Return(rxcpp::observable<>::empty<
-                       std::shared_ptr<shared_model::interface::Block>>()))
+      .WillOnce(Return(
+          rxcpp::observable<>::empty<std::shared_ptr<shared_model::Block>>()))
       .WillOnce(Return(rxcpp::observable<>::just(commit_message)))
       .WillOnce(Return(rxcpp::observable<>::just(commit_message)));
 

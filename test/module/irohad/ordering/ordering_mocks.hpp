@@ -18,9 +18,9 @@ namespace iroha {
     namespace transport {
 
       struct MockOdOsNotificationFactory : public OdOsNotificationFactory {
-        MOCK_METHOD1(create,
-                     std::unique_ptr<OdOsNotification>(
-                         const shared_model::interface::Peer &));
+        MOCK_METHOD1(
+            create,
+            std::unique_ptr<OdOsNotification>(const shared_model::Peer &));
       };
 
     }  // namespace transport

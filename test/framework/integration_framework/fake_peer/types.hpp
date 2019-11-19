@@ -18,14 +18,12 @@ namespace shared_model {
     class Keypair;
     class Hash;
   }  // namespace crypto
-  namespace interface {
-    class CommonObjectsFactory;
-    class Proposal;
-    class Transaction;
-    class TransactionBatch;
-    class TransactionBatchParser;
-    class TransactionBatchFactory;
-  }  // namespace interface
+  class CommonObjectsFactory;
+  class Proposal;
+  class Transaction;
+  class TransactionBatch;
+  class TransactionBatchParser;
+  class TransactionBatchFactory;
   namespace proto {
     class Block;
     class Proposal;
@@ -77,8 +75,8 @@ namespace integration_framework {
     struct MstMessage;
 
     using YacMessage = std::vector<iroha::consensus::yac::VoteMessage>;
-    using LoaderBlockRequest = shared_model::interface::types::HeightType;
-    using LoaderBlocksRequest = shared_model::interface::types::HeightType;
+    using LoaderBlockRequest = shared_model::types::HeightType;
+    using LoaderBlocksRequest = shared_model::types::HeightType;
     using LoaderBlockRequestResult =
         boost::optional<std::shared_ptr<const shared_model::proto::Block>>;
     using LoaderBlocksRequestResult =
@@ -87,7 +85,7 @@ namespace integration_framework {
     using OrderingProposalRequestResult =
         boost::optional<std::shared_ptr<const shared_model::proto::Proposal>>;
     using BatchesCollection =
-        std::vector<std::shared_ptr<shared_model::interface::TransactionBatch>>;
+        std::vector<std::shared_ptr<shared_model::TransactionBatch>>;
 
   }  // namespace fake_peer
 }  // namespace integration_framework

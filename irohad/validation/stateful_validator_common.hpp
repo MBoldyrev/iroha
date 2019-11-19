@@ -16,9 +16,7 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class Proposal;
-  }
+  class Proposal;
 }  // namespace shared_model
 
 namespace iroha {
@@ -58,8 +56,7 @@ namespace iroha {
     // TODO [IR-1849] mboldyrev 27.10.2018: create a special class
     // for VerifiedProposal which will include the rejected tx hashes
     struct VerifiedProposalAndErrors {
-      std::shared_ptr<const shared_model::interface::Proposal>
-          verified_proposal;
+      std::shared_ptr<const shared_model::Proposal> verified_proposal;
       TransactionsErrors rejected_transactions;
     };
 

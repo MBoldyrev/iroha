@@ -14,11 +14,10 @@ namespace iroha {
   namespace ametsuchi {
 
     struct MockCommandExecutor : public CommandExecutor {
-      MOCK_METHOD3(
-          execute,
-          CommandResult(const shared_model::interface::Command &,
-                        const shared_model::interface::types::AccountIdType &,
-                        bool));
+      MOCK_METHOD3(execute,
+                   CommandResult(const shared_model::Command &,
+                                 const shared_model::types::AccountIdType &,
+                                 bool));
     };
 
   }  // namespace ametsuchi

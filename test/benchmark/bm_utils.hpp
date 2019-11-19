@@ -18,7 +18,7 @@ namespace benchmark {
         const std::string &user,
         const shared_model::crypto::PublicKey &key,
         const std::string &role_id,
-        const shared_model::interface::RolePermissionSet &perms) {
+        const shared_model::RolePermissionSet &perms) {
       const auto user_id = user + "@" + common_constants::kDomain;
       return TestUnsignedTransactionBuilder()
           .createAccount(user, common_constants::kDomain, key)

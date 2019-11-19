@@ -60,8 +60,7 @@ grpc::Status BlockLoaderService::retrieveBlocks(
     }
 
     auto &block =
-        boost::get<
-            expected::Value<std::unique_ptr<shared_model::interface::Block>>>(
+        boost::get<expected::Value<std::unique_ptr<shared_model::Block>>>(
             block_result)
             .value;
 

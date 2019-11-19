@@ -41,9 +41,8 @@ ExecutorItf::ExecutorItf(std::shared_ptr<CommandExecutor> cmd_executor,
     : log_manager_(std::move(log_manager)),
       log_(log_manager_->getLogger()),
       mock_command_factory_(
-          std::make_unique<shared_model::interface::MockCommandFactory>()),
-      mock_query_factory_(
-          std::make_unique<shared_model::interface::MockQueryFactory>()),
+          std::make_unique<shared_model::MockCommandFactory>()),
+      mock_query_factory_(std::make_unique<shared_model::MockQueryFactory>()),
       cmd_executor_(std::move(cmd_executor)),
       tx_executor_(std::make_unique<TransactionExecutor>(cmd_executor_)),
       query_executor_(std::move(query_executor)),
@@ -66,36 +65,35 @@ CreateResult ExecutorItf::create(ExecutorItfTarget target) {
 }
 
 CommandResult ExecutorItf::executeCommandAsAccount(
-    const shared_model::interface::Command &cmd,
+    const shared_model::Command &cmd,
     const std::string &account_id,
     bool do_validation) const {
   return cmd_executor_->execute(cmd, account_id, do_validation);
 }
 
 Result<void, TxExecutionError> ExecutorItf::executeTransaction(
-    const shared_model::interface::Transaction &transaction,
-    bool do_validation) const {
+    const shared_model::Transaction &transaction, bool do_validation) const {
   return tx_executor_->execute(transaction, do_validation);
 }
 
 iroha::ametsuchi::QueryExecutorResult ExecutorItf::executeQuery(
-    const shared_model::interface::Query &query) const {
+    const shared_model::Query &query) const {
   return query_executor_->execute(query);
 }
 
-const std::unique_ptr<shared_model::interface::MockCommandFactory>
+const std::unique_ptr<shared_model::MockCommandFactory>
     &ExecutorItf::getMockCommandFactory() const {
   return mock_command_factory_;
 }
 
-const std::unique_ptr<shared_model::interface::MockQueryFactory>
+const std::unique_ptr<shared_model::MockQueryFactory>
     &ExecutorItf::getMockQueryFactory() const {
   return mock_query_factory_;
 }
 
 CommandResult ExecutorItf::createRoleWithPerms(
     const std::string &role_id,
-    const shared_model::interface::RolePermissionSet &role_permissions) const {
+    const shared_model::RolePermissionSet &role_permissions) const {
   return executeMaintenanceCommand(
       *getMockCommandFactory()->constructCreateRole(role_id, role_permissions));
 }
@@ -104,7 +102,7 @@ CommandResult ExecutorItf::createUserWithPerms(
     const std::string &account_name,
     const std::string &domain,
     const shared_model::crypto::PublicKey &pubkey,
-    const shared_model::interface::RolePermissionSet &role_perms) const {
+    const shared_model::RolePermissionSet &role_perms) const {
   return createUserWithPermsInternal(account_name, domain, pubkey, role_perms) |
       [&, this] { return this->grantAllToAdmin(account_name + "@" + domain); };
 }
@@ -120,7 +118,7 @@ CommandResult ExecutorItf::grantAllToAdmin(
     const std::string &account_id) const {
   static const std::string admin_role_name =
       getDefaultRole(kAdminName, kDomain);
-  shared_model::interface::GrantablePermissionSet all_grantable_perms;
+  shared_model::GrantablePermissionSet all_grantable_perms;
   CommandResult grant_perm_result =
       executeMaintenanceCommand(*getMockCommandFactory()->constructAppendRole(
           account_id, admin_role_name));
@@ -146,7 +144,7 @@ CommandResult ExecutorItf::createUserWithPermsInternal(
     const std::string &account_name,
     const std::string &domain,
     const shared_model::crypto::PublicKey &pubkey,
-    const shared_model::interface::RolePermissionSet &role_perms) const {
+    const shared_model::RolePermissionSet &role_perms) const {
   createDomain(domain);
 
   const std::string account_id = account_name + "@" + domain;
@@ -173,7 +171,7 @@ Result<void, std::string> ExecutorItf::prepareState() const {
 }
 
 CommandResult ExecutorItf::createAdmin() const {
-  shared_model::interface::RolePermissionSet all_role_perms;
+  shared_model::RolePermissionSet all_role_perms;
   all_role_perms.setAll();
   return createUserWithPermsInternal(
       kAdminName, kDomain, kAdminKeypair.publicKey(), all_role_perms);

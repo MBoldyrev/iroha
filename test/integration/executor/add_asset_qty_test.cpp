@@ -17,10 +17,10 @@ using namespace common_constants;
 using namespace executor_testing;
 using namespace framework::expected;
 
-using shared_model::interface::permissions::Grantable;
-using shared_model::interface::permissions::Role;
+using shared_model::permissions::Grantable;
+using shared_model::permissions::Role;
 
-using shared_model::interface::Amount;
+using shared_model::Amount;
 
 static const Amount kAmount{std::string{"12.3"}};
 

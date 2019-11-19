@@ -90,8 +90,8 @@ namespace iroha {
          * @param vote message containing peer information
          * @return peer if it is present in the ledger, boost::none otherwise
          */
-        boost::optional<std::shared_ptr<shared_model::interface::Peer>>
-        findPeer(const VoteMessage &vote);
+        boost::optional<std::shared_ptr<shared_model::Peer>> findPeer(
+            const VoteMessage &vote);
 
         /// Remove votes from unknown peers from given vector.
         void removeUnknownPeersVotes(std::vector<VoteMessage> &votes,
@@ -107,7 +107,7 @@ namespace iroha {
 
         // ------|Propagation|------
         void propagateState(const std::vector<VoteMessage> &msg);
-        void propagateStateDirectly(const shared_model::interface::Peer &to,
+        void propagateStateDirectly(const shared_model::Peer &to,
                                     const std::vector<VoteMessage> &msg);
         void tryPropagateBack(const std::vector<VoteMessage> &state);
 

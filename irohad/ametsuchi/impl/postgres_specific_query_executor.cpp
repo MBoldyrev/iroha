@@ -42,18 +42,18 @@
 #include "logger/logger.hpp"
 #include "pending_txs_storage/pending_txs_storage.hpp"
 
-using namespace shared_model::interface::permissions;
+using namespace shared_model::permissions;
 
 namespace {
 
   using namespace iroha;
 
   std::string getAccountRolePermissionCheckSql(
-      shared_model::interface::permissions::Role permission,
+      shared_model::permissions::Role permission,
       const std::string &account_alias = ":role_account_id") {
     const auto perm_str =
-        shared_model::interface::RolePermissionSet({permission}).toBitstring();
-    const auto bits = shared_model::interface::RolePermissionSet::size();
+        shared_model::RolePermissionSet({permission}).toBitstring();
+    const auto bits = shared_model::RolePermissionSet::size();
     // TODO 14.09.18 andrei: IR-1708 Load SQL from separate files
     std::string query =
         (boost::format(R"(
@@ -78,21 +78,18 @@ namespace {
    * any of listed permissions is present
    */
   auto hasQueryPermission(
-      const shared_model::interface::types::AccountIdType &creator,
-      const shared_model::interface::types::AccountIdType &target_account,
+      const shared_model::types::AccountIdType &creator,
+      const shared_model::types::AccountIdType &target_account,
       Role indiv_permission_id,
       Role all_permission_id,
       Role domain_permission_id) {
-    const auto bits = shared_model::interface::RolePermissionSet::size();
+    const auto bits = shared_model::RolePermissionSet::size();
     const auto perm_str =
-        shared_model::interface::RolePermissionSet({indiv_permission_id})
-            .toBitstring();
+        shared_model::RolePermissionSet({indiv_permission_id}).toBitstring();
     const auto all_perm_str =
-        shared_model::interface::RolePermissionSet({all_permission_id})
-            .toBitstring();
+        shared_model::RolePermissionSet({all_permission_id}).toBitstring();
     const auto domain_perm_str =
-        shared_model::interface::RolePermissionSet({domain_permission_id})
-            .toBitstring();
+        shared_model::RolePermissionSet({domain_permission_id}).toBitstring();
 
     const std::string creator_quoted{(boost::format("'%s'") % creator).str()};
 
@@ -143,8 +140,7 @@ namespace {
    */
   template <typename... Roles>
   auto notEnoughPermissionsResponse(
-      std::shared_ptr<shared_model::interface::PermissionToString>
-          perm_converter,
+      std::shared_ptr<shared_model::PermissionToString> perm_converter,
       Roles... roles) {
     return [perm_converter, roles...] {
       std::string error = "user must have at least one of the permissions: ";
@@ -176,10 +172,8 @@ namespace iroha {
         soci::session &sql,
         BlockStorage &block_store,
         std::shared_ptr<PendingTransactionStorage> pending_txs_storage,
-        std::shared_ptr<shared_model::interface::QueryResponseFactory>
-            response_factory,
-        std::shared_ptr<shared_model::interface::PermissionToString>
-            perm_converter,
+        std::shared_ptr<shared_model::QueryResponseFactory> response_factory,
+        std::shared_ptr<shared_model::PermissionToString> perm_converter,
         logger::LoggerPtr log)
         : sql_(sql),
           block_store_(block_store),
@@ -189,7 +183,7 @@ namespace iroha {
           log_(std::move(log)) {}
 
     QueryExecutorResult PostgresSpecificQueryExecutor::execute(
-        const shared_model::interface::Query &qry) {
+        const shared_model::Query &qry) {
       return boost::apply_visitor(
           [this, &qry](const auto &query) {
             return (*this)(query, qry.creatorAccountId(), qry.hash());
@@ -236,7 +230,7 @@ namespace iroha {
               typename PermissionsErrResponse>
     QueryExecutorResult PostgresSpecificQueryExecutor::executeQuery(
         QueryExecutor &&query_executor,
-        const shared_model::interface::types::HashType &query_hash,
+        const shared_model::types::HashType &query_hash,
         ResponseCreator &&response_creator,
         PermissionsErrResponse &&perms_err_response) {
       using T = concat<QueryTuple, PermissionTuple>;
@@ -274,7 +268,7 @@ namespace iroha {
     }
 
     bool PostgresSpecificQueryExecutor::hasAccountRolePermission(
-        shared_model::interface::permissions::Role permission,
+        shared_model::permissions::Role permission,
         const std::string &account_id) const {
       using T = boost::tuple<int>;
       boost::format cmd(R"(%s)");
@@ -290,12 +284,12 @@ namespace iroha {
       }
     }
 
-    std::unique_ptr<shared_model::interface::QueryResponse>
+    std::unique_ptr<shared_model::QueryResponse>
     PostgresSpecificQueryExecutor::logAndReturnErrorResponse(
         QueryErrorType error_type,
         QueryErrorMessageType error_body,
         QueryErrorCodeType error_code,
-        const shared_model::interface::types::HashType &query_hash) const {
+        const shared_model::types::HashType &query_hash) const {
       std::string error;
       switch (error_type) {
         case QueryErrorType::kNoAccount:
@@ -333,15 +327,14 @@ namespace iroha {
               typename... Permissions>
     QueryExecutorResult PostgresSpecificQueryExecutor::executeTransactionsQuery(
         const Query &q,
-        const shared_model::interface::types::AccountIdType &creator_id,
-        const shared_model::interface::types::HashType &query_hash,
+        const shared_model::types::AccountIdType &creator_id,
+        const shared_model::types::HashType &query_hash,
         QueryChecker &&qry_checker,
         const std::string &related_txs,
         QueryApplier applier,
         Permissions... perms) {
-      using QueryTuple = QueryType<shared_model::interface::types::HeightType,
-                                   uint64_t,
-                                   uint64_t>;
+      using QueryTuple =
+          QueryType<shared_model::types::HeightType, uint64_t, uint64_t>;
       using PermissionTuple = boost::tuple<int>;
       const auto &pagination_info = q.paginationMeta();
       auto first_hash = pagination_info.firstTxHash();
@@ -404,7 +397,7 @@ namespace iroha {
                   });
             }
 
-            std::vector<std::unique_ptr<shared_model::interface::Transaction>>
+            std::vector<std::unique_ptr<shared_model::Transaction>>
                 response_txs;
             // get transactions corresponding to indexes
             for (auto &block : index) {
@@ -462,15 +455,14 @@ namespace iroha {
     }
 
     QueryExecutorResult PostgresSpecificQueryExecutor::operator()(
-        const shared_model::interface::GetAccount &q,
-        const shared_model::interface::types::AccountIdType &creator_id,
-        const shared_model::interface::types::HashType &query_hash) {
-      using QueryTuple =
-          QueryType<shared_model::interface::types::AccountIdType,
-                    shared_model::interface::types::DomainIdType,
-                    shared_model::interface::types::QuorumType,
-                    shared_model::interface::types::DetailType,
-                    std::string>;
+        const shared_model::GetAccount &q,
+        const shared_model::types::AccountIdType &creator_id,
+        const shared_model::types::HashType &query_hash) {
+      using QueryTuple = QueryType<shared_model::types::AccountIdType,
+                                   shared_model::types::DomainIdType,
+                                   shared_model::types::QuorumType,
+                                   shared_model::types::DetailType,
+                                   std::string>;
       using PermissionTuple = boost::tuple<int>;
 
       auto cmd = (boost::format(R"(WITH has_perms AS (%s),
@@ -496,7 +488,7 @@ namespace iroha {
                                              auto &quorum,
                                              auto &data,
                                              auto &roles_str) {
-        std::vector<shared_model::interface::types::RoleIdType> roles;
+        std::vector<shared_model::types::RoleIdType> roles;
         auto roles_str_no_brackets = roles_str.substr(1, roles_str.size() - 2);
         boost::split(
             roles, roles_str_no_brackets, [](char c) { return c == ','; });
@@ -527,14 +519,13 @@ namespace iroha {
     }
 
     QueryExecutorResult PostgresSpecificQueryExecutor::operator()(
-        const shared_model::interface::GetBlock &q,
-        const shared_model::interface::types::AccountIdType &creator_id,
-        const shared_model::interface::types::HashType &query_hash) {
+        const shared_model::GetBlock &q,
+        const shared_model::types::AccountIdType &creator_id,
+        const shared_model::types::HashType &query_hash) {
       if (not hasAccountRolePermission(Role::kGetBlocks, creator_id)) {
         // no permission
         return query_response_factory_->createErrorQueryResponse(
-            shared_model::interface::QueryResponseFactory::ErrorQueryType::
-                kStatefulFailed,
+            shared_model::QueryResponseFactory::ErrorQueryType::kStatefulFailed,
             notEnoughPermissionsResponse(perm_converter_, Role::kGetBlocks)(),
             2,
             query_hash);
@@ -569,9 +560,9 @@ namespace iroha {
     }
 
     QueryExecutorResult PostgresSpecificQueryExecutor::operator()(
-        const shared_model::interface::GetSignatories &q,
-        const shared_model::interface::types::AccountIdType &creator_id,
-        const shared_model::interface::types::HashType &query_hash) {
+        const shared_model::GetSignatories &q,
+        const shared_model::types::AccountIdType &creator_id,
+        const shared_model::types::HashType &query_hash) {
       using QueryTuple = QueryType<std::string>;
       using PermissionTuple = boost::tuple<int>;
 
@@ -600,14 +591,17 @@ namespace iroha {
                   QueryErrorType::kNoSignatories, q.accountId(), 0, query_hash);
             }
 
-            auto pubkeys = boost::copy_range<
-                std::vector<shared_model::interface::types::PubkeyType>>(
-                range_without_nulls | boost::adaptors::transformed([](auto t) {
-                  return iroha::ametsuchi::apply(t, [&](auto &public_key) {
-                    return shared_model::interface::types::PubkeyType{
-                        shared_model::crypto::Blob::fromHexString(public_key)};
-                  });
-                }));
+            auto pubkeys =
+                boost::copy_range<std::vector<shared_model::types::PubkeyType>>(
+                    range_without_nulls
+                    | boost::adaptors::transformed([](auto t) {
+                        return iroha::ametsuchi::apply(
+                            t, [&](auto &public_key) {
+                              return shared_model::types::PubkeyType{
+                                  shared_model::crypto::Blob::fromHexString(
+                                      public_key)};
+                            });
+                      }));
 
             return query_response_factory_->createSignatoriesResponse(
                 pubkeys, query_hash);
@@ -619,9 +613,9 @@ namespace iroha {
     }
 
     QueryExecutorResult PostgresSpecificQueryExecutor::operator()(
-        const shared_model::interface::GetAccountTransactions &q,
-        const shared_model::interface::types::AccountIdType &creator_id,
-        const shared_model::interface::types::HashType &query_hash) {
+        const shared_model::GetAccountTransactions &q,
+        const shared_model::types::AccountIdType &creator_id,
+        const shared_model::types::HashType &query_hash) {
       std::string related_txs = R"(SELECT DISTINCT height, index
       FROM tx_position_by_creator
       WHERE creator_id = :account_id
@@ -668,9 +662,9 @@ namespace iroha {
     }
 
     QueryExecutorResult PostgresSpecificQueryExecutor::operator()(
-        const shared_model::interface::GetTransactions &q,
-        const shared_model::interface::types::AccountIdType &creator_id,
-        const shared_model::interface::types::HashType &query_hash) {
+        const shared_model::GetTransactions &q,
+        const shared_model::types::AccountIdType &creator_id,
+        const shared_model::types::HashType &query_hash) {
       std::string hash_str = boost::algorithm::join(
           q.transactionHashes()
               | boost::adaptors::transformed(
@@ -678,7 +672,7 @@ namespace iroha {
           ", ");
 
       using QueryTuple =
-          QueryType<shared_model::interface::types::HeightType, std::string>;
+          QueryType<shared_model::types::HeightType, std::string>;
       using PermissionTuple = boost::tuple<int, int>;
 
       auto cmd =
@@ -721,7 +715,7 @@ namespace iroha {
               });
             }
 
-            std::vector<std::unique_ptr<shared_model::interface::Transaction>>
+            std::vector<std::unique_ptr<shared_model::Transaction>>
                 response_txs;
             for (auto &block : index) {
               auto txs_result = this->getTransactionsFromBlock(
@@ -750,9 +744,9 @@ namespace iroha {
     }
 
     QueryExecutorResult PostgresSpecificQueryExecutor::operator()(
-        const shared_model::interface::GetAccountAssetTransactions &q,
-        const shared_model::interface::types::AccountIdType &creator_id,
-        const shared_model::interface::types::HashType &query_hash) {
+        const shared_model::GetAccountAssetTransactions &q,
+        const shared_model::types::AccountIdType &creator_id,
+        const shared_model::types::HashType &query_hash) {
       std::string related_txs = R"(SELECT DISTINCT height, index
           FROM position_by_account_asset
           WHERE account_id = :account_id
@@ -808,14 +802,13 @@ namespace iroha {
     }
 
     QueryExecutorResult PostgresSpecificQueryExecutor::operator()(
-        const shared_model::interface::GetAccountAssets &q,
-        const shared_model::interface::types::AccountIdType &creator_id,
-        const shared_model::interface::types::HashType &query_hash) {
-      using QueryTuple =
-          QueryType<shared_model::interface::types::AccountIdType,
-                    shared_model::interface::types::AssetIdType,
-                    std::string,
-                    size_t>;
+        const shared_model::GetAccountAssets &q,
+        const shared_model::types::AccountIdType &creator_id,
+        const shared_model::types::HashType &query_hash) {
+      using QueryTuple = QueryType<shared_model::types::AccountIdType,
+                                   shared_model::types::AssetIdType,
+                                   std::string,
+                                   size_t>;
       using PermissionTuple = boost::tuple<int>;
 
       // get the assets
@@ -885,10 +878,9 @@ namespace iroha {
           query_hash,
           [&](auto range, auto &) {
             auto range_without_nulls = resultWithoutNulls(std::move(range));
-            std::vector<
-                std::tuple<shared_model::interface::types::AccountIdType,
-                           shared_model::interface::types::AssetIdType,
-                           shared_model::interface::Amount>>
+            std::vector<std::tuple<shared_model::types::AccountIdType,
+                                   shared_model::types::AssetIdType,
+                                   shared_model::Amount>>
                 assets;
             size_t total_number = 0;
             for (const auto &row : range_without_nulls) {
@@ -899,10 +891,10 @@ namespace iroha {
                                            auto &amount,
                                            auto &total_number_col) {
                     total_number = total_number_col;
-                    assets.push_back(std::make_tuple(
-                        std::move(account_id),
-                        std::move(asset_id),
-                        shared_model::interface::Amount(amount)));
+                    assets.push_back(
+                        std::make_tuple(std::move(account_id),
+                                        std::move(asset_id),
+                                        shared_model::Amount(amount)));
                   });
             }
             if (assets.empty() and req_first_asset_id) {
@@ -916,8 +908,7 @@ namespace iroha {
             assert(total_number >= assets.size());
             const bool is_last_page = not q.paginationMeta()
                 or (assets.size() <= q.paginationMeta()->pageSize());
-            boost::optional<shared_model::interface::types::AssetIdType>
-                next_asset_id;
+            boost::optional<shared_model::types::AssetIdType> next_asset_id;
             if (not is_last_page) {
               next_asset_id = std::get<1>(assets.back());
               assets.pop_back();
@@ -933,15 +924,14 @@ namespace iroha {
     }
 
     QueryExecutorResult PostgresSpecificQueryExecutor::operator()(
-        const shared_model::interface::GetAccountDetail &q,
-        const shared_model::interface::types::AccountIdType &creator_id,
-        const shared_model::interface::types::HashType &query_hash) {
-      using QueryTuple =
-          QueryType<shared_model::interface::types::DetailType,
-                    uint32_t,
-                    shared_model::interface::types::AccountIdType,
-                    shared_model::interface::types::AccountDetailKeyType,
-                    uint32_t>;
+        const shared_model::GetAccountDetail &q,
+        const shared_model::types::AccountIdType &creator_id,
+        const shared_model::types::HashType &query_hash) {
+      using QueryTuple = QueryType<shared_model::types::DetailType,
+                                   uint32_t,
+                                   shared_model::types::AccountIdType,
+                                   shared_model::types::AccountDetailKeyType,
+                                   uint32_t>;
       using PermissionTuple = boost::tuple<int>;
 
       auto cmd = (boost::format(R"(
@@ -1115,8 +1105,8 @@ namespace iroha {
                         next_record_id |
                             [](const auto &next_record_id) {
                               return boost::optional<
-                                  const shared_model::interface::
-                                      AccountDetailRecordId &>(next_record_id);
+                                  const shared_model::AccountDetailRecordId &>(
+                                  next_record_id);
                             },
                         query_hash);
                   }
@@ -1144,10 +1134,10 @@ namespace iroha {
     }
 
     QueryExecutorResult PostgresSpecificQueryExecutor::operator()(
-        const shared_model::interface::GetRoles &q,
-        const shared_model::interface::types::AccountIdType &creator_id,
-        const shared_model::interface::types::HashType &query_hash) {
-      using QueryTuple = QueryType<shared_model::interface::types::RoleIdType>;
+        const shared_model::GetRoles &q,
+        const shared_model::types::AccountIdType &creator_id,
+        const shared_model::types::HashType &query_hash) {
+      using QueryTuple = QueryType<shared_model::types::RoleIdType>;
       using PermissionTuple = boost::tuple<int>;
 
       auto cmd = (boost::format(
@@ -1165,12 +1155,13 @@ namespace iroha {
           query_hash,
           [&](auto range, auto &) {
             auto range_without_nulls = resultWithoutNulls(std::move(range));
-            auto roles = boost::copy_range<
-                std::vector<shared_model::interface::types::RoleIdType>>(
-                range_without_nulls | boost::adaptors::transformed([](auto t) {
-                  return iroha::ametsuchi::apply(
-                      t, [](auto &role_id) { return role_id; });
-                }));
+            auto roles =
+                boost::copy_range<std::vector<shared_model::types::RoleIdType>>(
+                    range_without_nulls
+                    | boost::adaptors::transformed([](auto t) {
+                        return iroha::ametsuchi::apply(
+                            t, [](auto &role_id) { return role_id; });
+                      }));
 
             return query_response_factory_->createRolesResponse(roles,
                                                                 query_hash);
@@ -1179,9 +1170,9 @@ namespace iroha {
     }
 
     QueryExecutorResult PostgresSpecificQueryExecutor::operator()(
-        const shared_model::interface::GetRolePermissions &q,
-        const shared_model::interface::types::AccountIdType &creator_id,
-        const shared_model::interface::types::HashType &query_hash) {
+        const shared_model::GetRolePermissions &q,
+        const shared_model::types::AccountIdType &creator_id,
+        const shared_model::types::HashType &query_hash) {
       using QueryTuple = QueryType<std::string>;
       using PermissionTuple = boost::tuple<int>;
 
@@ -1215,19 +1206,17 @@ namespace iroha {
                 range_without_nulls.front(),
                 [this, &query_hash](auto &permission) {
                   return query_response_factory_->createRolePermissionsResponse(
-                      shared_model::interface::RolePermissionSet(permission),
-                      query_hash);
+                      shared_model::RolePermissionSet(permission), query_hash);
                 });
           },
           notEnoughPermissionsResponse(perm_converter_, Role::kGetRoles));
     }
 
     QueryExecutorResult PostgresSpecificQueryExecutor::operator()(
-        const shared_model::interface::GetAssetInfo &q,
-        const shared_model::interface::types::AccountIdType &creator_id,
-        const shared_model::interface::types::HashType &query_hash) {
-      using QueryTuple =
-          QueryType<shared_model::interface::types::DomainIdType, uint32_t>;
+        const shared_model::GetAssetInfo &q,
+        const shared_model::types::AccountIdType &creator_id,
+        const shared_model::types::HashType &query_hash) {
+      using QueryTuple = QueryType<shared_model::types::DomainIdType, uint32_t>;
       using PermissionTuple = boost::tuple<int>;
 
       auto cmd = (boost::format(
@@ -1267,11 +1256,10 @@ namespace iroha {
     }
 
     QueryExecutorResult PostgresSpecificQueryExecutor::operator()(
-        const shared_model::interface::GetPendingTransactions &q,
-        const shared_model::interface::types::AccountIdType &creator_id,
-        const shared_model::interface::types::HashType &query_hash) {
-      std::vector<std::unique_ptr<shared_model::interface::Transaction>>
-          response_txs;
+        const shared_model::GetPendingTransactions &q,
+        const shared_model::types::AccountIdType &creator_id,
+        const shared_model::types::HashType &query_hash) {
+      std::vector<std::unique_ptr<shared_model::Transaction>> response_txs;
       if (q.paginationMeta()) {
         return pending_txs_storage_
             ->getPendingTransactions(creator_id,
@@ -1297,8 +1285,8 @@ namespace iroha {
                   switch (error.error) {
                     case iroha::PendingTransactionStorage::ErrorCode::kNotFound:
                       return query_response_factory_->createErrorQueryResponse(
-                          shared_model::interface::QueryResponseFactory::
-                              ErrorQueryType::kStatefulFailed,
+                          shared_model::QueryResponseFactory::ErrorQueryType::
+                              kStatefulFailed,
                           std::string("The batch with specified first "
                                       "transaction hash not found, the hash: ")
                               + q.paginationMeta()->firstTxHash()->toString(),
@@ -1309,8 +1297,8 @@ namespace iroha {
                                        "Unknown and unhandled type of error "
                                        "happend in pending txs storage");
                       return query_response_factory_->createErrorQueryResponse(
-                          shared_model::interface::QueryResponseFactory::
-                              ErrorQueryType::kStatefulFailed,
+                          shared_model::QueryResponseFactory::ErrorQueryType::
+                              kStatefulFailed,
                           std::string("Unknown type of error happened: ")
                               + std::to_string(error.error),
                           1,  // unknown internal error
@@ -1333,12 +1321,11 @@ namespace iroha {
     }
 
     QueryExecutorResult PostgresSpecificQueryExecutor::operator()(
-        const shared_model::interface::GetPeers &q,
-        const shared_model::interface::types::AccountIdType &creator_id,
-        const shared_model::interface::types::HashType &query_hash) {
-      using QueryTuple = QueryType<std::string,
-                                   shared_model::interface::types::AddressType,
-                                   std::string>;
+        const shared_model::GetPeers &q,
+        const shared_model::types::AccountIdType &creator_id,
+        const shared_model::types::HashType &query_hash) {
+      using QueryTuple =
+          QueryType<std::string, shared_model::types::AddressType, std::string>;
       using PermissionTuple = boost::tuple<int>;
 
       auto cmd = (boost::format(
@@ -1355,7 +1342,7 @@ namespace iroha {
           },
           query_hash,
           [&](auto range, auto &) {
-            shared_model::interface::types::PeerList peers;
+            shared_model::types::PeerList peers;
             for (const auto &row : range) {
               iroha::ametsuchi::apply(
                   row,
@@ -1365,7 +1352,7 @@ namespace iroha {
                       peers.push_back(
                           std::make_shared<shared_model::plain::Peer>(
                               *address,
-                              shared_model::interface::types::PubkeyType{
+                              shared_model::types::PubkeyType{
                                   shared_model::crypto::Blob::fromHexString(
                                       *peer_key)},
                               tls_certificate));

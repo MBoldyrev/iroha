@@ -35,9 +35,8 @@ static_assert(kBadJsonPrintOffsset <= kBadJsonPrintLength,
  */
 class JsonDeserializerImpl {
  public:
-  JsonDeserializerImpl(
-      std::shared_ptr<shared_model::interface::CommonObjectsFactory>
-          common_objects_factory)
+  JsonDeserializerImpl(std::shared_ptr<shared_model::CommonObjectsFactory>
+                           common_objects_factory)
       : common_objects_factory_(std::move(common_objects_factory)) {}
 
   /**
@@ -255,8 +254,7 @@ class JsonDeserializerImpl {
     }
   }
 
-  std::shared_ptr<shared_model::interface::CommonObjectsFactory>
-      common_objects_factory_;
+  std::shared_ptr<shared_model::CommonObjectsFactory> common_objects_factory_;
 };
 
 // ------------ getVal(path, dst, src) specializations ------------
@@ -326,10 +324,9 @@ JsonDeserializerImpl::getVal<std::unique_ptr<logger::LoggerManagerTree>>(
 }
 
 template <>
-inline void
-JsonDeserializerImpl::getVal<std::unique_ptr<shared_model::interface::Peer>>(
+inline void JsonDeserializerImpl::getVal<std::unique_ptr<shared_model::Peer>>(
     const std::string &path,
-    std::unique_ptr<shared_model::interface::Peer> &dest,
+    std::unique_ptr<shared_model::Peer> &dest,
     const rapidjson::Value &src) {
   assert_fatal(src.IsObject(), path + " must be a dictionary");
   const auto obj = src.GetObject();
@@ -477,7 +474,7 @@ std::string reportJsonParsingError(const rapidjson::Document &doc,
 // TODO mboldyrev 2019.05.06 IR-465 make config loader testable
 IrohadConfig parse_iroha_config(
     const std::string &conf_path,
-    std::shared_ptr<shared_model::interface::CommonObjectsFactory>
+    std::shared_ptr<shared_model::CommonObjectsFactory>
         common_objects_factory) {
   const rapidjson::Document doc{[&conf_path] {
     rapidjson::Document doc;

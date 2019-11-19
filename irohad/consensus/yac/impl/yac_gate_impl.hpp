@@ -58,8 +58,7 @@ namespace iroha {
 
         logger::LoggerPtr log_;
 
-        boost::optional<std::shared_ptr<shared_model::interface::Block>>
-            current_block_;
+        boost::optional<std::shared_ptr<shared_model::Block>> current_block_;
         YacHash current_hash_;
         boost::optional<ClusterOrdering> alternative_order_;
         std::shared_ptr<const LedgerState> current_ledger_state_;

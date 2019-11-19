@@ -26,10 +26,10 @@ namespace {
     ASSERT_NO_THROW(boost::get<const Type &>(resp.get())) << resp.toString();
   }
 
-#define BASE_CHECK_RESPONSE(type)                                  \
-  [](const auto &resp) {                                           \
-    SCOPED_TRACE(#type);                                           \
-    checkTransactionResponse<shared_model::interface::type>(resp); \
+#define BASE_CHECK_RESPONSE(type)                       \
+  [](const auto &resp) {                                \
+    SCOPED_TRACE(#type);                                \
+    checkTransactionResponse<shared_model::type>(resp); \
   }
 
 #define CHECK_ENOUGH_SIGNATURES \
@@ -70,7 +70,7 @@ class AcceptanceFixture : public ::testing::Test {
    * @return pre-built transaction
    */
   TestUnsignedTransactionBuilder createUser(
-      const shared_model::interface::types::AccountNameType &user,
+      const shared_model::types::AccountNameType &user,
       const shared_model::crypto::PublicKey &key);
 
   /**
@@ -82,10 +82,10 @@ class AcceptanceFixture : public ::testing::Test {
    * @return pre-build transaction
    */
   TestUnsignedTransactionBuilder createUserWithPerms(
-      const shared_model::interface::types::AccountNameType &user,
+      const shared_model::types::AccountNameType &user,
       const shared_model::crypto::PublicKey &key,
-      const shared_model::interface::types::RoleIdType &role_id,
-      const shared_model::interface::RolePermissionSet &perms);
+      const shared_model::types::RoleIdType &role_id,
+      const shared_model::RolePermissionSet &perms);
 
   /**
    * Creates the transaction with the user creation commands
@@ -94,8 +94,8 @@ class AcceptanceFixture : public ::testing::Test {
    * @return built tx and a hash of its payload
    */
   shared_model::proto::Transaction makeUserWithPerms(
-      const shared_model::interface::types::RoleIdType &role_name,
-      const shared_model::interface::RolePermissionSet &perms);
+      const shared_model::types::RoleIdType &role_name,
+      const shared_model::RolePermissionSet &perms);
 
   /**
    * Creates the transaction with the user creation commands
@@ -103,7 +103,7 @@ class AcceptanceFixture : public ::testing::Test {
    * @return built tx and a hash of its payload
    */
   shared_model::proto::Transaction makeUserWithPerms(
-      const shared_model::interface::RolePermissionSet &perms);
+      const shared_model::RolePermissionSet &perms);
 
   /**
    * Add default user creator account id and current created time to builder
@@ -114,34 +114,31 @@ class AcceptanceFixture : public ::testing::Test {
    */
   template <typename Builder>
   auto base(Builder builder,
-            const shared_model::interface::types::AccountIdType &account_id)
-      -> decltype(
-          builder
-              .creatorAccountId(shared_model::interface::types::AccountIdType())
-              .createdTime(uint64_t()));
+            const shared_model::types::AccountIdType &account_id)
+      -> decltype(builder.creatorAccountId(shared_model::types::AccountIdType())
+                      .createdTime(uint64_t()));
 
   /**
    * Create valid base pre-built transaction with specified creator
    * @param account_id - account of transaction creator
    * @return pre-built tx
    */
-  auto baseTx(const shared_model::interface::types::AccountIdType &account_id)
+  auto baseTx(const shared_model::types::AccountIdType &account_id)
       -> decltype(base(TestUnsignedTransactionBuilder(),
-                       shared_model::interface::types::AccountIdType()));
+                       shared_model::types::AccountIdType()));
 
   /**
    * Create valid base pre-built transaction with kUserId as transaction creator
    * @return pre-built tx
    */
-  auto baseTx()
-      -> decltype(baseTx(shared_model::interface::types::AccountIdType()));
+  auto baseTx() -> decltype(baseTx(shared_model::types::AccountIdType()));
 
   /**
    * Create valid base pre-built query with specified query creator
    * @param account_id - account of query creator
    * @return pre-built query
    */
-  auto baseQry(const shared_model::interface::types::AccountIdType &account_id)
+  auto baseQry(const shared_model::types::AccountIdType &account_id)
       -> decltype(base(TestUnsignedQueryBuilder(), std::string()));
 
   /**
@@ -178,7 +175,7 @@ class AcceptanceFixture : public ::testing::Test {
    * @param response to check for
    */
   template <typename ErrorResponse>
-  std::function<void(const shared_model::interface::QueryResponse &)>
+  std::function<void(const shared_model::QueryResponse &)>
   checkQueryErrorResponse();
 
   /**

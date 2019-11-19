@@ -16,11 +16,10 @@ namespace iroha {
 
       class MockYacPeerOrderer : public YacPeerOrderer {
        public:
-        MOCK_METHOD2(
-            getOrdering,
-            boost::optional<ClusterOrdering>(
-                const YacHash &,
-                std::vector<std::shared_ptr<shared_model::interface::Peer>>));
+        MOCK_METHOD2(getOrdering,
+                     boost::optional<ClusterOrdering>(
+                         const YacHash &,
+                         std::vector<std::shared_ptr<shared_model::Peer>>));
 
         MockYacPeerOrderer() = default;
 

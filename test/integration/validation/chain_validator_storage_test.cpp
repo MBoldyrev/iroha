@@ -56,8 +56,8 @@ namespace iroha {
 
     /// Create block unsigned wrapper with given transactions, height, prev hash
     auto baseBlock(std::vector<shared_model::proto::Transaction> transactions,
-                   shared_model::interface::types::HeightType height,
-                   shared_model::interface::types::HashType prev_hash) {
+                   shared_model::types::HeightType height,
+                   shared_model::types::HashType prev_hash) {
       return shared_model::proto::BlockBuilder()
           .transactions(transactions)
           .height(height)
@@ -68,8 +68,7 @@ namespace iroha {
 
     /// Complete wrapper and return a signed object through pointer
     template <typename Wrapper>
-    std::shared_ptr<shared_model::interface::Block> completeBlock(
-        Wrapper &&wrapper) {
+    std::shared_ptr<shared_model::Block> completeBlock(Wrapper &&wrapper) {
       return clone(std::forward<Wrapper>(wrapper).finish());
     }
 
@@ -101,7 +100,7 @@ namespace iroha {
 
     /// Create an observable from chain and return its validation status
     auto createAndValidateChain(
-        std::vector<std::shared_ptr<shared_model::interface::Block>> chain) {
+        std::vector<std::shared_ptr<shared_model::Block>> chain) {
       auto ms = createMutableStorage();
       return validator->validateAndApply(rxcpp::observable<>::iterate(chain),
                                          *ms);

@@ -11,24 +11,22 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
+  /**
+   * Provide response with all roles of the current system
+   */
+  class RolesResponse : public ModelPrimitive<RolesResponse> {
+   public:
+    /// type of roles collection
+    using RolesIdType = std::vector<types::RoleIdType>;
+
     /**
-     * Provide response with all roles of the current system
+     * @return all roles of the current system
      */
-    class RolesResponse : public ModelPrimitive<RolesResponse> {
-     public:
-      /// type of roles collection
-      using RolesIdType = std::vector<types::RoleIdType>;
+    virtual const RolesIdType &roles() const = 0;
 
-      /**
-       * @return all roles of the current system
-       */
-      virtual const RolesIdType &roles() const = 0;
+    std::string toString() const override;
 
-      std::string toString() const override;
-
-      bool operator==(const ModelType &rhs) const override;
-    };
-  }  // namespace interface
+    bool operator==(const ModelType &rhs) const override;
+  };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_ROLES_RESPONSE_HPP

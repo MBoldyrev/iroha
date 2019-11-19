@@ -13,8 +13,8 @@ using namespace common_constants;
 
 class CreateDomain : public AcceptanceFixture {
  public:
-  auto makeUserWithPerms(const interface::RolePermissionSet &perms = {
-                             interface::permissions::Role::kCreateDomain}) {
+  auto makeUserWithPerms(const RolePermissionSet &perms = {
+                             permissions::Role::kCreateDomain}) {
     return AcceptanceFixture::makeUserWithPerms(perms);
   }
 
@@ -51,7 +51,7 @@ TEST_F(CreateDomain, Basic) {
 TEST_F(CreateDomain, NoPermissions) {
   IntegrationTestFramework(1)
       .setInitialState(kAdminKeypair)
-      .sendTx(makeUserWithPerms({interface::permissions::Role::kGetMyTxs}))
+      .sendTx(makeUserWithPerms({permissions::Role::kGetMyTxs}))
       .skipProposal()
       .skipVerifiedProposal()
       .skipBlock()

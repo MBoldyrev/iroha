@@ -10,13 +10,11 @@
 #include "utils/visitor_apply_for_all.hpp"
 
 namespace shared_model {
-  namespace interface {
-    std::string BlockQueryResponse::toString() const {
-      return boost::apply_visitor(detail::ToStringVisitor(), get());
-    }
+  std::string BlockQueryResponse::toString() const {
+    return boost::apply_visitor(detail::ToStringVisitor(), get());
+  }
 
-    bool BlockQueryResponse::operator==(const ModelType &rhs) const {
-      return get() == rhs.get();
-    }
-  }  // namespace interface
+  bool BlockQueryResponse::operator==(const ModelType &rhs) const {
+    return get() == rhs.get();
+  }
 }  // namespace shared_model

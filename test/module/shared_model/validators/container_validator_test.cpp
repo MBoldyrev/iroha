@@ -18,8 +18,7 @@ struct ContainerValidatorTest : public ::testing::Test {
     current_timestamp = iroha::time::now();
   }
 
-  auto makeTransaction(
-      shared_model::interface::types::TimestampType timestamp) {
+  auto makeTransaction(shared_model::types::TimestampType timestamp) {
     return TestUnsignedTransactionBuilder()
         .creatorAccountId("user@domain")
         .createdTime(timestamp)
@@ -30,7 +29,7 @@ struct ContainerValidatorTest : public ::testing::Test {
         .finish();
   }
 
-  auto makeProposal(shared_model::interface::types::TimestampType timestamp,
+  auto makeProposal(shared_model::types::TimestampType timestamp,
                     shared_model::proto::Transaction transaction) {
     std::vector<shared_model::proto::Transaction> txs;
     txs.push_back(std::move(transaction));
@@ -41,7 +40,7 @@ struct ContainerValidatorTest : public ::testing::Test {
         .build();
   }
 
-  auto makeBlock(shared_model::interface::types::TimestampType timestamp,
+  auto makeBlock(shared_model::types::TimestampType timestamp,
                  shared_model::proto::Transaction transaction) {
     std::vector<shared_model::proto::Transaction> txs;
     txs.push_back(std::move(transaction));
@@ -58,9 +57,9 @@ struct ContainerValidatorTest : public ::testing::Test {
 
   shared_model::crypto::Keypair keypair =
       shared_model::crypto::DefaultCryptoAlgorithmType::generateKeypair();
-  shared_model::interface::types::TimestampType old_timestamp =
+  shared_model::types::TimestampType old_timestamp =
       iroha::time::now(std::chrono::hours(-100));
-  shared_model::interface::types::TimestampType current_timestamp;
+  shared_model::types::TimestampType current_timestamp;
 };
 
 /**

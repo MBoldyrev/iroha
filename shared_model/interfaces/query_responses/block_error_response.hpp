@@ -11,28 +11,26 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
+  /**
+   * Provide response with error
+   */
+  class BlockErrorResponse : public ModelPrimitive<BlockErrorResponse> {
+   public:
     /**
-     * Provide response with error
+     * @return Attached error message
      */
-    class BlockErrorResponse : public ModelPrimitive<BlockErrorResponse> {
-     public:
-      /**
-       * @return Attached error message
-       */
-      virtual const types::DescriptionType &message() const = 0;
+    virtual const types::DescriptionType &message() const = 0;
 
-      /**
-       * Give string description of data.
-       * @return string representation of data.
-       */
-      std::string toString() const override;
+    /**
+     * Give string description of data.
+     * @return string representation of data.
+     */
+    std::string toString() const override;
 
-      /**
-       * @return true if the data are same.
-       */
-      bool operator==(const ModelType &rhs) const override;
-    };
-  }  // namespace interface
+    /**
+     * @return true if the data are same.
+     */
+    bool operator==(const ModelType &rhs) const override;
+  };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_BLOCK_ERROR_RESPONSE_HPP

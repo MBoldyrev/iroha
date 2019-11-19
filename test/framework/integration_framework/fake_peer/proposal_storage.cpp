@@ -66,8 +66,7 @@ namespace integration_framework {
     }
 
     void ProposalStorage::addTransactions(
-        std::vector<std::shared_ptr<shared_model::interface::Transaction>>
-            transactions) {
+        std::vector<std::shared_ptr<shared_model::Transaction>> transactions) {
       std::lock_guard<std::mutex> guard(pending_txs_mutex_);
       std::move(transactions.begin(),
                 transactions.end(),
@@ -85,7 +84,7 @@ namespace integration_framework {
 
     boost::optional<std::unique_ptr<shared_model::proto::Proposal>>
     ProposalStorage::makeProposalFromPendingTxs(
-        shared_model::interface::types::HeightType height) {
+        shared_model::types::HeightType height) {
       std::lock_guard<std::mutex> lock(pending_txs_mutex_);
       if (pending_txs_.empty()) {
         return boost::none;

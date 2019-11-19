@@ -11,40 +11,38 @@
 #include "utils/string_builder.hpp"
 
 namespace shared_model {
-  namespace interface {
+  /**
+   * ModelPrimitive is a base class of whole domain objects in system.
+   * This class required for guarantee consistent interface on all shared
+   * model objects.
+   * @tparam Model - your new style model
+   */
+  template <typename Model>
+  class ModelPrimitive {
+   public:
     /**
-     * ModelPrimitive is a base class of whole domain objects in system.
-     * This class required for guarantee consistent interface on all shared
-     * model objects.
-     * @tparam Model - your new style model
+     * Reference for model type.
      */
-    template <typename Model>
-    class ModelPrimitive {
-     public:
-      /**
-       * Reference for model type.
-       */
-      using ModelType = Model;
+    using ModelType = Model;
 
-      /**
-       * Make string developer representation of object
-       * @return string with internal state of object
-       */
-      virtual std::string toString() const {
-        return detail::PrettyStringBuilder()
-            .init("Primitive")
-            .append("address", std::to_string(reinterpret_cast<uint64_t>(this)))
-            .finalize();
-      }
+    /**
+     * Make string developer representation of object
+     * @return string with internal state of object
+     */
+    virtual std::string toString() const {
+      return detail::PrettyStringBuilder()
+          .init("Primitive")
+          .append("address", std::to_string(reinterpret_cast<uint64_t>(this)))
+          .finalize();
+    }
 
-      virtual bool operator==(const ModelType &rhs) const = 0;
+    virtual bool operator==(const ModelType &rhs) const = 0;
 
-      virtual bool operator!=(const ModelType &rhs) const {
-        return not(*this == rhs);
-      }
+    virtual bool operator!=(const ModelType &rhs) const {
+      return not(*this == rhs);
+    }
 
-      virtual ~ModelPrimitive() = default;
-    };
-  }  // namespace interface
+    virtual ~ModelPrimitive() = default;
+  };
 }  // namespace shared_model
 #endif  // IROHA_MODEL_PRIMITIVE_HPP

@@ -13,12 +13,12 @@ namespace iroha {
   namespace ametsuchi {
 
     const std::string kRootRolePermStr{
-        shared_model::interface::RolePermissionSet(
-            {shared_model::interface::permissions::Role::kRoot})
+        shared_model::RolePermissionSet(
+            {shared_model::permissions::Role::kRoot})
             .toBitstring()};
 
-    shared_model::interface::types::DomainIdType getDomainFromName(
-        const shared_model::interface::types::AccountIdType &account_id) {
+    shared_model::types::DomainIdType getDomainFromName(
+        const shared_model::types::AccountIdType &account_id) {
       // TODO 03.10.18 andrei: IR-1728 Move getDomainFromName to shared_model
       std::vector<std::string> res;
       boost::split(res, account_id, boost::is_any_of("@"));

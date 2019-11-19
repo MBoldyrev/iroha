@@ -18,19 +18,17 @@ namespace iroha {
   namespace consensus {
     namespace yac {
 
-      inline std::shared_ptr<shared_model::interface::Peer> makePeer(
+      inline std::shared_ptr<shared_model::Peer> makePeer(
           const std::string &address) {
         auto peer = std::make_shared<MockPeer>();
         EXPECT_CALL(*peer, address())
             .WillRepeatedly(::testing::ReturnRefOfCopy(address));
         EXPECT_CALL(*peer, pubkey())
             .WillRepeatedly(::testing::ReturnRefOfCopy(
-                shared_model::interface::types::PubkeyType(
-                    padPubKeyString(address))));
+                shared_model::types::PubkeyType(padPubKeyString(address))));
         EXPECT_CALL(*peer, tlsCertificate())
             .WillRepeatedly(::testing::ReturnRefOfCopy(
-                boost::optional<
-                    shared_model::interface::types::TLSCertificateType>()));
+                boost::optional<shared_model::types::TLSCertificateType>()));
 
         return peer;
       }

@@ -232,43 +232,43 @@ class IrohadTest : public AcceptanceFixture {
     auto user_keys = keys_manager_testuser_.loadKeys();
     ASSERT_TRUE(user_keys);
 
-    shared_model::interface::RolePermissionSet admin_perms{
-        shared_model::interface::permissions::Role::kAddPeer,
-        shared_model::interface::permissions::Role::kAddSignatory,
-        shared_model::interface::permissions::Role::kCreateAccount,
-        shared_model::interface::permissions::Role::kCreateDomain,
-        shared_model::interface::permissions::Role::kGetAllAccAst,
-        shared_model::interface::permissions::Role::kGetAllAccAstTxs,
-        shared_model::interface::permissions::Role::kGetAllAccDetail,
-        shared_model::interface::permissions::Role::kGetAllAccTxs,
-        shared_model::interface::permissions::Role::kGetAllAccounts,
-        shared_model::interface::permissions::Role::kGetAllSignatories,
-        shared_model::interface::permissions::Role::kGetAllTxs,
-        shared_model::interface::permissions::Role::kGetBlocks,
-        shared_model::interface::permissions::Role::kGetRoles,
-        shared_model::interface::permissions::Role::kReadAssets,
-        shared_model::interface::permissions::Role::kRemoveSignatory,
-        shared_model::interface::permissions::Role::kSetQuorum};
+    shared_model::RolePermissionSet admin_perms{
+        shared_model::permissions::Role::kAddPeer,
+        shared_model::permissions::Role::kAddSignatory,
+        shared_model::permissions::Role::kCreateAccount,
+        shared_model::permissions::Role::kCreateDomain,
+        shared_model::permissions::Role::kGetAllAccAst,
+        shared_model::permissions::Role::kGetAllAccAstTxs,
+        shared_model::permissions::Role::kGetAllAccDetail,
+        shared_model::permissions::Role::kGetAllAccTxs,
+        shared_model::permissions::Role::kGetAllAccounts,
+        shared_model::permissions::Role::kGetAllSignatories,
+        shared_model::permissions::Role::kGetAllTxs,
+        shared_model::permissions::Role::kGetBlocks,
+        shared_model::permissions::Role::kGetRoles,
+        shared_model::permissions::Role::kReadAssets,
+        shared_model::permissions::Role::kRemoveSignatory,
+        shared_model::permissions::Role::kSetQuorum};
 
-    shared_model::interface::RolePermissionSet default_perms{
-        shared_model::interface::permissions::Role::kAddSignatory,
-        shared_model::interface::permissions::Role::kGetMyAccAst,
-        shared_model::interface::permissions::Role::kGetMyAccAstTxs,
-        shared_model::interface::permissions::Role::kGetMyAccDetail,
-        shared_model::interface::permissions::Role::kGetMyAccTxs,
-        shared_model::interface::permissions::Role::kGetMyAccount,
-        shared_model::interface::permissions::Role::kGetMySignatories,
-        shared_model::interface::permissions::Role::kGetMyTxs,
-        shared_model::interface::permissions::Role::kReceive,
-        shared_model::interface::permissions::Role::kRemoveSignatory,
-        shared_model::interface::permissions::Role::kSetQuorum,
-        shared_model::interface::permissions::Role::kTransfer};
+    shared_model::RolePermissionSet default_perms{
+        shared_model::permissions::Role::kAddSignatory,
+        shared_model::permissions::Role::kGetMyAccAst,
+        shared_model::permissions::Role::kGetMyAccAstTxs,
+        shared_model::permissions::Role::kGetMyAccDetail,
+        shared_model::permissions::Role::kGetMyAccTxs,
+        shared_model::permissions::Role::kGetMyAccount,
+        shared_model::permissions::Role::kGetMySignatories,
+        shared_model::permissions::Role::kGetMyTxs,
+        shared_model::permissions::Role::kReceive,
+        shared_model::permissions::Role::kRemoveSignatory,
+        shared_model::permissions::Role::kSetQuorum,
+        shared_model::permissions::Role::kTransfer};
 
-    shared_model::interface::RolePermissionSet money_perms{
-        shared_model::interface::permissions::Role::kAddAssetQty,
-        shared_model::interface::permissions::Role::kCreateAsset,
-        shared_model::interface::permissions::Role::kReceive,
-        shared_model::interface::permissions::Role::kTransfer};
+    shared_model::RolePermissionSet money_perms{
+        shared_model::permissions::Role::kAddAssetQty,
+        shared_model::permissions::Role::kCreateAsset,
+        shared_model::permissions::Role::kReceive,
+        shared_model::permissions::Role::kTransfer};
 
     auto genesis_tx =
         shared_model::proto::TransactionBuilder()
@@ -512,8 +512,7 @@ TEST_F(IrohadTest, SendQuery) {
   client.Find(query.getTransport(), response);
   shared_model::proto::QueryResponse resp{std::move(response)};
 
-  ASSERT_NO_THROW(
-      boost::get<const shared_model::interface::RolesResponse &>(resp.get()));
+  ASSERT_NO_THROW(boost::get<const shared_model::RolesResponse &>(resp.get()));
 }
 
 /**

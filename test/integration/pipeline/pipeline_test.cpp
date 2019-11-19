@@ -45,7 +45,7 @@ class PipelineIntegrationTest : public AcceptanceFixture {
    * @return  transaction sequence
    */
   auto prepareTransactionSequence(size_t tx_size) {
-    shared_model::interface::types::SharedTxsCollectionType txs;
+    shared_model::types::SharedTxsCollectionType txs;
 
     for (size_t i = 0; i < tx_size; i++) {
       auto &&tx = prepareCreateDomainTransaction(std::string("domain")
@@ -54,8 +54,8 @@ class PipelineIntegrationTest : public AcceptanceFixture {
           std::make_shared<shared_model::proto::Transaction>(std::move(tx)));
     }
 
-    auto tx_sequence_result = shared_model::interface::
-        TransactionSequenceFactory::createTransactionSequence(
+    auto tx_sequence_result =
+        shared_model::TransactionSequenceFactory::createTransactionSequence(
             txs,
             shared_model::validation::DefaultSignedTransactionsValidator(
                 iroha::test::kTestsValidatorsConfig),
@@ -85,10 +85,10 @@ TEST_F(PipelineIntegrationTest, SendQuery) {
                    .finish();
 
   auto check = [](auto &status) {
-    ASSERT_TRUE(boost::apply_visitor(
-        shared_model::interface::QueryErrorResponseChecker<
-            shared_model::interface::StatefulFailedErrorResponse>(),
-        status.get()));
+    ASSERT_TRUE(
+        boost::apply_visitor(shared_model::QueryErrorResponseChecker<
+                                 shared_model::StatefulFailedErrorResponse>(),
+                             status.get()));
   };
   integration_framework::IntegrationTestFramework(1)
       .setInitialState(kAdminKeypair)
@@ -105,9 +105,8 @@ TEST_F(PipelineIntegrationTest, SendTx) {
   auto tx = prepareCreateDomainTransaction();
 
   auto check_stateless_valid_status = [](auto &status) {
-    ASSERT_NO_THROW(
-        boost::get<const shared_model::interface::StatelessValidTxResponse &>(
-            status.get()));
+    ASSERT_NO_THROW(boost::get<const shared_model::StatelessValidTxResponse &>(
+        status.get()));
   };
   auto check_proposal = [](auto &proposal) {
     ASSERT_EQ(proposal->transactions().size(), 1);
@@ -144,7 +143,7 @@ TEST_F(PipelineIntegrationTest, DISABLED_SendTxSequence) {
   auto check_stateless_valid = [](auto &statuses) {
     for (const auto &status : statuses) {
       EXPECT_NO_THROW(
-          boost::get<const shared_model::interface::StatelessValidTxResponse &>(
+          boost::get<const shared_model::StatelessValidTxResponse &>(
               status.get()));
     }
   };

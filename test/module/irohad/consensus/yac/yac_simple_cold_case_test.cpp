@@ -239,7 +239,7 @@ class YacAlternativeOrderTest : public YacTest {
   YacHash my_hash{initial_round, "my_proposal_hash", "my_block_hash"};
 
   std::string peer_id{"alternative_peer"};
-  std::shared_ptr<shared_model::interface::Peer> peer = makePeer(peer_id);
+  std::shared_ptr<shared_model::Peer> peer = makePeer(peer_id);
   ClusterOrdering alternative_order = *ClusterOrdering::create({peer});
 };
 

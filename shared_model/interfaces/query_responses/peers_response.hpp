@@ -12,25 +12,23 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
 
-    using PeersForwardCollectionType =
-        boost::any_range<Peer, boost::forward_traversal_tag, const Peer &>;
+  using PeersForwardCollectionType =
+      boost::any_range<Peer, boost::forward_traversal_tag, const Peer &>;
 
+  /**
+   * Provide response with peers in the network
+   */
+  class PeersResponse : public ModelPrimitive<PeersResponse> {
+   public:
     /**
-     * Provide response with peers in the network
+     * @return a list of peers
      */
-    class PeersResponse : public ModelPrimitive<PeersResponse> {
-     public:
-      /**
-       * @return a list of peers
-       */
-      virtual PeersForwardCollectionType peers() const = 0;
+    virtual PeersForwardCollectionType peers() const = 0;
 
-      std::string toString() const override;
+    std::string toString() const override;
 
-      bool operator==(const ModelType &rhs) const override;
-    };
-  }  // namespace interface
+    bool operator==(const ModelType &rhs) const override;
+  };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_PEERS_RESPONSE_HPP

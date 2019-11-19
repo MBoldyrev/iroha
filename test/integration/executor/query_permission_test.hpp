@@ -16,8 +16,8 @@ namespace executor_testing {
   namespace query_permission_test {
 
     struct SpecificQueryPermissionTestData {
-      shared_model::interface::RolePermissionSet spectator_permissions;
-      shared_model::interface::types::AccountIdType spectator;
+      shared_model::RolePermissionSet spectator_permissions;
+      shared_model::types::AccountIdType spectator;
       bool enough_permissions;
       std::string description;
     };
@@ -25,12 +25,9 @@ namespace executor_testing {
     decltype(::testing::Combine(
         executor_testing::getExecutorTestParams(),
         ::testing::ValuesIn({SpecificQueryPermissionTestData{}})))
-    getParams(
-        shared_model::interface::RolePermissionSet permission_to_query_myself,
-        shared_model::interface::RolePermissionSet
-            permission_to_query_my_domain,
-        shared_model::interface::RolePermissionSet
-            permission_to_query_everyone);
+    getParams(shared_model::RolePermissionSet permission_to_query_myself,
+              shared_model::RolePermissionSet permission_to_query_my_domain,
+              shared_model::RolePermissionSet permission_to_query_everyone);
 
     template <typename SpecificQueryFixture>
     struct QueryPermissionTest
@@ -55,8 +52,7 @@ namespace executor_testing {
        *
        * @param target_permissions - set of permissions for target user
        */
-      void prepareState(
-          shared_model::interface::RolePermissionSet target_permissions) {
+      void prepareState(shared_model::RolePermissionSet target_permissions) {
         using namespace common_constants;
         using namespace framework::expected;
         // create target user
@@ -76,8 +72,7 @@ namespace executor_testing {
             permissions_param_.spectator_permissions));
       }
 
-      const shared_model::interface::types::AccountIdType &getSpectator()
-          const {
+      const shared_model::types::AccountIdType &getSpectator() const {
         return permissions_param_.spectator;
       }
 
@@ -89,7 +84,7 @@ namespace executor_testing {
         if (permissions_param_.enough_permissions) {
           checkSuccessfulResult<SpecificQueryResponse>(response, checker);
         } else {
-          checkQueryError<shared_model::interface::StatefulFailedErrorResponse>(
+          checkQueryError<shared_model::StatefulFailedErrorResponse>(
               response, error_codes::kNoPermissions);
         }
       }

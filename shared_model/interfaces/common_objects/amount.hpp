@@ -11,51 +11,49 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
+
+  /**
+   * Representation of fixed point number
+   */
+  class Amount final : public ModelPrimitive<Amount> {
+   public:
+    explicit Amount(const std::string &amount);
 
     /**
-     * Representation of fixed point number
+     * Returns a value less than zero if Amount is negative, a value greater
+     * than zero if Amount is positive, and zero if Amount is zero.
      */
-    class Amount final : public ModelPrimitive<Amount> {
-     public:
-      explicit Amount(const std::string &amount);
+    int sign() const;
 
-      /**
-       * Returns a value less than zero if Amount is negative, a value greater
-       * than zero if Amount is positive, and zero if Amount is zero.
-       */
-      int sign() const;
+    /**
+     * Gets the position of precision
+     * @return the position of precision
+     */
+    types::PrecisionType precision() const;
 
-      /**
-       * Gets the position of precision
-       * @return the position of precision
-       */
-      types::PrecisionType precision() const;
+    /**
+     * String representation.
+     * @return string representation of the asset.
+     */
+    std::string toStringRepr() const;
 
-      /**
-       * String representation.
-       * @return string representation of the asset.
-       */
-      std::string toStringRepr() const;
+    /**
+     * Checks equality of objects inside
+     * @param rhs - other wrapped value
+     * @return true, if wrapped objects are same
+     */
+    bool operator==(const ModelType &rhs) const override;
 
-      /**
-       * Checks equality of objects inside
-       * @param rhs - other wrapped value
-       * @return true, if wrapped objects are same
-       */
-      bool operator==(const ModelType &rhs) const override;
+    /**
+     * Stringify the data.
+     * @return the content of asset.
+     */
+    std::string toString() const override;
 
-      /**
-       * Stringify the data.
-       * @return the content of asset.
-       */
-      std::string toString() const override;
+   private:
+    struct Impl;
 
-     private:
-      struct Impl;
-
-      const std::shared_ptr<const Impl> impl_;
-    };
-  }  // namespace interface
+    const std::shared_ptr<const Impl> impl_;
+  };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_AMOUNT_HPP

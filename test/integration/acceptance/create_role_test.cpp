@@ -17,19 +17,17 @@ using namespace common_constants;
 
 class CreateRole : public AcceptanceFixture {
  public:
-  auto makeUserWithPerms(const interface::RolePermissionSet &perms = {
-                             interface::permissions::Role::kGetMyTxs,
-                             interface::permissions::Role::kCreateRole}) {
+  auto makeUserWithPerms(const RolePermissionSet &perms = {
+                             permissions::Role::kGetMyTxs,
+                             permissions::Role::kCreateRole}) {
     return AcceptanceFixture::makeUserWithPerms(kNewRole, perms);
   }
 
-  auto baseTx(const interface::RolePermissionSet &perms,
-              const std::string &role_name) {
+  auto baseTx(const RolePermissionSet &perms, const std::string &role_name) {
     return AcceptanceFixture::baseTx().createRole(role_name, perms);
   }
 
-  auto baseTx(const interface::RolePermissionSet &perms = {
-                  interface::permissions::Role::kGetMyTxs}) {
+  auto baseTx(const RolePermissionSet &perms = {permissions::Role::kGetMyTxs}) {
     return baseTx(perms, kRole);
   }
 
@@ -68,7 +66,7 @@ TEST_F(CreateRole, Basic) {
 TEST_F(CreateRole, HaveNoPerms) {
   IntegrationTestFramework(1)
       .setInitialState(kAdminKeypair)
-      .sendTx(makeUserWithPerms({interface::permissions::Role::kGetMyTxs}))
+      .sendTx(makeUserWithPerms({permissions::Role::kGetMyTxs}))
       .skipProposal()
       .skipVerifiedProposal()
       .skipBlock()
@@ -95,7 +93,7 @@ TEST_F(CreateRole, EmptyRole) {
       .skipProposal()
       .skipVerifiedProposal()
       .skipBlock()
-      .sendTx(complete(baseTx({interface::permissions::Role::kGetMyTxs}, "")),
+      .sendTx(complete(baseTx({permissions::Role::kGetMyTxs}, "")),
               CHECK_STATELESS_INVALID);
 }
 
@@ -134,8 +132,8 @@ TEST_F(CreateRole, LongRoleName) {
       .skipProposal()
       .skipVerifiedProposal()
       .skipBlock()
-      .sendTx(complete(baseTx({interface::permissions::Role::kGetMyTxs},
-                              std::string(33, 'a'))),
+      .sendTx(complete(
+                  baseTx({permissions::Role::kGetMyTxs}, std::string(33, 'a'))),
               CHECK_STATELESS_INVALID);
 }
 
@@ -153,8 +151,8 @@ TEST_F(CreateRole, MaxLenRoleName) {
       .skipProposal()
       .skipBlock()
       .sendTxAwait(
-          complete(baseTx({interface::permissions::Role::kGetMyTxs},
-                          std::string(32, 'a'))),
+          complete(
+              baseTx({permissions::Role::kGetMyTxs}, std::string(32, 'a'))),
           [](auto &block) { ASSERT_EQ(block->transactions().size(), 1); });
 }
 
@@ -175,7 +173,7 @@ TEST_F(CreateRole, DISABLED_NonexistentPerm) {
       .skipProposal()
       .skipVerifiedProposal()
       .skipBlock()
-      .sendTx(complete(baseTx({static_cast<interface::permissions::Role>(-1)})),
+      .sendTx(complete(baseTx({static_cast<permissions::Role>(-1)})),
               CHECK_STATELESS_INVALID);
 }
 
@@ -194,8 +192,7 @@ TEST_F(CreateRole, ExistingRole) {
       .skipProposal()
       .skipVerifiedProposal()
       .skipBlock()
-      .sendTx(
-          complete(baseTx({interface::permissions::Role::kGetMyTxs}, kNewRole)))
+      .sendTx(complete(baseTx({permissions::Role::kGetMyTxs}, kNewRole)))
       .skipProposal()
       .checkVerifiedProposal(
           [](auto &proposal) { ASSERT_EQ(proposal->transactions().size(), 0); })

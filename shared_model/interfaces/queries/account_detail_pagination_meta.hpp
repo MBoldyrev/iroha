@@ -12,25 +12,23 @@
 #include "interfaces/queries/account_detail_record_id.hpp"
 
 namespace shared_model {
-  namespace interface {
 
-    /// Provides query metadata for account detail list pagination.
-    class AccountDetailPaginationMeta
-        : public ModelPrimitive<AccountDetailPaginationMeta> {
-     public:
-      /// Get the requested page size.
-      virtual size_t pageSize() const = 0;
+  /// Provides query metadata for account detail list pagination.
+  class AccountDetailPaginationMeta
+      : public ModelPrimitive<AccountDetailPaginationMeta> {
+   public:
+    /// Get the requested page size.
+    virtual size_t pageSize() const = 0;
 
-      /// Get the first requested record id, if provided.
-      virtual boost::optional<const AccountDetailRecordId &> firstRecordId()
-          const = 0;
+    /// Get the first requested record id, if provided.
+    virtual boost::optional<const AccountDetailRecordId &> firstRecordId()
+        const = 0;
 
-      std::string toString() const override;
+    std::string toString() const override;
 
-      bool operator==(const ModelType &rhs) const override;
-    };
+    bool operator==(const ModelType &rhs) const override;
+  };
 
-  }  // namespace interface
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_INTERFACE_MODEL_QUERY_ACCOUNT_DETAIL_PAGINATION_META_HPP

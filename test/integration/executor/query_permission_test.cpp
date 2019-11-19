@@ -10,7 +10,7 @@
 using namespace common_constants;
 using namespace executor_testing;
 
-using shared_model::interface::RolePermissionSet;
+using shared_model::RolePermissionSet;
 
 enum class SpectatorPermissions : int {
   kNone = 0,
@@ -85,9 +85,9 @@ query_permission_test::getParams(
     RolePermissionSet permission_to_query_my_domain,
     RolePermissionSet permission_to_query_everyone) {
   std::vector<SpecificQueryPermissionTestData> perm_params;
-  shared_model::interface::RolePermissionSet no_permissions;
+  shared_model::RolePermissionSet no_permissions;
   static const RolePermissionSet kRootPermission(
-      {shared_model::interface::permissions::Role::kRoot});
+      {shared_model::permissions::Role::kRoot});
   const EnumMap<SpectatorPermissions, const RolePermissionSet &>
       spectator_permissions_map{
           {SpectatorPermissions::kNone, no_permissions},

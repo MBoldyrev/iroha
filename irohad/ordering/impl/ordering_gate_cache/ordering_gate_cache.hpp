@@ -12,9 +12,7 @@
 #include "cryptography/hash.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class TransactionBatch;
-  }
+  class TransactionBatch;
 }  // namespace shared_model
 
 namespace iroha {
@@ -33,17 +31,16 @@ namespace iroha {
           shared_model::crypto::Hash::Hasher hasher_;
 
           size_t operator()(
-              const std::shared_ptr<shared_model::interface::TransactionBatch>
-                  &a) const;
+              const std::shared_ptr<shared_model::TransactionBatch> &a) const;
         };
 
        public:
         /// type of the element in cache container. Set is used as it allows to
         /// remove batch from BatchSet with O(1) complexity, which is the case
         /// in remove method
-        using BatchesSetType = std::unordered_set<
-            std::shared_ptr<shared_model::interface::TransactionBatch>,
-            BatchPointerHasher>;
+        using BatchesSetType =
+            std::unordered_set<std::shared_ptr<shared_model::TransactionBatch>,
+                               BatchPointerHasher>;
 
         using HashesSetType =
             std::unordered_set<shared_model::crypto::Hash,

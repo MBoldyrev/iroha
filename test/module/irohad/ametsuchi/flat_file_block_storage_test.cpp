@@ -41,7 +41,7 @@ class FlatFileBlockStorageTest : public ::testing::Test {
       std::make_shared<NiceMock<MockBlockJsonConverter>>();
   logger::LoggerManagerTreePtr log_manager_ = getTestLoggerManager();
   std::shared_ptr<MockBlock> block_ = std::make_shared<NiceMock<MockBlock>>();
-  shared_model::interface::types::HeightType height_ = 1;
+  shared_model::types::HeightType height_ = 1;
 };
 
 /**
@@ -80,20 +80,19 @@ TEST_F(FlatFileBlockStorageTest, FetchExisting) {
           .create();
   ASSERT_TRUE(block_storage->insert(block_));
 
-  shared_model::interface::Block *raw_block;
+  shared_model::Block *raw_block;
 
   EXPECT_CALL(*converter_, deserialize(_))
-      .WillOnce(Invoke([&](const shared_model::interface::types::JsonType &)
-                           -> iroha::expected::Result<
-                               std::unique_ptr<shared_model::interface::Block>,
-                               std::string> {
-        auto return_block = std::make_unique<MockBlock>();
-        raw_block = return_block.get();
-        return iroha::expected::makeValue<
-            std::unique_ptr<shared_model::interface::Block>>(
-            std::move(return_block));
-      }));
-  std::shared_ptr<const shared_model::interface::Block> block_var =
+      .WillOnce(Invoke(
+          [&](const shared_model::types::JsonType &)
+              -> iroha::expected::Result<std::unique_ptr<shared_model::Block>,
+                                         std::string> {
+            auto return_block = std::make_unique<MockBlock>();
+            raw_block = return_block.get();
+            return iroha::expected::makeValue<
+                std::unique_ptr<shared_model::Block>>(std::move(return_block));
+          }));
+  std::shared_ptr<const shared_model::Block> block_var =
       *(block_storage->fetch(height_));
 
   ASSERT_EQ(raw_block, block_var.get());
@@ -155,19 +154,18 @@ TEST_F(FlatFileBlockStorageTest, ForEach) {
           .create();
   ASSERT_TRUE(block_storage->insert(block_));
 
-  shared_model::interface::Block *raw_block;
+  shared_model::Block *raw_block;
 
   EXPECT_CALL(*converter_, deserialize(_))
-      .WillOnce(Invoke([&](const shared_model::interface::types::JsonType &)
-                           -> iroha::expected::Result<
-                               std::unique_ptr<shared_model::interface::Block>,
-                               std::string> {
-        auto return_block = std::make_unique<MockBlock>();
-        raw_block = return_block.get();
-        return iroha::expected::makeValue<
-            std::unique_ptr<shared_model::interface::Block>>(
-            std::move(return_block));
-      }));
+      .WillOnce(Invoke(
+          [&](const shared_model::types::JsonType &)
+              -> iroha::expected::Result<std::unique_ptr<shared_model::Block>,
+                                         std::string> {
+            auto return_block = std::make_unique<MockBlock>();
+            raw_block = return_block.get();
+            return iroha::expected::makeValue<
+                std::unique_ptr<shared_model::Block>>(std::move(return_block));
+          }));
 
   size_t count = 0;
 

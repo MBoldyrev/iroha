@@ -59,10 +59,10 @@ namespace iroha {
   expected::Result<PendingTransactionStorage::Response,
                    PendingTransactionStorage::ErrorCode>
   PendingTransactionStorageImpl::getPendingTransactions(
-      const shared_model::interface::types::AccountIdType &account_id,
-      const shared_model::interface::types::TransactionsNumberType page_size,
-      const boost::optional<shared_model::interface::types::HashType>
-          &first_tx_hash) const {
+      const shared_model::types::AccountIdType &account_id,
+      const shared_model::types::TransactionsNumberType page_size,
+      const boost::optional<shared_model::types::HashType> &first_tx_hash)
+      const {
     BOOST_ASSERT_MSG(page_size > 0, "Page size has to be positive");
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
     auto account_batches_iterator = storage_.find(account_id);
@@ -101,8 +101,7 @@ namespace iroha {
       ++batch_iterator;
     }
     if (account_batches.batches.end() != batch_iterator) {
-      shared_model::interface::PendingTransactionsPageResponse::BatchInfo
-          next_batch_info;
+      shared_model::PendingTransactionsPageResponse::BatchInfo next_batch_info;
       auto &txs = batch_iterator->get()->transactions();
       next_batch_info.first_tx_hash = txs.front()->hash();
       next_batch_info.batch_size = txs.size();

@@ -46,15 +46,14 @@ TEST_F(TransactionSequenceTestFixture, CreateTransactionSequenceWhenValid) {
   auto transactions =
       framework::batch::createValidBatch(transactions_size)->transactions();
 
-  std::shared_ptr<interface::Transaction> tx(clone(
-      framework::batch::prepareTransactionBuilder("account@domain")
-          .batchMeta(shared_model::interface::types::BatchType::ATOMIC,
-                     std::vector<shared_model::interface::types::HashType>{})
-          .build()));
+  std::shared_ptr<Transaction> tx(
+      clone(framework::batch::prepareTransactionBuilder("account@domain")
+                .batchMeta(shared_model::types::BatchType::ATOMIC,
+                           std::vector<shared_model::types::HashType>{})
+                .build()));
 
-  auto tx_sequence =
-      interface::TransactionSequenceFactory::createTransactionSequence(
-          transactions, txs_collection_validator, field_validator);
+  auto tx_sequence = TransactionSequenceFactory::createTransactionSequence(
+      transactions, txs_collection_validator, field_validator);
 
   ASSERT_TRUE(framework::expected::val(tx_sequence));
 }
@@ -66,15 +65,14 @@ TEST_F(TransactionSequenceTestFixture, CreateTransactionSequenceWhenValid) {
  * @then TransactionSequence is not created
  */
 TEST_F(TransactionSequenceTestFixture, CreateTransactionSequenceWhenInvalid) {
-  std::shared_ptr<interface::Transaction> tx(
+  std::shared_ptr<Transaction> tx(
       clone(framework::batch::prepareTransactionBuilder("invalid@#account#name")
                 .build()));
 
-  auto tx_sequence =
-      interface::TransactionSequenceFactory::createTransactionSequence(
-          std::vector<decltype(tx)>{tx, tx, tx},
-          txs_collection_validator,
-          field_validator);
+  auto tx_sequence = TransactionSequenceFactory::createTransactionSequence(
+      std::vector<decltype(tx)>{tx, tx, tx},
+      txs_collection_validator,
+      field_validator);
 
   ASSERT_TRUE(framework::expected::err(tx_sequence));
 }
@@ -91,7 +89,7 @@ TEST_F(TransactionSequenceTestFixture, CreateBatches) {
   size_t txs_in_batch = 2;
   size_t single_transactions = 1;
 
-  interface::types::SharedTxsCollectionType tx_collection;
+  types::SharedTxsCollectionType tx_collection;
   auto now = iroha::time::now();
   for (size_t i = 0; i < batches_number; i++) {
     auto batch = framework::batch::createValidBatch(txs_in_batch, now + i)
@@ -100,7 +98,7 @@ TEST_F(TransactionSequenceTestFixture, CreateBatches) {
   }
 
   for (size_t i = 0; i < single_transactions; i++) {
-    auto tx = std::shared_ptr<interface::Transaction>(
+    auto tx = std::shared_ptr<Transaction>(
         clone(framework::batch::prepareTransactionBuilder(
                   "single_tx_account@domain" + std::to_string(i))
                   .build()));
@@ -112,9 +110,8 @@ TEST_F(TransactionSequenceTestFixture, CreateBatches) {
     tx_collection.emplace_back(tx);
   }
 
-  auto tx_sequence_opt =
-      interface::TransactionSequenceFactory::createTransactionSequence(
-          tx_collection, txs_collection_validator, field_validator);
+  auto tx_sequence_opt = TransactionSequenceFactory::createTransactionSequence(
+      tx_collection, txs_collection_validator, field_validator);
 
   auto tx_sequence = framework::expected::val(tx_sequence_opt);
   ASSERT_TRUE(tx_sequence)

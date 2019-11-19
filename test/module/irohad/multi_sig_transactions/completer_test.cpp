@@ -33,19 +33,19 @@ TEST(CompleterTest, BatchQuorumTestEnoughSignatures) {
   auto tx1 = std::make_shared<MockTransaction>();
   EXPECT_CALL(*tx1, quorum()).WillOnce(Return(1));
   EXPECT_CALL(*tx1, signatures())
-      .WillOnce(Return<shared_model::interface::types::SignatureRangeType>(
+      .WillOnce(Return<shared_model::types::SignatureRangeType>(
           sigs1 | boost::adaptors::indirected));
 
   auto tx2 = std::make_shared<MockTransaction>();
   EXPECT_CALL(*tx2, quorum()).WillOnce(Return(2));
   EXPECT_CALL(*tx2, signatures())
-      .WillOnce(Return<shared_model::interface::types::SignatureRangeType>(
+      .WillOnce(Return<shared_model::types::SignatureRangeType>(
           sigs2 | boost::adaptors::indirected));
 
   auto tx3 = std::make_shared<MockTransaction>();
   EXPECT_CALL(*tx3, quorum()).WillOnce(Return(3));
   EXPECT_CALL(*tx3, signatures())
-      .WillOnce(Return<shared_model::interface::types::SignatureRangeType>(
+      .WillOnce(Return<shared_model::types::SignatureRangeType>(
           sigs3 | boost::adaptors::indirected));
 
   auto batch = createMockBatchWithTransactions({tx1, tx2, tx3}, "");
@@ -72,13 +72,13 @@ TEST(CompleterTest, BatchQuorumTestNotEnoughSignatures) {
   auto tx1 = std::make_shared<MockTransaction>();
   EXPECT_CALL(*tx1, quorum()).WillOnce(Return(1));
   EXPECT_CALL(*tx1, signatures())
-      .WillOnce(Return<shared_model::interface::types::SignatureRangeType>(
+      .WillOnce(Return<shared_model::types::SignatureRangeType>(
           sigs1 | boost::adaptors::indirected));
 
   auto tx2 = std::make_shared<MockTransaction>();
   EXPECT_CALL(*tx2, quorum()).WillOnce(Return(2));
   EXPECT_CALL(*tx2, signatures())
-      .WillOnce(Return<shared_model::interface::types::SignatureRangeType>(
+      .WillOnce(Return<shared_model::types::SignatureRangeType>(
           sigs2 | boost::adaptors::indirected));
 
   auto tx3 = std::make_shared<MockTransaction>();

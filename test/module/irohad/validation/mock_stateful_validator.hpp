@@ -17,7 +17,7 @@ namespace iroha {
      public:
       MOCK_METHOD2(validate,
                    std::unique_ptr<VerifiedProposalAndErrors>(
-                       const shared_model::interface::Proposal &,
+                       const shared_model::Proposal &,
                        ametsuchi::TemporaryWsv &));
     };
 

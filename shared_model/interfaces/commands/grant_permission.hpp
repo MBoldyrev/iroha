@@ -12,26 +12,24 @@
 #include "interfaces/permissions.hpp"
 
 namespace shared_model {
-  namespace interface {
+  /**
+   * Grant permission to the account
+   */
+  class GrantPermission : public ModelPrimitive<GrantPermission> {
+   public:
     /**
-     * Grant permission to the account
+     * @return Id of the account to whom grant permission
      */
-    class GrantPermission : public ModelPrimitive<GrantPermission> {
-     public:
-      /**
-       * @return Id of the account to whom grant permission
-       */
-      virtual const types::AccountIdType &accountId() const = 0;
-      /**
-       * @return permission to grant
-       */
-      virtual permissions::Grantable permissionName() const = 0;
+    virtual const types::AccountIdType &accountId() const = 0;
+    /**
+     * @return permission to grant
+     */
+    virtual permissions::Grantable permissionName() const = 0;
 
-      std::string toString() const override = 0;
+    std::string toString() const override = 0;
 
-      bool operator==(const ModelType &rhs) const override;
-    };
-  }  // namespace interface
+    bool operator==(const ModelType &rhs) const override;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_GRANT_PERMISSIONS_HPP

@@ -78,10 +78,8 @@ namespace {
         std::unique_ptr<soci::session> &&session,
         std::unique_ptr<BlockStorage> block_storage,
         std::shared_ptr<PendingTransactionStorage> pending_txs_storage,
-        std::shared_ptr<shared_model::interface::QueryResponseFactory>
-            response_factory,
-        std::shared_ptr<shared_model::interface::PermissionToString>
-            perm_converter,
+        std::shared_ptr<shared_model::QueryResponseFactory> response_factory,
+        std::shared_ptr<shared_model::PermissionToString> perm_converter,
         logger::LoggerPtr log)
         : SessionHolder(std::move(session)),
           PostgresSpecificQueryExecutor(*SessionHolder::session,

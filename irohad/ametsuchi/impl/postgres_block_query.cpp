@@ -27,7 +27,7 @@ namespace iroha {
           log_(std::move(log)) {}
 
     BlockQuery::BlockResult PostgresBlockQuery::getBlock(
-        shared_model::interface::types::HeightType height) {
+        shared_model::types::HeightType height) {
       auto block = block_storage_.fetch(height);
       if (not block) {
         auto error =
@@ -38,8 +38,7 @@ namespace iroha {
       return clone(**block);
     }
 
-    shared_model::interface::types::HeightType
-    PostgresBlockQuery::getTopBlockHeight() {
+    shared_model::types::HeightType PostgresBlockQuery::getTopBlockHeight() {
       return block_storage_.size();
     }
 

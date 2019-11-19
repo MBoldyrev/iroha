@@ -17,38 +17,35 @@ namespace shared_model {
     class Signed;
   }  // namespace crypto
 
-  namespace interface {
+  /**
+   * Class represents signature of high-level domain objects.
+   */
+  class Signature : public ModelPrimitive<Signature>,
+                    public Cloneable<Signature> {
+   public:
+    /**
+     * Type of public key
+     */
+    using PublicKeyType = crypto::PublicKey;
 
     /**
-     * Class represents signature of high-level domain objects.
+     * @return public key of signatory
      */
-    class Signature : public ModelPrimitive<Signature>,
-                      public Cloneable<Signature> {
-     public:
-      /**
-       * Type of public key
-       */
-      using PublicKeyType = crypto::PublicKey;
+    virtual const PublicKeyType &publicKey() const = 0;
 
-      /**
-       * @return public key of signatory
-       */
-      virtual const PublicKeyType &publicKey() const = 0;
+    /**
+     * Type of signed data
+     */
+    using SignedType = crypto::Signed;
 
-      /**
-       * Type of signed data
-       */
-      using SignedType = crypto::Signed;
+    /**
+     * @return signed data
+     */
+    virtual const SignedType &signedData() const = 0;
 
-      /**
-       * @return signed data
-       */
-      virtual const SignedType &signedData() const = 0;
+    bool operator==(const Signature &rhs) const override;
 
-      bool operator==(const Signature &rhs) const override;
-
-      std::string toString() const override;
-    };
-  }  // namespace interface
+    std::string toString() const override;
+  };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_SIGNATURE_HPP

@@ -62,12 +62,11 @@ TEST(QueryResponse, ErrorResponseLoad) {
         shared_model::proto::QueryResponse shared_response{
             iroha::protocol::QueryResponse{response}};
         ASSERT_NO_THROW({
-          ASSERT_EQ(
-              i,
-              boost::get<const shared_model::interface::ErrorQueryResponse &>(
-                  shared_response.get())
-                  .get()
-                  .which());
+          ASSERT_EQ(i,
+                    boost::get<const shared_model::ErrorQueryResponse &>(
+                        shared_response.get())
+                        .get()
+                        .which());
           ASSERT_EQ(shared_response.queryHash(),
                     shared_model::crypto::Hash(hash));
         });

@@ -21,7 +21,7 @@ namespace iroha {
     }
 
     boost::optional<PeerQuery::wPeer> PeerQueryWsv::getLedgerPeerByPublicKey(
-        const shared_model::interface::types::PubkeyType &public_key) const {
+        const shared_model::types::PubkeyType &public_key) const {
       return wsv_->getPeerByPublicKey(public_key);
     }
 

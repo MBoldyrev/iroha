@@ -9,18 +9,16 @@
 #include "interfaces/transaction_responses/abstract_tx_response.hpp"
 
 namespace shared_model {
-  namespace interface {
-    /**
-     * Tx response of passed stateful validation
-     */
-    class StatefulValidTxResponse
-        : public AbstractTxResponse<StatefulValidTxResponse> {
-     private:
-      std::string className() const override {
-        return "StatefulValidTxResponse";
-      }
-    };
+  /**
+   * Tx response of passed stateful validation
+   */
+  class StatefulValidTxResponse
+      : public AbstractTxResponse<StatefulValidTxResponse> {
+   private:
+    std::string className() const override {
+      return "StatefulValidTxResponse";
+    }
+  };
 
-  }  // namespace interface
 }  // namespace shared_model
 #endif  // IROHA_STATEFUL_VALID_TX_RESPONSE_HPP

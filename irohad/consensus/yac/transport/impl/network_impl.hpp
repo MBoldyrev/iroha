@@ -33,13 +33,13 @@ namespace iroha {
             std::shared_ptr<network::AsyncGrpcClient<google::protobuf::Empty>>
                 async_call,
             std::function<std::unique_ptr<proto::Yac::StubInterface>(
-                const shared_model::interface::Peer &)> client_creator,
+                const shared_model::Peer &)> client_creator,
             logger::LoggerPtr log);
 
         void subscribe(
             std::shared_ptr<YacNetworkNotifications> handler) override;
 
-        void sendState(const shared_model::interface::Peer &to,
+        void sendState(const shared_model::Peer &to,
                        const std::vector<VoteMessage> &state) override;
 
         /**
@@ -58,12 +58,12 @@ namespace iroha {
          * peers map
          * @param peer to instantiate connection with
          */
-        void createPeerConnection(const shared_model::interface::Peer &peer);
+        void createPeerConnection(const shared_model::Peer &peer);
 
         /**
          * Mapping of peer objects to connections
          */
-        std::unordered_map<shared_model::interface::types::AddressType,
+        std::unordered_map<shared_model::types::AddressType,
                            std::unique_ptr<proto::Yac::StubInterface>>
             peers_;
 
@@ -82,7 +82,7 @@ namespace iroha {
          * Yac stub creator
          */
         std::function<std::unique_ptr<proto::Yac::StubInterface>(
-            const shared_model::interface::Peer &)>
+            const shared_model::Peer &)>
             client_creator_;
 
         logger::LoggerPtr log_;

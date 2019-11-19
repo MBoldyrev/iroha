@@ -27,7 +27,7 @@ namespace integration_framework {
 
     class BlockStorage final {
      public:
-      using HeightType = shared_model::interface::types::HeightType;
+      using HeightType = shared_model::types::HeightType;
       using HashType = shared_model::crypto::Hash;
 
       BlockStorage(logger::LoggerPtr log);

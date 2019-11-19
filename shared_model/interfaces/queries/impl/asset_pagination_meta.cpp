@@ -5,7 +5,7 @@
 
 #include "interfaces/queries/asset_pagination_meta.hpp"
 
-using namespace shared_model::interface;
+using namespace shared_model;
 
 bool AssetPaginationMeta::operator==(const ModelType &rhs) const {
   return pageSize() == rhs.pageSize() and firstAssetId() == rhs.firstAssetId();

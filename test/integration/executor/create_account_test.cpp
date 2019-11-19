@@ -15,10 +15,10 @@
 using namespace common_constants;
 using namespace executor_testing;
 using namespace framework::expected;
-using namespace shared_model::interface::types;
+using namespace shared_model::types;
 
-using shared_model::interface::permissions::Grantable;
-using shared_model::interface::permissions::Role;
+using shared_model::permissions::Grantable;
+using shared_model::permissions::Role;
 
 static const AccountDetailKeyType kKey{"key"};
 static const AccountDetailValueType kVal{"value"};
@@ -30,7 +30,7 @@ class CreateAccountTest : public BasicExecutorTest<ExecutorTestBase> {
   }
 
   void checkNoSuchAccount(const AccountIdType &account_id) {
-    checkQueryError<shared_model::interface::NoAccountErrorResponse>(
+    checkQueryError<shared_model::NoAccountErrorResponse>(
         getItf().executeQuery(
             *getItf().getMockQueryFactory()->constructGetAccount(account_id)),
         0);

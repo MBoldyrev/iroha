@@ -30,25 +30,21 @@ namespace iroha {
     class MockCommandService : public iroha::torii::CommandService {
      public:
       MOCK_METHOD1(handleTransactionBatch,
-                   void(std::shared_ptr<
-                        shared_model::interface::TransactionBatch> batch));
-      MOCK_METHOD1(
-          getStatus,
-          std::shared_ptr<shared_model::interface::TransactionResponse>(
-              const shared_model::crypto::Hash &request));
+                   void(std::shared_ptr<shared_model::TransactionBatch> batch));
+      MOCK_METHOD1(getStatus,
+                   std::shared_ptr<shared_model::TransactionResponse>(
+                       const shared_model::crypto::Hash &request));
       MOCK_METHOD1(
           getStatusStream,
-          rxcpp::observable<
-              std::shared_ptr<shared_model::interface::TransactionResponse>>(
+          rxcpp::observable<std::shared_ptr<shared_model::TransactionResponse>>(
               const shared_model::crypto::Hash &));
     };
 
     class MockTransactionProcessor : public TransactionProcessor {
      public:
-      MOCK_CONST_METHOD1(
-          batchHandle,
-          void(std::shared_ptr<shared_model::interface::TransactionBatch>
-                   transaction_batch));
+      MOCK_CONST_METHOD1(batchHandle,
+                         void(std::shared_ptr<shared_model::TransactionBatch>
+                                  transaction_batch));
     };
 
   }  // namespace torii

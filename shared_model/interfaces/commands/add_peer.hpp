@@ -12,24 +12,22 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
 
+  /**
+   * Add new peer to Iroha
+   */
+  class AddPeer : public ModelPrimitive<AddPeer> {
+   public:
     /**
-     * Add new peer to Iroha
+     * Return peer to be added by the command.
+     * @return Peer
      */
-    class AddPeer : public ModelPrimitive<AddPeer> {
-     public:
-      /**
-       * Return peer to be added by the command.
-       * @return Peer
-       */
-      virtual const interface::Peer &peer() const = 0;
+    virtual const Peer &peer() const = 0;
 
-      std::string toString() const override;
+    std::string toString() const override;
 
-      bool operator==(const ModelType &rhs) const override;
-    };
-  }  // namespace interface
+    bool operator==(const ModelType &rhs) const override;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_ADD_PEER_HPP

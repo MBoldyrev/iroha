@@ -18,15 +18,13 @@ namespace iroha {
      public:
       FlatFileBlockStorage(
           std::unique_ptr<FlatFile> flat_file,
-          std::shared_ptr<shared_model::interface::BlockJsonConverter>
-              json_converter,
+          std::shared_ptr<shared_model::BlockJsonConverter> json_converter,
           logger::LoggerPtr log);
 
-      bool insert(
-          std::shared_ptr<const shared_model::interface::Block> block) override;
+      bool insert(std::shared_ptr<const shared_model::Block> block) override;
 
-      boost::optional<std::shared_ptr<const shared_model::interface::Block>>
-      fetch(shared_model::interface::types::HeightType height) const override;
+      boost::optional<std::shared_ptr<const shared_model::Block>> fetch(
+          shared_model::types::HeightType height) const override;
 
       size_t size() const override;
 
@@ -36,8 +34,7 @@ namespace iroha {
 
      private:
       std::unique_ptr<FlatFile> flat_file_storage_;
-      std::shared_ptr<shared_model::interface::BlockJsonConverter>
-          json_converter_;
+      std::shared_ptr<shared_model::BlockJsonConverter> json_converter_;
       logger::LoggerPtr log_;
     };
   }  // namespace ametsuchi

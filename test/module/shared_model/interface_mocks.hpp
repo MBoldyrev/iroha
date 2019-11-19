@@ -20,58 +20,45 @@
 #include "interfaces/transaction.hpp"
 
 // TODO: 2019-01-18 @muratovv Separate file by classes IR-229
-struct MockBlock : public shared_model::interface::Block {
-  MOCK_CONST_METHOD0(txsNumber,
-                     shared_model::interface::types::TransactionsNumberType());
-  MOCK_CONST_METHOD0(
-      transactions,
-      shared_model::interface::types::TransactionsCollectionType());
+struct MockBlock : public shared_model::Block {
+  MOCK_CONST_METHOD0(txsNumber, shared_model::types::TransactionsNumberType());
+  MOCK_CONST_METHOD0(transactions,
+                     shared_model::types::TransactionsCollectionType());
   MOCK_CONST_METHOD0(rejected_transactions_hashes,
-                     shared_model::interface::types::HashCollectionType());
-  MOCK_CONST_METHOD0(height, shared_model::interface::types::HeightType());
-  MOCK_CONST_METHOD0(prevHash,
-                     const shared_model::interface::types::HashType &());
-  MOCK_CONST_METHOD0(signatures,
-                     shared_model::interface::types::SignatureRangeType());
-  MOCK_CONST_METHOD0(createdTime,
-                     shared_model::interface::types::TimestampType());
-  MOCK_CONST_METHOD0(payload,
-                     const shared_model::interface::types::BlobType &());
-  MOCK_CONST_METHOD0(blob, const shared_model::interface::types::BlobType &());
+                     shared_model::types::HashCollectionType());
+  MOCK_CONST_METHOD0(height, shared_model::types::HeightType());
+  MOCK_CONST_METHOD0(prevHash, const shared_model::types::HashType &());
+  MOCK_CONST_METHOD0(signatures, shared_model::types::SignatureRangeType());
+  MOCK_CONST_METHOD0(createdTime, shared_model::types::TimestampType());
+  MOCK_CONST_METHOD0(payload, const shared_model::types::BlobType &());
+  MOCK_CONST_METHOD0(blob, const shared_model::types::BlobType &());
   MOCK_METHOD2(addSignature,
                bool(const shared_model::crypto::Signed &,
                     const shared_model::crypto::PublicKey &));
-  MOCK_CONST_METHOD0(hash, const shared_model::interface::types::HashType &());
+  MOCK_CONST_METHOD0(hash, const shared_model::types::HashType &());
   MOCK_CONST_METHOD0(clone, MockBlock *());
 };
 
-struct MockTransaction : public shared_model::interface::Transaction {
+struct MockTransaction : public shared_model::Transaction {
   MOCK_CONST_METHOD0(creatorAccountId,
-                     const shared_model::interface::types::AccountIdType &());
-  MOCK_CONST_METHOD0(quorum, shared_model::interface::types::QuorumType());
+                     const shared_model::types::AccountIdType &());
+  MOCK_CONST_METHOD0(quorum, shared_model::types::QuorumType());
   MOCK_CONST_METHOD0(commands, CommandsType());
-  MOCK_CONST_METHOD0(reducedHash,
-                     const shared_model::interface::types::HashType &());
-  MOCK_CONST_METHOD0(hash, const shared_model::interface::types::HashType &());
+  MOCK_CONST_METHOD0(reducedHash, const shared_model::types::HashType &());
+  MOCK_CONST_METHOD0(hash, const shared_model::types::HashType &());
   MOCK_CONST_METHOD0(
-      batch_meta,
-      boost::optional<std::shared_ptr<shared_model::interface::BatchMeta>>());
-  MOCK_CONST_METHOD0(signatures,
-                     shared_model::interface::types::SignatureRangeType());
-  MOCK_CONST_METHOD0(createdTime,
-                     shared_model::interface::types::TimestampType());
-  MOCK_CONST_METHOD0(payload,
-                     const shared_model::interface::types::BlobType &());
-  MOCK_CONST_METHOD0(blob, const shared_model::interface::types::BlobType &());
+      batch_meta, boost::optional<std::shared_ptr<shared_model::BatchMeta>>());
+  MOCK_CONST_METHOD0(signatures, shared_model::types::SignatureRangeType());
+  MOCK_CONST_METHOD0(createdTime, shared_model::types::TimestampType());
+  MOCK_CONST_METHOD0(payload, const shared_model::types::BlobType &());
+  MOCK_CONST_METHOD0(blob, const shared_model::types::BlobType &());
   MOCK_METHOD2(addSignature,
                bool(const shared_model::crypto::Signed &,
                     const shared_model::crypto::PublicKey &));
   MOCK_CONST_METHOD0(clone, MockTransaction *());
-  MOCK_CONST_METHOD0(reducedPayload,
-                     const shared_model::interface::types::BlobType &());
+  MOCK_CONST_METHOD0(reducedPayload, const shared_model::types::BlobType &());
   MOCK_CONST_METHOD0(
-      batchMeta,
-      boost::optional<std::shared_ptr<shared_model::interface::BatchMeta>>());
+      batchMeta, boost::optional<std::shared_ptr<shared_model::BatchMeta>>());
 };
 
 /**
@@ -79,8 +66,7 @@ struct MockTransaction : public shared_model::interface::Transaction {
  * @param hash -- const ref to hash to be returned by the transaction
  * @return shared_ptr for transaction
  */
-auto createMockTransactionWithHash(
-    const shared_model::interface::types::HashType &hash) {
+auto createMockTransactionWithHash(const shared_model::types::HashType &hash) {
   using ::testing::NiceMock;
   using ::testing::ReturnRefOfCopy;
 
@@ -91,34 +77,28 @@ auto createMockTransactionWithHash(
   return res;
 }
 
-struct MockTransactionBatch : public shared_model::interface::TransactionBatch {
-  MOCK_CONST_METHOD0(
-      transactions,
-      const shared_model::interface::types::SharedTxsCollectionType &());
-  MOCK_CONST_METHOD0(reducedHash,
-                     const shared_model::interface::types::HashType &());
+struct MockTransactionBatch : public shared_model::TransactionBatch {
+  MOCK_CONST_METHOD0(transactions,
+                     const shared_model::types::SharedTxsCollectionType &());
+  MOCK_CONST_METHOD0(reducedHash, const shared_model::types::HashType &());
   MOCK_CONST_METHOD0(hasAllSignatures, bool());
   MOCK_METHOD3(addSignature,
                bool(size_t,
                     const shared_model::crypto::Signed &,
                     const shared_model::crypto::PublicKey &));
-  MOCK_CONST_METHOD1(Equals,
-                     bool(const shared_model::interface::TransactionBatch &));
+  MOCK_CONST_METHOD1(Equals, bool(const shared_model::TransactionBatch &));
   virtual bool operator==(
-      const shared_model::interface::TransactionBatch &rhs) const override {
+      const shared_model::TransactionBatch &rhs) const override {
     return Equals(rhs);
   }
-  MOCK_CONST_METHOD1(NotEquals,
-                     bool(const shared_model::interface::TransactionBatch &));
+  MOCK_CONST_METHOD1(NotEquals, bool(const shared_model::TransactionBatch &));
   MOCK_CONST_METHOD0(clone, MockTransactionBatch *());
 };
 
 namespace shared_model {
-  namespace interface {
-    std::ostream &operator<<(std::ostream &os, const TransactionBatch &resp) {
-      return os << resp.toString();
-    }
-  }  // namespace interface
+  std::ostream &operator<<(std::ostream &os, const TransactionBatch &resp) {
+    return os << resp.toString();
+  }
 }  // namespace shared_model
 
 /**
@@ -126,8 +106,7 @@ namespace shared_model {
  * @param hash -- const ref to reduced hash to be returned by the batch
  * @return shared_ptr for batch
  */
-auto createMockBatchWithHash(
-    const shared_model::interface::types::HashType &hash) {
+auto createMockBatchWithHash(const shared_model::types::HashType &hash) {
   using ::testing::NiceMock;
   using ::testing::ReturnRefOfCopy;
 
@@ -145,8 +124,7 @@ auto createMockBatchWithHash(
  * @return shared_ptr for batch
  */
 auto createMockBatchWithTransactions(
-    const shared_model::interface::types::SharedTxsCollectionType &txs,
-    std::string hash) {
+    const shared_model::types::SharedTxsCollectionType &txs, std::string hash) {
   using ::testing::NiceMock;
   using ::testing::ReturnRefOfCopy;
 
@@ -160,40 +138,35 @@ auto createMockBatchWithTransactions(
   return res;
 }
 
-struct MockSignature : public shared_model::interface::Signature {
+struct MockSignature : public shared_model::Signature {
   MOCK_CONST_METHOD0(publicKey, const PublicKeyType &());
   MOCK_CONST_METHOD0(signedData, const SignedType &());
   MOCK_CONST_METHOD0(clone, MockSignature *());
 };
 
-struct MockProposal : public shared_model::interface::Proposal {
-  MOCK_CONST_METHOD0(
-      transactions,
-      shared_model::interface::types::TransactionsCollectionType());
-  MOCK_CONST_METHOD0(height, shared_model::interface::types::HeightType());
-  MOCK_CONST_METHOD0(createdTime,
-                     shared_model::interface::types::TimestampType());
-  MOCK_CONST_METHOD0(blob, const shared_model::interface::types::BlobType &());
-  MOCK_CONST_METHOD0(hash, const shared_model::interface::types::HashType &());
+struct MockProposal : public shared_model::Proposal {
+  MOCK_CONST_METHOD0(transactions,
+                     shared_model::types::TransactionsCollectionType());
+  MOCK_CONST_METHOD0(height, shared_model::types::HeightType());
+  MOCK_CONST_METHOD0(createdTime, shared_model::types::TimestampType());
+  MOCK_CONST_METHOD0(blob, const shared_model::types::BlobType &());
+  MOCK_CONST_METHOD0(hash, const shared_model::types::HashType &());
   MOCK_CONST_METHOD0(clone, MockProposal *());
 };
 
-struct MockPeer : public shared_model::interface::Peer {
-  MOCK_CONST_METHOD0(address,
-                     const shared_model::interface::types::AddressType &());
-  MOCK_CONST_METHOD0(pubkey,
-                     const shared_model::interface::types::PubkeyType &());
+struct MockPeer : public shared_model::Peer {
+  MOCK_CONST_METHOD0(address, const shared_model::types::AddressType &());
+  MOCK_CONST_METHOD0(pubkey, const shared_model::types::PubkeyType &());
   MOCK_CONST_METHOD0(
       tlsCertificate,
-      const boost::optional<shared_model::interface::types::TLSCertificateType>
-          &());
+      const boost::optional<shared_model::types::TLSCertificateType> &());
   MOCK_CONST_METHOD0(clone, MockPeer *());
 };
 
 inline auto makePeer(
     const std::string &address,
     const shared_model::crypto::PublicKey &pub_key,
-    const boost::optional<shared_model::interface::types::TLSCertificateType>
+    const boost::optional<shared_model::types::TLSCertificateType>
         &tls_certificate = boost::none) {
   auto peer = std::make_unique<MockPeer>();
   EXPECT_CALL(*peer, address())
@@ -205,86 +178,76 @@ inline auto makePeer(
   return peer;
 }
 
-struct MockUnsafeProposalFactory
-    : public shared_model::interface::UnsafeProposalFactory {
+struct MockUnsafeProposalFactory : public shared_model::UnsafeProposalFactory {
   MOCK_METHOD3(unsafeCreateProposal,
-               std::unique_ptr<shared_model::interface::Proposal>(
-                   shared_model::interface::types::HeightType,
-                   shared_model::interface::types::TimestampType,
+               std::unique_ptr<shared_model::Proposal>(
+                   shared_model::types::HeightType,
+                   shared_model::types::TimestampType,
                    TransactionsCollectionType));
 };
 
-struct MockCommonObjectsFactory
-    : public shared_model::interface::CommonObjectsFactory {
-  MOCK_METHOD3(createPeer,
-               FactoryResult<std::unique_ptr<shared_model::interface::Peer>>(
-                   const shared_model::interface::types::AddressType &,
-                   const shared_model::interface::types::PubkeyType &,
-                   const boost::optional<
-                       shared_model::interface::types::TLSCertificateType> &));
+struct MockCommonObjectsFactory : public shared_model::CommonObjectsFactory {
+  MOCK_METHOD3(
+      createPeer,
+      FactoryResult<std::unique_ptr<shared_model::Peer>>(
+          const shared_model::types::AddressType &,
+          const shared_model::types::PubkeyType &,
+          const boost::optional<shared_model::types::TLSCertificateType> &));
 
   MOCK_METHOD4(createAccount,
-               FactoryResult<std::unique_ptr<shared_model::interface::Account>>(
-                   const shared_model::interface::types::AccountIdType &,
-                   const shared_model::interface::types::DomainIdType &,
-                   shared_model::interface::types::QuorumType,
-                   const shared_model::interface::types::JsonType &));
+               FactoryResult<std::unique_ptr<shared_model::Account>>(
+                   const shared_model::types::AccountIdType &,
+                   const shared_model::types::DomainIdType &,
+                   shared_model::types::QuorumType,
+                   const shared_model::types::JsonType &));
 
-  MOCK_METHOD3(
-      createAccountAsset,
-      FactoryResult<std::unique_ptr<shared_model::interface::AccountAsset>>(
-          const shared_model::interface::types::AccountIdType &,
-          const shared_model::interface::types::AssetIdType &,
-          const shared_model::interface::Amount &));
+  MOCK_METHOD3(createAccountAsset,
+               FactoryResult<std::unique_ptr<shared_model::AccountAsset>>(
+                   const shared_model::types::AccountIdType &,
+                   const shared_model::types::AssetIdType &,
+                   const shared_model::Amount &));
 
   MOCK_METHOD3(createAsset,
-               FactoryResult<std::unique_ptr<shared_model::interface::Asset>>(
-                   const shared_model::interface::types::AssetIdType &,
-                   const shared_model::interface::types::DomainIdType &,
-                   shared_model::interface::types::PrecisionType));
+               FactoryResult<std::unique_ptr<shared_model::Asset>>(
+                   const shared_model::types::AssetIdType &,
+                   const shared_model::types::DomainIdType &,
+                   shared_model::types::PrecisionType));
 
   MOCK_METHOD2(createDomain,
-               FactoryResult<std::unique_ptr<shared_model::interface::Domain>>(
-                   const shared_model::interface::types::DomainIdType &,
-                   const shared_model::interface::types::RoleIdType &));
+               FactoryResult<std::unique_ptr<shared_model::Domain>>(
+                   const shared_model::types::DomainIdType &,
+                   const shared_model::types::RoleIdType &));
 
-  MOCK_METHOD2(
-      createSignature,
-      FactoryResult<std::unique_ptr<shared_model::interface::Signature>>(
-          const shared_model::interface::types::PubkeyType &,
-          const shared_model::interface::Signature::SignedType &));
+  MOCK_METHOD2(createSignature,
+               FactoryResult<std::unique_ptr<shared_model::Signature>>(
+                   const shared_model::types::PubkeyType &,
+                   const shared_model::Signature::SignedType &));
 };
 
-struct MockDomain : public shared_model::interface::Domain {
-  MOCK_CONST_METHOD0(domainId,
-                     shared_model::interface::types::DomainIdType &());
-  MOCK_CONST_METHOD0(defaultRole,
-                     shared_model::interface::types::RoleIdType &());
+struct MockDomain : public shared_model::Domain {
+  MOCK_CONST_METHOD0(domainId, shared_model::types::DomainIdType &());
+  MOCK_CONST_METHOD0(defaultRole, shared_model::types::RoleIdType &());
   MOCK_CONST_METHOD0(clone, MockDomain *());
 };
 
-struct MockAccount : public shared_model::interface::Account {
-  MOCK_CONST_METHOD0(accountId,
-                     shared_model::interface::types::AccountIdType &());
-  MOCK_CONST_METHOD0(domainId,
-                     shared_model::interface::types::DomainIdType &());
-  MOCK_CONST_METHOD0(quorum, shared_model::interface::types::QuorumType());
-  MOCK_CONST_METHOD0(jsonData, shared_model::interface::types::JsonType &());
+struct MockAccount : public shared_model::Account {
+  MOCK_CONST_METHOD0(accountId, shared_model::types::AccountIdType &());
+  MOCK_CONST_METHOD0(domainId, shared_model::types::DomainIdType &());
+  MOCK_CONST_METHOD0(quorum, shared_model::types::QuorumType());
+  MOCK_CONST_METHOD0(jsonData, shared_model::types::JsonType &());
   MOCK_CONST_METHOD0(clone, MockAccount *());
 };
 
-struct MockBlockJsonConverter
-    : public shared_model::interface::BlockJsonConverter {
+struct MockBlockJsonConverter : public shared_model::BlockJsonConverter {
   MOCK_CONST_METHOD1(
       serialize,
-      iroha::expected::Result<shared_model::interface::types::JsonType,
-                              std::string>(
-          const shared_model::interface::Block &block));
+      iroha::expected::Result<shared_model::types::JsonType, std::string>(
+          const shared_model::Block &block));
   MOCK_CONST_METHOD1(
       deserialize,
-      iroha::expected::Result<std::unique_ptr<shared_model::interface::Block>,
+      iroha::expected::Result<std::unique_ptr<shared_model::Block>,
                               std::string>(
-          const shared_model::interface::types::JsonType &json));
+          const shared_model::types::JsonType &json));
 };
 
 #endif  // IROHA_SHARED_MODEL_INTERFACE_MOCKS_HPP

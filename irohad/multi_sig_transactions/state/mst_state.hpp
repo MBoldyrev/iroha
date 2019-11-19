@@ -180,8 +180,7 @@ namespace iroha {
         any_range<BatchPtr, boost::forward_traversal_tag, const BatchPtr &>;
 
     using BatchesBimap = boost::bimap<
-        boost::bimaps::multiset_of<
-            shared_model::interface::types::TimestampType>,
+        boost::bimaps::multiset_of<shared_model::types::TimestampType>,
         boost::bimaps::unordered_set_of<DataType,
                                         iroha::model::PointerBatchHasher,
                                         BatchHashEquality>>;

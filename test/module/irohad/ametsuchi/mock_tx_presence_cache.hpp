@@ -22,7 +22,7 @@ namespace iroha {
       MOCK_CONST_METHOD1(
           check,
           boost::optional<TxPresenceCache::BatchStatusCollectionType>(
-              const shared_model::interface::TransactionBatch &));
+              const shared_model::TransactionBatch &));
     };
 
   }  // namespace ametsuchi

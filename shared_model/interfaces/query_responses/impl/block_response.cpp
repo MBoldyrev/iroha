@@ -9,16 +9,14 @@
 #include "utils/string_builder.hpp"
 
 namespace shared_model {
-  namespace interface {
-    std::string BlockResponse::toString() const {
-      return detail::PrettyStringBuilder()
-          .init("BlockResponse")
-          .append(block().toString())
-          .finalize();
-    }
+  std::string BlockResponse::toString() const {
+    return detail::PrettyStringBuilder()
+        .init("BlockResponse")
+        .append(block().toString())
+        .finalize();
+  }
 
-    bool BlockResponse::operator==(const ModelType &rhs) const {
-      return block() == rhs.block();
-    }
-  }  // namespace interface
+  bool BlockResponse::operator==(const ModelType &rhs) const {
+    return block() == rhs.block();
+  }
 }  // namespace shared_model

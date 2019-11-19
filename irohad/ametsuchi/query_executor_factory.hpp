@@ -22,8 +22,8 @@ namespace iroha {
       virtual boost::optional<std::shared_ptr<QueryExecutor>>
       createQueryExecutor(
           std::shared_ptr<PendingTransactionStorage> pending_txs_storage,
-          std::shared_ptr<shared_model::interface::QueryResponseFactory>
-              response_factory) const = 0;
+          std::shared_ptr<shared_model::QueryResponseFactory> response_factory)
+          const = 0;
 
       virtual ~QueryExecutorFactory() = default;
     };

@@ -12,25 +12,23 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class Block;
+  class Block;
+  /**
+   * BlockJsonSerializer is an interface which allows transforming block
+   * objects to json
+   */
+  class BlockJsonSerializer {
+   public:
     /**
-     * BlockJsonSerializer is an interface which allows transforming block
-     * objects to json
+     * Try to transform block to json string
+     * @param block - block to be serialized
+     * @return json string or an error
      */
-    class BlockJsonSerializer {
-     public:
-      /**
-       * Try to transform block to json string
-       * @param block - block to be serialized
-       * @return json string or an error
-       */
-      virtual iroha::expected::Result<types::JsonType, std::string> serialize(
-          const Block &block) const = 0;
+    virtual iroha::expected::Result<types::JsonType, std::string> serialize(
+        const Block &block) const = 0;
 
-      virtual ~BlockJsonSerializer() = default;
-    };
-  }  // namespace interface
+    virtual ~BlockJsonSerializer() = default;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_BLOCK_JSON_SERIALIZER_HPP

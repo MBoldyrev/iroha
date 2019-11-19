@@ -11,29 +11,27 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class AssetPaginationMeta;
+  class AssetPaginationMeta;
 
+  /**
+   * Query for get all account's assets and balance
+   */
+  class GetAccountAssets : public ModelPrimitive<GetAccountAssets> {
+   public:
     /**
-     * Query for get all account's assets and balance
+     * @return account identifier
      */
-    class GetAccountAssets : public ModelPrimitive<GetAccountAssets> {
-     public:
-      /**
-       * @return account identifier
-       */
-      virtual const types::AccountIdType &accountId() const = 0;
+    virtual const types::AccountIdType &accountId() const = 0;
 
-      /// Get the query pagination metadata.
-      // TODO 2019.05.24 mboldyrev IR-516 remove optional
-      virtual boost::optional<const interface::AssetPaginationMeta &>
-      paginationMeta() const = 0;
+    /// Get the query pagination metadata.
+    // TODO 2019.05.24 mboldyrev IR-516 remove optional
+    virtual boost::optional<const AssetPaginationMeta &> paginationMeta()
+        const = 0;
 
-      std::string toString() const override;
+    std::string toString() const override;
 
-      bool operator==(const ModelType &rhs) const override;
-    };
-  }  // namespace interface
+    bool operator==(const ModelType &rhs) const override;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_GET_ACCOUNT_ASSETS_HPP

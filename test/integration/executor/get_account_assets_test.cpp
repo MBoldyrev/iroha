@@ -16,11 +16,11 @@
 using namespace common_constants;
 using namespace executor_testing;
 using namespace framework::expected;
-using namespace shared_model::interface::types;
+using namespace shared_model::types;
 
 using iroha::ametsuchi::QueryExecutorResult;
-using shared_model::interface::Amount;
-using shared_model::interface::permissions::Role;
+using shared_model::Amount;
+using shared_model::permissions::Role;
 
 struct GetAccountAssetsTest : public ExecutorTestBase {
   std::string makeAssetName(size_t i) {
@@ -71,10 +71,9 @@ struct GetAccountAssetsTest : public ExecutorTestBase {
    * of addition)
    * @param page_size requested page size
    */
-  void validatePageResponse(
-      const shared_model::interface::AccountAssetResponse &response,
-      boost::optional<size_t> requested_page_start,
-      size_t page_size) {
+  void validatePageResponse(const shared_model::AccountAssetResponse &response,
+                            boost::optional<size_t> requested_page_start,
+                            size_t page_size) {
     size_t page_start = requested_page_start.value_or(0);
     ASSERT_LE(page_start, assets_added_) << "Bad test.";
     const bool is_last_page = page_start + page_size >= assets_added_;
@@ -104,15 +103,15 @@ struct GetAccountAssetsTest : public ExecutorTestBase {
   void validatePageResponse(const QueryExecutorResult &response,
                             boost::optional<size_t> page_start,
                             size_t page_size) {
-    checkSuccessfulResult<shared_model::interface::AccountAssetResponse>(
+    checkSuccessfulResult<shared_model::AccountAssetResponse>(
         response, [&, this](const auto &response) {
           this->validatePageResponse(response, page_start, page_size);
         });
   }
 
-  std::unique_ptr<shared_model::interface::MockAssetPaginationMeta>
-  makePaginationMeta(TransactionsNumberType page_size,
-                     boost::optional<AssetIdType> first_asset_id) {
+  std::unique_ptr<shared_model::MockAssetPaginationMeta> makePaginationMeta(
+      TransactionsNumberType page_size,
+      boost::optional<AssetIdType> first_asset_id) {
     return getItf().getMockQueryFactory()->constructAssetPaginationMeta(
         page_size, std::move(first_asset_id));
   }
@@ -232,7 +231,7 @@ TEST_P(GetAccountAssetsBasicTest, PastLastPage) {
 TEST_P(GetAccountAssetsBasicTest, NonexistentStartTx) {
   ASSERT_NO_FATAL_FAILURE(prepareState(10));
   auto response = queryPage(10, 5);
-  checkQueryError<shared_model::interface::StatefulFailedErrorResponse>(
+  checkQueryError<shared_model::StatefulFailedErrorResponse>(
       response, error_codes::kInvalidPagination);
 }
 
@@ -248,9 +247,9 @@ TEST_P(GetAccountAssetsPermissionTest, QueryPermissionTest) {
   ASSERT_NO_FATAL_FAILURE(prepareState({Role::kReceive}));
   createAndAddAssets(2);
   auto pagination_meta = makePaginationMeta(assets_added_, boost::none);
-  checkResponse<shared_model::interface::AccountAssetResponse>(
+  checkResponse<shared_model::AccountAssetResponse>(
       queryPage(boost::none, assets_added_, getSpectator()),
-      [this](const shared_model::interface::AccountAssetResponse &response) {
+      [this](const shared_model::AccountAssetResponse &response) {
         this->validatePageResponse(response, boost::none, assets_added_);
       });
 }

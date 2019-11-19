@@ -25,10 +25,10 @@ class GetAssetInfo : public AcceptanceFixture {
    * @param perms are the permissions of the user
    * @return built tx
    */
-  auto makeUserWithPerms(const interface::RolePermissionSet &perms = {
-                             interface::permissions::Role::kReadAssets}) {
+  auto makeUserWithPerms(const RolePermissionSet &perms = {
+                             permissions::Role::kReadAssets}) {
     auto new_perms = perms;
-    new_perms.set(interface::permissions::Role::kCreateAsset);
+    new_perms.set(permissions::Role::kCreateAsset);
     return AcceptanceFixture::makeUserWithPerms(kNewRole, new_perms);
   }
 
@@ -37,9 +37,8 @@ class GetAssetInfo : public AcceptanceFixture {
    * @param perms are the permissions of the user
    * @return itf with the base state
    */
-  IntegrationTestFramework &prepareState(
-      const interface::RolePermissionSet &perms = {
-          interface::permissions::Role::kReadAssets}) {
+  IntegrationTestFramework &prepareState(const RolePermissionSet &perms = {
+                                             permissions::Role::kReadAssets}) {
     itf.setInitialState(kAdminKeypair)
         .sendTxAwait(makeUserWithPerms(perms), [=](auto &block) {
           ASSERT_EQ(block->transactions().size(), 1);
@@ -76,8 +75,7 @@ class GetAssetInfo : public AcceptanceFixture {
     return [&](const proto::QueryResponse &response) {
       ASSERT_NO_THROW({
         const auto &resp =
-            boost::get<const shared_model::interface::AssetResponse &>(
-                response.get());
+            boost::get<const shared_model::AssetResponse &>(response.get());
         ASSERT_EQ(resp.asset().assetId(), asset);
         ASSERT_EQ(resp.asset().domainId(), domain);
         ASSERT_EQ(resp.asset().precision(), precision);
@@ -123,8 +121,7 @@ TEST_F(GetAssetInfo, DISABLED_Basic) {
 TEST_F(GetAssetInfo, EmptyAsset) {
   prepareState().sendQuery(
       makeQuery(""),
-      checkQueryErrorResponse<
-          shared_model::interface::StatelessFailedErrorResponse>());
+      checkQueryErrorResponse<shared_model::StatelessFailedErrorResponse>());
 }
 
 /**
@@ -139,7 +136,7 @@ TEST_F(GetAssetInfo, EmptyAsset) {
 TEST_F(GetAssetInfo, NonexistentAsset) {
   prepareState().sendQuery(
       makeQuery("inexistent#" + kDomain),
-      checkQueryErrorResponse<shared_model::interface::NoAssetErrorResponse>());
+      checkQueryErrorResponse<shared_model::NoAssetErrorResponse>());
 }
 
 /**
@@ -155,6 +152,5 @@ TEST_F(GetAssetInfo, NonexistentAsset) {
 TEST_F(GetAssetInfo, NoPermission) {
   prepareState({}).sendQuery(
       makeQuery(),
-      checkQueryErrorResponse<
-          shared_model::interface::StatefulFailedErrorResponse>());
+      checkQueryErrorResponse<shared_model::StatefulFailedErrorResponse>());
 }

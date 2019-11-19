@@ -9,18 +9,15 @@
 #include <memory>
 
 namespace shared_model {
-  namespace interface {
-    class Query;
-    class BlocksQuery;
-    class QueryResponse;
-  }  // namespace interface
+  class Query;
+  class BlocksQuery;
+  class QueryResponse;
 }  // namespace shared_model
 
 namespace iroha {
   namespace ametsuchi {
 
-    using QueryExecutorResult =
-        std::unique_ptr<shared_model::interface::QueryResponse>;
+    using QueryExecutorResult = std::unique_ptr<shared_model::QueryResponse>;
 
     class QueryExecutor {
      public:
@@ -32,7 +29,7 @@ namespace iroha {
        * @return pointer to query response
        */
       virtual QueryExecutorResult validateAndExecute(
-          const shared_model::interface::Query &query,
+          const shared_model::Query &query,
           const bool validate_signatories) = 0;
 
       /**
@@ -41,7 +38,7 @@ namespace iroha {
        * @param validate_signatories - if signatories should be validated
        * @return true if valid, false otherwise
        */
-      virtual bool validate(const shared_model::interface::BlocksQuery &query,
+      virtual bool validate(const shared_model::BlocksQuery &query,
                             const bool validate_signatories) = 0;
     };
   }  // namespace ametsuchi

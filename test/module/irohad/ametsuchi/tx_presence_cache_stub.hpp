@@ -23,8 +23,7 @@ namespace iroha {
       }
 
       boost::optional<BatchStatusCollectionType> check(
-          const shared_model::interface::TransactionBatch &batch)
-          const override {
+          const shared_model::TransactionBatch &batch) const override {
         BatchStatusCollectionType result;
         std::transform(batch.transactions().begin(),
                        batch.transactions().end(),

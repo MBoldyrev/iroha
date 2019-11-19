@@ -99,7 +99,7 @@ namespace shared_model {
         });
       }
 
-      auto height(interface::types::HeightType height) const {
+      auto height(types::HeightType height) const {
         return transform<Height>(
             [&](auto &block) { block.mutable_payload()->set_height(height); });
       }
@@ -110,7 +110,7 @@ namespace shared_model {
         });
       }
 
-      auto createdTime(interface::types::TimestampType time) const {
+      auto createdTime(types::TimestampType time) const {
         return transform<CreatedTime>([&](auto &block) {
           block.mutable_payload()->set_created_time(time);
         });

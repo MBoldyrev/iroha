@@ -10,10 +10,8 @@
 #include "consensus/gate_object.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class Block;
-    class Proposal;
-  }  // namespace interface
+  class Block;
+  class Proposal;
 }  // namespace shared_model
 
 namespace iroha {

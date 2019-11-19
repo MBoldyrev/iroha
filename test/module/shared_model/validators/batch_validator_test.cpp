@@ -30,11 +30,10 @@ struct BatchValidatorFixture : public ::testing::Test {
 TEST_F(BatchValidatorFixture, PartialOrderedWhenPartialsAllowed) {
   auto validator = getValidator(true);
   auto txs = framework::batch::createBatchOneSignTransactions(
-      shared_model::interface::types::BatchType::ORDERED,
+      shared_model::types::BatchType::ORDERED,
       {"alice@iroha", "bob@iroha", "donna@iroha"});
   txs.pop_back();
-  auto batch =
-      std::make_unique<shared_model::interface::TransactionBatchImpl>(txs);
+  auto batch = std::make_unique<shared_model::TransactionBatchImpl>(txs);
   auto result = validator->validate(*batch);
   ASSERT_FALSE(result.hasErrors());
 }
@@ -47,11 +46,10 @@ TEST_F(BatchValidatorFixture, PartialOrderedWhenPartialsAllowed) {
 TEST_F(BatchValidatorFixture, AtomicBatchWithMissingTransactions) {
   auto validator = getValidator(false);
   auto txs = framework::batch::createBatchOneSignTransactions(
-      shared_model::interface::types::BatchType::ATOMIC,
+      shared_model::types::BatchType::ATOMIC,
       {"alice@iroha", "bob@iroha", "donna@iroha"});
   txs.pop_back();
-  auto batch =
-      std::make_unique<shared_model::interface::TransactionBatchImpl>(txs);
+  auto batch = std::make_unique<shared_model::TransactionBatchImpl>(txs);
   auto result = validator->validate(*batch);
   ASSERT_TRUE(result.hasErrors());
   ASSERT_THAT(
@@ -68,10 +66,9 @@ TEST_F(BatchValidatorFixture, AtomicBatchWithMissingTransactions) {
 TEST_F(BatchValidatorFixture, ComleteOrderedWhenPartialsDisallowed) {
   auto validator = getValidator(false);
   auto txs = framework::batch::createBatchOneSignTransactions(
-      shared_model::interface::types::BatchType::ORDERED,
+      shared_model::types::BatchType::ORDERED,
       {"alice@iroha", "bob@iroha", "donna@iroha"});
-  auto batch =
-      std::make_unique<shared_model::interface::TransactionBatchImpl>(txs);
+  auto batch = std::make_unique<shared_model::TransactionBatchImpl>(txs);
   auto result = validator->validate(*batch);
   ASSERT_FALSE(result.hasErrors());
 }
@@ -86,13 +83,12 @@ TEST_F(BatchValidatorFixture,
        PartialOrderedWithMessedHashesWhenPartialsAllowed) {
   auto validator = getValidator(true);
   auto txs = framework::batch::createBatchOneSignTransactions(
-      shared_model::interface::types::BatchType::ORDERED,
+      shared_model::types::BatchType::ORDERED,
       {"alice@iroha", "bob@iroha", "donna@iroha"});
   txs.pop_back();
   ASSERT_EQ(txs.size(), 2);
   std::swap(txs[0], txs[1]);
-  auto batch =
-      std::make_unique<shared_model::interface::TransactionBatchImpl>(txs);
+  auto batch = std::make_unique<shared_model::TransactionBatchImpl>(txs);
   auto result = validator->validate(*batch);
   ASSERT_TRUE(result.hasErrors());
   ASSERT_THAT(result.reason(),
@@ -108,10 +104,9 @@ TEST_F(BatchValidatorFixture,
 TEST_F(BatchValidatorFixture, DuplicateTransactions) {
   auto validator = getValidator(false);
   auto txs = framework::batch::createBatchOneSignTransactions(
-      shared_model::interface::types::BatchType::ORDERED,
+      shared_model::types::BatchType::ORDERED,
       {"alice@iroha", "bob@iroha", "alice@iroha"});
-  auto batch =
-      std::make_unique<shared_model::interface::TransactionBatchImpl>(txs);
+  auto batch = std::make_unique<shared_model::TransactionBatchImpl>(txs);
   auto result = validator->validate(*batch);
   ASSERT_TRUE(result.hasErrors());
   ASSERT_THAT(result.reason(),

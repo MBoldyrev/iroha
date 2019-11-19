@@ -9,9 +9,7 @@
 #include "cache/single_pointer_cache.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class Block;
-  }
+  class Block;
 }  // namespace shared_model
 
 namespace iroha {
@@ -20,7 +18,7 @@ namespace iroha {
     /**
      * Type to represent result of the consensus in form of block
      */
-    using ConsensusResult = shared_model::interface::Block;
+    using ConsensusResult = shared_model::Block;
 
     /**
      * Type to represent a consensus result cache with a single block

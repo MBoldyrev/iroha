@@ -7,22 +7,20 @@
 #include "utils/string_builder.hpp"
 
 namespace shared_model {
-  namespace interface {
 
-    std::string AccountDetailResponse::toString() const {
-      const auto next_record_id = nextRecordId();
-      return detail::PrettyStringBuilder()
-          .init("AccountDetailResponse")
-          .append("Details page", detail())
-          .append("Total number", std::to_string(totalNumber()))
-          .append("Next record ID",
-                  next_record_id ? next_record_id->toString() : "(none)")
-          .finalize();
-    }
+  std::string AccountDetailResponse::toString() const {
+    const auto next_record_id = nextRecordId();
+    return detail::PrettyStringBuilder()
+        .init("AccountDetailResponse")
+        .append("Details page", detail())
+        .append("Total number", std::to_string(totalNumber()))
+        .append("Next record ID",
+                next_record_id ? next_record_id->toString() : "(none)")
+        .finalize();
+  }
 
-    bool AccountDetailResponse::operator==(const ModelType &rhs) const {
-      return detail() == rhs.detail();
-    }
+  bool AccountDetailResponse::operator==(const ModelType &rhs) const {
+    return detail() == rhs.detail();
+  }
 
-  }  // namespace interface
 }  // namespace shared_model

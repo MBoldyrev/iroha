@@ -33,14 +33,14 @@ namespace iroha {
                          logger::LoggerPtr log);
 
       /// Index a block.
-      void index(const shared_model::interface::Block &block) override;
+      void index(const shared_model::Block &block) override;
 
      private:
       /// Index a transaction.
       void makeAccountAssetIndex(
-          const shared_model::interface::types::AccountIdType &account_id,
+          const shared_model::types::AccountIdType &account_id,
           Indexer::TxPosition position,
-          const shared_model::interface::Transaction::CommandsType &commands);
+          const shared_model::Transaction::CommandsType &commands);
 
       std::unique_ptr<Indexer> indexer_;
       logger::LoggerPtr log_;

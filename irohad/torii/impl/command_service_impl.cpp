@@ -23,8 +23,7 @@ namespace iroha {
         std::shared_ptr<iroha::torii::TransactionProcessor> tx_processor,
         std::shared_ptr<iroha::ametsuchi::Storage> storage,
         std::shared_ptr<iroha::torii::StatusBus> status_bus,
-        std::shared_ptr<shared_model::interface::TxStatusFactory>
-            status_factory,
+        std::shared_ptr<shared_model::TxStatusFactory> status_factory,
         std::shared_ptr<iroha::torii::CommandServiceImpl::CacheType> cache,
         std::shared_ptr<iroha::ametsuchi::TxPresenceCache> tx_presence_cache,
         logger::LoggerPtr log)
@@ -46,7 +45,7 @@ namespace iroha {
             auto cached_tx_state = cache->findItem(tx_hash);
             if (cached_tx_state
                 and response->comparePriorities(**cached_tx_state)
-                    != shared_model::interface::TransactionResponse::
+                    != shared_model::TransactionResponse::
                            PrioritiesComparisonResult::kGreater) {
               return;
             }
@@ -59,11 +58,11 @@ namespace iroha {
     }
 
     void CommandServiceImpl::handleTransactionBatch(
-        std::shared_ptr<shared_model::interface::TransactionBatch> batch) {
+        std::shared_ptr<shared_model::TransactionBatch> batch) {
       processBatch(batch);
     }
 
-    std::shared_ptr<shared_model::interface::TransactionResponse>
+    std::shared_ptr<shared_model::TransactionResponse>
     CommandServiceImpl::getStatus(const shared_model::crypto::Hash &request) {
       auto cached = cache_->findItem(request);
       if (cached) {
@@ -88,21 +87,21 @@ namespace iroha {
           *status,
           [this, &request](
               const iroha::ametsuchi::tx_cache_status_responses::Missing &)
-              -> std::shared_ptr<shared_model::interface::TransactionResponse> {
+              -> std::shared_ptr<shared_model::TransactionResponse> {
             log_->warn("Asked non-existing tx: {}", request.hex());
             return status_factory_->makeNotReceived(request);
           },
           [this, &request](
               const iroha::ametsuchi::tx_cache_status_responses::Rejected &) {
-            std::shared_ptr<shared_model::interface::TransactionResponse>
-                response = status_factory_->makeRejected(request);
+            std::shared_ptr<shared_model::TransactionResponse> response =
+                status_factory_->makeRejected(request);
             cache_->addItem(request, response);
             return response;
           },
           [this, &request](
               const iroha::ametsuchi::tx_cache_status_responses::Committed &) {
-            std::shared_ptr<shared_model::interface::TransactionResponse>
-                response = status_factory_->makeCommitted(request);
+            std::shared_ptr<shared_model::TransactionResponse> response =
+                status_factory_->makeCommitted(request);
             cache_->addItem(request, response);
             return response;
           });
@@ -129,16 +128,15 @@ namespace iroha {
     template <typename T>
     constexpr bool FinalStatusValue =
         iroha::is_any<std::decay_t<T>,
-                      shared_model::interface::StatelessFailedTxResponse,
-                      shared_model::interface::CommittedTxResponse,
-                      shared_model::interface::RejectedTxResponse>::value;
+                      shared_model::StatelessFailedTxResponse,
+                      shared_model::CommittedTxResponse,
+                      shared_model::RejectedTxResponse>::value;
 
-    rxcpp::observable<
-        std::shared_ptr<shared_model::interface::TransactionResponse>>
+    rxcpp::observable<std::shared_ptr<shared_model::TransactionResponse>>
     CommandServiceImpl::getStatusStream(
         const shared_model::crypto::Hash &hash) {
       using ResponsePtrType =
-          std::shared_ptr<shared_model::interface::TransactionResponse>;
+          std::shared_ptr<shared_model::TransactionResponse>;
       auto initial_status = cache_->findItem(hash).value_or([&] {
         // if cache_ doesn't contain some status there is required to check
         // persistent cache
@@ -195,14 +193,13 @@ namespace iroha {
 
     void CommandServiceImpl::pushStatus(
         const std::string &who,
-        std::shared_ptr<shared_model::interface::TransactionResponse>
-            response) {
+        std::shared_ptr<shared_model::TransactionResponse> response) {
       log_->debug("{}: adding item to cache: {}", who, *response);
       status_bus_->publish(response);
     }
 
     void CommandServiceImpl::processBatch(
-        std::shared_ptr<shared_model::interface::TransactionBatch> batch) {
+        std::shared_ptr<shared_model::TransactionBatch> batch) {
       const auto status_issuer = "ToriiBatchProcessor";
       const auto &txs = batch->transactions();
 

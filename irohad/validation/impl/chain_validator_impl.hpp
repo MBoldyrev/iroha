@@ -14,9 +14,7 @@
 #include "logger/logger_fwd.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class Peer;
-  }  // namespace interface
+  class Peer;
 }  // namespace shared_model
 
 namespace iroha {
@@ -37,34 +35,31 @@ namespace iroha {
                          logger::LoggerPtr log);
 
       bool validateAndApply(
-          rxcpp::observable<std::shared_ptr<shared_model::interface::Block>>
-              blocks,
+          rxcpp::observable<std::shared_ptr<shared_model::Block>> blocks,
           ametsuchi::MutableStorage &storage) const override;
 
      private:
       /// Verifies whether previous hash of block matches top_hash
       bool validatePreviousHash(
-          const shared_model::interface::Block &block,
-          const shared_model::interface::types::HashType &top_hash) const;
+          const shared_model::Block &block,
+          const shared_model::types::HashType &top_hash) const;
 
       /// Verifies whether block height directly follows top height
       bool validateHeight(
-          const shared_model::interface::Block &block,
-          const shared_model::interface::types::HeightType &top_height) const;
+          const shared_model::Block &block,
+          const shared_model::types::HeightType &top_height) const;
 
       /// Verifies whether the block is signed by supermajority of peers
       bool validatePeerSupermajority(
-          const shared_model::interface::Block &block,
-          const std::vector<std::shared_ptr<shared_model::interface::Peer>>
-              &peers) const;
+          const shared_model::Block &block,
+          const std::vector<std::shared_ptr<shared_model::Peer>> &peers) const;
 
       /**
        * Verifies previous hash and whether the block is signed by supermajority
        * of ledger peers
        */
-      bool validateBlock(
-          std::shared_ptr<const shared_model::interface::Block> block,
-          const iroha::LedgerState &ledger_state) const;
+      bool validateBlock(std::shared_ptr<const shared_model::Block> block,
+                         const iroha::LedgerState &ledger_state) const;
 
       /**
        * Provide functions to check supermajority

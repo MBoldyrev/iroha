@@ -11,31 +11,29 @@
 #include "cryptography/hash.hpp"
 
 namespace shared_model {
-  namespace interface {
 
+  /**
+   * Provides a method that calculates reduced batch hash
+   */
+  class TransactionBatchHelpers {
+   public:
     /**
-     * Provides a method that calculates reduced batch hash
+     * Get the concatenation of reduced hashes as a single hash
+     * That kind of hash does not respect batch type
+     * @tparam Collection type of const ref iterator
+     * @param reduced_hashes
+     * @return concatenated reduced hashes
      */
-    class TransactionBatchHelpers {
-     public:
-      /**
-       * Get the concatenation of reduced hashes as a single hash
-       * That kind of hash does not respect batch type
-       * @tparam Collection type of const ref iterator
-       * @param reduced_hashes
-       * @return concatenated reduced hashes
-       */
-      template <typename Collection>
-      static types::HashType calculateReducedBatchHash(
-          const Collection &reduced_hashes) {
-        std::stringstream concatenated_hash;
-        for (const auto &hash : reduced_hashes) {
-          concatenated_hash << hash.hex();
-        }
-        return types::HashType::fromHexString(concatenated_hash.str());
+    template <typename Collection>
+    static types::HashType calculateReducedBatchHash(
+        const Collection &reduced_hashes) {
+      std::stringstream concatenated_hash;
+      for (const auto &hash : reduced_hashes) {
+        concatenated_hash << hash.hex();
       }
-    };
-  }  // namespace interface
+      return types::HashType::fromHexString(concatenated_hash.str());
+    }
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_TRANSACTION_BATCH_HELPERS_HPP

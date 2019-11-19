@@ -25,7 +25,7 @@
 #include "interfaces/commands/transfer_asset.hpp"
 #include "utils/visitor_apply_for_all.hpp"
 
-using Variant = shared_model::interface::Command::CommandVariantType;
+using Variant = shared_model::Command::CommandVariantType;
 template Variant::~variant();
 template Variant::variant(Variant &&);
 template bool Variant::operator==(const Variant &) const;
@@ -36,15 +36,13 @@ template bool Variant::using_backup() const noexcept;
 template Variant::convert_copy_into::convert_copy_into(void *) noexcept;
 
 namespace shared_model {
-  namespace interface {
 
-    std::string Command::toString() const {
-      return boost::apply_visitor(detail::ToStringVisitor(), get());
-    }
+  std::string Command::toString() const {
+    return boost::apply_visitor(detail::ToStringVisitor(), get());
+  }
 
-    bool Command::operator==(const ModelType &rhs) const {
-      return this->get() == rhs.get();
-    }
+  bool Command::operator==(const ModelType &rhs) const {
+    return this->get() == rhs.get();
+  }
 
-  }  // namespace interface
 }  // namespace shared_model

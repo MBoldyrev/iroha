@@ -7,7 +7,7 @@
 
 #include "cryptography/hash.hpp"
 
-using namespace shared_model::interface;
+using namespace shared_model;
 
 bool TxPaginationMeta::operator==(const ModelType &rhs) const {
   return pageSize() == rhs.pageSize() and firstTxHash() == rhs.firstTxHash();

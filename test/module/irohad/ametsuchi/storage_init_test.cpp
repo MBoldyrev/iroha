@@ -43,15 +43,14 @@ class StorageInitTest : public ::testing::Test {
   std::string pg_opt_without_dbname_;
   std::string pgopt_;
 
-  std::shared_ptr<shared_model::interface::PermissionToString> perm_converter_ =
+  std::shared_ptr<shared_model::PermissionToString> perm_converter_ =
       std::make_shared<shared_model::proto::ProtoPermissionToString>();
 
   std::shared_ptr<iroha::MockPendingTransactionStorage> pending_txs_storage_ =
       std::make_shared<iroha::MockPendingTransactionStorage>();
 
-  std::shared_ptr<shared_model::interface::QueryResponseFactory>
-      query_response_factory_ =
-          std::make_shared<shared_model::proto::ProtoQueryResponseFactory>();
+  std::shared_ptr<shared_model::QueryResponseFactory> query_response_factory_ =
+      std::make_shared<shared_model::proto::ProtoQueryResponseFactory>();
 
   std::unique_ptr<BlockStorageFactory> block_storage_factory_ =
       std::make_unique<InMemoryBlockStorageFactory>();

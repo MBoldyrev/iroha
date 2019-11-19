@@ -33,7 +33,7 @@ namespace iroha {
           crypto_provider = std::make_shared<CryptoProviderImpl>(keypair);
         }
 
-        std::unique_ptr<shared_model::interface::Signature> makeSignature(
+        std::unique_ptr<shared_model::Signature> makeSignature(
             shared_model::crypto::PublicKey public_key,
             shared_model::crypto::Signed signed_value) {
           auto sig = std::make_unique<MockSignature>();
@@ -44,7 +44,7 @@ namespace iroha {
           return sig;
         }
 
-        std::unique_ptr<shared_model::interface::Signature> makeSignature() {
+        std::unique_ptr<shared_model::Signature> makeSignature() {
           return makeSignature(shared_model::crypto::PublicKey(pubkey),
                                shared_model::crypto::Signed(signed_data));
         }

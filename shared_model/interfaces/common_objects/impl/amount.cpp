@@ -13,7 +13,7 @@
 static const char kDecimalSeparator = '.';
 static const char *kDigits = "0123456789";
 
-using namespace shared_model::interface;
+using namespace shared_model;
 
 struct Amount::Impl {
   Impl(const std::string &amount)
@@ -51,7 +51,7 @@ struct Amount::Impl {
   }
 
   std::string string_repr_;
-  interface::types::PrecisionType precision_;
+  types::PrecisionType precision_;
   boost::multiprecision::uint256_t multiprecision_repr_;
 };
 

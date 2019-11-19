@@ -10,7 +10,7 @@
 
 using namespace shared_model;
 using namespace integration_framework;
-using namespace shared_model::interface::permissions;
+using namespace shared_model::permissions;
 
 class QueryPermissionTxs final : public QueryPermissionTestBase {
  public:
@@ -30,12 +30,12 @@ class QueryPermissionTxs final : public QueryPermissionTestBase {
    */
   IntegrationTestFramework &prepareState(
       AcceptanceFixture &fixture,
-      const interface::RolePermissionSet &spectator_permissions);
+      const RolePermissionSet &spectator_permissions);
 
   shared_model::proto::Query makeQuery(
       AcceptanceFixture &fixture,
-      const interface::types::AccountIdType &target,
-      const interface::types::AccountIdType &spectator,
+      const types::AccountIdType &target,
+      const types::AccountIdType &spectator,
       const crypto::Keypair &spectator_keypair) override;
 
   /**
@@ -45,7 +45,7 @@ class QueryPermissionTxs final : public QueryPermissionTestBase {
   std::function<void(const proto::QueryResponse &response)>
   getGeneralResponseChecker() override;
 
-  std::vector<interface::types::HashType> tx_hashes_;
+  std::vector<types::HashType> tx_hashes_;
 };
 
 #endif /* QUERY_PERMISSION_TEST_TXS_HPP_ */

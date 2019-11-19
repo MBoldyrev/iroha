@@ -12,27 +12,25 @@
 #include "interfaces/permissions.hpp"
 
 namespace shared_model {
-  namespace interface {
+  /**
+   * Revoke permission from account
+   */
+  class RevokePermission : public ModelPrimitive<RevokePermission> {
+   public:
     /**
-     * Revoke permission from account
+     * @return account from which revoke permission
      */
-    class RevokePermission : public ModelPrimitive<RevokePermission> {
-     public:
-      /**
-       * @return account from which revoke permission
-       */
-      virtual const types::AccountIdType &accountId() const = 0;
+    virtual const types::AccountIdType &accountId() const = 0;
 
-      /**
-       * @return Permission to revoke
-       */
-      virtual permissions::Grantable permissionName() const = 0;
+    /**
+     * @return Permission to revoke
+     */
+    virtual permissions::Grantable permissionName() const = 0;
 
-      std::string toString() const override = 0;
+    std::string toString() const override = 0;
 
-      bool operator==(const ModelType &rhs) const override;
-    };
-  }  // namespace interface
+    bool operator==(const ModelType &rhs) const override;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_REVOKE_PERMISSION_HPP

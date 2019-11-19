@@ -44,9 +44,9 @@ namespace iroha {
 
      private:
       using PublicKeysRange =
-          boost::any_range<shared_model::interface::types::PubkeyType,
+          boost::any_range<shared_model::types::PubkeyType,
                            boost::forward_traversal_tag,
-                           const shared_model::interface::types::PubkeyType &>;
+                           const shared_model::types::PubkeyType &>;
       /**
        * Iterate through the peers which signed the commit message, load and
        * apply the missing blocks
@@ -56,8 +56,8 @@ namespace iroha {
        * @return Result of committing the downloaded blocks.
        */
       ametsuchi::CommitResult downloadAndCommitMissingBlocks(
-          const shared_model::interface::types::HeightType start_height,
-          const shared_model::interface::types::HeightType target_height,
+          const shared_model::types::HeightType start_height,
+          const shared_model::types::HeightType target_height,
           const PublicKeysRange &public_keys);
 
       void processNext(const consensus::PairValid &msg);
@@ -67,9 +67,8 @@ namespace iroha {
        * @param msg - consensus gate message with a list of peers and a round
        * @param required_height - minimal top block height to be downloaded
        */
-      void processDifferent(
-          const consensus::Synchronizable &msg,
-          shared_model::interface::types::HeightType required_height);
+      void processDifferent(const consensus::Synchronizable &msg,
+                            shared_model::types::HeightType required_height);
 
       std::unique_ptr<ametsuchi::MutableStorage> getStorage();
 

@@ -15,13 +15,11 @@ namespace iroha {
 
     class MockSpecificQueryExecutor : public SpecificQueryExecutor {
      public:
-      MOCK_METHOD1(execute,
-                   QueryExecutorResult(const shared_model::interface::Query &));
+      MOCK_METHOD1(execute, QueryExecutorResult(const shared_model::Query &));
 
-      MOCK_CONST_METHOD2(
-          hasAccountRolePermission,
-          bool(shared_model::interface::permissions::Role permission,
-               const std::string &account_id));
+      MOCK_CONST_METHOD2(hasAccountRolePermission,
+                         bool(shared_model::permissions::Role permission,
+                              const std::string &account_id));
     };
 
   }  // namespace ametsuchi

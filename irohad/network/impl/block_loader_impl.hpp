@@ -25,15 +25,13 @@ namespace iroha {
           shared_model::proto::ProtoBlockFactory factory,
           logger::LoggerPtr log);
 
-      rxcpp::observable<std::shared_ptr<shared_model::interface::Block>>
-      retrieveBlocks(
-          const shared_model::interface::types::HeightType height,
+      rxcpp::observable<std::shared_ptr<shared_model::Block>> retrieveBlocks(
+          const shared_model::types::HeightType height,
           const shared_model::crypto::PublicKey &peer_pubkey) override;
 
-      boost::optional<std::shared_ptr<shared_model::interface::Block>>
-      retrieveBlock(
+      boost::optional<std::shared_ptr<shared_model::Block>> retrieveBlock(
           const shared_model::crypto::PublicKey &peer_pubkey,
-          shared_model::interface::types::HeightType block_height) override;
+          shared_model::types::HeightType block_height) override;
 
      private:
       /**
@@ -42,17 +40,16 @@ namespace iroha {
        * @return peer, if it was found, otherwise nullopt
        * TODO 14/02/17 (@l4l) IR-960 rework method with returning result
        */
-      boost::optional<std::shared_ptr<shared_model::interface::Peer>> findPeer(
+      boost::optional<std::shared_ptr<shared_model::Peer>> findPeer(
           const shared_model::crypto::PublicKey &pubkey);
       /**
        * Get or create a RPC stub for connecting to peer
        * @param peer for connecting
        * @return RPC stub
        */
-      proto::Loader::StubInterface &getPeerStub(
-          const shared_model::interface::Peer &peer);
+      proto::Loader::StubInterface &getPeerStub(const shared_model::Peer &peer);
 
-      std::unordered_map<shared_model::interface::types::AddressType,
+      std::unordered_map<shared_model::types::AddressType,
                          std::unique_ptr<proto::Loader::StubInterface>>
           peer_connections_;
       std::shared_ptr<ametsuchi::PeerQueryFactory> peer_query_factory_;

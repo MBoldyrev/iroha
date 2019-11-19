@@ -8,8 +8,8 @@
 using namespace integration_framework;
 
 using namespace shared_model;
-using namespace shared_model::interface;
-using namespace shared_model::interface::permissions;
+using namespace shared_model;
+using namespace shared_model::permissions;
 using namespace common_constants;
 
 /**

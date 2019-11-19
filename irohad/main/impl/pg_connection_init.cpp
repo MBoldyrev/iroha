@@ -262,8 +262,7 @@ CREATE TABLE IF NOT EXISTS account_has_asset (
 CREATE TABLE IF NOT EXISTS role_has_permissions (
     role_id character varying(32) NOT NULL REFERENCES role,
     permission bit()"
-      + std::to_string(shared_model::interface::RolePermissionSet::size())
-      + R"() NOT NULL,
+      + std::to_string(shared_model::RolePermissionSet::size()) + R"() NOT NULL,
     PRIMARY KEY (role_id)
 );
 CREATE TABLE IF NOT EXISTS account_has_roles (
@@ -275,7 +274,7 @@ CREATE TABLE IF NOT EXISTS account_has_grantable_permissions (
     permittee_account_id character varying(288) NOT NULL REFERENCES account,
     account_id character varying(288) NOT NULL REFERENCES account,
     permission bit()"
-      + std::to_string(shared_model::interface::GrantablePermissionSet::size())
+      + std::to_string(shared_model::GrantablePermissionSet::size())
       + R"() NOT NULL,
     PRIMARY KEY (permittee_account_id, account_id)
 );

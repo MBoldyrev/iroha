@@ -33,7 +33,7 @@ namespace iroha {
     PostgresWsvCommand::PostgresWsvCommand(soci::session &sql) : sql_(sql) {}
 
     WsvCommandResult PostgresWsvCommand::insertRole(
-        const shared_model::interface::types::RoleIdType &role_name) {
+        const shared_model::types::RoleIdType &role_name) {
       soci::statement st = sql_.prepare
           << "INSERT INTO role(role_id) VALUES (:role_id)";
       st.exchange(soci::use(role_name));
@@ -44,8 +44,8 @@ namespace iroha {
     }
 
     WsvCommandResult PostgresWsvCommand::insertAccountRole(
-        const shared_model::interface::types::AccountIdType &account_id,
-        const shared_model::interface::types::RoleIdType &role_name) {
+        const shared_model::types::AccountIdType &account_id,
+        const shared_model::types::RoleIdType &role_name) {
       soci::statement st = sql_.prepare
           << "INSERT INTO account_has_roles(account_id, role_id) VALUES "
              "(:account_id, :role_id)";
@@ -62,8 +62,8 @@ namespace iroha {
     }
 
     WsvCommandResult PostgresWsvCommand::deleteAccountRole(
-        const shared_model::interface::types::AccountIdType &account_id,
-        const shared_model::interface::types::RoleIdType &role_name) {
+        const shared_model::types::AccountIdType &account_id,
+        const shared_model::types::RoleIdType &role_name) {
       soci::statement st = sql_.prepare
           << "DELETE FROM account_has_roles WHERE account_id=:account_id "
              "AND role_id=:role_id";
@@ -81,8 +81,8 @@ namespace iroha {
     }
 
     WsvCommandResult PostgresWsvCommand::insertRolePermissions(
-        const shared_model::interface::types::RoleIdType &role_id,
-        const shared_model::interface::RolePermissionSet &permissions) {
+        const shared_model::types::RoleIdType &role_id,
+        const shared_model::RolePermissionSet &permissions) {
       auto perm_str = permissions.toBitstring();
       soci::statement st = sql_.prepare
           << "INSERT INTO role_has_permissions(role_id, permission) VALUES "
@@ -107,13 +107,11 @@ namespace iroha {
     }
 
     WsvCommandResult PostgresWsvCommand::insertAccountGrantablePermission(
-        const shared_model::interface::types::AccountIdType
-            &permittee_account_id,
-        const shared_model::interface::types::AccountIdType &account_id,
-        shared_model::interface::permissions::Grantable permission) {
+        const shared_model::types::AccountIdType &permittee_account_id,
+        const shared_model::types::AccountIdType &account_id,
+        shared_model::permissions::Grantable permission) {
       const auto perm_str =
-          shared_model::interface::GrantablePermissionSet({permission})
-              .toBitstring();
+          shared_model::GrantablePermissionSet({permission}).toBitstring();
       soci::statement st = sql_.prepare
           << "INSERT INTO account_has_grantable_permissions as "
              "has_perm(permittee_account_id, account_id, permission) VALUES "
@@ -141,11 +139,10 @@ namespace iroha {
     }
 
     WsvCommandResult PostgresWsvCommand::deleteAccountGrantablePermission(
-        const shared_model::interface::types::AccountIdType
-            &permittee_account_id,
-        const shared_model::interface::types::AccountIdType &account_id,
-        shared_model::interface::permissions::Grantable permission) {
-      const auto perm_str = shared_model::interface::GrantablePermissionSet()
+        const shared_model::types::AccountIdType &permittee_account_id,
+        const shared_model::types::AccountIdType &account_id,
+        shared_model::permissions::Grantable permission) {
+      const auto perm_str = shared_model::GrantablePermissionSet()
                                 .setAll()
                                 .unset(permission)
                                 .toBitstring();
@@ -175,7 +172,7 @@ namespace iroha {
     }
 
     WsvCommandResult PostgresWsvCommand::insertAccount(
-        const shared_model::interface::Account &account) {
+        const shared_model::Account &account) {
       soci::statement st = sql_.prepare
           << "INSERT INTO account(account_id, domain_id, quorum,"
              "data) VALUES (:id, :domain_id, :quorum, :data)";
@@ -199,7 +196,7 @@ namespace iroha {
     }
 
     WsvCommandResult PostgresWsvCommand::insertAsset(
-        const shared_model::interface::Asset &asset) {
+        const shared_model::Asset &asset) {
       auto precision = asset.precision();
       soci::statement st = sql_.prepare
           << "INSERT INTO asset(asset_id, domain_id, \"precision\") "
@@ -218,7 +215,7 @@ namespace iroha {
     }
 
     WsvCommandResult PostgresWsvCommand::upsertAccountAsset(
-        const shared_model::interface::AccountAsset &asset) {
+        const shared_model::AccountAsset &asset) {
       auto balance = asset.balance().toStringRepr();
       soci::statement st = sql_.prepare
           << "INSERT INTO account_has_asset(account_id, asset_id, amount) "
@@ -241,7 +238,7 @@ namespace iroha {
     }
 
     WsvCommandResult PostgresWsvCommand::insertSignatory(
-        const shared_model::interface::types::PubkeyType &signatory) {
+        const shared_model::types::PubkeyType &signatory) {
       soci::statement st = sql_.prepare
           << "INSERT INTO signatory(public_key) VALUES (:pk) ON CONFLICT DO "
              "NOTHING;";
@@ -257,8 +254,8 @@ namespace iroha {
     }
 
     WsvCommandResult PostgresWsvCommand::insertAccountSignatory(
-        const shared_model::interface::types::AccountIdType &account_id,
-        const shared_model::interface::types::PubkeyType &signatory) {
+        const shared_model::types::AccountIdType &account_id,
+        const shared_model::types::PubkeyType &signatory) {
       soci::statement st = sql_.prepare
           << "INSERT INTO account_has_signatory(account_id, public_key) "
              "VALUES (:account_id, :pk)";
@@ -275,8 +272,8 @@ namespace iroha {
     }
 
     WsvCommandResult PostgresWsvCommand::deleteAccountSignatory(
-        const shared_model::interface::types::AccountIdType &account_id,
-        const shared_model::interface::types::PubkeyType &signatory) {
+        const shared_model::types::AccountIdType &account_id,
+        const shared_model::types::PubkeyType &signatory) {
       soci::statement st = sql_.prepare
           << "DELETE FROM account_has_signatory WHERE account_id = "
              ":account_id AND public_key = :pk";
@@ -293,7 +290,7 @@ namespace iroha {
     }
 
     WsvCommandResult PostgresWsvCommand::deleteSignatory(
-        const shared_model::interface::types::PubkeyType &signatory) {
+        const shared_model::types::PubkeyType &signatory) {
       soci::statement st = sql_.prepare
           << "DELETE FROM signatory WHERE public_key = :pk AND NOT EXISTS "
              "(SELECT 1 FROM account_has_signatory "
@@ -311,7 +308,7 @@ namespace iroha {
     }
 
     WsvCommandResult PostgresWsvCommand::insertPeer(
-        const shared_model::interface::Peer &peer) {
+        const shared_model::Peer &peer) {
       soci::statement st = sql_.prepare
           << "INSERT INTO peer(public_key, address, tls_certificate)"
              " VALUES (:pk, :address, :tls_certificate)";
@@ -326,7 +323,7 @@ namespace iroha {
     }
 
     WsvCommandResult PostgresWsvCommand::deletePeer(
-        const shared_model::interface::Peer &peer) {
+        const shared_model::Peer &peer) {
       soci::statement st = sql_.prepare
           << "DELETE FROM peer WHERE public_key = :pk AND address = :address";
       st.exchange(soci::use(peer.pubkey().hex()));
@@ -342,7 +339,7 @@ namespace iroha {
     }
 
     WsvCommandResult PostgresWsvCommand::insertDomain(
-        const shared_model::interface::Domain &domain) {
+        const shared_model::Domain &domain) {
       soci::statement st = sql_.prepare
           << "INSERT INTO domain(domain_id, default_role) VALUES (:id, "
              ":role)";
@@ -359,7 +356,7 @@ namespace iroha {
     }
 
     WsvCommandResult PostgresWsvCommand::updateAccount(
-        const shared_model::interface::Account &account) {
+        const shared_model::Account &account) {
       soci::statement st = sql_.prepare
           << "UPDATE account SET quorum=:quorum WHERE account_id=:account_id";
       uint32_t quorum = account.quorum();
@@ -376,8 +373,8 @@ namespace iroha {
     }
 
     WsvCommandResult PostgresWsvCommand::setAccountKV(
-        const shared_model::interface::types::AccountIdType &account_id,
-        const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::types::AccountIdType &account_id,
+        const shared_model::types::AccountIdType &creator_account_id,
         const std::string &key,
         const std::string &val) {
       soci::statement st = sql_.prepare

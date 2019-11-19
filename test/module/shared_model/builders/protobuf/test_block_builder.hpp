@@ -27,7 +27,7 @@ using TestUnsignedBlockBuilder = shared_model::proto::TemplateBlockBuilder<
     shared_model::validation::AlwaysValidValidator,
     shared_model::proto::UnsignedWrapper<shared_model::proto::Block>>;
 
-std::shared_ptr<const shared_model::interface::Block> createBlock(
+std::shared_ptr<const shared_model::Block> createBlock(
     std::vector<shared_model::proto::Transaction> txs,
     size_t height = 1,
     shared_model::crypto::Hash prev_hash = shared_model::crypto::Hash("")) {

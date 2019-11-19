@@ -19,31 +19,29 @@ namespace iroha {
      public:
       PostgresIndexer(soci::session &sql);
 
-      void txHashPosition(const shared_model::interface::types::HashType &hash,
+      void txHashPosition(const shared_model::types::HashType &hash,
                           TxPosition position) override;
 
-      void committedTxHash(const shared_model::interface::types::HashType
-                               &committed_tx_hash) override;
+      void committedTxHash(
+          const shared_model::types::HashType &committed_tx_hash) override;
 
-      void rejectedTxHash(const shared_model::interface::types::HashType
-                              &rejected_tx_hash) override;
+      void rejectedTxHash(
+          const shared_model::types::HashType &rejected_tx_hash) override;
 
-      void txPositionByCreator(
-          const shared_model::interface::types::AccountIdType creator,
-          TxPosition position) override;
+      void txPositionByCreator(const shared_model::types::AccountIdType creator,
+                               TxPosition position) override;
 
       void accountAssetTxPosition(
-          const shared_model::interface::types::AccountIdType &account_id,
-          const shared_model::interface::types::AssetIdType &asset_id,
+          const shared_model::types::AccountIdType &account_id,
+          const shared_model::types::AssetIdType &asset_id,
           TxPosition position) override;
 
       iroha::expected::Result<void, std::string> flush() override;
 
      private:
       /// Index tx status by its hash.
-      void txHashStatus(
-          const shared_model::interface::types::HashType &rejected_tx_hash,
-          bool is_committed);
+      void txHashStatus(const shared_model::types::HashType &rejected_tx_hash,
+                        bool is_committed);
 
       soci::session &sql_;
       std::string statements_;  ///< A bunch of SQL to be committed on flush().

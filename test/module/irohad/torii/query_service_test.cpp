@@ -18,7 +18,7 @@ using namespace iroha;
 using namespace iroha::torii;
 
 using namespace shared_model::detail;
-using namespace shared_model::interface;
+using namespace shared_model;
 using ::testing::_;
 using ::testing::Invoke;
 using ::testing::Return;
@@ -41,8 +41,8 @@ class QueryServiceTest : public ::testing::Test {
                     generateKeypair())
             .finish());
 
-    std::unique_ptr<shared_model::validation::AbstractValidator<
-        shared_model::interface::Query>>
+    std::unique_ptr<
+        shared_model::validation::AbstractValidator<shared_model::Query>>
         query_validator = std::make_unique<
             shared_model::validation::DefaultSignedQueryValidator>(
             iroha::test::kTestsValidatorsConfig);
@@ -50,10 +50,10 @@ class QueryServiceTest : public ::testing::Test {
         shared_model::validation::AbstractValidator<iroha::protocol::Query>>
         proto_query_validator =
             std::make_unique<shared_model::validation::ProtoQueryValidator>();
-    query_factory = std::make_shared<shared_model::proto::ProtoTransportFactory<
-        shared_model::interface::Query,
-        shared_model::proto::Query>>(std::move(query_validator),
-                                     std::move(proto_query_validator));
+    query_factory = std::make_shared<
+        shared_model::proto::ProtoTransportFactory<shared_model::Query,
+                                                   shared_model::proto::Query>>(
+        std::move(query_validator), std::move(proto_query_validator));
 
     auto blocks_query_validator = std::make_unique<
         shared_model::validation::DefaultSignedBlocksQueryValidator>(
@@ -63,7 +63,7 @@ class QueryServiceTest : public ::testing::Test {
 
     blocks_query_factory =
         std::make_shared<shared_model::proto::ProtoTransportFactory<
-            shared_model::interface::BlocksQuery,
+            shared_model::BlocksQuery,
             shared_model::proto::BlocksQuery>>(
             std::move(blocks_query_validator),
             std::move(proto_blocks_query_validator));
@@ -77,7 +77,7 @@ class QueryServiceTest : public ::testing::Test {
                                        getTestLogger("QueryService"));
   }
 
-  std::unique_ptr<shared_model::interface::QueryResponse> getResponse() {
+  std::unique_ptr<shared_model::QueryResponse> getResponse() {
     return shared_model::proto::ProtoQueryResponseFactory()
         .createAccountResponse("a", "ru", 2, "", {"user"}, query->hash());
   }
@@ -99,7 +99,7 @@ TEST_F(QueryServiceTest, ValidWhenUniqueHash) {
   EXPECT_CALL(*query_processor,
               queryHandle(
                   // match by shared_ptr's content
-                  Truly([this](const shared_model::interface::Query &rhs) {
+                  Truly([this](const shared_model::Query &rhs) {
                     return rhs == *query;
                   })))
       .WillOnce(Invoke([this](auto &) { return this->getResponse(); }));
@@ -132,8 +132,8 @@ TEST_F(QueryServiceTest, InvalidWhenDuplicateHash) {
   query_service->Find(query->getTransport(), response);
   ASSERT_TRUE(response.has_error_response());
   shared_model::proto::QueryResponse resp{protocol::QueryResponse{response}};
-  ASSERT_TRUE(boost::apply_visitor(
-      shared_model::interface::QueryErrorResponseChecker<
-          shared_model::interface::StatelessFailedErrorResponse>(),
-      resp.get()));
+  ASSERT_TRUE(
+      boost::apply_visitor(shared_model::QueryErrorResponseChecker<
+                               shared_model::StatelessFailedErrorResponse>(),
+                           resp.get()));
 }

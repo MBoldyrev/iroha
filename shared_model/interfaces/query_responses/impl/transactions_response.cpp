@@ -8,18 +8,16 @@
 #include "utils/string_builder.hpp"
 
 namespace shared_model {
-  namespace interface {
 
-    std::string TransactionsResponse::toString() const {
-      return detail::PrettyStringBuilder()
-          .init("TransactionsResponse")
-          .appendAll(transactions(), [](auto &tx) { return tx.toString(); })
-          .finalize();
-    }
+  std::string TransactionsResponse::toString() const {
+    return detail::PrettyStringBuilder()
+        .init("TransactionsResponse")
+        .appendAll(transactions(), [](auto &tx) { return tx.toString(); })
+        .finalize();
+  }
 
-    bool TransactionsResponse::operator==(const ModelType &rhs) const {
-      return transactions() == rhs.transactions();
-    }
+  bool TransactionsResponse::operator==(const ModelType &rhs) const {
+    return transactions() == rhs.transactions();
+  }
 
-  }  // namespace interface
 }  // namespace shared_model

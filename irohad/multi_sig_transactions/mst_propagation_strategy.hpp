@@ -18,8 +18,7 @@ namespace iroha {
   class PropagationStrategy {
    public:
     virtual ~PropagationStrategy() = default;
-    using PropagationData =
-        std::vector<std::shared_ptr<shared_model::interface::Peer>>;
+    using PropagationData = std::vector<std::shared_ptr<shared_model::Peer>>;
 
     /**
      * Provides observable that will be emit new results

@@ -42,14 +42,14 @@ namespace iroha {
        * @return result of command execution
        */
       template <typename CommandType>
-      CommandResult execute(CommandType &&command,
-                            bool do_validation = false,
-                            const shared_model::interface::types::AccountIdType
-                                &creator = "id@domain") {
+      CommandResult execute(
+          CommandType &&command,
+          bool do_validation = false,
+          const shared_model::types::AccountIdType &creator = "id@domain") {
         // TODO igor-egorov 15.04.2019 IR-446 Refactor postgres_executor_test
-        shared_model::interface::Command::CommandVariantType variant{
+        shared_model::Command::CommandVariantType variant{
             std::forward<CommandType>(command)};
-        shared_model::interface::MockCommand cmd;
+        shared_model::MockCommand cmd;
         EXPECT_CALL(cmd, get()).WillRepeatedly(::testing::ReturnRef(variant));
         return executor->execute(cmd, creator, not do_validation);
       }
@@ -59,14 +59,12 @@ namespace iroha {
       }
 
       std::unique_ptr<CommandExecutor> executor;
-      std::shared_ptr<shared_model::interface::PermissionToString>
-          perm_converter =
-              std::make_shared<shared_model::proto::ProtoPermissionToString>();
+      std::shared_ptr<shared_model::PermissionToString> perm_converter =
+          std::make_shared<shared_model::proto::ProtoPermissionToString>();
 
       std::unique_ptr<SettingQuery> setting_query;
-      std::unique_ptr<shared_model::interface::MockCommandFactory>
-          mock_command_factory =
-              std::make_unique<shared_model::interface::MockCommandFactory>();
+      std::unique_ptr<shared_model::MockCommandFactory> mock_command_factory =
+          std::make_unique<shared_model::MockCommandFactory>();
     };
 
     /**

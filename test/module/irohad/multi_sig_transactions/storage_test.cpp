@@ -35,8 +35,7 @@ class StorageTest : public testing::Test {
   const shared_model::crypto::PublicKey absent_peer_key;
 
   const unsigned quorum = 3u;
-  const shared_model::interface::types::TimestampType creation_time =
-      iroha::time::now();
+  const shared_model::types::TimestampType creation_time = iroha::time::now();
   std::shared_ptr<TestCompleter> completer_;
 };
 

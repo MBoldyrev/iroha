@@ -17,13 +17,12 @@ namespace iroha {
     class MockQueryProcessor : public QueryProcessor {
      public:
       MOCK_METHOD1(queryHandle,
-                   std::unique_ptr<shared_model::interface::QueryResponse>(
-                       const shared_model::interface::Query &));
+                   std::unique_ptr<shared_model::QueryResponse>(
+                       const shared_model::Query &));
       MOCK_METHOD1(
           blocksQueryHandle,
-          rxcpp::observable<
-              std::shared_ptr<shared_model::interface::BlockQueryResponse>>(
-              const shared_model::interface::BlocksQuery &));
+          rxcpp::observable<std::shared_ptr<shared_model::BlockQueryResponse>>(
+              const shared_model::BlocksQuery &));
     };
 
   }  // namespace torii

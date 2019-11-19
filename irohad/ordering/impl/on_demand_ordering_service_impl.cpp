@@ -28,8 +28,7 @@ using TransactionBatchType = transport::OdOsNotification::TransactionBatchType;
 
 OnDemandOrderingServiceImpl::OnDemandOrderingServiceImpl(
     size_t transaction_limit,
-    std::shared_ptr<shared_model::interface::UnsafeProposalFactory>
-        proposal_factory,
+    std::shared_ptr<shared_model::UnsafeProposalFactory> proposal_factory,
     std::shared_ptr<ametsuchi::TxPresenceCache> tx_cache,
     std::shared_ptr<ProposalCreationStrategy> proposal_creation_strategy,
     logger::LoggerPtr log,
@@ -105,11 +104,11 @@ OnDemandOrderingServiceImpl::onRequestProposal(consensus::Round round) {
  * @param discarded_txs_amount - the amount of discarded txs
  * @return transactions
  */
-static std::vector<std::shared_ptr<shared_model::interface::Transaction>>
-getTransactions(size_t requested_tx_amount,
-                detail::BatchSetType &batch_collection,
-                boost::optional<size_t &> discarded_txs_amount) {
-  std::vector<std::shared_ptr<shared_model::interface::Transaction>> collection;
+static std::vector<std::shared_ptr<shared_model::Transaction>> getTransactions(
+    size_t requested_tx_amount,
+    detail::BatchSetType &batch_collection,
+    boost::optional<size_t &> discarded_txs_amount) {
+  std::vector<std::shared_ptr<shared_model::Transaction>> collection;
 
   auto it = batch_collection.begin();
   for (; it != batch_collection.end()
@@ -153,7 +152,7 @@ void OnDemandOrderingServiceImpl::packNextProposals(
 void OnDemandOrderingServiceImpl::tryCreateProposal(
     iroha::consensus::Round round,
     const TransactionsCollectionType &txs,
-    shared_model::interface::types::TimestampType created_time) {
+    shared_model::types::TimestampType created_time) {
   if (not txs.empty()) {
     // onRequestProposal will not be able to aquire the lock and access the map
     std::lock_guard<std::shared_timed_mutex> lock(proposals_mutex_);
@@ -205,7 +204,7 @@ void OnDemandOrderingServiceImpl::tryErase(
 }
 
 bool OnDemandOrderingServiceImpl::batchAlreadyProcessed(
-    const shared_model::interface::TransactionBatch &batch) {
+    const shared_model::TransactionBatch &batch) {
   auto tx_statuses = tx_cache_->check(batch);
   if (not tx_statuses) {
     // TODO andrei 30.11.18 IR-51 Handle database error

@@ -11,23 +11,21 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
 
-    /// Provides query metadata for asset list pagination.
-    class AssetPaginationMeta : public ModelPrimitive<AssetPaginationMeta> {
-     public:
-      /// Get the requested page size.
-      virtual types::TransactionsNumberType pageSize() const = 0;
+  /// Provides query metadata for asset list pagination.
+  class AssetPaginationMeta : public ModelPrimitive<AssetPaginationMeta> {
+   public:
+    /// Get the requested page size.
+    virtual types::TransactionsNumberType pageSize() const = 0;
 
-      /// Get the first requested asset, if provided.
-      virtual boost::optional<types::AssetIdType> firstAssetId() const = 0;
+    /// Get the first requested asset, if provided.
+    virtual boost::optional<types::AssetIdType> firstAssetId() const = 0;
 
-      std::string toString() const override;
+    std::string toString() const override;
 
-      bool operator==(const ModelType &rhs) const override;
-    };
+    bool operator==(const ModelType &rhs) const override;
+  };
 
-  }  // namespace interface
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_INTERFACE_MODEL_QUERY_ACCOUNT_ASSET_PAGINATION_META_HPP

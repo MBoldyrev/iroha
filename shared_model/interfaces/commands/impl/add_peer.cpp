@@ -8,18 +8,16 @@
 #include "cryptography/public_key.hpp"
 
 namespace shared_model {
-  namespace interface {
 
-    std::string AddPeer::toString() const {
-      return detail::PrettyStringBuilder()
-          .init("AddPeer")
-          .append("peer", peer().toString())
-          .finalize();
-    }
+  std::string AddPeer::toString() const {
+    return detail::PrettyStringBuilder()
+        .init("AddPeer")
+        .append("peer", peer().toString())
+        .finalize();
+  }
 
-    bool AddPeer::operator==(const ModelType &rhs) const {
-      return peer() == rhs.peer();
-    }
+  bool AddPeer::operator==(const ModelType &rhs) const {
+    return peer() == rhs.peer();
+  }
 
-  }  // namespace interface
 }  // namespace shared_model

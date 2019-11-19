@@ -10,9 +10,7 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class Command;
-  }  // namespace interface
+  class Command;
 }  // namespace shared_model
 
 namespace iroha {
@@ -45,9 +43,8 @@ namespace iroha {
       virtual ~CommandExecutor() = default;
 
       virtual CommandResult execute(
-          const shared_model::interface::Command &cmd,
-          const shared_model::interface::types::AccountIdType
-              &creator_account_id,
+          const shared_model::Command &cmd,
+          const shared_model::types::AccountIdType &creator_account_id,
           bool do_validation) = 0;
     };
   }  // namespace ametsuchi

@@ -12,10 +12,8 @@
 #include "synchronizer/synchronizer_common.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class Proposal;
-    class TransactionBatch;
-  }  // namespace interface
+  class Proposal;
+  class TransactionBatch;
 }  // namespace shared_model
 
 namespace iroha {
@@ -31,8 +29,7 @@ namespace iroha {
        * @param batch - batch for propagation
        */
       virtual void propagate_batch(
-          std::shared_ptr<shared_model::interface::TransactionBatch> batch)
-          const = 0;
+          std::shared_ptr<shared_model::TransactionBatch> batch) const = 0;
 
       /**
        * Event is triggered when proposal arrives from network.

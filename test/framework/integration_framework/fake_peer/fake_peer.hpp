@@ -37,9 +37,8 @@ namespace integration_framework {
                            public std::enable_shared_from_this<FakePeer> {
      public:
       using TransportFactoryType =
-          shared_model::interface::AbstractTransportFactory<
-              shared_model::interface::Transaction,
-              iroha::protocol::Transaction>;
+          shared_model::AbstractTransportFactory<shared_model::Transaction,
+                                                 iroha::protocol::Transaction>;
 
       /**
        * Constructor.
@@ -60,13 +59,12 @@ namespace integration_framework {
           const std::string &listen_ip,
           size_t internal_port,
           const boost::optional<shared_model::crypto::Keypair> &key,
-          std::shared_ptr<shared_model::interface::Peer> real_peer,
-          const std::shared_ptr<shared_model::interface::CommonObjectsFactory>
+          std::shared_ptr<shared_model::Peer> real_peer,
+          const std::shared_ptr<shared_model::CommonObjectsFactory>
               &common_objects_factory,
           std::shared_ptr<TransportFactoryType> transaction_factory,
-          std::shared_ptr<shared_model::interface::TransactionBatchParser>
-              batch_parser,
-          std::shared_ptr<shared_model::interface::TransactionBatchFactory>
+          std::shared_ptr<shared_model::TransactionBatchParser> batch_parser,
+          std::shared_ptr<shared_model::TransactionBatchFactory>
               transaction_batch_factory,
           std::shared_ptr<iroha::ordering::transport::OnDemandOsClientGrpc::
                               TransportFactoryType> proposal_factory,
@@ -107,8 +105,8 @@ namespace integration_framework {
       /// Get the keypair of this peer.
       const shared_model::crypto::Keypair &getKeypair() const;
 
-      /// Get interface::Peer object for this instance.
-      std::shared_ptr<shared_model::interface::Peer> getThisPeer() const;
+      /// Get Peer object for this instance.
+      std::shared_ptr<shared_model::Peer> getThisPeer() const;
 
       /// Get the observable of MST states received by this peer.
       rxcpp::observable<std::shared_ptr<MstMessage>> getMstStatesObservable();
@@ -118,12 +116,11 @@ namespace integration_framework {
       getYacStatesObservable();
 
       /// Get the observable of OS batches received by this peer.
-      rxcpp::observable<
-          std::shared_ptr<shared_model::interface::TransactionBatch>>
+      rxcpp::observable<std::shared_ptr<shared_model::TransactionBatch>>
       getOsBatchesObservable();
 
       /// Get the observable of OG proposals received by this peer.
-      rxcpp::observable<std::shared_ptr<shared_model::interface::Proposal>>
+      rxcpp::observable<std::shared_ptr<shared_model::Proposal>>
       getOgProposalsObservable();
 
       /// Get the observable of block requests received by this peer.
@@ -153,7 +150,7 @@ namespace integration_framework {
        *
        * @param hash - the hash to sign
        */
-      std::shared_ptr<shared_model::interface::Signature> makeSignature(
+      std::shared_ptr<shared_model::Signature> makeSignature(
           const shared_model::crypto::Blob &hash) const;
 
       /// Make a vote from this peer for the provided YAC hash.
@@ -167,12 +164,10 @@ namespace integration_framework {
       void sendYacState(
           const std::vector<iroha::consensus::yac::VoteMessage> &state);
 
-      void sendProposal(
-          std::unique_ptr<shared_model::interface::Proposal> proposal);
+      void sendProposal(std::unique_ptr<shared_model::Proposal> proposal);
 
       void sendBatch(
-          const std::shared_ptr<shared_model::interface::TransactionBatch>
-              &batch);
+          const std::shared_ptr<shared_model::TransactionBatch> &batch);
 
       bool sendBlockRequest(const LoaderBlockRequest &request);
 
@@ -183,8 +178,7 @@ namespace integration_framework {
 
       /// Send the real peer the provided transactions for proposal.
       void proposeTransactions(
-          std::vector<std::shared_ptr<shared_model::interface::Transaction>>
-              transactions);
+          std::vector<std::shared_ptr<shared_model::Transaction>> transactions);
 
       /**
        * Request the real peer's on demand ordering service a proposal for the
@@ -194,7 +188,7 @@ namespace integration_framework {
        * @param timeout - time to wait for the reply.
        * @return The proposal if it was received
        */
-      boost::optional<std::shared_ptr<const shared_model::interface::Proposal>>
+      boost::optional<std::shared_ptr<const shared_model::Proposal>>
       sendProposalRequest(iroha::consensus::Round round,
                           std::chrono::milliseconds timeout) const;
 
@@ -218,25 +212,22 @@ namespace integration_framework {
       logger::LoggerManagerTreePtr mst_log_manager_;
       logger::LoggerManagerTreePtr ordering_log_manager_;
 
-      std::shared_ptr<shared_model::interface::CommonObjectsFactory>
+      std::shared_ptr<shared_model::CommonObjectsFactory>
           common_objects_factory_;
       std::shared_ptr<TransportFactoryType> transaction_factory_;
-      std::shared_ptr<shared_model::interface::TransactionBatchFactory>
+      std::shared_ptr<shared_model::TransactionBatchFactory>
           transaction_batch_factory_;
       std::shared_ptr<iroha::ordering::transport::OnDemandOsClientGrpc::
                           TransportFactoryType>
           proposal_factory_;
-      std::shared_ptr<shared_model::interface::TransactionBatchParser>
-          batch_parser_;
+      std::shared_ptr<shared_model::TransactionBatchParser> batch_parser_;
 
       const std::string listen_ip_;
       size_t internal_port_;
       std::unique_ptr<shared_model::crypto::Keypair> keypair_;
 
-      std::shared_ptr<shared_model::interface::Peer>
-          this_peer_;  ///< this fake instance
-      std::shared_ptr<shared_model::interface::Peer>
-          real_peer_;  ///< the real instance
+      std::shared_ptr<shared_model::Peer> this_peer_;  ///< this fake instance
+      std::shared_ptr<shared_model::Peer> real_peer_;  ///< the real instance
 
       std::shared_ptr<AsyncCall> async_call_;
 

@@ -9,18 +9,16 @@
 #include "utils/string_builder.hpp"
 
 namespace shared_model {
-  namespace interface {
 
-    std::string SignatoriesResponse::toString() const {
-      return detail::PrettyStringBuilder()
-          .init("SignatoriesResponse")
-          .appendAll(keys(), [](auto &key) { return key.toString(); })
-          .finalize();
-    }
+  std::string SignatoriesResponse::toString() const {
+    return detail::PrettyStringBuilder()
+        .init("SignatoriesResponse")
+        .appendAll(keys(), [](auto &key) { return key.toString(); })
+        .finalize();
+  }
 
-    bool SignatoriesResponse::operator==(const ModelType &rhs) const {
-      return keys() == rhs.keys();
-    }
+  bool SignatoriesResponse::operator==(const ModelType &rhs) const {
+    return keys() == rhs.keys();
+  }
 
-  }  // namespace interface
 }  // namespace shared_model

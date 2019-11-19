@@ -19,10 +19,9 @@ namespace iroha {
 
       MOCK_METHOD0(getLedgerPeers, boost::optional<std::vector<wPeer>>());
 
-      MOCK_CONST_METHOD1(
-          getLedgerPeerByPublicKey,
-          boost::optional<PeerQuery::wPeer>(
-              const shared_model::interface::types::PubkeyType &));
+      MOCK_CONST_METHOD1(getLedgerPeerByPublicKey,
+                         boost::optional<PeerQuery::wPeer>(
+                             const shared_model::types::PubkeyType &));
     };
 
   }  // namespace ametsuchi

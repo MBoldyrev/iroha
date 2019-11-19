@@ -8,18 +8,16 @@
 #include "utils/string_builder.hpp"
 
 namespace shared_model {
-  namespace interface {
 
-    std::string PeersResponse::toString() const {
-      return detail::PrettyStringBuilder()
-          .init("PeersResponse")
-          .appendAll(peers(), [](auto &peer) { return peer.toString(); })
-          .finalize();
-    }
+  std::string PeersResponse::toString() const {
+    return detail::PrettyStringBuilder()
+        .init("PeersResponse")
+        .appendAll(peers(), [](auto &peer) { return peer.toString(); })
+        .finalize();
+  }
 
-    bool PeersResponse::operator==(const ModelType &rhs) const {
-      return peers() == rhs.peers();
-    }
+  bool PeersResponse::operator==(const ModelType &rhs) const {
+    return peers() == rhs.peers();
+  }
 
-  }  // namespace interface
 }  // namespace shared_model

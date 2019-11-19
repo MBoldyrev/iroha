@@ -9,7 +9,7 @@ using ::testing::Return;
 using ::testing::ReturnRef;
 using ::testing::ReturnRefOfCopy;
 
-using namespace shared_model::interface;
+using namespace shared_model;
 
 template <typename QueryMock, typename ExpectationsSetter>
 MockQueryFactory::FactoryResult<QueryMock>
@@ -35,8 +35,7 @@ MockQueryFactory::constructAssetPaginationMeta(
 MockQueryFactory::FactoryResult<MockGetAccountAssets>
 MockQueryFactory::constructGetAccountAssets(
     const types::AccountIdType &account_id,
-    boost::optional<const interface::AssetPaginationMeta &> pagination_meta)
-    const {
+    boost::optional<const AssetPaginationMeta &> pagination_meta) const {
   return createFactoryResult<MockGetAccountAssets>(
       [&account_id, &pagination_meta](MockGetAccountAssets &mock) {
         EXPECT_CALL(mock, accountId()).WillRepeatedly(ReturnRef(account_id));

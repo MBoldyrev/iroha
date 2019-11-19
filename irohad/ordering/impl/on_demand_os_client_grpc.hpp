@@ -23,9 +23,8 @@ namespace iroha {
       class OnDemandOsClientGrpc : public OdOsNotification {
        public:
         using TransportFactoryType =
-            shared_model::interface::AbstractTransportFactory<
-                shared_model::interface::Proposal,
-                iroha::protocol::Proposal>;
+            shared_model::AbstractTransportFactory<shared_model::Proposal,
+                                                   iroha::protocol::Proposal>;
         using TimepointType = std::chrono::system_clock::time_point;
         using TimeoutType = std::chrono::milliseconds;
 
@@ -75,7 +74,7 @@ namespace iroha {
          * This factory method can be used in production code
          */
         std::unique_ptr<OdOsNotification> create(
-            const shared_model::interface::Peer &to) override;
+            const shared_model::Peer &to) override;
 
        private:
         std::shared_ptr<network::AsyncGrpcClient<google::protobuf::Empty>>

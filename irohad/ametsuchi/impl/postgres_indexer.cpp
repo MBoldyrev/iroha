@@ -10,7 +10,7 @@
 #include "cryptography/hash.hpp"
 
 using namespace iroha::ametsuchi;
-using namespace shared_model::interface::types;
+using namespace shared_model::types;
 
 PostgresIndexer::PostgresIndexer(soci::session &sql) : sql_(sql) {}
 

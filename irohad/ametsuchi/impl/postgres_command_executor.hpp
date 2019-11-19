@@ -15,28 +15,26 @@ namespace soci {
 }
 
 namespace shared_model {
-  namespace interface {
-    class AddAssetQuantity;
-    class AddPeer;
-    class AddSignatory;
-    class AppendRole;
-    class CompareAndSetAccountDetail;
-    class CreateAccount;
-    class CreateAsset;
-    class CreateDomain;
-    class CreateRole;
-    class DetachRole;
-    class GrantPermission;
-    class PermissionToString;
-    class RemovePeer;
-    class RemoveSignatory;
-    class RevokePermission;
-    class SetAccountDetail;
-    class SetQuorum;
-    class SubtractAssetQuantity;
-    class TransferAsset;
-    class SetSettingValue;
-  }  // namespace interface
+  class AddAssetQuantity;
+  class AddPeer;
+  class AddSignatory;
+  class AppendRole;
+  class CompareAndSetAccountDetail;
+  class CreateAccount;
+  class CreateAsset;
+  class CreateDomain;
+  class CreateRole;
+  class DetachRole;
+  class GrantPermission;
+  class PermissionToString;
+  class RemovePeer;
+  class RemoveSignatory;
+  class RevokePermission;
+  class SetAccountDetail;
+  class SetQuorum;
+  class SubtractAssetQuantity;
+  class TransferAsset;
+  class SetSettingValue;
 }  // namespace shared_model
 
 namespace iroha {
@@ -46,130 +44,110 @@ namespace iroha {
      public:
       PostgresCommandExecutor(
           std::unique_ptr<soci::session> sql,
-          std::shared_ptr<shared_model::interface::PermissionToString>
-              perm_converter);
+          std::shared_ptr<shared_model::PermissionToString> perm_converter);
 
       ~PostgresCommandExecutor();
 
-      CommandResult execute(const shared_model::interface::Command &cmd,
-                            const shared_model::interface::types::AccountIdType
-                                &creator_account_id,
-                            bool do_validation) override;
+      CommandResult execute(
+          const shared_model::Command &cmd,
+          const shared_model::types::AccountIdType &creator_account_id,
+          bool do_validation) override;
 
       soci::session &getSession();
 
       CommandResult operator()(
-          const shared_model::interface::AddAssetQuantity &command,
-          const shared_model::interface::types::AccountIdType
-              &creator_account_id,
+          const shared_model::AddAssetQuantity &command,
+          const shared_model::types::AccountIdType &creator_account_id,
           bool do_validation);
 
       CommandResult operator()(
-          const shared_model::interface::AddPeer &command,
-          const shared_model::interface::types::AccountIdType
-              &creator_account_id,
+          const shared_model::AddPeer &command,
+          const shared_model::types::AccountIdType &creator_account_id,
           bool do_validation);
 
       CommandResult operator()(
-          const shared_model::interface::AddSignatory &command,
-          const shared_model::interface::types::AccountIdType
-              &creator_account_id,
+          const shared_model::AddSignatory &command,
+          const shared_model::types::AccountIdType &creator_account_id,
           bool do_validation);
 
       CommandResult operator()(
-          const shared_model::interface::AppendRole &command,
-          const shared_model::interface::types::AccountIdType
-              &creator_account_id,
+          const shared_model::AppendRole &command,
+          const shared_model::types::AccountIdType &creator_account_id,
           bool do_validation);
 
       CommandResult operator()(
-          const shared_model::interface::CompareAndSetAccountDetail &command,
-          const shared_model::interface::types::AccountIdType
-              &creator_account_id,
+          const shared_model::CompareAndSetAccountDetail &command,
+          const shared_model::types::AccountIdType &creator_account_id,
           bool do_validation);
 
       CommandResult operator()(
-          const shared_model::interface::CreateAccount &command,
-          const shared_model::interface::types::AccountIdType
-              &creator_account_id,
+          const shared_model::CreateAccount &command,
+          const shared_model::types::AccountIdType &creator_account_id,
           bool do_validation);
 
       CommandResult operator()(
-          const shared_model::interface::CreateAsset &command,
-          const shared_model::interface::types::AccountIdType
-              &creator_account_id,
+          const shared_model::CreateAsset &command,
+          const shared_model::types::AccountIdType &creator_account_id,
           bool do_validation);
 
       CommandResult operator()(
-          const shared_model::interface::CreateDomain &command,
-          const shared_model::interface::types::AccountIdType
-              &creator_account_id,
+          const shared_model::CreateDomain &command,
+          const shared_model::types::AccountIdType &creator_account_id,
           bool do_validation);
 
       CommandResult operator()(
-          const shared_model::interface::CreateRole &command,
-          const shared_model::interface::types::AccountIdType
-              &creator_account_id,
+          const shared_model::CreateRole &command,
+          const shared_model::types::AccountIdType &creator_account_id,
           bool do_validation);
 
       CommandResult operator()(
-          const shared_model::interface::DetachRole &command,
-          const shared_model::interface::types::AccountIdType
-              &creator_account_id,
+          const shared_model::DetachRole &command,
+          const shared_model::types::AccountIdType &creator_account_id,
           bool do_validation);
 
       CommandResult operator()(
-          const shared_model::interface::GrantPermission &command,
-          const shared_model::interface::types::AccountIdType
-              &creator_account_id,
+          const shared_model::GrantPermission &command,
+          const shared_model::types::AccountIdType &creator_account_id,
           bool do_validation);
 
       CommandResult operator()(
-          const shared_model::interface::RemovePeer &command,
-          const shared_model::interface::types::AccountIdType
-              &creator_account_id,
+          const shared_model::RemovePeer &command,
+          const shared_model::types::AccountIdType &creator_account_id,
           bool do_validation);
 
       CommandResult operator()(
-          const shared_model::interface::RemoveSignatory &command,
-          const shared_model::interface::types::AccountIdType
-              &creator_account_id,
+          const shared_model::RemoveSignatory &command,
+          const shared_model::types::AccountIdType &creator_account_id,
           bool do_validation);
 
       CommandResult operator()(
-          const shared_model::interface::RevokePermission &command,
-          const shared_model::interface::types::AccountIdType
-              &creator_account_id,
+          const shared_model::RevokePermission &command,
+          const shared_model::types::AccountIdType &creator_account_id,
           bool do_validation);
 
       CommandResult operator()(
-          const shared_model::interface::SetAccountDetail &command,
-          const shared_model::interface::types::AccountIdType
-              &creator_account_id,
+          const shared_model::SetAccountDetail &command,
+          const shared_model::types::AccountIdType &creator_account_id,
           bool do_validation);
 
       CommandResult operator()(
-          const shared_model::interface::SetQuorum &command,
-          const shared_model::interface::types::AccountIdType
-              &creator_account_id,
+          const shared_model::SetQuorum &command,
+          const shared_model::types::AccountIdType &creator_account_id,
           bool do_validation);
 
       CommandResult operator()(
-          const shared_model::interface::SubtractAssetQuantity &command,
-          const shared_model::interface::types::AccountIdType
-              &creator_account_id,
+          const shared_model::SubtractAssetQuantity &command,
+          const shared_model::types::AccountIdType &creator_account_id,
           bool do_validation);
 
       CommandResult operator()(
-          const shared_model::interface::TransferAsset &command,
-          const shared_model::interface::types::AccountIdType
-              &creator_account_id,
+          const shared_model::TransferAsset &command,
+          const shared_model::types::AccountIdType &creator_account_id,
           bool do_validation);
 
       CommandResult operator()(
-          const shared_model::interface::SetSettingValue &command,
-          const shared_model::interface::types::AccountIdType
-              &creator_account_id,
+          const shared_model::SetSettingValue &command,
+          const shared_model::types::AccountIdType &creator_account_id,
           bool do_validation);
 
      private:
@@ -185,8 +163,7 @@ namespace iroha {
 
       std::unique_ptr<soci::session> sql_;
 
-      std::shared_ptr<shared_model::interface::PermissionToString>
-          perm_converter_;
+      std::shared_ptr<shared_model::PermissionToString> perm_converter_;
 
       std::unique_ptr<CommandStatements> add_asset_quantity_statements_;
       std::unique_ptr<CommandStatements> add_peer_statements_;

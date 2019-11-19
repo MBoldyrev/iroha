@@ -26,27 +26,23 @@ namespace iroha {
           std::shared_ptr<ametsuchi::QueryExecutorFactory> qry_exec,
           std::shared_ptr<iroha::PendingTransactionStorage>
               pending_transactions,
-          std::shared_ptr<shared_model::interface::QueryResponseFactory>
-              response_factory,
+          std::shared_ptr<shared_model::QueryResponseFactory> response_factory,
           logger::LoggerPtr log);
 
-      std::unique_ptr<shared_model::interface::QueryResponse> queryHandle(
-          const shared_model::interface::Query &qry) override;
+      std::unique_ptr<shared_model::QueryResponse> queryHandle(
+          const shared_model::Query &qry) override;
 
-      rxcpp::observable<
-          std::shared_ptr<shared_model::interface::BlockQueryResponse>>
-      blocksQueryHandle(
-          const shared_model::interface::BlocksQuery &qry) override;
+      rxcpp::observable<std::shared_ptr<shared_model::BlockQueryResponse>>
+      blocksQueryHandle(const shared_model::BlocksQuery &qry) override;
 
      private:
       rxcpp::subjects::subject<
-          std::shared_ptr<shared_model::interface::BlockQueryResponse>>
+          std::shared_ptr<shared_model::BlockQueryResponse>>
           blocks_query_subject_;
       std::shared_ptr<ametsuchi::Storage> storage_;
       std::shared_ptr<ametsuchi::QueryExecutorFactory> qry_exec_;
       std::shared_ptr<iroha::PendingTransactionStorage> pending_transactions_;
-      std::shared_ptr<shared_model::interface::QueryResponseFactory>
-          response_factory_;
+      std::shared_ptr<shared_model::QueryResponseFactory> response_factory_;
 
       logger::LoggerPtr log_;
     };

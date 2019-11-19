@@ -8,17 +8,17 @@
 using namespace common_constants;
 
 QueryPermissionTestBase::QueryPermissionTestBase(
-    const interface::RolePermissionSet &permission_to_query_myself,
-    const interface::RolePermissionSet &permission_to_query_my_domain,
-    const interface::RolePermissionSet &permission_to_query_everyone)
+    const RolePermissionSet &permission_to_query_myself,
+    const RolePermissionSet &permission_to_query_my_domain,
+    const RolePermissionSet &permission_to_query_everyone)
     : kPermissionToQueryMyself(permission_to_query_myself),
       kPermissionToQueryMyDomain(permission_to_query_my_domain),
       kPermissionToQueryEveryone(permission_to_query_everyone) {}
 
 IntegrationTestFramework &QueryPermissionTestBase::prepareState(
     AcceptanceFixture &fixture,
-    const interface::RolePermissionSet &spectator_permissions,
-    const interface::RolePermissionSet &target_permissions) {
+    const RolePermissionSet &spectator_permissions,
+    const RolePermissionSet &target_permissions) {
   return itf_
       ->sendTxAwait(fixture.makeUserWithPerms(target_permissions),
                     getBlockTransactionsAmountChecker(1))

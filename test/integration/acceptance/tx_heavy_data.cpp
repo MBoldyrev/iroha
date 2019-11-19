@@ -23,8 +23,8 @@ class HeavyTransactionTest : public AcceptanceFixture {
    * @param perms are the permissions of the user
    * @return built tx and a hash of its payload
    */
-  auto makeUserWithPerms(const interface::RolePermissionSet &perms = {
-                             interface::permissions::Role::kSetDetail}) {
+  auto makeUserWithPerms(const RolePermissionSet &perms = {
+                             permissions::Role::kSetDetail}) {
     return AcceptanceFixture::makeUserWithPerms(perms);
   }
 
@@ -122,8 +122,7 @@ TEST_F(HeavyTransactionTest, DISABLED_QueryLargeData) {
   auto query_checker = [&](auto &status) {
     ASSERT_NO_THROW({
       auto &&response =
-          boost::get<const shared_model::interface::AccountResponse &>(
-              status.get());
+          boost::get<const shared_model::AccountResponse &>(status.get());
 
       boost::property_tree::ptree root;
       boost::property_tree::read_json(response.account().jsonData(), root);

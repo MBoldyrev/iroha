@@ -71,13 +71,12 @@ class QueryProcessorTest : public ::testing::Test {
   shared_model::crypto::Keypair keypair =
       shared_model::crypto::DefaultCryptoAlgorithmType::generateKeypair();
 
-  std::vector<shared_model::interface::types::PubkeyType> signatories = {
+  std::vector<shared_model::types::PubkeyType> signatories = {
       keypair.publicKey()};
   std::shared_ptr<MockQueryExecutor> qry_exec;
   std::shared_ptr<MockBlockQuery> block_queries;
   std::shared_ptr<MockStorage> storage;
-  std::shared_ptr<shared_model::interface::QueryResponseFactory>
-      query_response_factory;
+  std::shared_ptr<shared_model::QueryResponseFactory> query_response_factory;
   std::shared_ptr<torii::QueryProcessorImpl> qpi;
 };
 
@@ -103,8 +102,7 @@ TEST_F(QueryProcessorTest, QueryProcessorWhereInvokeInvalidQuery) {
   auto response = qpi->queryHandle(qry);
   ASSERT_TRUE(response);
   ASSERT_NO_THROW(
-      boost::get<const shared_model::interface::AccountDetailResponse &>(
-          response->get()));
+      boost::get<const shared_model::AccountDetailResponse &>(response->get()));
 }
 
 /**
@@ -123,8 +121,8 @@ TEST_F(QueryProcessorTest, QueryProcessorWithWrongKey) {
                    .finish();
   auto *qry_resp = query_response_factory
                        ->createErrorQueryResponse(
-                           shared_model::interface::QueryResponseFactory::
-                               ErrorQueryType::kStatefulFailed,
+                           shared_model::QueryResponseFactory::ErrorQueryType::
+                               kStatefulFailed,
                            "query signatories did not pass validation",
                            3,
                            query.hash())
@@ -134,10 +132,10 @@ TEST_F(QueryProcessorTest, QueryProcessorWithWrongKey) {
 
   auto response = qpi->queryHandle(query);
   ASSERT_TRUE(response);
-  ASSERT_NO_THROW(boost::apply_visitor(
-      shared_model::interface::QueryErrorResponseChecker<
-          shared_model::interface::StatefulFailedErrorResponse>(),
-      response->get()));
+  ASSERT_NO_THROW(
+      boost::apply_visitor(shared_model::QueryErrorResponseChecker<
+                               shared_model::StatefulFailedErrorResponse>(),
+                           response->get()));
 }
 
 /**
@@ -155,10 +153,8 @@ TEST_F(QueryProcessorTest, GetBlocksQuery) {
   auto wrapper = make_test_subscriber<CallExact>(
       qpi->blocksQueryHandle(block_query), block_number);
   wrapper.subscribe([](auto response) {
-    ASSERT_NO_THROW({
-      boost::get<const shared_model::interface::BlockResponse &>(
-          response->get());
-    });
+    ASSERT_NO_THROW(
+        { boost::get<const shared_model::BlockResponse &>(response->get()); });
   });
   for (int i = 0; i < block_number; i++) {
     storage->notifier.get_subscriber().on_next(
@@ -182,8 +178,7 @@ TEST_F(QueryProcessorTest, GetBlocksQueryNoPerms) {
       make_test_subscriber<CallExact>(qpi->blocksQueryHandle(block_query), 1);
   wrapper.subscribe([](auto response) {
     ASSERT_NO_THROW({
-      boost::get<const shared_model::interface::BlockErrorResponse &>(
-          response->get());
+      boost::get<const shared_model::BlockErrorResponse &>(response->get());
     });
   });
   for (int i = 0; i < block_number; i++) {

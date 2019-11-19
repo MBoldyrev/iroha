@@ -135,23 +135,19 @@ TEST_F(TxPresenceCacheTest, BatchHashTest) {
   EXPECT_CALL(*tx3, hash()).WillOnce(ReturnRefOfCopy(hash3));
   EXPECT_CALL(*tx3, reducedHash()).WillOnce(ReturnRefOfCopy(reduced_hash_3));
 
-  shared_model::interface::types::SharedTxsCollectionType txs{tx1, tx2, tx3};
+  shared_model::types::SharedTxsCollectionType txs{tx1, tx2, tx3};
   TxPresenceCacheImpl cache(mock_storage);
 
   auto batch_factory = std::make_shared<MockTransactionBatchFactory>();
   EXPECT_CALL(*batch_factory, createTransactionBatch(txs))
-      .WillOnce(Invoke(
-          [&txs](
-              const shared_model::interface::types::SharedTxsCollectionType &)
-              -> shared_model::interface::TransactionBatchFactory::
-                  FactoryResult<std::unique_ptr<
-                      shared_model::interface::TransactionBatch>> {
-                    return iroha::expected::makeValue<std::unique_ptr<
-                        shared_model::interface::TransactionBatch>>(
-                        std::make_unique<
-                            shared_model::interface::TransactionBatchImpl>(
-                            txs));
-                  }));
+      .WillOnce(
+          Invoke([&txs](const shared_model::types::SharedTxsCollectionType &)
+                     -> shared_model::TransactionBatchFactory::FactoryResult<
+                         std::unique_ptr<shared_model::TransactionBatch>> {
+            return iroha::expected::makeValue<
+                std::unique_ptr<shared_model::TransactionBatch>>(
+                std::make_unique<shared_model::TransactionBatchImpl>(txs));
+          }));
 
   batch_factory->createTransactionBatch(txs).match(
       [&](const auto &batch) {

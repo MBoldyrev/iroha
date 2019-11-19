@@ -29,7 +29,7 @@ OnDemandOrderingGate::OnDemandOrderingGate(
         processed_tx_hashes,
     rxcpp::observable<RoundSwitch> round_switch_events,
     std::shared_ptr<cache::OrderingGateCache> cache,
-    std::shared_ptr<shared_model::interface::UnsafeProposalFactory> factory,
+    std::shared_ptr<shared_model::UnsafeProposalFactory> factory,
     std::shared_ptr<ametsuchi::TxPresenceCache> tx_cache,
     std::shared_ptr<ProposalCreationStrategy> proposal_creation_strategy,
     size_t transaction_limit,
@@ -79,7 +79,7 @@ OnDemandOrderingGate::~OnDemandOrderingGate() {
 }
 
 void OnDemandOrderingGate::propagateBatch(
-    std::shared_ptr<shared_model::interface::TransactionBatch> batch) {
+    std::shared_ptr<shared_model::TransactionBatch> batch) {
   cache_->addToBack({batch});
 
   network_client_->onBatches(
@@ -90,7 +90,7 @@ rxcpp::observable<network::OrderingEvent> OnDemandOrderingGate::onProposal() {
   return proposal_notifier_.get_observable();
 }
 
-boost::optional<std::shared_ptr<const shared_model::interface::Proposal>>
+boost::optional<std::shared_ptr<const shared_model::Proposal>>
 OnDemandOrderingGate::processProposalRequest(
     boost::optional<
         std::shared_ptr<const OnDemandOrderingService::ProposalType>> proposal)
@@ -131,9 +131,9 @@ void OnDemandOrderingGate::sendCachedTransactions() {
   }
 }
 
-std::shared_ptr<const shared_model::interface::Proposal>
+std::shared_ptr<const shared_model::Proposal>
 OnDemandOrderingGate::removeReplaysAndDuplicates(
-    std::shared_ptr<const shared_model::interface::Proposal> proposal) const {
+    std::shared_ptr<const shared_model::Proposal> proposal) const {
   std::vector<bool> proposal_txs_validation_results;
   auto tx_is_not_processed = [this](const auto &tx) {
     auto tx_result = tx_cache_->check(tx.hash());
@@ -165,7 +165,7 @@ OnDemandOrderingGate::removeReplaysAndDuplicates(
     }
   };
 
-  shared_model::interface::TransactionBatchParserImpl batch_parser;
+  shared_model::TransactionBatchParserImpl batch_parser;
 
   bool has_invalid_txs = false;
   auto batches = batch_parser.parseBatches(proposal->transactions());

@@ -11,12 +11,10 @@
 #include <memory>
 
 namespace shared_model {
-  namespace interface {
-    class Query;
-    class BlocksQuery;
-    class QueryResponse;
-    class BlockQueryResponse;
-  }  // namespace interface
+  class Query;
+  class BlocksQuery;
+  class QueryResponse;
+  class BlockQueryResponse;
 }  // namespace shared_model
 
 namespace iroha {
@@ -32,16 +30,16 @@ namespace iroha {
        * @param qry - client intent
        * @return resulted response
        */
-      virtual std::unique_ptr<shared_model::interface::QueryResponse>
-      queryHandle(const shared_model::interface::Query &qry) = 0;
+      virtual std::unique_ptr<shared_model::QueryResponse> queryHandle(
+          const shared_model::Query &qry) = 0;
       /**
        * Register client blocks query
        * @param query - client intent
        * @return observable with block query responses
        */
       virtual rxcpp::observable<
-          std::shared_ptr<shared_model::interface::BlockQueryResponse>>
-      blocksQueryHandle(const shared_model::interface::BlocksQuery &qry) = 0;
+          std::shared_ptr<shared_model::BlockQueryResponse>>
+      blocksQueryHandle(const shared_model::BlocksQuery &qry) = 0;
 
       virtual ~QueryProcessor(){};
     };

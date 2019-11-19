@@ -24,8 +24,7 @@ namespace {
      * Returns true - MutableStorage may check if the block was inserted
      * successfully
      */
-    bool insert(
-        std::shared_ptr<const shared_model::interface::Block> block) override {
+    bool insert(std::shared_ptr<const shared_model::Block> block) override {
       return true;
     }
 
@@ -33,8 +32,8 @@ namespace {
      * Returns boost::none - it is not required to fetch individual blocks
      * during WSV reindexing
      */
-    boost::optional<std::shared_ptr<const shared_model::interface::Block>>
-    fetch(shared_model::interface::types::HeightType height) const override {
+    boost::optional<std::shared_ptr<const shared_model::Block>> fetch(
+        shared_model::types::HeightType height) const override {
       return boost::none;
     }
 

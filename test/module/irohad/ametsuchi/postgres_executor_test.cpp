@@ -35,11 +35,10 @@ namespace iroha {
         name = "id";
         account_id = name + "@" + domain_id;
 
-        role_permissions.set(
-            shared_model::interface::permissions::Role::kAddMySignatory);
+        role_permissions.set(shared_model::permissions::Role::kAddMySignatory);
         grantable_permission =
-            shared_model::interface::permissions::Grantable::kAddMySignatory;
-        pubkey = std::make_unique<shared_model::interface::types::PubkeyType>(
+            shared_model::permissions::Grantable::kAddMySignatory;
+        pubkey = std::make_unique<shared_model::types::PubkeyType>(
             std::string('1', 32));
       }
 
@@ -68,14 +67,14 @@ namespace iroha {
        * @return result of command execution
        */
       template <typename CommandType>
-      CommandResult execute(CommandType &&command,
-                            bool do_validation = false,
-                            const shared_model::interface::types::AccountIdType
-                                &creator = "id@domain") {
+      CommandResult execute(
+          CommandType &&command,
+          bool do_validation = false,
+          const shared_model::types::AccountIdType &creator = "id@domain") {
         // TODO igor-egorov 15.04.2019 IR-446 Refactor postgres_executor_test
-        shared_model::interface::Command::CommandVariantType variant{
+        shared_model::Command::CommandVariantType variant{
             std::forward<CommandType>(command)};
-        shared_model::interface::MockCommand cmd;
+        shared_model::MockCommand cmd;
         EXPECT_CALL(cmd, get()).WillRepeatedly(::testing::ReturnRef(variant));
         return executor->execute(cmd, creator, not do_validation);
       }
@@ -106,10 +105,9 @@ namespace iroha {
   }
 
       void addAllPerms(
-          const shared_model::interface::types::AccountIdType &account_id =
-              "id@domain",
-          const shared_model::interface::types::RoleIdType &role_id = "all") {
-        shared_model::interface::RolePermissionSet permissions;
+          const shared_model::types::AccountIdType &account_id = "id@domain",
+          const shared_model::types::RoleIdType &role_id = "all") {
+        shared_model::RolePermissionSet permissions;
         permissions.setAll();
 
         CHECK_SUCCESSFUL_RESULT(execute(
@@ -121,13 +119,11 @@ namespace iroha {
       }
 
       void addAllPermsWithoutRoot(
-          const shared_model::interface::types::AccountIdType &account_id =
-              "id@domain",
-          const shared_model::interface::types::RoleIdType &role_id =
-              "allWithoutRoot") {
-        shared_model::interface::RolePermissionSet permissions;
+          const shared_model::types::AccountIdType &account_id = "id@domain",
+          const shared_model::types::RoleIdType &role_id = "allWithoutRoot") {
+        shared_model::RolePermissionSet permissions;
         permissions.setAll();
-        permissions.unset(shared_model::interface::permissions::Role::kRoot);
+        permissions.unset(shared_model::permissions::Role::kRoot);
 
         CHECK_SUCCESSFUL_RESULT(execute(
             *mock_command_factory->constructCreateRole(role_id, permissions),
@@ -144,11 +140,10 @@ namespace iroha {
        * @param role_id - name of the role for tester, by default "all"
        */
       void addOnePerm(
-          const shared_model::interface::permissions::Role perm,
-          const shared_model::interface::types::AccountIdType account_id =
-              "id@domain",
-          const shared_model::interface::types::RoleIdType role_id = "all") {
-        shared_model::interface::RolePermissionSet permissions;
+          const shared_model::permissions::Role perm,
+          const shared_model::types::AccountIdType account_id = "id@domain",
+          const shared_model::types::RoleIdType role_id = "all") {
+        shared_model::RolePermissionSet permissions;
         permissions.set(perm);
         CHECK_SUCCESSFUL_RESULT(execute(
             *mock_command_factory->constructCreateRole(role_id, permissions),
@@ -195,38 +190,35 @@ namespace iroha {
 
       const std::string role = "role";
       const std::string another_role = "role2";
-      shared_model::interface::RolePermissionSet role_permissions;
-      shared_model::interface::permissions::Grantable grantable_permission;
-      shared_model::interface::types::AccountIdType account_id, name;
-      std::unique_ptr<shared_model::interface::types::PubkeyType> pubkey;
+      shared_model::RolePermissionSet role_permissions;
+      shared_model::permissions::Grantable grantable_permission;
+      shared_model::types::AccountIdType account_id, name;
+      std::unique_ptr<shared_model::types::PubkeyType> pubkey;
 
-      std::unique_ptr<shared_model::interface::Command> command;
+      std::unique_ptr<shared_model::Command> command;
 
       std::unique_ptr<CommandExecutor> executor;
       std::unique_ptr<WsvQuery> wsv_query;
 
-      std::shared_ptr<shared_model::interface::PermissionToString>
-          perm_converter =
-              std::make_shared<shared_model::proto::ProtoPermissionToString>();
+      std::shared_ptr<shared_model::PermissionToString> perm_converter =
+          std::make_shared<shared_model::proto::ProtoPermissionToString>();
 
-      const shared_model::interface::Amount asset_amount_one_zero{"1.0"};
+      const shared_model::Amount asset_amount_one_zero{"1.0"};
 
-      std::unique_ptr<shared_model::interface::MockCommandFactory>
-          mock_command_factory =
-              std::make_unique<shared_model::interface::MockCommandFactory>();
+      std::unique_ptr<shared_model::MockCommandFactory> mock_command_factory =
+          std::make_unique<shared_model::MockCommandFactory>();
     };
 
     class AddPeer : public CommandExecutorTest {
      public:
       void SetUp() override {
         CommandExecutorTest::SetUp();
-        address =
-            std::make_unique<shared_model::interface::types::AddressType>("");
-        pk = std::make_unique<shared_model::interface::types::PubkeyType>("");
-        tls_certificate = std::make_unique<boost::optional<
-            shared_model::interface::types::TLSCertificateType>>("");
-        blank_tls_certificate = std::make_unique<boost::optional<
-            shared_model::interface::types::TLSCertificateType>>();
+        address = std::make_unique<shared_model::types::AddressType>("");
+        pk = std::make_unique<shared_model::types::PubkeyType>("");
+        tls_certificate = std::make_unique<
+            boost::optional<shared_model::types::TLSCertificateType>>("");
+        blank_tls_certificate = std::make_unique<
+            boost::optional<shared_model::types::TLSCertificateType>>();
         peer = std::make_unique<MockPeer>();
         EXPECT_CALL(*peer, address())
             .WillRepeatedly(testing::ReturnRef(*address));
@@ -245,13 +237,11 @@ namespace iroha {
         createDefaultAccount();
       }
 
-      std::unique_ptr<shared_model::interface::types::AddressType> address;
-      std::unique_ptr<shared_model::interface::types::PubkeyType> pk;
-      std::unique_ptr<
-          boost::optional<shared_model::interface::types::TLSCertificateType>>
+      std::unique_ptr<shared_model::types::AddressType> address;
+      std::unique_ptr<shared_model::types::PubkeyType> pk;
+      std::unique_ptr<boost::optional<shared_model::types::TLSCertificateType>>
           blank_tls_certificate;
-      std::unique_ptr<
-          boost::optional<shared_model::interface::types::TLSCertificateType>>
+      std::unique_ptr<boost::optional<shared_model::types::TLSCertificateType>>
           tls_certificate;
       std::unique_ptr<MockPeer> peer;
       std::unique_ptr<MockPeer> peer_with_cert;
@@ -298,7 +288,7 @@ namespace iroha {
      * @then peer is successfully added
      */
     TEST_F(AddPeer, ValidWithRoot) {
-      addOnePerm(shared_model::interface::permissions::Role::kRoot);
+      addOnePerm(shared_model::permissions::Role::kRoot);
       CHECK_SUCCESSFUL_RESULT(
           execute(*mock_command_factory->constructAddPeer(*peer)));
     }
@@ -307,11 +297,10 @@ namespace iroha {
      public:
       void SetUp() override {
         CommandExecutorTest::SetUp();
-        peer = makePeer("address",
-                        shared_model::interface::types::PubkeyType{"pubkey"});
-        another_peer = makePeer(
-            "another_address",
-            shared_model::interface::types::PubkeyType{"another_pubkey"});
+        peer = makePeer("address", shared_model::types::PubkeyType{"pubkey"});
+        another_peer =
+            makePeer("another_address",
+                     shared_model::types::PubkeyType{"another_pubkey"});
         createDefaultRole();
         createDefaultDomain();
         createDefaultAccount();
@@ -410,7 +399,7 @@ namespace iroha {
      * @then peer is successfully removed
      */
     TEST_F(RemovePeer, ValidWithRoot) {
-      addOnePerm(shared_model::interface::permissions::Role::kRoot);
+      addOnePerm(shared_model::permissions::Role::kRoot);
       CHECK_SUCCESSFUL_RESULT(execute(
           *mock_command_factory->constructAddPeer(*another_peer), true));
 
@@ -436,7 +425,7 @@ namespace iroha {
         createDefaultDomain();
         createDefaultAccount();
       }
-      shared_model::interface::RolePermissionSet role_permissions2;
+      shared_model::RolePermissionSet role_permissions2;
     };
 
     /**
@@ -485,7 +474,7 @@ namespace iroha {
      */
     TEST_F(AppendRole, AccountDoesNotHavePermsGenesis) {
       role_permissions2.set(
-          shared_model::interface::permissions::Role::kRemoveMySignatory);
+          shared_model::permissions::Role::kRemoveMySignatory);
       CHECK_SUCCESSFUL_RESULT(
           execute(*mock_command_factory->constructCreateRole(another_role,
                                                              role_permissions2),
@@ -528,7 +517,7 @@ namespace iroha {
      */
     TEST_F(AppendRole, NoRolePermsInAccount) {
       role_permissions2.set(
-          shared_model::interface::permissions::Role::kRemoveMySignatory);
+          shared_model::permissions::Role::kRemoveMySignatory);
       CHECK_SUCCESSFUL_RESULT(
           execute(*mock_command_factory->constructCreateRole(another_role,
                                                              role_permissions2),
@@ -576,7 +565,7 @@ namespace iroha {
      * @then role is appended
      */
     TEST_F(AppendRole, ValidWithRoot) {
-      addOnePerm(shared_model::interface::permissions::Role::kRoot);
+      addOnePerm(shared_model::permissions::Role::kRoot);
       CHECK_SUCCESSFUL_RESULT(
           execute(*mock_command_factory->constructCreateRole(another_role,
                                                              role_permissions),
@@ -596,9 +585,9 @@ namespace iroha {
      * @then role is appended
      */
     TEST_F(AppendRole, NoRolePermsInAccountWithRoot) {
-      addOnePerm(shared_model::interface::permissions::Role::kRoot);
+      addOnePerm(shared_model::permissions::Role::kRoot);
       role_permissions2.set(
-          shared_model::interface::permissions::Role::kRemoveMySignatory);
+          shared_model::permissions::Role::kRemoveMySignatory);
       CHECK_SUCCESSFUL_RESULT(
           execute(*mock_command_factory->constructCreateRole(another_role,
                                                              role_permissions2),
@@ -617,9 +606,8 @@ namespace iroha {
       void SetUp() override {
         CommandExecutorTest::SetUp();
       }
-      shared_model::interface::types::AssetIdType asset_name = "coin";
-      shared_model::interface::types::AssetIdType asset_id =
-          "coin#" + domain_id;
+      shared_model::types::AssetIdType asset_name = "coin";
+      shared_model::types::AssetIdType asset_id = "coin#" + domain_id;
     };
 
     /**
@@ -628,8 +616,7 @@ namespace iroha {
      * @then asset is created
      */
     TEST_F(CreateAsset, Valid) {
-      role_permissions.set(
-          shared_model::interface::permissions::Role::kCreateAsset);
+      role_permissions.set(shared_model::permissions::Role::kCreateAsset);
       CHECK_SUCCESSFUL_RESULT(execute(
           *mock_command_factory->constructCreateRole(role, role_permissions),
           true));
@@ -676,8 +663,7 @@ namespace iroha {
      * @then asset is not created
      */
     TEST_F(CreateAsset, NoDomain) {
-      role_permissions.set(
-          shared_model::interface::permissions::Role::kCreateAsset);
+      role_permissions.set(shared_model::permissions::Role::kCreateAsset);
       CHECK_SUCCESSFUL_RESULT(execute(
           *mock_command_factory->constructCreateRole(role, role_permissions),
           true));
@@ -700,8 +686,7 @@ namespace iroha {
      * @then asset is not created
      */
     TEST_F(CreateAsset, NameNotUnique) {
-      role_permissions.set(
-          shared_model::interface::permissions::Role::kCreateAsset);
+      role_permissions.set(shared_model::permissions::Role::kCreateAsset);
       CHECK_SUCCESSFUL_RESULT(execute(
           *mock_command_factory->constructCreateRole(role, role_permissions),
           true));
@@ -726,7 +711,7 @@ namespace iroha {
      * @then asset is created
      */
     TEST_F(CreateAsset, ValidWithRoot) {
-      role_permissions.set(shared_model::interface::permissions::Role::kRoot);
+      role_permissions.set(shared_model::permissions::Role::kRoot);
       CHECK_SUCCESSFUL_RESULT(execute(
           *mock_command_factory->constructCreateRole(role, role_permissions),
           true));
@@ -753,7 +738,7 @@ namespace iroha {
         createDefaultAccount();
       }
 
-      shared_model::interface::types::DomainIdType domain2_id;
+      shared_model::types::DomainIdType domain2_id;
     };
 
     /**
@@ -821,7 +806,7 @@ namespace iroha {
      * @then domain is created
      */
     TEST_F(CreateDomain, ValidWithRoot) {
-      addOnePerm(shared_model::interface::permissions::Role::kRoot);
+      addOnePerm(shared_model::permissions::Role::kRoot);
       CHECK_SUCCESSFUL_RESULT(execute(
           *mock_command_factory->constructCreateDomain(domain2_id, role)));
       auto dom = sql_query->getDomain(domain2_id);
@@ -837,7 +822,7 @@ namespace iroha {
         createDefaultDomain();
         createDefaultAccount();
       }
-      shared_model::interface::RolePermissionSet role_permissions2;
+      shared_model::RolePermissionSet role_permissions2;
     };
 
     /**
@@ -862,7 +847,7 @@ namespace iroha {
      */
     TEST_F(CreateRole, NoPerms) {
       role_permissions2.set(
-          shared_model::interface::permissions::Role::kRemoveMySignatory);
+          shared_model::permissions::Role::kRemoveMySignatory);
       auto cmd_result = execute(*mock_command_factory->constructCreateRole(
           another_role, role_permissions2));
       auto rl = sql_query->getRolePermissions(another_role);
@@ -898,7 +883,7 @@ namespace iroha {
      * @then role is created
      */
     TEST_F(CreateRole, ValidWithRoot) {
-      addOnePerm(shared_model::interface::permissions::Role::kRoot);
+      addOnePerm(shared_model::permissions::Role::kRoot);
       CHECK_SUCCESSFUL_RESULT(
           execute(*mock_command_factory->constructCreateRole(
               another_role, role_permissions)));
@@ -1011,7 +996,7 @@ namespace iroha {
      * @then role is detached
      */
     TEST_F(DetachRole, ValidWithRoot) {
-      addOnePerm(shared_model::interface::permissions::Role::kRoot);
+      addOnePerm(shared_model::permissions::Role::kRoot);
       CHECK_SUCCESSFUL_RESULT(
           execute(*mock_command_factory->constructDetachRole(account_id,
                                                              another_role)));
@@ -1042,7 +1027,7 @@ namespace iroha {
      */
     TEST_F(GrantPermission, Valid) {
       addAllPerms();
-      auto perm = shared_model::interface::permissions::Grantable::kSetMyQuorum;
+      auto perm = shared_model::permissions::Grantable::kSetMyQuorum;
       CHECK_SUCCESSFUL_RESULT(execute(
           *mock_command_factory->constructGrantPermission(account_id, perm)));
       auto has_perm = sql_query->hasAccountGrantablePermission(
@@ -1056,7 +1041,7 @@ namespace iroha {
      * @then permission is not granted
      */
     TEST_F(GrantPermission, NoPerms) {
-      auto perm = shared_model::interface::permissions::Grantable::kSetMyQuorum;
+      auto perm = shared_model::permissions::Grantable::kSetMyQuorum;
       auto cmd_result = execute(
           *mock_command_factory->constructGrantPermission(account_id, perm));
       auto has_perm = sql_query->hasAccountGrantablePermission(
@@ -1075,7 +1060,7 @@ namespace iroha {
      */
     TEST_F(GrantPermission, NoAccount) {
       addAllPermsWithoutRoot();
-      auto perm = shared_model::interface::permissions::Grantable::kSetMyQuorum;
+      auto perm = shared_model::permissions::Grantable::kSetMyQuorum;
       auto cmd_result = execute(*mock_command_factory->constructGrantPermission(
           "doge@noaccount", perm));
 
@@ -1090,8 +1075,8 @@ namespace iroha {
      * @then permission is granted
      */
     TEST_F(GrantPermission, ValidWithRoot) {
-      addOnePerm(shared_model::interface::permissions::Role::kRoot);
-      auto perm = shared_model::interface::permissions::Grantable::kSetMyQuorum;
+      addOnePerm(shared_model::permissions::Role::kRoot);
+      auto perm = shared_model::permissions::Grantable::kSetMyQuorum;
       CHECK_SUCCESSFUL_RESULT(execute(
           *mock_command_factory->constructGrantPermission(account_id, perm)));
       auto has_perm = sql_query->hasAccountGrantablePermission(
@@ -1103,18 +1088,16 @@ namespace iroha {
      public:
       void SetUp() override {
         CommandExecutorTest::SetUp();
-        pubkey = std::make_unique<shared_model::interface::types::PubkeyType>(
+        pubkey = std::make_unique<shared_model::types::PubkeyType>(
             std::string('1', 32));
-        another_pubkey =
-            std::make_unique<shared_model::interface::types::PubkeyType>(
-                std::string('7', 32));
+        another_pubkey = std::make_unique<shared_model::types::PubkeyType>(
+            std::string('7', 32));
         createDefaultRole();
         createDefaultDomain();
         createDefaultAccount();
       }
-      std::unique_ptr<shared_model::interface::types::PubkeyType> pubkey;
-      std::unique_ptr<shared_model::interface::types::PubkeyType>
-          another_pubkey;
+      std::unique_ptr<shared_model::types::PubkeyType> pubkey;
+      std::unique_ptr<shared_model::types::PubkeyType> another_pubkey;
     };
 
     /**
@@ -1124,7 +1107,7 @@ namespace iroha {
      */
     TEST_F(RemoveSignatory, Valid) {
       addAllPerms();
-      shared_model::interface::types::PubkeyType pk(std::string('5', 32));
+      shared_model::types::PubkeyType pk(std::string('5', 32));
       CHECK_SUCCESSFUL_RESULT(execute(
           *mock_command_factory->constructAddSignatory(pk, account_id), true));
       CHECK_SUCCESSFUL_RESULT(
@@ -1148,13 +1131,12 @@ namespace iroha {
           execute(*mock_command_factory->constructCreateAccount(
                       "id2", domain_id, *pubkey),
                   true));
-      auto perm =
-          shared_model::interface::permissions::Grantable::kRemoveMySignatory;
+      auto perm = shared_model::permissions::Grantable::kRemoveMySignatory;
       CHECK_SUCCESSFUL_RESULT(execute(
           *mock_command_factory->constructGrantPermission(account_id, perm),
           true,
           "id2@domain"));
-      shared_model::interface::types::PubkeyType pk(std::string('5', 32));
+      shared_model::types::PubkeyType pk(std::string('5', 32));
       CHECK_SUCCESSFUL_RESULT(execute(
           *mock_command_factory->constructAddSignatory(pk, "id2@domain"),
           true));
@@ -1178,7 +1160,7 @@ namespace iroha {
      * @then signatory is not removed
      */
     TEST_F(RemoveSignatory, NoPerms) {
-      shared_model::interface::types::PubkeyType pk(std::string('5', 32));
+      shared_model::types::PubkeyType pk(std::string('5', 32));
       CHECK_SUCCESSFUL_RESULT(execute(
           *mock_command_factory->constructAddSignatory(pk, account_id), true));
       auto cmd_result = execute(
@@ -1202,7 +1184,7 @@ namespace iroha {
      */
     TEST_F(RemoveSignatory, NoAccount) {
       addAllPermsWithoutRoot();
-      shared_model::interface::types::PubkeyType pk(std::string('5', 32));
+      shared_model::types::PubkeyType pk(std::string('5', 32));
       CHECK_SUCCESSFUL_RESULT(execute(
           *mock_command_factory->constructAddSignatory(pk, account_id), true));
 
@@ -1220,7 +1202,7 @@ namespace iroha {
      */
     TEST_F(RemoveSignatory, NoSuchSignatory) {
       addAllPermsWithoutRoot();
-      shared_model::interface::types::PubkeyType pk(std::string('5', 32));
+      shared_model::types::PubkeyType pk(std::string('5', 32));
       CHECK_SUCCESSFUL_RESULT(execute(
           *mock_command_factory->constructAddSignatory(pk, account_id), true));
       CHECK_SUCCESSFUL_RESULT(
@@ -1247,7 +1229,7 @@ namespace iroha {
      */
     TEST_F(RemoveSignatory, SignatoriesLessThanQuorum) {
       addAllPermsWithoutRoot();
-      shared_model::interface::types::PubkeyType pk(std::string('5', 32));
+      shared_model::types::PubkeyType pk(std::string('5', 32));
       CHECK_SUCCESSFUL_RESULT(execute(
           *mock_command_factory->constructAddSignatory(pk, account_id), true));
       CHECK_SUCCESSFUL_RESULT(
@@ -1266,8 +1248,8 @@ namespace iroha {
      * @then signatory is successfully removed
      */
     TEST_F(RemoveSignatory, ValidWithRoot) {
-      addOnePerm(shared_model::interface::permissions::Role::kRoot);
-      shared_model::interface::types::PubkeyType pk(std::string('5', 32));
+      addOnePerm(shared_model::permissions::Role::kRoot);
+      shared_model::types::PubkeyType pk(std::string('5', 32));
       CHECK_SUCCESSFUL_RESULT(execute(
           *mock_command_factory->constructAddSignatory(pk, account_id), true));
       CHECK_SUCCESSFUL_RESULT(
@@ -1301,8 +1283,7 @@ namespace iroha {
      * @then permission is revoked
      */
     TEST_F(RevokePermission, Valid) {
-      auto perm =
-          shared_model::interface::permissions::Grantable::kRemoveMySignatory;
+      auto perm = shared_model::permissions::Grantable::kRemoveMySignatory;
       ASSERT_TRUE(sql_query->hasAccountGrantablePermission(
           account_id, account_id, grantable_permission));
 
@@ -1329,8 +1310,7 @@ namespace iroha {
      * @then permission is revoked
      */
     TEST_F(RevokePermission, NoPerms) {
-      auto perm =
-          shared_model::interface::permissions::Grantable::kRemoveMySignatory;
+      auto perm = shared_model::permissions::Grantable::kRemoveMySignatory;
       auto cmd_result = execute(
           *mock_command_factory->constructRevokePermission(account_id, perm));
 
@@ -1353,7 +1333,7 @@ namespace iroha {
                         additional_pubkey_, account_id),
                     true));
       }
-      shared_model::interface::types::PubkeyType additional_pubkey_;
+      shared_model::types::PubkeyType additional_pubkey_;
     };
 
     /**
@@ -1378,7 +1358,7 @@ namespace iroha {
           execute(*mock_command_factory->constructCreateAccount(
                       "id2", domain_id, *pubkey),
                   true));
-      auto perm = shared_model::interface::permissions::Grantable::kSetMyQuorum;
+      auto perm = shared_model::permissions::Grantable::kSetMyQuorum;
       CHECK_SUCCESSFUL_RESULT(execute(
           *mock_command_factory->constructGrantPermission(account_id, perm),
           true,
@@ -1414,7 +1394,7 @@ namespace iroha {
      */
     TEST_F(SetQuorum, LessSignatoriesThanNewQuorum) {
       addAllPermsWithoutRoot();
-      shared_model::interface::types::PubkeyType pk(std::string('5', 32));
+      shared_model::types::PubkeyType pk(std::string('5', 32));
       CHECK_SUCCESSFUL_RESULT(execute(
           *mock_command_factory->constructAddSignatory(pk, account_id), true));
       CHECK_SUCCESSFUL_RESULT(
@@ -1433,7 +1413,7 @@ namespace iroha {
      * @then quorum is set
      */
     TEST_F(SetQuorum, ValidWithRoot) {
-      addOnePerm(shared_model::interface::permissions::Role::kRoot);
+      addOnePerm(shared_model::permissions::Role::kRoot);
 
       CHECK_SUCCESSFUL_RESULT(
           execute(*mock_command_factory->constructSetQuorum(account_id, 2)));
@@ -1448,8 +1428,7 @@ namespace iroha {
       }
 
      public:
-      shared_model::interface::types::AssetIdType asset_id =
-          "coin#" + domain_id;
+      shared_model::types::AssetIdType asset_id = "coin#" + domain_id;
     };
 
     /**
@@ -1517,8 +1496,7 @@ namespace iroha {
      */
     TEST_F(SubtractAccountAssetTest, DomainPermValid) {
       addAsset();
-      addOnePerm(
-          shared_model::interface::permissions::Role::kSubtractDomainAssetQty);
+      addOnePerm(shared_model::permissions::Role::kSubtractDomainAssetQty);
 
       CHECK_SUCCESSFUL_RESULT(
           execute(*mock_command_factory->constructAddAssetQuantity(
@@ -1554,13 +1532,12 @@ namespace iroha {
      * @then no account asset is subtracted
      */
     TEST_F(SubtractAccountAssetTest, DomainPermInvalid) {
-      shared_model::interface::types::DomainIdType domain2_id = "domain2";
+      shared_model::types::DomainIdType domain2_id = "domain2";
       CHECK_SUCCESSFUL_RESULT(execute(
           *mock_command_factory->constructCreateDomain(domain2_id, role),
           true));
       addAsset("coin", domain2_id, 1);
-      addOnePerm(
-          shared_model::interface::permissions::Role::kSubtractDomainAssetQty);
+      addOnePerm(shared_model::permissions::Role::kSubtractDomainAssetQty);
 
       auto asset2_id = "coin#" + domain2_id;
       CHECK_SUCCESSFUL_RESULT(
@@ -1610,7 +1587,7 @@ namespace iroha {
       addAsset();
       auto cmd_result =
           execute(*mock_command_factory->constructSubtractAssetQuantity(
-              asset_id, shared_model::interface::Amount{"1.0000"}));
+              asset_id, shared_model::Amount{"1.0000"}));
 
       std::vector<std::string> query_args{account_id, asset_id, "1.0000", "1"};
       CHECK_ERROR_CODE_AND_MESSAGE(cmd_result, 3, query_args);
@@ -1630,7 +1607,7 @@ namespace iroha {
                   true));
       auto cmd_result =
           execute(*mock_command_factory->constructSubtractAssetQuantity(
-              asset_id, shared_model::interface::Amount{"2.0"}));
+              asset_id, shared_model::Amount{"2.0"}));
 
       std::vector<std::string> query_args{account_id, asset_id, "2.0", "1"};
       CHECK_ERROR_CODE_AND_MESSAGE(cmd_result, 4, query_args);
@@ -1642,7 +1619,7 @@ namespace iroha {
      * @then account asset is successfully subtracted
      */
     TEST_F(SubtractAccountAssetTest, ValidWithRoot) {
-      addOnePerm(shared_model::interface::permissions::Role::kRoot);
+      addOnePerm(shared_model::permissions::Role::kRoot);
       addAsset();
       CHECK_SUCCESSFUL_RESULT(
           execute(*mock_command_factory->constructAddAssetQuantity(
@@ -1682,7 +1659,7 @@ namespace iroha {
       }
 
      public:
-      using Amount = shared_model::interface::Amount;
+      using Amount = shared_model::Amount;
 
       void transferAndCheckError(const std::string &from,
                                  const std::string &to,
@@ -1697,9 +1674,8 @@ namespace iroha {
         CHECK_ERROR_CODE_AND_MESSAGE(result, code, query_args);
       }
 
-      shared_model::interface::types::AssetIdType asset_id =
-          "coin#" + domain_id;
-      shared_model::interface::types::AccountIdType account2_id;
+      shared_model::types::AssetIdType asset_id = "coin#" + domain_id;
+      shared_model::types::AccountIdType account2_id;
     };
 
     /**
@@ -1748,8 +1724,7 @@ namespace iroha {
     TEST_F(TransferAccountAssetTest, ValidGrantablePerms) {
       addAllPermsWithoutRoot(account2_id, "all2");
       addAsset();
-      auto perm =
-          shared_model::interface::permissions::Grantable::kTransferMyAssets;
+      auto perm = shared_model::permissions::Grantable::kTransferMyAssets;
       CHECK_SUCCESSFUL_RESULT(execute(
           *mock_command_factory->constructGrantPermission(account2_id, perm),
           true,
@@ -1757,7 +1732,7 @@ namespace iroha {
 
       CHECK_SUCCESSFUL_RESULT(
           execute(*mock_command_factory->constructAddAssetQuantity(
-                      asset_id, shared_model::interface::Amount{"2.0"}),
+                      asset_id, shared_model::Amount{"2.0"}),
                   true));
       auto account_asset = sql_query->getAccountAsset(account_id, asset_id);
       ASSERT_TRUE(account_asset);
@@ -1812,7 +1787,7 @@ namespace iroha {
       addAsset();
       CHECK_SUCCESSFUL_RESULT(
           execute(*mock_command_factory->constructAddAssetQuantity(
-                      asset_id, shared_model::interface::Amount{"0.1"}),
+                      asset_id, shared_model::Amount{"0.1"}),
                   true));
       CHECK_SUCCESSFUL_RESULT(
           execute(*mock_command_factory->constructAddAssetQuantity(
@@ -1909,7 +1884,7 @@ namespace iroha {
                   true));
       CHECK_SUCCESSFUL_RESULT(
           execute(*mock_command_factory->constructAddAssetQuantity(
-                      asset_id, shared_model::interface::Amount{"0.1"}),
+                      asset_id, shared_model::Amount{"0.1"}),
                   true,
                   account2_id));
       auto cmd_result = execute(*mock_command_factory->constructTransferAsset(
@@ -1917,8 +1892,7 @@ namespace iroha {
 
       auto account_asset = sql_query->getAccountAsset(account2_id, asset_id);
       ASSERT_TRUE(account_asset);
-      ASSERT_EQ(account_asset.get()->balance(),
-                shared_model::interface::Amount{"1.1"});
+      ASSERT_EQ(account_asset.get()->balance(), shared_model::Amount{"1.1"});
     }
 
     /**
@@ -1939,7 +1913,7 @@ namespace iroha {
           account2_id,
           asset_id,
           "desc",
-          shared_model::interface::Amount{"2.0"}));
+          shared_model::Amount{"2.0"}));
 
       std::vector<std::string> query_args{
           account_id, account2_id, asset_id, "2.0", "1"};
@@ -2002,7 +1976,7 @@ namespace iroha {
      * @then account asset is successfully transferred
      */
     TEST_F(TransferAccountAssetTest, ValidWithRoot) {
-      addOnePerm(shared_model::interface::permissions::Role::kRoot);
+      addOnePerm(shared_model::permissions::Role::kRoot);
       addAllPermsWithoutRoot(account2_id, "all2");
       addAsset();
       CHECK_SUCCESSFUL_RESULT(
@@ -2041,9 +2015,7 @@ namespace iroha {
      */
     TEST_F(TransferAccountAssetTest, DestWithRoot) {
       addAllPermsWithoutRoot();
-      addOnePerm(shared_model::interface::permissions::Role::kRoot,
-                 account2_id,
-                 "all2");
+      addOnePerm(shared_model::permissions::Role::kRoot, account2_id, "all2");
       addAsset();
       CHECK_SUCCESSFUL_RESULT(
           execute(*mock_command_factory->constructAddAssetQuantity(
@@ -2086,11 +2058,10 @@ namespace iroha {
             execute(*mock_command_factory->constructCreateAccount(
                         "id2",
                         domain_id,
-                        shared_model::interface::types::PubkeyType(
-                            std::string('2', 32))),
+                        shared_model::types::PubkeyType(std::string('2', 32))),
                     true));
       }
-      shared_model::interface::types::AccountIdType account2_id;
+      shared_model::types::AccountIdType account2_id;
     };
 
     /**
@@ -2099,7 +2070,7 @@ namespace iroha {
      * @then kv is set
      */
     TEST_F(CompareAndSetAccountDetail, Valid) {
-      addOnePerm(shared_model::interface::permissions::Role::kGetMyAccDetail);
+      addOnePerm(shared_model::permissions::Role::kGetMyAccDetail);
       CHECK_SUCCESSFUL_RESULT(
           execute(*mock_command_factory->constructCompareAndSetAccountDetail(
               account_id, "key", "value", boost::none)));
@@ -2114,10 +2085,8 @@ namespace iroha {
      * @then kv is set
      */
     TEST_F(CompareAndSetAccountDetail, ValidGrantablePerm) {
-      addOnePerm(
-          shared_model::interface::permissions::Role::kGetDomainAccDetail);
-      auto perm =
-          shared_model::interface::permissions::Grantable::kSetMyAccountDetail;
+      addOnePerm(shared_model::permissions::Role::kGetDomainAccDetail);
+      auto perm = shared_model::permissions::Grantable::kSetMyAccountDetail;
       CHECK_SUCCESSFUL_RESULT(execute(
           *mock_command_factory->constructGrantPermission(account_id, perm),
           true,
@@ -2193,7 +2162,7 @@ namespace iroha {
      * @then kv1 is set
      */
     TEST_F(CompareAndSetAccountDetail, ValidOldValue) {
-      addOnePerm(shared_model::interface::permissions::Role::kGetMyAccDetail);
+      addOnePerm(shared_model::permissions::Role::kGetMyAccDetail);
       CHECK_SUCCESSFUL_RESULT(
           execute(*mock_command_factory->constructCompareAndSetAccountDetail(
               account_id, "key", "value", boost::none)));
@@ -2207,8 +2176,7 @@ namespace iroha {
               account_id,
               "key",
               "value1",
-              boost::optional<
-                  shared_model::interface::types::AccountDetailValueType>(
+              boost::optional<shared_model::types::AccountDetailValueType>(
                   "value"))));
       auto kv1 = sql_query->getAccountDetail(account_id);
       ASSERT_TRUE(kv1);
@@ -2221,7 +2189,7 @@ namespace iroha {
      * @then corresponding error code is returned
      */
     TEST_F(CompareAndSetAccountDetail, InvalidOldValue) {
-      addOnePerm(shared_model::interface::permissions::Role::kGetMyAccDetail);
+      addOnePerm(shared_model::permissions::Role::kGetMyAccDetail);
       CHECK_SUCCESSFUL_RESULT(
           execute(*mock_command_factory->constructCompareAndSetAccountDetail(
               account_id, "key", "value", boost::none)));
@@ -2235,8 +2203,7 @@ namespace iroha {
               account_id,
               "key",
               "value1",
-              boost::optional<
-                  shared_model::interface::types::AccountDetailValueType>(
+              boost::optional<shared_model::types::AccountDetailValueType>(
                   "oldValue")));
 
       std::vector<std::string> query_args{
@@ -2250,7 +2217,7 @@ namespace iroha {
      * @then kv and k1v1 are set
      */
     TEST_F(CompareAndSetAccountDetail, DifferentKeys) {
-      addOnePerm(shared_model::interface::permissions::Role::kGetMyAccDetail);
+      addOnePerm(shared_model::permissions::Role::kGetMyAccDetail);
       CHECK_SUCCESSFUL_RESULT(
           execute(*mock_command_factory->constructCompareAndSetAccountDetail(
               account_id, "key", "value", boost::none)));
@@ -2271,7 +2238,7 @@ namespace iroha {
      * @then corresponding error code is returned
      */
     TEST_F(CompareAndSetAccountDetail, EmptyDetail) {
-      addOnePerm(shared_model::interface::permissions::Role::kGetMyAccDetail);
+      addOnePerm(shared_model::permissions::Role::kGetMyAccDetail);
       CHECK_SUCCESSFUL_RESULT(
           execute(*mock_command_factory->constructCompareAndSetAccountDetail(
               account_id, "key", "", boost::none)));
@@ -2290,15 +2257,14 @@ namespace iroha {
      * @then corresponding error code is returned
      */
     TEST_F(CompareAndSetAccountDetail, NewDetailWithNotEmptyOldValue) {
-      addOnePerm(shared_model::interface::permissions::Role::kGetMyAccDetail);
+      addOnePerm(shared_model::permissions::Role::kGetMyAccDetail);
 
       auto cmd_result =
           execute(*mock_command_factory->constructCompareAndSetAccountDetail(
               account_id,
               "key",
               "value",
-              boost::optional<
-                  shared_model::interface::types::AccountDetailValueType>(
+              boost::optional<shared_model::types::AccountDetailValueType>(
                   "notEmptyOldValue")));
 
       std::vector<std::string> query_args{
@@ -2312,7 +2278,7 @@ namespace iroha {
      * @then kv is set
      */
     TEST_F(CompareAndSetAccountDetail, ValidWithRoot) {
-      addOnePerm(shared_model::interface::permissions::Role::kRoot);
+      addOnePerm(shared_model::permissions::Role::kRoot);
       CHECK_SUCCESSFUL_RESULT(
           execute(*mock_command_factory->constructCompareAndSetAccountDetail(
               account_id, "key", "value", boost::none)));

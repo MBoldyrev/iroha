@@ -11,17 +11,15 @@
 #include "utils/string_builder.hpp"
 
 namespace shared_model {
-  namespace interface {
-    /**
-     * Error response of broken query, not supported
-     */
-    class NotSupportedErrorResponse
-        : public AbstractErrorResponse<NotSupportedErrorResponse> {
-     private:
-      std::string reason() const override {
-        return "NotSupportedErrorResponse";
-      }
-    };
-  }  // namespace interface
+  /**
+   * Error response of broken query, not supported
+   */
+  class NotSupportedErrorResponse
+      : public AbstractErrorResponse<NotSupportedErrorResponse> {
+   private:
+    std::string reason() const override {
+      return "NotSupportedErrorResponse";
+    }
+  };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_NOT_SUPPORTED_ERROR_RESPONSE_HPP

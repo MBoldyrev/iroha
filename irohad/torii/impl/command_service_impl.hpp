@@ -28,7 +28,7 @@ namespace iroha {
       // TODO: 2019-03-13 @muratovv fix with abstract cache type IR-397
       using CacheType = iroha::cache::Cache<
           shared_model::crypto::Hash,
-          std::shared_ptr<shared_model::interface::TransactionResponse>,
+          std::shared_ptr<shared_model::TransactionResponse>,
           shared_model::crypto::Hash::Hasher>;
 
       /**
@@ -45,8 +45,7 @@ namespace iroha {
           std::shared_ptr<iroha::torii::TransactionProcessor> tx_processor,
           std::shared_ptr<iroha::ametsuchi::Storage> storage,
           std::shared_ptr<iroha::torii::StatusBus> status_bus,
-          std::shared_ptr<shared_model::interface::TxStatusFactory>
-              status_factory,
+          std::shared_ptr<shared_model::TxStatusFactory> status_factory,
           std::shared_ptr<iroha::torii::CommandServiceImpl::CacheType> cache,
           std::shared_ptr<iroha::ametsuchi::TxPresenceCache> tx_presence_cache,
           logger::LoggerPtr log);
@@ -61,13 +60,11 @@ namespace iroha {
       CommandServiceImpl &operator=(const CommandServiceImpl &) = delete;
 
       void handleTransactionBatch(
-          std::shared_ptr<shared_model::interface::TransactionBatch> batch)
-          override;
+          std::shared_ptr<shared_model::TransactionBatch> batch) override;
 
-      std::shared_ptr<shared_model::interface::TransactionResponse> getStatus(
+      std::shared_ptr<shared_model::TransactionResponse> getStatus(
           const shared_model::crypto::Hash &request) override;
-      rxcpp::observable<
-          std::shared_ptr<shared_model::interface::TransactionResponse>>
+      rxcpp::observable<std::shared_ptr<shared_model::TransactionResponse>>
       getStatusStream(const shared_model::crypto::Hash &hash) override;
 
      private:
@@ -87,22 +84,20 @@ namespace iroha {
        */
       void pushStatus(
           const std::string &who,
-          std::shared_ptr<shared_model::interface::TransactionResponse>
-              response);
+          std::shared_ptr<shared_model::TransactionResponse> response);
 
       /**
        * Forward batch to transaction processor and set statuses of all
        * transactions inside it
        * @param batch to be processed
        */
-      void processBatch(
-          std::shared_ptr<shared_model::interface::TransactionBatch> batch);
+      void processBatch(std::shared_ptr<shared_model::TransactionBatch> batch);
 
       std::shared_ptr<iroha::torii::TransactionProcessor> tx_processor_;
       std::shared_ptr<iroha::ametsuchi::Storage> storage_;
       std::shared_ptr<iroha::torii::StatusBus> status_bus_;
       std::shared_ptr<CacheType> cache_;
-      std::shared_ptr<shared_model::interface::TxStatusFactory> status_factory_;
+      std::shared_ptr<shared_model::TxStatusFactory> status_factory_;
       std::shared_ptr<iroha::ametsuchi::TxPresenceCache> tx_presence_cache_;
 
       rxcpp::composite_subscription status_subscription_;

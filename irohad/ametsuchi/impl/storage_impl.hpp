@@ -26,9 +26,7 @@
 #include "logger/logger_manager_fwd.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class QueryResponseFactory;
-  }  // namespace interface
+  class QueryResponseFactory;
 }  // namespace shared_model
 
 namespace iroha {
@@ -41,10 +39,9 @@ namespace iroha {
       static expected::Result<std::shared_ptr<StorageImpl>, std::string> create(
           std::unique_ptr<ametsuchi::PostgresOptions> postgres_options,
           std::shared_ptr<PoolWrapper> pool_wrapper,
-          std::shared_ptr<shared_model::interface::PermissionToString>
-              perm_converter,
+          std::shared_ptr<shared_model::PermissionToString> perm_converter,
           std::shared_ptr<PendingTransactionStorage> pending_txs_storage,
-          std::shared_ptr<shared_model::interface::QueryResponseFactory>
+          std::shared_ptr<shared_model::QueryResponseFactory>
               query_response_factory,
           std::unique_ptr<BlockStorageFactory> temporary_block_storage_factory,
           std::unique_ptr<BlockStorage> persistent_block_storage,
@@ -71,14 +68,14 @@ namespace iroha {
 
       boost::optional<std::shared_ptr<QueryExecutor>> createQueryExecutor(
           std::shared_ptr<PendingTransactionStorage> pending_txs_storage,
-          std::shared_ptr<shared_model::interface::QueryResponseFactory>
-              response_factory) const override;
+          std::shared_ptr<shared_model::QueryResponseFactory> response_factory)
+          const override;
 
       bool insertBlock(
-          std::shared_ptr<const shared_model::interface::Block> block) override;
+          std::shared_ptr<const shared_model::Block> block) override;
 
       expected::Result<void, std::string> insertPeer(
-          const shared_model::interface::Peer &peer) override;
+          const shared_model::Peer &peer) override;
 
       std::unique_ptr<MutableStorage> createMutableStorage(
           std::shared_ptr<CommandExecutor> command_executor,
@@ -100,14 +97,14 @@ namespace iroha {
       bool preparedCommitEnabled() const override;
 
       CommitResult commitPrepared(
-          std::shared_ptr<const shared_model::interface::Block> block) override;
+          std::shared_ptr<const shared_model::Block> block) override;
 
       std::shared_ptr<WsvQuery> getWsvQuery() const override;
 
       std::shared_ptr<BlockQuery> getBlockQuery() const override;
 
-      rxcpp::observable<std::shared_ptr<const shared_model::interface::Block>>
-      on_commit() override;
+      rxcpp::observable<std::shared_ptr<const shared_model::Block>> on_commit()
+          override;
 
       void prepareBlock(std::unique_ptr<TemporaryWsv> wsv) override;
 
@@ -120,10 +117,9 @@ namespace iroha {
           std::unique_ptr<ametsuchi::PostgresOptions> postgres_options,
           std::unique_ptr<BlockStorage> block_store,
           std::shared_ptr<PoolWrapper> pool_wrapper,
-          std::shared_ptr<shared_model::interface::PermissionToString>
-              perm_converter,
+          std::shared_ptr<shared_model::PermissionToString> perm_converter,
           std::shared_ptr<PendingTransactionStorage> pending_txs_storage,
-          std::shared_ptr<shared_model::interface::QueryResponseFactory>
+          std::shared_ptr<shared_model::QueryResponseFactory>
               query_response_factory,
           std::unique_ptr<BlockStorageFactory> temporary_block_storage_factory,
           size_t pool_size,
@@ -139,7 +135,7 @@ namespace iroha {
        * add block to block storage
        */
       StoreBlockResult storeBlock(
-          std::shared_ptr<const shared_model::interface::Block> block);
+          std::shared_ptr<const shared_model::Block> block);
 
       /**
        * Method tries to perform rollback on passed session
@@ -154,16 +150,14 @@ namespace iroha {
       std::shared_ptr<soci::connection_pool> &connection_;
 
       rxcpp::composite_subscription notifier_lifetime_;
-      rxcpp::subjects::subject<
-          std::shared_ptr<const shared_model::interface::Block>>
+      rxcpp::subjects::subject<std::shared_ptr<const shared_model::Block>>
           notifier_;
 
-      std::shared_ptr<shared_model::interface::PermissionToString>
-          perm_converter_;
+      std::shared_ptr<shared_model::PermissionToString> perm_converter_;
 
       std::shared_ptr<PendingTransactionStorage> pending_txs_storage_;
 
-      std::shared_ptr<shared_model::interface::QueryResponseFactory>
+      std::shared_ptr<shared_model::QueryResponseFactory>
           query_response_factory_;
 
       std::unique_ptr<BlockStorageFactory> temporary_block_storage_factory_;

@@ -46,8 +46,7 @@ namespace iroha {
        * @see PeerType for individual descriptions
        */
       struct CurrentPeers {
-        PeerCollectionType<std::shared_ptr<shared_model::interface::Peer>>
-            peers;
+        PeerCollectionType<std::shared_ptr<shared_model::Peer>> peers;
       };
 
       OnDemandConnectionManager(

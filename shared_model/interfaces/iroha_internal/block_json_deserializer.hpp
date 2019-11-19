@@ -12,25 +12,23 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class Block;
+  class Block;
+  /**
+   * BlockJsonDeserializer is an interface which allows transforming json
+   * string to block objects.
+   */
+  class BlockJsonDeserializer {
+   public:
     /**
-     * BlockJsonDeserializer is an interface which allows transforming json
-     * string to block objects.
+     * Try to parse json string into a block object
+     * @param json - json string for a block
+     * @return pointer to a block if json was valid or an error
      */
-    class BlockJsonDeserializer {
-     public:
-      /**
-       * Try to parse json string into a block object
-       * @param json - json string for a block
-       * @return pointer to a block if json was valid or an error
-       */
-      virtual iroha::expected::Result<std::unique_ptr<Block>, std::string>
-      deserialize(const types::JsonType &json) const = 0;
+    virtual iroha::expected::Result<std::unique_ptr<Block>, std::string>
+    deserialize(const types::JsonType &json) const = 0;
 
-      virtual ~BlockJsonDeserializer() = default;
-    };
-  }  // namespace interface
+    virtual ~BlockJsonDeserializer() = default;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_BLOCK_JSON_DESERIALIZER_HPP

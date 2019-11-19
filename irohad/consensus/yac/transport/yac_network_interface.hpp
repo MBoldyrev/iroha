@@ -10,9 +10,7 @@
 #include <vector>
 
 namespace shared_model {
-  namespace interface {
-    class Peer;
-  }  // namespace interface
+  class Peer;
 }  // namespace shared_model
 
 namespace iroha {
@@ -42,7 +40,7 @@ namespace iroha {
          * @param to - peer recipient
          * @param state - message for sending
          */
-        virtual void sendState(const shared_model::interface::Peer &to,
+        virtual void sendState(const shared_model::Peer &to,
                                const std::vector<VoteMessage> &state) = 0;
 
         /**

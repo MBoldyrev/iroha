@@ -46,14 +46,14 @@ static void BM_AddAssetQuantity(benchmark::State &state) {
       std::chrono::hours(1));
   itf.setInitialState(kAdminKeypair);
   for (int i = 0; i < kProposalSize; i++) {
-    itf.sendTx(createUserWithPerms(
-                   kUser,
-                   kUserKeypair.publicKey(),
-                   kRole,
-                   {shared_model::interface::permissions::Role::kAddAssetQty})
-                   .build()
-                   .signAndAddSignature(kAdminKeypair)
-                   .finish());
+    itf.sendTx(
+        createUserWithPerms(kUser,
+                            kUserKeypair.publicKey(),
+                            kRole,
+                            {shared_model::permissions::Role::kAddAssetQty})
+            .build()
+            .signAndAddSignature(kAdminKeypair)
+            .finish());
   }
   itf.skipBlock().skipProposal();
 

@@ -23,8 +23,7 @@ namespace integration_framework {
 
     namespace detail {
 
-      using TxPointerType =
-          std::shared_ptr<shared_model::interface::Transaction>;
+      using TxPointerType = std::shared_ptr<shared_model::Transaction>;
 
       class PointerTxHasher {
        public:
@@ -58,8 +57,7 @@ namespace integration_framework {
       /// round, and there was no storeProposal call for this round, a proposal
       /// with the transactions from internal storage will be returned
       void addTransactions(
-          std::vector<std::shared_ptr<shared_model::interface::Transaction>>
-              transactions);
+          std::vector<std::shared_ptr<shared_model::Transaction>> transactions);
 
       /// Adds batches to internal storage. When a proposal is asked for a
       /// round, and there was no storeProposal call for this round, a proposal
@@ -71,19 +69,18 @@ namespace integration_framework {
      private:
       /// Create a proposal from pending transactions, if any.
       boost::optional<std::unique_ptr<Proposal>> makeProposalFromPendingTxs(
-          shared_model::interface::types::HeightType height);
+          shared_model::types::HeightType height);
 
       OrderingProposalRequestResult getDefaultProposal(
           const Round &round) const;
 
-      std::unique_ptr<shared_model::interface::UnsafeProposalFactory>
-          proposal_factory_;
+      std::unique_ptr<shared_model::UnsafeProposalFactory> proposal_factory_;
 
       std::shared_ptr<DefaultProvider> default_provider_;
       std::map<Round, std::shared_ptr<const Proposal>> proposals_map_;
       mutable std::shared_timed_mutex proposals_map_mutex_;
 
-      std::unordered_set<std::shared_ptr<shared_model::interface::Transaction>,
+      std::unordered_set<std::shared_ptr<shared_model::Transaction>,
                          detail::PointerTxHasher,
                          detail::PointerTxHashEquality>
           pending_txs_;

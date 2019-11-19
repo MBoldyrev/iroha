@@ -22,8 +22,7 @@
 namespace {
   auto getPublicKeys(
       const std::vector<iroha::consensus::yac::VoteMessage> &votes) {
-    return boost::copy_range<
-        shared_model::interface::types::PublicKeyCollectionType>(
+    return boost::copy_range<shared_model::types::PublicKeyCollectionType>(
         votes | boost::adaptors::transformed([](auto &vote) {
           return vote.signature->publicKey();
         }));

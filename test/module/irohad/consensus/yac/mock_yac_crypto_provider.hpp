@@ -32,7 +32,7 @@ namespace iroha {
        * @param pub_key - public key to put in the signature
        * @return new signature
        */
-      std::shared_ptr<shared_model::interface::Signature> createSig(
+      std::shared_ptr<shared_model::Signature> createSig(
           const std::string &pub_key) {
         auto sig = std::make_shared<MockSignature>();
         EXPECT_CALL(*sig, publicKey())

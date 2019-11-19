@@ -16,21 +16,18 @@
 #include "logger/logger.hpp"
 
 using namespace iroha::ametsuchi;
-using namespace shared_model::interface::types;
+using namespace shared_model::types;
 
 using TxPosition = iroha::ametsuchi::Indexer::TxPosition;
 
 namespace {
   // Return transfer asset if command contains it
-  boost::optional<const shared_model::interface::TransferAsset &>
-  getTransferAsset(const shared_model::interface::Command &cmd) noexcept {
-    using ReturnType =
-        boost::optional<const shared_model::interface::TransferAsset &>;
+  boost::optional<const shared_model::TransferAsset &> getTransferAsset(
+      const shared_model::Command &cmd) noexcept {
+    using ReturnType = boost::optional<const shared_model::TransferAsset &>;
     return iroha::visit_in_place(
         cmd.get(),
-        [](const shared_model::interface::TransferAsset &c) {
-          return ReturnType(c);
-        },
+        [](const shared_model::TransferAsset &c) { return ReturnType(c); },
         [](const auto &) -> ReturnType { return boost::none; });
   }
 }  // namespace
@@ -41,7 +38,7 @@ namespace {
 void PostgresBlockIndex::makeAccountAssetIndex(
     const AccountIdType &account_id,
     TxPosition position,
-    const shared_model::interface::Transaction::CommandsType &commands) {
+    const shared_model::Transaction::CommandsType &commands) {
   for (const auto &transfer :
        commands | boost::adaptors::transformed(getTransferAsset)
            | boost::adaptors::filtered(
@@ -64,7 +61,7 @@ PostgresBlockIndex::PostgresBlockIndex(std::unique_ptr<Indexer> indexer,
                                        logger::LoggerPtr log)
     : indexer_(std::move(indexer)), log_(std::move(log)) {}
 
-void PostgresBlockIndex::index(const shared_model::interface::Block &block) {
+void PostgresBlockIndex::index(const shared_model::Block &block) {
   auto height = block.height();
   for (const auto &tx : block.transactions() | boost::adaptors::indexed(0)) {
     const auto &creator_id = tx.value().creatorAccountId();

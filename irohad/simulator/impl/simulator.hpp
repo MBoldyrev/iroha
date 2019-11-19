@@ -27,8 +27,8 @@ namespace iroha {
 
     class Simulator : public VerifiedProposalCreator, public BlockCreator {
      public:
-      using CryptoSignerType = shared_model::crypto::AbstractCryptoModelSigner<
-          shared_model::interface::Block>;
+      using CryptoSignerType =
+          shared_model::crypto::AbstractCryptoModelSigner<shared_model::Block>;
 
       Simulator(
           // TODO IR-598 mboldyrev 2019.08.10: remove command_executor from
@@ -38,19 +38,18 @@ namespace iroha {
           std::shared_ptr<validation::StatefulValidator> statefulValidator,
           std::shared_ptr<ametsuchi::TemporaryFactory> factory,
           std::shared_ptr<CryptoSignerType> crypto_signer,
-          std::unique_ptr<shared_model::interface::UnsafeBlockFactory>
-              block_factory,
+          std::unique_ptr<shared_model::UnsafeBlockFactory> block_factory,
           logger::LoggerPtr log);
 
       ~Simulator() override;
 
       std::shared_ptr<validation::VerifiedProposalAndErrors> processProposal(
-          const shared_model::interface::Proposal &proposal) override;
+          const shared_model::Proposal &proposal) override;
 
       rxcpp::observable<VerifiedProposalCreatorEvent> onVerifiedProposal()
           override;
 
-      boost::optional<std::shared_ptr<shared_model::interface::Block>>
+      boost::optional<std::shared_ptr<shared_model::Block>>
       processVerifiedProposal(
           const std::shared_ptr<iroha::validation::VerifiedProposalAndErrors>
               &verified_proposal_and_errors,
@@ -73,8 +72,7 @@ namespace iroha {
       std::shared_ptr<validation::StatefulValidator> validator_;
       std::shared_ptr<ametsuchi::TemporaryFactory> ametsuchi_factory_;
       std::shared_ptr<CryptoSignerType> crypto_signer_;
-      std::unique_ptr<shared_model::interface::UnsafeBlockFactory>
-          block_factory_;
+      std::unique_ptr<shared_model::UnsafeBlockFactory> block_factory_;
 
       logger::LoggerPtr log_;
     };

@@ -20,12 +20,12 @@
 using namespace common_constants;
 using namespace executor_testing;
 using namespace framework::expected;
-using namespace shared_model::interface::types;
+using namespace shared_model::types;
 
 using iroha::ametsuchi::QueryExecutorResult;
-using shared_model::interface::AccountDetailResponse;
-using shared_model::interface::permissions::Grantable;
-using shared_model::interface::permissions::Role;
+using shared_model::AccountDetailResponse;
+using shared_model::permissions::Grantable;
+using shared_model::permissions::Role;
 using shared_model::plain::AccountDetailRecordId;
 
 struct GetAccountDetailTest : public ExecutorTestBase {
@@ -76,11 +76,11 @@ struct GetAccountDetailTest : public ExecutorTestBase {
     }
   }
 
-  std::unique_ptr<shared_model::interface::MockAccountDetailPaginationMeta>
+  std::unique_ptr<shared_model::MockAccountDetailPaginationMeta>
   makePaginationMeta(
       TransactionsNumberType page_size,
       const boost::optional<AccountDetailRecordId> &requested_first_record_id) {
-    boost::optional<const shared_model::interface::AccountDetailRecordId &>
+    boost::optional<const shared_model::AccountDetailRecordId &>
         first_record_id;
     if (requested_first_record_id) {
       first_record_id = requested_first_record_id.value();
@@ -119,7 +119,7 @@ struct GetAccountDetailTest : public ExecutorTestBase {
       boost::optional<shared_model::plain::AccountDetailRecordId>
           first_record_id,
       size_t page_size) {
-    checkSuccessfulResult<shared_model::interface::AccountDetailResponse>(
+    checkSuccessfulResult<shared_model::AccountDetailResponse>(
         response, [&, this](const auto &response) {
           this->validatePageResponse(
               response, writer, key, first_record_id, page_size);
@@ -312,7 +312,7 @@ struct GetAccountDetailRecordIdTest
       boost::optional<shared_model::plain::AccountDetailRecordId>
           first_record_id,
       size_t page_size) {
-    checkSuccessfulResult<shared_model::interface::AccountDetailResponse>(
+    checkSuccessfulResult<shared_model::AccountDetailResponse>(
         response, [&, this](const auto &response) {
           Response expected_response =
               this->getExpectedResponse(this->requestedWriter(),
@@ -365,7 +365,7 @@ TEST_P(GetAccountDetailRecordIdTest, NoDetail) {
  * @then there is an error
  */
 TEST_P(GetAccountDetailRecordIdTest, InvalidNoAccount) {
-  checkQueryError<shared_model::interface::NoAccountDetailErrorResponse>(
+  checkQueryError<shared_model::NoAccountDetailErrorResponse>(
       GetAccountDetailTest::queryPage(
           makeAccountId(1), makeKey(1), boost::none, 1),
       error_codes::kNoStatefulError);
@@ -393,7 +393,7 @@ TEST_P(GetAccountDetailRecordIdTest, NonexistentFirstRecordId) {
   ASSERT_NO_FATAL_FAILURE(prepareState(1, 1));
   auto response =
       queryPage(AccountDetailRecordId{makeAccountId(2), makeKey(2)}, 5);
-  checkQueryError<shared_model::interface::StatefulFailedErrorResponse>(
+  checkQueryError<shared_model::StatefulFailedErrorResponse>(
       response, error_codes::kInvalidPagination);
 }
 
@@ -462,9 +462,9 @@ using GetAccountDetailPermissionTest =
 TEST_P(GetAccountDetailPermissionTest, QueryPermissionTest) {
   ASSERT_NO_FATAL_FAILURE(prepareState({Role::kSetMyAccountDetail}));
   addDetails(1, 1);
-  checkResponse<shared_model::interface::AccountDetailResponse>(
+  checkResponse<shared_model::AccountDetailResponse>(
       queryPage(makeAccountId(0), makeKey(0), boost::none, 1, getSpectator()),
-      [this](const shared_model::interface::AccountDetailResponse &response) {
+      [this](const shared_model::AccountDetailResponse &response) {
         this->validatePageResponse(
             response, makeAccountId(0), makeKey(0), boost::none, 1);
       });

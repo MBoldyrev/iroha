@@ -47,7 +47,7 @@ namespace iroha {
        * @param to - peer recipient of message
        * @param providing_state - state for transmitting
        */
-      virtual void sendState(const shared_model::interface::Peer &to,
+      virtual void sendState(const shared_model::Peer &to,
                              const MstState &providing_state) = 0;
 
       virtual ~MstTransport() = default;

@@ -21,9 +21,9 @@ class SubtractAssetQuantity : public AcceptanceFixture {
    * @param perms are the permissions of the user
    * @return built tx and a hash of its payload
    */
-  auto makeUserWithPerms(const interface::RolePermissionSet &perms = {
-                             interface::permissions::Role::kSubtractAssetQty,
-                             interface::permissions::Role::kAddAssetQty}) {
+  auto makeUserWithPerms(const RolePermissionSet &perms = {
+                             permissions::Role::kSubtractAssetQty,
+                             permissions::Role::kAddAssetQty}) {
     return AcceptanceFixture::makeUserWithPerms(perms);
   }
 
@@ -100,7 +100,7 @@ TEST_F(SubtractAssetQuantity, Overdraft) {
 TEST_F(SubtractAssetQuantity, NoPermissions) {
   IntegrationTestFramework(1)
       .setInitialState(kAdminKeypair)
-      .sendTx(makeUserWithPerms({interface::permissions::Role::kAddAssetQty}))
+      .sendTx(makeUserWithPerms({permissions::Role::kAddAssetQty}))
       .skipProposal()
       .skipVerifiedProposal()
       .skipBlock()

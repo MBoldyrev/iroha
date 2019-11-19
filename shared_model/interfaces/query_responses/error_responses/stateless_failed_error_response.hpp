@@ -11,17 +11,15 @@
 #include "utils/string_builder.hpp"
 
 namespace shared_model {
-  namespace interface {
-    /**
-     * Error response of broken query's stateless validation
-     */
-    class StatelessFailedErrorResponse
-        : public AbstractErrorResponse<StatelessFailedErrorResponse> {
-     private:
-      std::string reason() const override {
-        return "StatelessFailedErrorResponse";
-      }
-    };
-  }  // namespace interface
+  /**
+   * Error response of broken query's stateless validation
+   */
+  class StatelessFailedErrorResponse
+      : public AbstractErrorResponse<StatelessFailedErrorResponse> {
+   private:
+    std::string reason() const override {
+      return "StatelessFailedErrorResponse";
+    }
+  };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_STATELESS_FAILED_ERROR_RESPONSE_HPP

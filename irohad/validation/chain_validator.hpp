@@ -11,9 +11,7 @@
 #include <rxcpp/rx-observable-fwd.hpp>
 
 namespace shared_model {
-  namespace interface {
-    class Block;
-  }  // namespace interface
+  class Block;
 }  // namespace shared_model
 
 namespace iroha {
@@ -44,8 +42,7 @@ namespace iroha {
        * otherwise
        */
       virtual bool validateAndApply(
-          rxcpp::observable<std::shared_ptr<shared_model::interface::Block>>
-              blocks,
+          rxcpp::observable<std::shared_ptr<shared_model::Block>> blocks,
           ametsuchi::MutableStorage &storage) const = 0;
     };
   }  // namespace validation

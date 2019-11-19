@@ -11,8 +11,7 @@ using namespace iroha::ametsuchi;
 
 FlatFileBlockStorageFactory::FlatFileBlockStorageFactory(
     std::function<std::string()> path_provider,
-    std::shared_ptr<shared_model::interface::BlockJsonConverter>
-        json_block_converter,
+    std::shared_ptr<shared_model::BlockJsonConverter> json_block_converter,
     logger::LoggerManagerTreePtr log_manager)
     : path_provider_(std::move(path_provider)),
       json_block_converter_(std::move(json_block_converter)),

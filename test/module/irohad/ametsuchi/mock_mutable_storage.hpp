@@ -18,15 +18,12 @@ namespace iroha {
      public:
       MOCK_METHOD2(
           apply,
-          bool(rxcpp::observable<
-                   std::shared_ptr<shared_model::interface::Block>>,
-               std::function<
-                   bool(std::shared_ptr<const shared_model::interface::Block>,
-                        const iroha::LedgerState &)>));
-      MOCK_METHOD1(apply,
-                   bool(std::shared_ptr<const shared_model::interface::Block>));
+          bool(rxcpp::observable<std::shared_ptr<shared_model::Block>>,
+               std::function<bool(std::shared_ptr<const shared_model::Block>,
+                                  const iroha::LedgerState &)>));
+      MOCK_METHOD1(apply, bool(std::shared_ptr<const shared_model::Block>));
       MOCK_METHOD1(applyPrepared,
-                   bool(std::shared_ptr<const shared_model::interface::Block>));
+                   bool(std::shared_ptr<const shared_model::Block>));
     };
 
   }  // namespace ametsuchi

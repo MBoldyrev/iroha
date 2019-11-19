@@ -52,7 +52,7 @@ class CommandServiceTest : public Test {
       transaction_processor_;
   std::shared_ptr<iroha::ametsuchi::MockStorage> storage_;
   std::shared_ptr<iroha::torii::MockStatusBus> status_bus_;
-  std::shared_ptr<shared_model::interface::TxStatusFactory> tx_status_factory_;
+  std::shared_ptr<shared_model::TxStatusFactory> tx_status_factory_;
   std::shared_ptr<iroha::ametsuchi::MockTxPresenceCache> tx_presence_cache_;
   logger::LoggerPtr log_;
   std::shared_ptr<iroha::torii::CommandServiceImpl::CacheType> cache_;
@@ -89,7 +89,7 @@ TEST_F(CommandServiceTest, getStatusStreamWithAbsentHash) {
   wrapper.subscribe([](const auto &tx_response) {
     return iroha::visit_in_place(
         tx_response->get(),
-        [](const shared_model::interface::CommittedTxResponse &) {},
+        [](const shared_model::CommittedTxResponse &) {},
         [](const auto &a) { FAIL() << "Wrong response!"; });
   });
   ASSERT_TRUE(wrapper.validate());
@@ -109,9 +109,8 @@ TEST_F(CommandServiceTest, ProcessBatchOn) {
       .WillRepeatedly(Return(
           rxcpp::observable<>::empty<iroha::torii::StatusBus::Objects>()));
 
-  EXPECT_CALL(
-      *tx_presence_cache_,
-      check(Matcher<const shared_model::interface::TransactionBatch &>(_)))
+  EXPECT_CALL(*tx_presence_cache_,
+              check(Matcher<const shared_model::TransactionBatch &>(_)))
       .WillRepeatedly(Return(std::vector<iroha::ametsuchi::TxCacheStatusType>(
           {iroha::ametsuchi::tx_cache_status_responses::Missing(hash)})));
 
@@ -150,8 +149,7 @@ TEST_F(CommandServiceTest, RejectedTxStatus) {
   auto response = command_service_->getStatus(hash);
 
   ASSERT_NO_THROW({
-    boost::get<const shared_model::interface::RejectedTxResponse &>(
-        response->get());
+    boost::get<const shared_model::RejectedTxResponse &>(response->get());
   }) << "Wrong response. Expected: RejectedTxResponse, Received: "
      << response->toString();
 }

@@ -9,17 +9,15 @@
 #include "cryptography/signed.hpp"
 
 namespace shared_model {
-  namespace interface {
-    bool Signature::operator==(const Signature &rhs) const {
-      return publicKey() == rhs.publicKey();
-    }
+  bool Signature::operator==(const Signature &rhs) const {
+    return publicKey() == rhs.publicKey();
+  }
 
-    std::string Signature::toString() const {
-      return detail::PrettyStringBuilder()
-          .init("Signature")
-          .append("publicKey", publicKey().hex())
-          .append("signedData", signedData().hex())
-          .finalize();
-    }
-  }  // namespace interface
+  std::string Signature::toString() const {
+    return detail::PrettyStringBuilder()
+        .init("Signature")
+        .append("publicKey", publicKey().hex())
+        .append("signedData", signedData().hex())
+        .finalize();
+  }
 }  // namespace shared_model

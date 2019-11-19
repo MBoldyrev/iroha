@@ -21,7 +21,7 @@ namespace iroha {
        */
       struct VoteMessage {
         YacHash hash;
-        std::shared_ptr<shared_model::interface::Signature> signature;
+        std::shared_ptr<shared_model::Signature> signature;
 
         bool operator==(const VoteMessage &rhs) const {
           return hash == rhs.hash and *signature == *rhs.signature;

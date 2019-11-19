@@ -13,7 +13,7 @@
 
 class OldPendingTxsStorageFixture : public ::testing::Test {
  public:
-  using Batch = shared_model::interface::TransactionBatch;
+  using Batch = shared_model::TransactionBatch;
 
   /**
    * Get the closest to now timestamp from the future but never return the same
@@ -33,8 +33,8 @@ class OldPendingTxsStorageFixture : public ::testing::Test {
 
   auto dummyPreparedTxsObservable() {
     return rxcpp::observable<>::empty<
-        std::pair<shared_model::interface::types::AccountIdType,
-                  shared_model::interface::types::HashType>>();
+        std::pair<shared_model::types::AccountIdType,
+                  shared_model::types::HashType>>();
   }
 
   std::shared_ptr<iroha::DefaultCompleter> completer_ =
@@ -234,11 +234,10 @@ TEST_F(OldPendingTxsStorageFixture, SeparateBatchesDoNotOverwriteStorage) {
 TEST_F(OldPendingTxsStorageFixture, PreparedBatch) {
   auto state = std::make_shared<iroha::MstState>(
       iroha::MstState::empty(mst_state_log_, completer_));
-  std::shared_ptr<shared_model::interface::TransactionBatch> batch =
-      addSignatures(
-          makeTestBatch(txBuilder(3, getUniqueTime(), 3, "alice@iroha")),
-          0,
-          makeSignature("1", "pub_key_1"));
+  std::shared_ptr<shared_model::TransactionBatch> batch = addSignatures(
+      makeTestBatch(txBuilder(3, getUniqueTime(), 3, "alice@iroha")),
+      0,
+      makeSignature("1", "pub_key_1"));
   *state += batch;
 
   rxcpp::subjects::subject<decltype(batch)> prepared_batches_subject;
@@ -272,11 +271,10 @@ TEST_F(OldPendingTxsStorageFixture, PreparedBatch) {
 TEST_F(OldPendingTxsStorageFixture, ExpiredBatch) {
   auto state = std::make_shared<iroha::MstState>(
       iroha::MstState::empty(mst_state_log_, completer_));
-  std::shared_ptr<shared_model::interface::TransactionBatch> batch =
-      addSignatures(
-          makeTestBatch(txBuilder(3, getUniqueTime(), 3, "alice@iroha")),
-          0,
-          makeSignature("1", "pub_key_1"));
+  std::shared_ptr<shared_model::TransactionBatch> batch = addSignatures(
+      makeTestBatch(txBuilder(3, getUniqueTime(), 3, "alice@iroha")),
+      0,
+      makeSignature("1", "pub_key_1"));
   *state += batch;
 
   rxcpp::subjects::subject<decltype(batch)> expired_batches_subject;

@@ -9,18 +9,16 @@
 #include "interfaces/transaction_responses/abstract_tx_response.hpp"
 
 namespace shared_model {
-  namespace interface {
-    /**
-     * Multisignature transactions, has not received required number of
-     * confirmations of creator signatories
-     */
-    class MstExpiredResponse : public AbstractTxResponse<MstExpiredResponse> {
-     private:
-      std::string className() const override {
-        return "MstExpiredResponse";
-      }
-    };
+  /**
+   * Multisignature transactions, has not received required number of
+   * confirmations of creator signatories
+   */
+  class MstExpiredResponse : public AbstractTxResponse<MstExpiredResponse> {
+   private:
+    std::string className() const override {
+      return "MstExpiredResponse";
+    }
+  };
 
-  }  // namespace interface
 }  // namespace shared_model
 #endif  // IROHA_MST_EXPIRED_RESPONSE_HPP

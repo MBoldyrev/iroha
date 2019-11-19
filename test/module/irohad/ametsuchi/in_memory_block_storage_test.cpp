@@ -27,7 +27,7 @@ class InMemoryBlockStorageTest : public ::testing::Test {
 
   InMemoryBlockStorage block_storage_;
   std::shared_ptr<MockBlock> block_ = std::make_shared<NiceMock<MockBlock>>();
-  shared_model::interface::types::HeightType height_ = 1;
+  shared_model::types::HeightType height_ = 1;
 };
 
 /**

@@ -26,10 +26,10 @@ using ::testing::UnorderedElementsAre;
 TEST(OnDemandCacheTest, TestAddToBack) {
   OnDemandCache cache;
 
-  shared_model::interface::types::HashType hash1("hash1");
+  shared_model::types::HashType hash1("hash1");
   auto batch1 = createMockBatchWithHash(hash1);
 
-  shared_model::interface::types::HashType hash2("hash2");
+  shared_model::types::HashType hash2("hash2");
   auto batch2 = createMockBatchWithHash(hash2);
 
   cache.addToBack({batch1, batch2});
@@ -47,9 +47,9 @@ TEST(OnDemandCacheTest, TestAddToBack) {
 TEST(OnDemandCache, Pop) {
   OnDemandCache cache;
 
-  shared_model::interface::types::HashType hash1("hash1");
-  shared_model::interface::types::HashType hash2("hash2");
-  shared_model::interface::types::HashType hash3("hash3");
+  shared_model::types::HashType hash1("hash1");
+  shared_model::types::HashType hash2("hash2");
+  shared_model::types::HashType hash3("hash3");
 
   auto batch1 = createMockBatchWithHash(hash1);
   auto batch2 = createMockBatchWithHash(hash2);
@@ -111,9 +111,9 @@ TEST(OnDemandCache, Pop) {
 TEST(OnDemandCache, Remove) {
   OnDemandCache cache;
 
-  shared_model::interface::types::HashType hash1("hash1");
-  shared_model::interface::types::HashType hash2("hash2");
-  shared_model::interface::types::HashType hash3("hash3");
+  shared_model::types::HashType hash1("hash1");
+  shared_model::types::HashType hash2("hash2");
+  shared_model::types::HashType hash3("hash3");
 
   auto tx1 = createMockTransactionWithHash(hash1);
   auto tx2 = createMockTransactionWithHash(hash2);

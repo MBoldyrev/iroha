@@ -12,29 +12,27 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
+  /**
+   * Provide response with account
+   */
+  class AccountResponse : public ModelPrimitive<AccountResponse> {
+   public:
+    /// Collection of role_id types
+    using AccountRolesIdType = std::vector<types::RoleIdType>;
+
     /**
-     * Provide response with account
+     * @return the fetched account.
      */
-    class AccountResponse : public ModelPrimitive<AccountResponse> {
-     public:
-      /// Collection of role_id types
-      using AccountRolesIdType = std::vector<types::RoleIdType>;
+    virtual const Account &account() const = 0;
 
-      /**
-       * @return the fetched account.
-       */
-      virtual const Account &account() const = 0;
+    /**
+     * @return roles attached to the account
+     */
+    virtual const AccountRolesIdType &roles() const = 0;
 
-      /**
-       * @return roles attached to the account
-       */
-      virtual const AccountRolesIdType &roles() const = 0;
+    std::string toString() const override;
 
-      std::string toString() const override;
-
-      bool operator==(const ModelType &rhs) const override;
-    };
-  }  // namespace interface
+    bool operator==(const ModelType &rhs) const override;
+  };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_ACCOUNT_RESPONSE_HPP

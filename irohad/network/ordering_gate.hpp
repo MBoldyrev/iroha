@@ -13,10 +13,8 @@
 #include "network/peer_communication_service.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class Proposal;
-    class TransactionBatch;
-  }  // namespace interface
+  class Proposal;
+  class TransactionBatch;
 }  // namespace shared_model
 
 namespace iroha {
@@ -32,7 +30,7 @@ namespace iroha {
        * @param batch
        */
       virtual void propagateBatch(
-          std::shared_ptr<shared_model::interface::TransactionBatch> batch) = 0;
+          std::shared_ptr<shared_model::TransactionBatch> batch) = 0;
 
       /**
        * Return observable of all proposals in the consensus

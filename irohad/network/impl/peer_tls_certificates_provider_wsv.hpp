@@ -13,9 +13,7 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class Peer;
-  }
+  class Peer;
 }  // namespace shared_model
 
 namespace iroha {
@@ -31,16 +29,13 @@ namespace iroha {
 
       ~PeerTlsCertificatesProviderWsv();
 
-      iroha::expected::Result<
-          shared_model::interface::types::TLSCertificateType,
-          std::string>
-      get(const shared_model::interface::Peer &peer) const override;
+      iroha::expected::Result<shared_model::types::TLSCertificateType,
+                              std::string>
+      get(const shared_model::Peer &peer) const override;
 
-      iroha::expected::Result<
-          shared_model::interface::types::TLSCertificateType,
-          std::string>
-      get(const shared_model::interface::types::PubkeyType &public_key)
-          const override;
+      iroha::expected::Result<shared_model::types::TLSCertificateType,
+                              std::string>
+      get(const shared_model::types::PubkeyType &public_key) const override;
 
      private:
       class Impl;

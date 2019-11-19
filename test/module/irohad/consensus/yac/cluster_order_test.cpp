@@ -17,11 +17,11 @@ class ClusterOrderTest : public ::testing::Test {
     peers_list = {p1, p2};
   }
 
-  std::shared_ptr<shared_model::interface::Peer> p1;
-  std::shared_ptr<shared_model::interface::Peer> p2;
+  std::shared_ptr<shared_model::Peer> p1;
+  std::shared_ptr<shared_model::Peer> p2;
 
-  std::vector<std::shared_ptr<shared_model::interface::Peer>> peers_list;
-  std::vector<std::shared_ptr<shared_model::interface::Peer>> empty_peers_list;
+  std::vector<std::shared_ptr<shared_model::Peer>> peers_list;
+  std::vector<std::shared_ptr<shared_model::Peer>> empty_peers_list;
 };
 
 /**

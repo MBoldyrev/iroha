@@ -53,8 +53,7 @@ namespace iroha {
           std::shared_ptr<cache::OrderingGateCache>
               cache,  // TODO: IR-1863 12.11.18 kamilsa change cache to
                       // unique_ptr
-          std::shared_ptr<shared_model::interface::UnsafeProposalFactory>
-              factory,
+          std::shared_ptr<shared_model::UnsafeProposalFactory> factory,
           std::shared_ptr<ametsuchi::TxPresenceCache> tx_cache,
           std::shared_ptr<ProposalCreationStrategy> proposal_creation_strategy,
           size_t transaction_limit,
@@ -63,8 +62,7 @@ namespace iroha {
       ~OnDemandOrderingGate() override;
 
       void propagateBatch(
-          std::shared_ptr<shared_model::interface::TransactionBatch> batch)
-          override;
+          std::shared_ptr<shared_model::TransactionBatch> batch) override;
 
       rxcpp::observable<network::OrderingEvent> onProposal() override;
 
@@ -72,7 +70,7 @@ namespace iroha {
       /**
        * Handle an incoming proposal from ordering service
        */
-      boost::optional<std::shared_ptr<const shared_model::interface::Proposal>>
+      boost::optional<std::shared_ptr<const shared_model::Proposal>>
       processProposalRequest(
           boost::optional<
               std::shared_ptr<const OnDemandOrderingService::ProposalType>>
@@ -83,10 +81,8 @@ namespace iroha {
       /**
        * remove already processed transactions from proposal
        */
-      std::shared_ptr<const shared_model::interface::Proposal>
-      removeReplaysAndDuplicates(
-          std::shared_ptr<const shared_model::interface::Proposal> proposal)
-          const;
+      std::shared_ptr<const shared_model::Proposal> removeReplaysAndDuplicates(
+          std::shared_ptr<const shared_model::Proposal> proposal) const;
 
       logger::LoggerPtr log_;
 
@@ -97,8 +93,7 @@ namespace iroha {
       rxcpp::composite_subscription processed_tx_hashes_subscription_;
       rxcpp::composite_subscription round_switch_subscription_;
       std::shared_ptr<cache::OrderingGateCache> cache_;
-      std::shared_ptr<shared_model::interface::UnsafeProposalFactory>
-          proposal_factory_;
+      std::shared_ptr<shared_model::UnsafeProposalFactory> proposal_factory_;
       std::shared_ptr<ametsuchi::TxPresenceCache> tx_cache_;
 
       rxcpp::composite_subscription proposal_notifier_lifetime_;

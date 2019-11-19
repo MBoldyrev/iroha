@@ -8,7 +8,7 @@
 namespace iroha {
   namespace network {
 
-    std::shared_ptr<const shared_model::interface::Proposal> getProposalUnsafe(
+    std::shared_ptr<const shared_model::Proposal> getProposalUnsafe(
         const OrderingEvent &event) {
       return *event.proposal;
     }

@@ -47,10 +47,8 @@ namespace iroha {
         std::shared_ptr<PeerCommunicationService> pcs,
         std::shared_ptr<MstProcessor> mst_processor,
         std::shared_ptr<iroha::torii::StatusBus> status_bus,
-        std::shared_ptr<shared_model::interface::TxStatusFactory>
-            status_factory,
-        rxcpp::observable<std::shared_ptr<const shared_model::interface::Block>>
-            commits,
+        std::shared_ptr<shared_model::TxStatusFactory> status_factory,
+        rxcpp::observable<std::shared_ptr<const shared_model::Block>> commits,
         logger::LoggerPtr log)
         : pcs_(std::move(pcs)),
           mst_processor_(std::move(mst_processor)),
@@ -120,8 +118,8 @@ namespace iroha {
     }
 
     void TransactionProcessorImpl::batchHandle(
-        std::shared_ptr<shared_model::interface::TransactionBatch>
-            transaction_batch) const {
+        std::shared_ptr<shared_model::TransactionBatch> transaction_batch)
+        const {
       log_->info("handle batch");
       if (transaction_batch->hasAllSignatures()
           and not mst_processor_->batchInStorage(transaction_batch)) {
@@ -139,8 +137,8 @@ namespace iroha {
         const shared_model::crypto::Hash &hash,
         const validation::CommandError &cmd_error) const {
       auto tx_error = cmd_error.name.empty()
-          ? shared_model::interface::TxStatusFactory::TransactionError{}
-          : shared_model::interface::TxStatusFactory::TransactionError{
+          ? shared_model::TxStatusFactory::TransactionError{}
+          : shared_model::TxStatusFactory::TransactionError{
                 cmd_error.name, cmd_error.index, cmd_error.error_code};
       switch (tx_status) {
         case TxStatusType::kStatelessFailed: {
@@ -193,8 +191,7 @@ namespace iroha {
     }
 
     void TransactionProcessorImpl::publishEnoughSignaturesStatus(
-        const shared_model::interface::types::SharedTxsCollectionType &txs)
-        const {
+        const shared_model::types::SharedTxsCollectionType &txs) const {
       for (const auto &tx : txs) {
         this->publishStatus(TxStatusType::kEnoughSignaturesCollected,
                             tx->hash());

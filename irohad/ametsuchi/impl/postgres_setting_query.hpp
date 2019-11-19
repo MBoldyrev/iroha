@@ -40,8 +40,7 @@ namespace iroha {
       logger::LoggerPtr log_;
     };
 
-    extern const shared_model::interface::types::SettingKeyType
-        kMaxDescriptionSizeKey;
+    extern const shared_model::types::SettingKeyType kMaxDescriptionSizeKey;
   }  // namespace ametsuchi
 }  // namespace iroha
 

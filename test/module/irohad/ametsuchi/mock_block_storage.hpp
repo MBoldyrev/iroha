@@ -14,13 +14,11 @@ namespace iroha {
   namespace ametsuchi {
     class MockBlockStorage : public BlockStorage {
      public:
-      MOCK_METHOD1(insert,
-                   bool(std::shared_ptr<const shared_model::interface::Block>));
+      MOCK_METHOD1(insert, bool(std::shared_ptr<const shared_model::Block>));
       MOCK_CONST_METHOD1(
           fetch,
-          boost::optional<
-              std::shared_ptr<const shared_model::interface::Block>>(
-              shared_model::interface::types::HeightType));
+          boost::optional<std::shared_ptr<const shared_model::Block>>(
+              shared_model::types::HeightType));
       MOCK_CONST_METHOD0(size, size_t(void));
       MOCK_METHOD0(clear, void(void));
       MOCK_CONST_METHOD1(forEach, void(FunctionType));

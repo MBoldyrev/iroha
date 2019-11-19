@@ -14,9 +14,7 @@
 #include "common/result.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class Block;
-  }
+  class Block;
 }  // namespace shared_model
 
 namespace iroha {
@@ -53,7 +51,7 @@ namespace iroha {
        * @return Result of committing the prepared block.
        */
       virtual CommitResult commitPrepared(
-          std::shared_ptr<const shared_model::interface::Block> block) = 0;
+          std::shared_ptr<const shared_model::Block> block) = 0;
 
       virtual ~MutableFactory() = default;
     };

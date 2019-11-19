@@ -13,8 +13,8 @@ namespace iroha {
 
     extern const std::string kRootRolePermStr;
 
-    shared_model::interface::types::DomainIdType getDomainFromName(
-        const shared_model::interface::types::AccountIdType &account_id);
+    shared_model::types::DomainIdType getDomainFromName(
+        const shared_model::types::AccountIdType &account_id);
 
   }  // namespace ametsuchi
 }  // namespace iroha

@@ -21,7 +21,7 @@ namespace iroha {
 
       boost::optional<ClusterOrdering> PeerOrdererImpl::getOrdering(
           const YacHash &hash,
-          std::vector<std::shared_ptr<shared_model::interface::Peer>> peers) {
+          std::vector<std::shared_ptr<shared_model::Peer>> peers) {
         std::seed_seq seed(hash.vote_hashes.block_hash.begin(),
                            hash.vote_hashes.block_hash.end());
         std::default_random_engine gen(seed);

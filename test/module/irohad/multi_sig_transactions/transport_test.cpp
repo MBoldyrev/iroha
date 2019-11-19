@@ -25,7 +25,7 @@
 
 using namespace iroha::network;
 using namespace iroha::model;
-using namespace shared_model::interface;
+using namespace shared_model;
 
 using ::testing::_;
 using ::testing::A;
@@ -54,20 +54,19 @@ class TransportTest : public ::testing::Test {
         std::make_shared<iroha::DefaultCompleter>(std::chrono::minutes(0));
     mst_notification_transport_ =
         std::make_shared<iroha::MockMstTransportNotification>();
-    interface_tx_validator =
-        std::make_unique<shared_model::validation::MockValidator<
-            shared_model::interface::Transaction>>();
+    interface_tx_validator = std::make_unique<
+        shared_model::validation::MockValidator<shared_model::Transaction>>();
     proto_tx_validator =
         std::make_unique<shared_model::validation::MockValidator<
             iroha::protocol::Transaction>>();
     tx_factory = std::make_shared<shared_model::proto::ProtoTransportFactory<
-        shared_model::interface::Transaction,
+        shared_model::Transaction,
         shared_model::proto::Transaction>>(std::move(interface_tx_validator),
                                            std::move(proto_tx_validator));
     // TODO 18.06.19 (@alex9430) fix the test so that neither boost::none, nor
     // nullptr is in use with sender_factory
     MstTransportGrpc::SenderFactory sender_factory_(
-        [this](const shared_model::interface::Peer &peer) {
+        [this](const shared_model::Peer &peer) {
           return std::unique_ptr<transport::MstTransportGrpc::StubInterface>(
               stub);
         });
@@ -84,7 +83,7 @@ class TransportTest : public ::testing::Test {
                                            sender_factory_);
     transport->subscribe(mst_notification_transport_);
 
-    shared_model::interface::types::PubkeyType pk(
+    shared_model::types::PubkeyType pk(
         shared_model::crypto::Hash::fromHexString(
             "abcdabcdabcdabcdabcdabcdabcdabcd"));
     peer = makePeer("localhost:0", pk);
@@ -93,7 +92,7 @@ class TransportTest : public ::testing::Test {
   std::shared_ptr<AsyncGrpcClient<google::protobuf::Empty>> async_call_;
   std::shared_ptr<TransactionBatchParserImpl> parser_;
   std::shared_ptr<shared_model::validation::AbstractValidator<
-      shared_model::interface::TransactionBatch>>
+      shared_model::TransactionBatch>>
       batch_validator_;
   std::shared_ptr<TransactionBatchFactoryImpl> batch_factory_;
   std::shared_ptr<iroha::ametsuchi::MockTxPresenceCache> tx_presence_cache_;
@@ -101,18 +100,18 @@ class TransportTest : public ::testing::Test {
   std::shared_ptr<iroha::DefaultCompleter> completer_;
   std::shared_ptr<iroha::MockMstTransportNotification>
       mst_notification_transport_;
-  std::unique_ptr<shared_model::validation::MockValidator<
-      shared_model::interface::Transaction>>
+  std::unique_ptr<
+      shared_model::validation::MockValidator<shared_model::Transaction>>
       interface_tx_validator;
   std::unique_ptr<
       shared_model::validation::MockValidator<iroha::protocol::Transaction>>
       proto_tx_validator;
   std::shared_ptr<shared_model::proto::ProtoTransportFactory<
-      shared_model::interface::Transaction,
+      shared_model::Transaction,
       shared_model::proto::Transaction>>
       tx_factory;
   std::shared_ptr<MstTransportGrpc> transport;
-  std::shared_ptr<shared_model::interface::Peer> peer;
+  std::shared_ptr<shared_model::Peer> peer;
   // stub will be deleted by unique_ptr created in client_creator
   iroha::network::transport::MockMstTransportGrpcStub *stub;
 };
@@ -134,7 +133,7 @@ static bool statesEqual(const iroha::MstState &a, const iroha::MstState &b) {
  */
 TEST_F(TransportTest, SendAndReceive) {
   EXPECT_CALL(*tx_presence_cache_,
-              check(A<const shared_model::interface::TransactionBatch &>()))
+              check(A<const shared_model::TransactionBatch &>()))
       .WillRepeatedly(Invoke([](const auto &batch) {
         iroha::ametsuchi::TxPresenceCache::BatchStatusCollectionType result;
         std::transform(
@@ -234,9 +233,7 @@ TEST_F(TransportTest, ReplayAttack) {
 
   EXPECT_CALL(
       *tx_presence_cache_,
-      check(
-          ::testing::Matcher<const shared_model::interface::TransactionBatch &>(
-              _)))
+      check(::testing::Matcher<const shared_model::TransactionBatch &>(_)))
       .WillOnce(::testing::Return(first_mock_response))
       .WillOnce(::testing::Return(second_mock_response));
 

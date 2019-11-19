@@ -19,16 +19,14 @@ namespace integration_framework {
     class OsNetworkNotifier final
         : public iroha::network::OrderingServiceNotification {
      public:
-      void onBatch(std::unique_ptr<shared_model::interface::TransactionBatch>
-                       batch) override;
+      void onBatch(
+          std::unique_ptr<shared_model::TransactionBatch> batch) override;
 
-      rxcpp::observable<
-          std::shared_ptr<shared_model::interface::TransactionBatch>>
+      rxcpp::observable<std::shared_ptr<shared_model::TransactionBatch>>
       getObservable();
 
      private:
-      rxcpp::subjects::subject<
-          std::shared_ptr<shared_model::interface::TransactionBatch>>
+      rxcpp::subjects::subject<std::shared_ptr<shared_model::TransactionBatch>>
           batches_subject_;
       std::mutex batches_subject_mutex_;
     };

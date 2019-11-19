@@ -23,17 +23,15 @@ namespace iroha {
        */
       class OnDemandOsServerGrpc : public proto::OnDemandOrdering::Service {
        public:
-        using TransportFactoryType =
-            shared_model::interface::AbstractTransportFactory<
-                shared_model::interface::Transaction,
-                iroha::protocol::Transaction>;
+        using TransportFactoryType = shared_model::AbstractTransportFactory<
+            shared_model::Transaction,
+            iroha::protocol::Transaction>;
 
         OnDemandOsServerGrpc(
             std::shared_ptr<OdOsNotification> ordering_service,
             std::shared_ptr<TransportFactoryType> transaction_factory,
-            std::shared_ptr<shared_model::interface::TransactionBatchParser>
-                batch_parser,
-            std::shared_ptr<shared_model::interface::TransactionBatchFactory>
+            std::shared_ptr<shared_model::TransactionBatchParser> batch_parser,
+            std::shared_ptr<shared_model::TransactionBatchFactory>
                 transaction_batch_factory,
             logger::LoggerPtr log);
 
@@ -50,10 +48,8 @@ namespace iroha {
         std::shared_ptr<OdOsNotification> ordering_service_;
 
         std::shared_ptr<TransportFactoryType> transaction_factory_;
-        std::shared_ptr<shared_model::interface::TransactionBatchParser>
-            batch_parser_;
-        std::shared_ptr<shared_model::interface::TransactionBatchFactory>
-            batch_factory_;
+        std::shared_ptr<shared_model::TransactionBatchParser> batch_parser_;
+        std::shared_ptr<shared_model::TransactionBatchFactory> batch_factory_;
 
         logger::LoggerPtr log_;
       };

@@ -154,14 +154,14 @@ TEST_F(TransactionValidatorTest, BatchValidTest) {
   std::string creator_account_id = "admin@test";
 
   TestTransactionBuilder builder;
-  auto tx = builder.creatorAccountId(creator_account_id)
-                .createdTime(created_time)
-                .quorum(1)
-                .batchMeta(interface::types::BatchType::ATOMIC,
-                           std::vector<interface::types::HashType>())
-                .createDomain("test", "test")
-                .build()
-                .getTransport();
+  auto tx =
+      builder.creatorAccountId(creator_account_id)
+          .createdTime(created_time)
+          .quorum(1)
+          .batchMeta(types::BatchType::ATOMIC, std::vector<types::HashType>())
+          .createDomain("test", "test")
+          .build()
+          .getTransport();
   shared_model::validation::DefaultUnsignedTransactionValidator
       transaction_validator(iroha::test::kTestsValidatorsConfig);
   auto result = proto::Transaction(iroha::protocol::Transaction(tx));
@@ -169,5 +169,5 @@ TEST_F(TransactionValidatorTest, BatchValidTest) {
 
   ASSERT_FALSE(answer.hasErrors()) << answer.reason();
   ASSERT_EQ(tx.payload().batch().type(),
-            static_cast<int>(interface::types::BatchType::ATOMIC));
+            static_cast<int>(types::BatchType::ATOMIC));
 }

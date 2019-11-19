@@ -16,9 +16,7 @@
 #include "synchronizer/synchronizer_common.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class Transaction;
-  }
+  class Transaction;
 }  // namespace shared_model
 
 namespace iroha {
@@ -27,11 +25,10 @@ namespace iroha {
      public:
       MOCK_CONST_METHOD1(
           propagate_transaction,
-          void(std::shared_ptr<const shared_model::interface::Transaction>));
+          void(std::shared_ptr<const shared_model::Transaction>));
 
-      MOCK_CONST_METHOD1(
-          propagate_batch,
-          void(std::shared_ptr<shared_model::interface::TransactionBatch>));
+      MOCK_CONST_METHOD1(propagate_batch,
+                         void(std::shared_ptr<shared_model::TransactionBatch>));
 
       MOCK_CONST_METHOD0(onProposal, rxcpp::observable<OrderingEvent>());
 
@@ -46,28 +43,24 @@ namespace iroha {
 
     class MockBlockLoader : public BlockLoader {
      public:
-      MOCK_METHOD2(
-          retrieveBlocks,
-          rxcpp::observable<std::shared_ptr<shared_model::interface::Block>>(
-              const shared_model::interface::types::HeightType,
-              const shared_model::crypto::PublicKey &));
-      MOCK_METHOD2(
-          retrieveBlock,
-          boost::optional<std::shared_ptr<shared_model::interface::Block>>(
-              const shared_model::crypto::PublicKey &,
-              shared_model::interface::types::HeightType));
+      MOCK_METHOD2(retrieveBlocks,
+                   rxcpp::observable<std::shared_ptr<shared_model::Block>>(
+                       const shared_model::types::HeightType,
+                       const shared_model::crypto::PublicKey &));
+      MOCK_METHOD2(retrieveBlock,
+                   boost::optional<std::shared_ptr<shared_model::Block>>(
+                       const shared_model::crypto::PublicKey &,
+                       shared_model::types::HeightType));
     };
 
     class MockOrderingGate : public OrderingGate {
      public:
       MOCK_CONST_METHOD1(
           propagateTransaction,
-          void(std::shared_ptr<const shared_model::interface::Transaction>
-                   transaction));
+          void(std::shared_ptr<const shared_model::Transaction> transaction));
 
-      MOCK_METHOD1(
-          propagateBatch,
-          void(std::shared_ptr<shared_model::interface::TransactionBatch>));
+      MOCK_METHOD1(propagateBatch,
+                   void(std::shared_ptr<shared_model::TransactionBatch>));
 
       MOCK_METHOD0(onProposal, rxcpp::observable<OrderingEvent>());
 

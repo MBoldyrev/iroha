@@ -21,8 +21,7 @@ namespace iroha {
           const shared_model::crypto::Hash &hash) const override;
 
       boost::optional<BatchStatusCollectionType> check(
-          const shared_model::interface::TransactionBatch &batch)
-          const override;
+          const shared_model::TransactionBatch &batch) const override;
 
      private:
       /**

@@ -97,8 +97,7 @@ Irohad::Irohad(
     const shared_model::crypto::Keypair &keypair,
     std::chrono::milliseconds max_rounds_delay,
     size_t stale_stream_max_rounds,
-    boost::optional<shared_model::interface::types::PeerList>
-        opt_alternative_peers,
+    boost::optional<shared_model::types::PeerList> opt_alternative_peers,
     logger::LoggerManagerTreePtr logger_manager,
     const boost::optional<GossipPropagationStrategyParams>
         &opt_mst_gossip_params,
@@ -235,7 +234,7 @@ Irohad::RunResult Irohad::initStorage(
   auto block_transport_factory =
       std::make_shared<shared_model::proto::ProtoBlockFactory>(
           std::make_unique<shared_model::validation::AlwaysValidValidator<
-              shared_model::interface::Block>>(),
+              shared_model::Block>>(),
           std::make_unique<shared_model::validation::ProtoBlockValidator>());
 
   boost::optional<std::string> string_res = boost::none;
@@ -277,9 +276,8 @@ Irohad::RunResult Irohad::initStorage(
       return expected::makeError(
           "Unable to create FlatFile for persistent storage");
     }
-    std::shared_ptr<shared_model::interface::BlockJsonConverter>
-        block_converter =
-            std::make_shared<shared_model::proto::ProtoBlockJsonConverter>();
+    std::shared_ptr<shared_model::BlockJsonConverter> block_converter =
+        std::make_shared<shared_model::proto::ProtoBlockJsonConverter>();
     persistent_block_storage = std::make_unique<FlatFileBlockStorage>(
         std::move(flat_file.get()),
         block_converter,
@@ -433,8 +431,7 @@ Irohad::RunResult Irohad::initCryptoProvider() {
 }
 
 Irohad::RunResult Irohad::initBatchParser() {
-  batch_parser =
-      std::make_shared<shared_model::interface::TransactionBatchParserImpl>();
+  batch_parser = std::make_shared<shared_model::TransactionBatchParserImpl>();
 
   log_->info("[Init] => transaction batch parser");
   return {};
@@ -475,8 +472,8 @@ Irohad::RunResult Irohad::initFactories() {
       shared_model::validation::AbstractValidator<iroha::protocol::Transaction>>
       proto_transaction_validator = std::make_shared<
           shared_model::validation::ProtoTransactionValidator>();
-  std::unique_ptr<shared_model::validation::AbstractValidator<
-      shared_model::interface::Proposal>>
+  std::unique_ptr<
+      shared_model::validation::AbstractValidator<shared_model::Proposal>>
       proposal_validator =
           std::make_unique<shared_model::validation::DefaultProposalValidator>(
               proposal_validators_config_);
@@ -487,7 +484,7 @@ Irohad::RunResult Irohad::initFactories() {
               proto_transaction_validator);
   proposal_factory =
       std::make_shared<shared_model::proto::ProtoTransportFactory<
-          shared_model::interface::Proposal,
+          shared_model::Proposal,
           shared_model::proto::Proposal>>(std::move(proposal_validator),
                                           std::move(proto_proposal_validator));
 
@@ -496,24 +493,24 @@ Irohad::RunResult Irohad::initFactories() {
           validators_config_);
   // transaction factories
   transaction_batch_factory_ =
-      std::make_shared<shared_model::interface::TransactionBatchFactoryImpl>(
+      std::make_shared<shared_model::TransactionBatchFactoryImpl>(
           batch_validator);
 
-  std::unique_ptr<shared_model::validation::AbstractValidator<
-      shared_model::interface::Transaction>>
+  std::unique_ptr<
+      shared_model::validation::AbstractValidator<shared_model::Transaction>>
       transaction_validator = std::make_unique<
           shared_model::validation::DefaultOptionalSignedTransactionValidator>(
           validators_config_);
   transaction_factory =
       std::make_shared<shared_model::proto::ProtoTransportFactory<
-          shared_model::interface::Transaction,
+          shared_model::Transaction,
           shared_model::proto::Transaction>>(
           std::move(transaction_validator),
           std::move(proto_transaction_validator));
 
   // query factories
-  std::unique_ptr<shared_model::validation::AbstractValidator<
-      shared_model::interface::Query>>
+  std::unique_ptr<
+      shared_model::validation::AbstractValidator<shared_model::Query>>
       query_validator = std::make_unique<
           shared_model::validation::DefaultSignedQueryValidator>(
           validators_config_);
@@ -522,7 +519,7 @@ Irohad::RunResult Irohad::initFactories() {
       proto_query_validator =
           std::make_unique<shared_model::validation::ProtoQueryValidator>();
   query_factory = std::make_shared<
-      shared_model::proto::ProtoTransportFactory<shared_model::interface::Query,
+      shared_model::proto::ProtoTransportFactory<shared_model::Query,
                                                  shared_model::proto::Query>>(
       std::move(query_validator), std::move(proto_query_validator));
 
@@ -534,7 +531,7 @@ Irohad::RunResult Irohad::initFactories() {
 
   blocks_query_factory =
       std::make_shared<shared_model::proto::ProtoTransportFactory<
-          shared_model::interface::BlocksQuery,
+          shared_model::BlocksQuery,
           shared_model::proto::BlocksQuery>>(
           std::move(blocks_query_validator),
           std::move(proto_blocks_query_validator));
@@ -569,10 +566,10 @@ Irohad::RunResult Irohad::initOrderingGate() {
   decltype(top_height) block_hashes =
       top_height > kNumBlocks ? kNumBlocks : top_height;
 
-  auto hash_stub = shared_model::interface::types::HashType{std::string(
+  auto hash_stub = shared_model::types::HashType{std::string(
       shared_model::crypto::DefaultCryptoAlgorithmType::kHashLength, '0')};
-  std::vector<shared_model::interface::types::HashType> hashes{
-      kNumBlocks - block_hashes, hash_stub};
+  std::vector<shared_model::types::HashType> hashes{kNumBlocks - block_hashes,
+                                                    hash_stub};
 
   for (decltype(top_height) i = top_height - block_hashes + 1; i <= top_height;
        ++i) {
@@ -583,8 +580,7 @@ Irohad::RunResult Irohad::initOrderingGate() {
     }
 
     auto &block =
-        boost::get<
-            expected::Value<std::unique_ptr<shared_model::interface::Block>>>(
+        boost::get<expected::Value<std::unique_ptr<shared_model::Block>>>(
             block_result)
             .value;
     hashes.push_back(block->hash());

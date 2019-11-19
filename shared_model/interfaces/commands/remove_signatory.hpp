@@ -11,26 +11,24 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
+  /**
+   * Remove signatory from the account
+   */
+  class RemoveSignatory : public ModelPrimitive<RemoveSignatory> {
+   public:
     /**
-     * Remove signatory from the account
+     * @return account from which remove signatory
      */
-    class RemoveSignatory : public ModelPrimitive<RemoveSignatory> {
-     public:
-      /**
-       * @return account from which remove signatory
-       */
-      virtual const types::AccountIdType &accountId() const = 0;
-      /**
-       * @return Public key to remove from account
-       */
-      virtual const types::PubkeyType &pubkey() const = 0;
+    virtual const types::AccountIdType &accountId() const = 0;
+    /**
+     * @return Public key to remove from account
+     */
+    virtual const types::PubkeyType &pubkey() const = 0;
 
-      std::string toString() const override;
+    std::string toString() const override;
 
-      bool operator==(const ModelType &rhs) const override;
-    };
-  }  // namespace interface
+    bool operator==(const ModelType &rhs) const override;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_REMOVE_SIGNATORY_HPP

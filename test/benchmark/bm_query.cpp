@@ -23,14 +23,14 @@ using namespace common_constants;
 static void BM_QueryAccount(benchmark::State &state) {
   integration_framework::IntegrationTestFramework itf(1);
   itf.setInitialState(kAdminKeypair);
-  itf.sendTx(createUserWithPerms(
-                 kUser,
-                 kUserKeypair.publicKey(),
-                 kRole,
-                 {shared_model::interface::permissions::Role::kGetAllAccounts})
-                 .build()
-                 .signAndAddSignature(kAdminKeypair)
-                 .finish());
+  itf.sendTx(
+      createUserWithPerms(kUser,
+                          kUserKeypair.publicKey(),
+                          kRole,
+                          {shared_model::permissions::Role::kGetAllAccounts})
+          .build()
+          .signAndAddSignature(kAdminKeypair)
+          .finish());
 
   itf.skipBlock().skipProposal();
 
@@ -46,7 +46,7 @@ static void BM_QueryAccount(benchmark::State &state) {
   };
 
   auto check = [](auto &status) {
-    boost::get<const shared_model::interface::AccountResponse &>(status.get());
+    boost::get<const shared_model::AccountResponse &>(status.get());
   };
 
   itf.sendQuery(make_query(), check);

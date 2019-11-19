@@ -14,22 +14,20 @@
 #include "logger/logger_fwd.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class PermissionToString;
-    class GetAccount;
-    class GetBlock;
-    class GetSignatories;
-    class GetAccountTransactions;
-    class GetAccountAssetTransactions;
-    class GetTransactions;
-    class GetAccountAssets;
-    class GetAccountDetail;
-    class GetRoles;
-    class GetRolePermissions;
-    class GetAssetInfo;
-    class GetPendingTransactions;
-    class GetPeers;
-  }  // namespace interface
+  class PermissionToString;
+  class GetAccount;
+  class GetBlock;
+  class GetSignatories;
+  class GetAccountTransactions;
+  class GetAccountAssetTransactions;
+  class GetTransactions;
+  class GetAccountAssets;
+  class GetAccountDetail;
+  class GetRoles;
+  class GetRolePermissions;
+  class GetAssetInfo;
+  class GetPendingTransactions;
+  class GetPeers;
 }  // namespace shared_model
 
 namespace iroha {
@@ -40,10 +38,9 @@ namespace iroha {
 
     class BlockStorage;
 
-    using QueryErrorType =
-        shared_model::interface::QueryResponseFactory::ErrorQueryType;
+    using QueryErrorType = shared_model::QueryResponseFactory::ErrorQueryType;
 
-    using ErrorQueryResponse = shared_model::interface::ErrorQueryResponse;
+    using ErrorQueryResponse = shared_model::ErrorQueryResponse;
     using QueryErrorMessageType = ErrorQueryResponse::ErrorMessageType;
     using QueryErrorCodeType = ErrorQueryResponse::ErrorCodeType;
 
@@ -53,83 +50,80 @@ namespace iroha {
           soci::session &sql,
           BlockStorage &block_store,
           std::shared_ptr<PendingTransactionStorage> pending_txs_storage,
-          std::shared_ptr<shared_model::interface::QueryResponseFactory>
-              response_factory,
-          std::shared_ptr<shared_model::interface::PermissionToString>
-              perm_converter,
+          std::shared_ptr<shared_model::QueryResponseFactory> response_factory,
+          std::shared_ptr<shared_model::PermissionToString> perm_converter,
           logger::LoggerPtr log);
 
-      QueryExecutorResult execute(
-          const shared_model::interface::Query &qry) override;
+      QueryExecutorResult execute(const shared_model::Query &qry) override;
 
       bool hasAccountRolePermission(
-          shared_model::interface::permissions::Role permission,
+          shared_model::permissions::Role permission,
           const std::string &account_id) const override;
 
       QueryExecutorResult operator()(
-          const shared_model::interface::GetAccount &q,
-          const shared_model::interface::types::AccountIdType &creator_id,
-          const shared_model::interface::types::HashType &query_hash);
+          const shared_model::GetAccount &q,
+          const shared_model::types::AccountIdType &creator_id,
+          const shared_model::types::HashType &query_hash);
 
       QueryExecutorResult operator()(
-          const shared_model::interface::GetBlock &q,
-          const shared_model::interface::types::AccountIdType &creator_id,
-          const shared_model::interface::types::HashType &query_hash);
+          const shared_model::GetBlock &q,
+          const shared_model::types::AccountIdType &creator_id,
+          const shared_model::types::HashType &query_hash);
 
       QueryExecutorResult operator()(
-          const shared_model::interface::GetSignatories &q,
-          const shared_model::interface::types::AccountIdType &creator_id,
-          const shared_model::interface::types::HashType &query_hash);
+          const shared_model::GetSignatories &q,
+          const shared_model::types::AccountIdType &creator_id,
+          const shared_model::types::HashType &query_hash);
 
       QueryExecutorResult operator()(
-          const shared_model::interface::GetAccountTransactions &q,
-          const shared_model::interface::types::AccountIdType &creator_id,
-          const shared_model::interface::types::HashType &query_hash);
+          const shared_model::GetAccountTransactions &q,
+          const shared_model::types::AccountIdType &creator_id,
+          const shared_model::types::HashType &query_hash);
 
       QueryExecutorResult operator()(
-          const shared_model::interface::GetTransactions &q,
-          const shared_model::interface::types::AccountIdType &creator_id,
-          const shared_model::interface::types::HashType &query_hash);
+          const shared_model::GetTransactions &q,
+          const shared_model::types::AccountIdType &creator_id,
+          const shared_model::types::HashType &query_hash);
 
       QueryExecutorResult operator()(
-          const shared_model::interface::GetAccountAssetTransactions &q,
-          const shared_model::interface::types::AccountIdType &creator_id,
-          const shared_model::interface::types::HashType &query_hash);
+          const shared_model::GetAccountAssetTransactions &q,
+          const shared_model::types::AccountIdType &creator_id,
+          const shared_model::types::HashType &query_hash);
 
       QueryExecutorResult operator()(
-          const shared_model::interface::GetAccountAssets &q,
-          const shared_model::interface::types::AccountIdType &creator_id,
-          const shared_model::interface::types::HashType &query_hash);
+          const shared_model::GetAccountAssets &q,
+          const shared_model::types::AccountIdType &creator_id,
+          const shared_model::types::HashType &query_hash);
 
       QueryExecutorResult operator()(
-          const shared_model::interface::GetAccountDetail &q,
-          const shared_model::interface::types::AccountIdType &creator_id,
-          const shared_model::interface::types::HashType &query_hash);
+          const shared_model::GetAccountDetail &q,
+          const shared_model::types::AccountIdType &creator_id,
+          const shared_model::types::HashType &query_hash);
 
       QueryExecutorResult operator()(
-          const shared_model::interface::GetRoles &q,
-          const shared_model::interface::types::AccountIdType &creator_id,
-          const shared_model::interface::types::HashType &query_hash);
+          const shared_model::GetRoles &q,
+          const shared_model::types::AccountIdType &creator_id,
+          const shared_model::types::HashType &query_hash);
 
       QueryExecutorResult operator()(
-          const shared_model::interface::GetRolePermissions &q,
-          const shared_model::interface::types::AccountIdType &creator_id,
-          const shared_model::interface::types::HashType &query_hash);
+          const shared_model::GetRolePermissions &q,
+          const shared_model::types::AccountIdType &creator_id,
+          const shared_model::types::HashType &query_hash);
 
       QueryExecutorResult operator()(
-          const shared_model::interface::GetAssetInfo &q,
-          const shared_model::interface::types::AccountIdType &creator_id,
-          const shared_model::interface::types::HashType &query_hash);
+          const shared_model::GetAssetInfo &q,
+          const shared_model::types::AccountIdType &creator_id,
+          const shared_model::types::HashType &query_hash);
 
       QueryExecutorResult operator()(
-          const shared_model::interface::GetPendingTransactions &q,
-          const shared_model::interface::types::AccountIdType &creator_id,
-          const shared_model::interface::types::HashType &query_hash);
+          const shared_model::GetPendingTransactions &q,
+          const shared_model::types::AccountIdType &creator_id,
+          const shared_model::types::HashType &query_hash);
 
       QueryExecutorResult operator()(
-          const shared_model::interface::GetPeers &q,
-          const shared_model::interface::types::AccountIdType &creator_id,
-          const shared_model::interface::types::HashType &query_hash);
+          const shared_model::GetPeers &q,
+          const shared_model::types::AccountIdType &creator_id,
+          const shared_model::types::HashType &query_hash);
 
      private:
       /**
@@ -165,7 +159,7 @@ namespace iroha {
                 typename PermissionsErrResponse>
       QueryExecutorResult executeQuery(
           QueryExecutor &&query_executor,
-          const shared_model::interface::types::HashType &query_hash,
+          const shared_model::types::HashType &query_hash,
           ResponseCreator &&response_creator,
           PermissionsErrResponse &&perms_err_response);
 
@@ -177,12 +171,11 @@ namespace iroha {
        * @param query_hash - hash of query
        * @return ptr to created error response
        */
-      std::unique_ptr<shared_model::interface::QueryResponse>
-      logAndReturnErrorResponse(
+      std::unique_ptr<shared_model::QueryResponse> logAndReturnErrorResponse(
           iroha::ametsuchi::QueryErrorType error_type,
           QueryErrorMessageType error_body,
           QueryErrorCodeType error_code,
-          const shared_model::interface::types::HashType &query_hash) const;
+          const shared_model::types::HashType &query_hash) const;
 
       /**
        * Execute query which returns list of transactions
@@ -205,8 +198,8 @@ namespace iroha {
                 typename... Permissions>
       QueryExecutorResult executeTransactionsQuery(
           const Query &query,
-          const shared_model::interface::types::AccountIdType &creator_id,
-          const shared_model::interface::types::HashType &query_hash,
+          const shared_model::types::AccountIdType &creator_id,
+          const shared_model::types::HashType &query_hash,
           QueryChecker &&qry_checker,
           const std::string &related_txs,
           QueryApplier applier,
@@ -236,10 +229,8 @@ namespace iroha {
       struct QueryFallbackCheckResult {
         QueryFallbackCheckResult() = default;
         QueryFallbackCheckResult(
-            shared_model::interface::ErrorQueryResponse::ErrorCodeType
-                error_code,
-            shared_model::interface::ErrorQueryResponse::ErrorMessageType
-                &&error_message)
+            shared_model::ErrorQueryResponse::ErrorCodeType error_code,
+            shared_model::ErrorQueryResponse::ErrorMessageType &&error_message)
             : contains_error{true},
               error_code{error_code},
               error_message{std::move(error_message)} {}
@@ -248,19 +239,16 @@ namespace iroha {
           return contains_error;
         }
         bool contains_error = false;
-        shared_model::interface::ErrorQueryResponse::ErrorCodeType error_code =
-            0;
-        shared_model::interface::ErrorQueryResponse::ErrorMessageType
-            error_message = "";
+        shared_model::ErrorQueryResponse::ErrorCodeType error_code = 0;
+        shared_model::ErrorQueryResponse::ErrorMessageType error_message = "";
       };
 
       soci::session &sql_;
       BlockStorage &block_store_;
       std::shared_ptr<PendingTransactionStorage> pending_txs_storage_;
-      std::shared_ptr<shared_model::interface::QueryResponseFactory>
+      std::shared_ptr<shared_model::QueryResponseFactory>
           query_response_factory_;
-      std::shared_ptr<shared_model::interface::PermissionToString>
-          perm_converter_;
+      std::shared_ptr<shared_model::PermissionToString> perm_converter_;
       logger::LoggerPtr log_;
     };
 

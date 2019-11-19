@@ -32,7 +32,7 @@ namespace iroha {
 
     expected::Result<void, validation::CommandError>
     TemporaryWsvImpl::validateSignatures(
-        const shared_model::interface::Transaction &transaction) {
+        const shared_model::Transaction &transaction) {
       auto keys_range = transaction.signatures()
           | boost::adaptors::transformed(
                             [](const auto &s) { return s.publicKey().hex(); });
@@ -80,7 +80,7 @@ namespace iroha {
     }
 
     expected::Result<void, validation::CommandError> TemporaryWsvImpl::apply(
-        const shared_model::interface::Transaction &transaction) {
+        const shared_model::Transaction &transaction) {
       auto savepoint_wrapper = createSavepoint("savepoint_temp_wsv");
 
       return validateSignatures(transaction) |

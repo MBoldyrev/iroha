@@ -13,25 +13,23 @@
 #include "interfaces/common_objects/range_types.hpp"
 
 namespace shared_model {
-  namespace interface {
+  /**
+   * Provide response with account asset
+   */
+  class AccountAssetResponse : public ModelPrimitive<AccountAssetResponse> {
+   public:
     /**
-     * Provide response with account asset
+     * @return Account has Asset model
      */
-    class AccountAssetResponse : public ModelPrimitive<AccountAssetResponse> {
-     public:
-      /**
-       * @return Account has Asset model
-       */
-      virtual const types::AccountAssetCollectionType accountAssets() const = 0;
+    virtual const types::AccountAssetCollectionType accountAssets() const = 0;
 
-      virtual boost::optional<types::AssetIdType> nextAssetId() const = 0;
+    virtual boost::optional<types::AssetIdType> nextAssetId() const = 0;
 
-      virtual size_t totalAccountAssetsNumber() const = 0;
+    virtual size_t totalAccountAssetsNumber() const = 0;
 
-      std::string toString() const override;
+    std::string toString() const override;
 
-      bool operator==(const ModelType &rhs) const override;
-    };
-  }  // namespace interface
+    bool operator==(const ModelType &rhs) const override;
+  };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_ACCOUNT_ASSET_RESPONSE_HPP

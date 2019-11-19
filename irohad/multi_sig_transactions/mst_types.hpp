@@ -11,26 +11,23 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class TransactionBatch;
-    class TransactionResponse;
-    class Peer;
-  }  // namespace interface
+  class TransactionBatch;
+  class TransactionResponse;
+  class Peer;
 }  // namespace shared_model
 
 namespace iroha {
 
-  using BatchPtr = std::shared_ptr<shared_model::interface::TransactionBatch>;
-  using ConstPeer = const shared_model::interface::Peer;
-  using TimeType = shared_model::interface::types::TimestampType;
-  using TxResponse =
-      std::shared_ptr<shared_model::interface::TransactionResponse>;
+  using BatchPtr = std::shared_ptr<shared_model::TransactionBatch>;
+  using ConstPeer = const shared_model::Peer;
+  using TimeType = shared_model::types::TimestampType;
+  using TxResponse = std::shared_ptr<shared_model::TransactionResponse>;
 
   template <typename T>
   using ConstRefT = const T &;
 
   using ConstRefBatch = ConstRefT<BatchPtr>;
-  using ConstRefPeer = ConstRefT<shared_model::interface::Peer>;
+  using ConstRefPeer = ConstRefT<shared_model::Peer>;
   using ConstRefTime = ConstRefT<TimeType>;
 
   class MstState;

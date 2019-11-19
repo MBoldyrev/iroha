@@ -12,18 +12,18 @@
 
 namespace boost {
   extern template class variant<
-      const shared_model::interface::AccountAssetResponse &,
-      const shared_model::interface::AccountDetailResponse &,
-      const shared_model::interface::AccountResponse &,
-      const shared_model::interface::ErrorQueryResponse &,
-      const shared_model::interface::SignatoriesResponse &,
-      const shared_model::interface::TransactionsResponse &,
-      const shared_model::interface::AssetResponse &,
-      const shared_model::interface::RolesResponse &,
-      const shared_model::interface::RolePermissionsResponse &,
-      const shared_model::interface::TransactionsPageResponse &,
-      const shared_model::interface::PendingTransactionsPageResponse &,
-      const shared_model::interface::PeersResponse &>;
+      const shared_model::AccountAssetResponse &,
+      const shared_model::AccountDetailResponse &,
+      const shared_model::AccountResponse &,
+      const shared_model::ErrorQueryResponse &,
+      const shared_model::SignatoriesResponse &,
+      const shared_model::TransactionsResponse &,
+      const shared_model::AssetResponse &,
+      const shared_model::RolesResponse &,
+      const shared_model::RolePermissionsResponse &,
+      const shared_model::TransactionsPageResponse &,
+      const shared_model::PendingTransactionsPageResponse &,
+      const shared_model::PeersResponse &>;
 }
 
 #endif  // IROHA_SHARED_MODEL_QUERY_RESPONSE_VARIANT_HPP

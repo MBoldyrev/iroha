@@ -29,23 +29,23 @@ using ::testing::Return;
 struct OnDemandOsServerGrpcTest : public ::testing::Test {
   void SetUp() override {
     notification = std::make_shared<MockOdOsNotification>();
-    std::unique_ptr<shared_model::validation::AbstractValidator<
-        shared_model::interface::Transaction>>
+    std::unique_ptr<
+        shared_model::validation::AbstractValidator<shared_model::Transaction>>
         interface_transaction_validator =
             std::make_unique<shared_model::validation::MockValidator<
-                shared_model::interface::Transaction>>();
+                shared_model::Transaction>>();
     std::unique_ptr<
         shared_model::validation::AbstractValidator<protocol::Transaction>>
         proto_transaction_validator = std::make_unique<
             shared_model::validation::MockValidator<protocol::Transaction>>();
     auto transaction_factory =
         std::make_shared<shared_model::proto::ProtoTransportFactory<
-            shared_model::interface::Transaction,
+            shared_model::Transaction,
             shared_model::proto::Transaction>>(
             std::move(interface_transaction_validator),
             std::move(proto_transaction_validator));
     auto batch_parser =
-        std::make_shared<shared_model::interface::TransactionBatchParserImpl>();
+        std::make_shared<shared_model::TransactionBatchParserImpl>();
     batch_factory = std::make_shared<MockTransactionBatchFactory>();
     server =
         std::make_shared<OnDemandOsServerGrpc>(notification,
@@ -77,22 +77,17 @@ TEST_F(OnDemandOsServerGrpcTest, SendBatches) {
   OdOsNotification::CollectionType collection;
   auto creator = "test";
 
-  EXPECT_CALL(
-      *batch_factory,
-      createTransactionBatch(
-          A<const shared_model::interface::types::SharedTxsCollectionType &>()))
-      .WillOnce(Invoke(
-          [](const shared_model::interface::types::SharedTxsCollectionType
-                 &cand)
-              -> shared_model::interface::TransactionBatchFactory::
-                  FactoryResult<std::unique_ptr<
-                      shared_model::interface::TransactionBatch>> {
-                    return iroha::expected::makeValue<std::unique_ptr<
-                        shared_model::interface::TransactionBatch>>(
-                        std::make_unique<
-                            shared_model::interface::TransactionBatchImpl>(
-                            cand));
-                  }));
+  EXPECT_CALL(*batch_factory,
+              createTransactionBatch(
+                  A<const shared_model::types::SharedTxsCollectionType &>()))
+      .WillOnce(
+          Invoke([](const shared_model::types::SharedTxsCollectionType &cand)
+                     -> shared_model::TransactionBatchFactory::FactoryResult<
+                         std::unique_ptr<shared_model::TransactionBatch>> {
+            return iroha::expected::makeValue<
+                std::unique_ptr<shared_model::TransactionBatch>>(
+                std::make_unique<shared_model::TransactionBatchImpl>(cand));
+          }));
   EXPECT_CALL(*notification, onBatches(_)).WillOnce(SaveArg0Move(&collection));
   proto::BatchesRequest request;
   request.add_transactions()
@@ -124,7 +119,7 @@ TEST_F(OnDemandOsServerGrpcTest, RequestProposal) {
       ->mutable_reduced_payload()
       ->set_creator_account_id(creator);
 
-  std::shared_ptr<const shared_model::interface::Proposal> iproposal(
+  std::shared_ptr<const shared_model::Proposal> iproposal(
       std::make_shared<const shared_model::proto::Proposal>(proposal));
   EXPECT_CALL(*notification, onRequestProposal(round))
       .WillOnce(Return(ByMove(std::move(iproposal))));

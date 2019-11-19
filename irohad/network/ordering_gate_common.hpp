@@ -13,9 +13,7 @@
 #include "consensus/round.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class Proposal;
-  }  // namespace interface
+  class Proposal;
 }  // namespace shared_model
 
 namespace iroha {
@@ -25,13 +23,12 @@ namespace iroha {
      * Event, which is emitted by ordering gate, when it requests a proposal
      */
     struct OrderingEvent {
-      boost::optional<std::shared_ptr<const shared_model::interface::Proposal>>
-          proposal;
+      boost::optional<std::shared_ptr<const shared_model::Proposal>> proposal;
       consensus::Round round;
       std::shared_ptr<const LedgerState> ledger_state;
     };
 
-    std::shared_ptr<const shared_model::interface::Proposal> getProposalUnsafe(
+    std::shared_ptr<const shared_model::Proposal> getProposalUnsafe(
         const OrderingEvent &event);
 
   }  // namespace network

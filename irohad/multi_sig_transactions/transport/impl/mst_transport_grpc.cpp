@@ -24,12 +24,12 @@ using namespace iroha::network;
 
 using iroha::ConstRefState;
 namespace {
-  auto default_sender_factory = [](const shared_model::interface::Peer &to) {
+  auto default_sender_factory = [](const shared_model::Peer &to) {
     return createClient<transport::MstTransportGrpc>(to.address());
   };
 }
 void sendStateAsyncImpl(
-    const shared_model::interface::Peer &to,
+    const shared_model::Peer &to,
     ConstRefState state,
     const std::string &sender_key,
     AsyncGrpcClient<google::protobuf::Empty> &async_call,
@@ -38,9 +38,8 @@ void sendStateAsyncImpl(
 MstTransportGrpc::MstTransportGrpc(
     std::shared_ptr<AsyncGrpcClient<google::protobuf::Empty>> async_call,
     std::shared_ptr<TransportFactoryType> transaction_factory,
-    std::shared_ptr<shared_model::interface::TransactionBatchParser>
-        batch_parser,
-    std::shared_ptr<shared_model::interface::TransactionBatchFactory>
+    std::shared_ptr<shared_model::TransactionBatchParser> batch_parser,
+    std::shared_ptr<shared_model::TransactionBatchFactory>
         transaction_batch_factory,
     std::shared_ptr<iroha::ametsuchi::TxPresenceCache> tx_presence_cache,
     std::shared_ptr<Completer> mst_completer,
@@ -73,7 +72,7 @@ grpc::Status MstTransportGrpc::SendState(
     return ::grpc::Status::OK;
   }
 
-  auto batches = shared_model::interface::parseAndCreateBatches(
+  auto batches = shared_model::parseAndCreateBatches(
       *batch_parser_,
       *batch_factory_,
       *expected::resultToOptionalValue(std::move(transactions)));
@@ -139,7 +138,7 @@ void MstTransportGrpc::subscribe(
   subscriber_ = notification;
 }
 
-void MstTransportGrpc::sendState(const shared_model::interface::Peer &to,
+void MstTransportGrpc::sendState(const shared_model::Peer &to,
                                  ConstRefState providing_state) {
   log_->info("Propagate MstState to peer {}", to.address());
   sendStateAsyncImpl(to,
@@ -150,7 +149,7 @@ void MstTransportGrpc::sendState(const shared_model::interface::Peer &to,
 }
 
 void iroha::network::sendStateAsync(
-    const shared_model::interface::Peer &to,
+    const shared_model::Peer &to,
     ConstRefState state,
     const shared_model::crypto::PublicKey &sender_key,
     AsyncGrpcClient<google::protobuf::Empty> &async_call) {
@@ -158,7 +157,7 @@ void iroha::network::sendStateAsync(
       to, state, shared_model::crypto::toBinaryString(sender_key), async_call);
 }
 
-void sendStateAsyncImpl(const shared_model::interface::Peer &to,
+void sendStateAsyncImpl(const shared_model::Peer &to,
                         ConstRefState state,
                         const std::string &sender_key,
                         AsyncGrpcClient<google::protobuf::Empty> &async_call,

@@ -25,7 +25,7 @@ namespace iroha {
      * pubkeys
      */
     inline bool signaturesSubset(
-        const shared_model::interface::types::SignatureRangeType &signatures,
+        const shared_model::types::SignatureRangeType &signatures,
         const boost::any_range<shared_model::crypto::PublicKey,
                                boost::forward_traversal_tag> &public_keys) {
       return std::all_of(
@@ -49,7 +49,7 @@ namespace iroha {
      */
     template <typename Peers>
     inline bool peersSubset(
-        const shared_model::interface::types::SignatureRangeType &signatures,
+        const shared_model::types::SignatureRangeType &signatures,
         const Peers &peers) {
       return signaturesSubset(signatures,
                               peers

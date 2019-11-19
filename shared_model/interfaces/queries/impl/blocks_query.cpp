@@ -7,23 +7,21 @@
 #include "utils/string_builder.hpp"
 
 namespace shared_model {
-  namespace interface {
 
-    std::string BlocksQuery::toString() const {
-      return detail::PrettyStringBuilder()
-          .init("BlocksQuery")
-          .append("creatorId", creatorAccountId())
-          .append("queryCounter", std::to_string(queryCounter()))
-          .append(Signable::toString())
-          .finalize();
-    }
+  std::string BlocksQuery::toString() const {
+    return detail::PrettyStringBuilder()
+        .init("BlocksQuery")
+        .append("creatorId", creatorAccountId())
+        .append("queryCounter", std::to_string(queryCounter()))
+        .append(Signable::toString())
+        .finalize();
+  }
 
-    bool BlocksQuery::operator==(const ModelType &rhs) const {
-      return creatorAccountId() == rhs.creatorAccountId()
-          and queryCounter() == rhs.queryCounter()
-          and createdTime() == rhs.createdTime()
-          and signatures() == rhs.signatures();
-    }
+  bool BlocksQuery::operator==(const ModelType &rhs) const {
+    return creatorAccountId() == rhs.creatorAccountId()
+        and queryCounter() == rhs.queryCounter()
+        and createdTime() == rhs.createdTime()
+        and signatures() == rhs.signatures();
+  }
 
-  }  // namespace interface
 }  // namespace shared_model

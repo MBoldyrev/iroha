@@ -11,45 +11,43 @@
 #include "utils/string_builder.hpp"
 
 namespace shared_model {
-  namespace interface {
+
+  /**
+   * Domain object represents administrative unit within the system
+   */
+  class Domain : public ModelPrimitive<Domain> {
+   public:
+    /**
+     * @return Identity of domain
+     */
+    virtual const types::DomainIdType &domainId() const = 0;
 
     /**
-     * Domain object represents administrative unit within the system
+     * @return Default role of domain
      */
-    class Domain : public ModelPrimitive<Domain> {
-     public:
-      /**
-       * @return Identity of domain
-       */
-      virtual const types::DomainIdType &domainId() const = 0;
+    virtual const types::RoleIdType &defaultRole() const = 0;
+    /**
+     * Stringify the data.
+     * @return the content of asset.
+     */
+    std::string toString() const override {
+      return detail::PrettyStringBuilder()
+          .init("Domain")
+          .append("domainId", domainId())
+          .append("defaultRole", defaultRole())
+          .finalize();
+    }
 
-      /**
-       * @return Default role of domain
-       */
-      virtual const types::RoleIdType &defaultRole() const = 0;
-      /**
-       * Stringify the data.
-       * @return the content of asset.
-       */
-      std::string toString() const override {
-        return detail::PrettyStringBuilder()
-            .init("Domain")
-            .append("domainId", domainId())
-            .append("defaultRole", defaultRole())
-            .finalize();
-      }
-
-      /**
-       * Checks equality of objects inside
-       * @param rhs - other wrapped value
-       * @return true, if wrapped objects are same
-       */
-      bool operator==(const ModelType &rhs) const override {
-        return domainId() == rhs.domainId()
-            and defaultRole() == rhs.defaultRole();
-      }
-    };
-  }  // namespace interface
+    /**
+     * Checks equality of objects inside
+     * @param rhs - other wrapped value
+     * @return true, if wrapped objects are same
+     */
+    bool operator==(const ModelType &rhs) const override {
+      return domainId() == rhs.domainId()
+          and defaultRole() == rhs.defaultRole();
+    }
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_DOMAIN_HPP

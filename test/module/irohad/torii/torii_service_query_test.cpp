@@ -55,8 +55,8 @@ class ToriiQueryServiceTest : public ::testing::Test {
   }
 
   void initQueryFactory() {
-    std::unique_ptr<shared_model::validation::AbstractValidator<
-        shared_model::interface::Query>>
+    std::unique_ptr<
+        shared_model::validation::AbstractValidator<shared_model::Query>>
         query_validator = std::make_unique<
             shared_model::validation::DefaultSignedQueryValidator>(
             iroha::test::kTestsValidatorsConfig);
@@ -64,10 +64,10 @@ class ToriiQueryServiceTest : public ::testing::Test {
         shared_model::validation::AbstractValidator<iroha::protocol::Query>>
         proto_query_validator =
             std::make_unique<shared_model::validation::ProtoQueryValidator>();
-    query_factory = std::make_shared<shared_model::proto::ProtoTransportFactory<
-        shared_model::interface::Query,
-        shared_model::proto::Query>>(std::move(query_validator),
-                                     std::move(proto_query_validator));
+    query_factory = std::make_shared<
+        shared_model::proto::ProtoTransportFactory<shared_model::Query,
+                                                   shared_model::proto::Query>>(
+        std::move(query_validator), std::move(proto_query_validator));
 
     auto blocks_query_validator = std::make_unique<
         shared_model::validation::DefaultSignedBlocksQueryValidator>(
@@ -76,7 +76,7 @@ class ToriiQueryServiceTest : public ::testing::Test {
         std::make_unique<shared_model::validation::ProtoBlocksQueryValidator>();
     blocks_query_factory =
         std::make_shared<shared_model::proto::ProtoTransportFactory<
-            shared_model::interface::BlocksQuery,
+            shared_model::BlocksQuery,
             shared_model::proto::BlocksQuery>>(
             std::move(blocks_query_validator),
             std::move(proto_blocks_query_validator));
@@ -119,7 +119,7 @@ TEST_F(ToriiQueryServiceTest, FetchBlocksWhenValidQuery) {
   block.mutable_block_v1()->mutable_payload()->set_height(123);
   auto proto_block =
       std::make_unique<shared_model::proto::Block>(block.block_v1());
-  std::shared_ptr<shared_model::interface::BlockQueryResponse> block_response =
+  std::shared_ptr<shared_model::BlockQueryResponse> block_response =
       shared_model::proto::ProtoQueryResponseFactory().createBlockQueryResponse(
           std::move(proto_block));
 

@@ -21,7 +21,7 @@
 namespace executor_testing {
 
   namespace error_codes {
-    using shared_model::interface::ErrorQueryResponse;
+    using shared_model::ErrorQueryResponse;
 
     // TODO [IR-1816] Akvinikym 06.12.18: remove these constants after
     // introducing a uniform way to use them in code
@@ -78,11 +78,11 @@ namespace executor_testing {
   template <typename SpecificErrorResponse>
   void checkQueryError(
       const iroha::ametsuchi::QueryExecutorResult &response,
-      shared_model::interface::ErrorQueryResponse::ErrorCodeType error_code) {
+      shared_model::ErrorQueryResponse::ErrorCodeType error_code) {
     static const auto error_type = typeid(SpecificErrorResponse).name();
-    if (auto error = boost::strict_get<
-            const shared_model::interface::ErrorQueryResponse &>(
-            &response->get())) {
+    if (auto error =
+            boost::strict_get<const shared_model::ErrorQueryResponse &>(
+                &response->get())) {
       EXPECT_TRUE(
           boost::strict_get<const SpecificErrorResponse &>(&error->get()))
           << "Expected an error of type " << error_type << ", but got "
@@ -104,25 +104,22 @@ namespace executor_testing {
 
     //  ---------------- ledger populators --------------
 
-    void createAsset(
-        const std::string &name,
-        const std::string &domain,
-        shared_model::interface::types::PrecisionType precision) const;
+    void createAsset(const std::string &name,
+                     const std::string &domain,
+                     shared_model::types::PrecisionType precision) const;
 
-    void addAsset(
-        const shared_model::interface::types::AccountIdType &dest_account_id,
-        const shared_model::interface::types::AssetIdType &asset_id,
-        const shared_model::interface::Amount &quantity);
+    void addAsset(const shared_model::types::AccountIdType &dest_account_id,
+                  const shared_model::types::AssetIdType &asset_id,
+                  const shared_model::Amount &quantity);
 
     //  ---------------- checkers -----------------
 
     /// A plain representation of an asset quantity.
     struct AssetQuantity {
-      AssetQuantity(std::string asset_id,
-                    shared_model::interface::Amount balance)
+      AssetQuantity(std::string asset_id, shared_model::Amount balance)
           : asset_id(std::move(asset_id)), balance(std::move(balance)) {}
       std::string asset_id;
-      shared_model::interface::Amount balance;
+      shared_model::Amount balance;
     };
 
     /**
@@ -130,8 +127,7 @@ namespace executor_testing {
      * assets and quantities.
      */
     static void checkAssetQuantities(
-        const shared_model::interface::types::AccountAssetCollectionType
-            &test_quantities,
+        const shared_model::types::AccountAssetCollectionType &test_quantities,
         const std::vector<AssetQuantity> &reference_quantities);
 
     /**

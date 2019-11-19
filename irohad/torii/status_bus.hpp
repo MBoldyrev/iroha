@@ -19,8 +19,7 @@ namespace iroha {
       virtual ~StatusBus() = default;
 
       /// Objects that represent status to operate with
-      using Objects =
-          std::shared_ptr<shared_model::interface::TransactionResponse>;
+      using Objects = std::shared_ptr<shared_model::TransactionResponse>;
 
       /**
        * Shares object among the bus subscribers

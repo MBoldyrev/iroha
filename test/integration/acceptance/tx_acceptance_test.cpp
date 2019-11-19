@@ -14,16 +14,15 @@ class AcceptanceTest : public AcceptanceFixture {
   const std::function<void(const shared_model::proto::TransactionResponse &)>
       checkStatelessValidStatus = [](auto &status) {
         ASSERT_NO_THROW(
-            boost::get<const shared_model::interface::StatelessValidTxResponse
-                           &>(status.get()))
+            boost::get<const shared_model::StatelessValidTxResponse &>(
+                status.get()))
             << status.toString();
       };
   const std::function<void(
-      const std::shared_ptr<const shared_model::interface::Proposal> &)>
+      const std::shared_ptr<const shared_model::Proposal> &)>
       checkProposal =
           [](auto &proposal) { ASSERT_EQ(proposal->transactions().size(), 1); };
-  const std::function<void(
-      const std::shared_ptr<const shared_model::interface::Block> &)>
+  const std::function<void(const std::shared_ptr<const shared_model::Block> &)>
       checkStatefulValid =
           [](auto &block) { ASSERT_EQ(block->transactions().size(), 1); };
 

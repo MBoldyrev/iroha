@@ -17,10 +17,8 @@
 #include "utils/string_builder.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class Signature;
-    class Block;
-  }  // namespace interface
+  class Signature;
+  class Block;
 }  // namespace shared_model
 
 namespace iroha {
@@ -69,7 +67,7 @@ namespace iroha {
         /**
          * Peer signature of block
          */
-        std::shared_ptr<shared_model::interface::Signature> block_signature;
+        std::shared_ptr<shared_model::Signature> block_signature;
 
         bool operator==(const YacHash &obj) const {
           return vote_round == obj.vote_round
@@ -106,7 +104,7 @@ namespace iroha {
          * @param hash - for converting
          * @return HashType of model hash
          */
-        virtual shared_model::interface::types::HashType toModelHash(
+        virtual shared_model::types::HashType toModelHash(
             const YacHash &hash) const = 0;
 
         virtual ~YacHashProvider() = default;

@@ -33,7 +33,7 @@ namespace iroha {
        * a process of validating
        */
       virtual std::unique_ptr<VerifiedProposalAndErrors> validate(
-          const shared_model::interface::Proposal &proposal,
+          const shared_model::Proposal &proposal,
           ametsuchi::TemporaryWsv &temporaryWsv) = 0;
     };
   }  // namespace validation

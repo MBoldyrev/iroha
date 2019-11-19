@@ -12,46 +12,44 @@
 #include "interfaces/transaction.hpp"
 
 namespace shared_model {
-  namespace interface {
 
-    class Proposal : public ModelPrimitive<Proposal> {
-     public:
-      /**
-       * @return transactions
-       */
-      virtual types::TransactionsCollectionType transactions() const = 0;
+  class Proposal : public ModelPrimitive<Proposal> {
+   public:
+    /**
+     * @return transactions
+     */
+    virtual types::TransactionsCollectionType transactions() const = 0;
 
-      /**
-       * @return the height
-       */
-      virtual types::HeightType height() const = 0;
+    /**
+     * @return the height
+     */
+    virtual types::HeightType height() const = 0;
 
-      /**
-       * @return created time
-       */
-      virtual types::TimestampType createdTime() const = 0;
+    /**
+     * @return created time
+     */
+    virtual types::TimestampType createdTime() const = 0;
 
-      bool operator==(const Proposal &rhs) const override {
-        return transactions() == rhs.transactions() and height() == rhs.height()
-            and createdTime() == rhs.createdTime();
-      }
+    bool operator==(const Proposal &rhs) const override {
+      return transactions() == rhs.transactions() and height() == rhs.height()
+          and createdTime() == rhs.createdTime();
+    }
 
-      virtual const types::BlobType &blob() const = 0;
+    virtual const types::BlobType &blob() const = 0;
 
-      virtual const types::HashType &hash() const = 0;
+    virtual const types::HashType &hash() const = 0;
 
-      std::string toString() const override {
-        return detail::PrettyStringBuilder()
-            .init("Proposal")
-            .append("height", std::to_string(height()))
-            .append("transactions")
-            .appendAll(transactions(),
-                       [](auto &transaction) { return transaction.toString(); })
-            .finalize();
-      }
-    };
+    std::string toString() const override {
+      return detail::PrettyStringBuilder()
+          .init("Proposal")
+          .append("height", std::to_string(height()))
+          .append("transactions")
+          .appendAll(transactions(),
+                     [](auto &transaction) { return transaction.toString(); })
+          .finalize();
+    }
+  };
 
-  }  // namespace interface
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_PROPOSAL_HPP

@@ -11,17 +11,15 @@
 #include "utils/string_builder.hpp"
 
 namespace shared_model {
-  namespace interface {
-    /**
-     * Error response of broken query, no specified asset
-     */
-    class NoAssetErrorResponse
-        : public AbstractErrorResponse<NoAssetErrorResponse> {
-     private:
-      std::string reason() const override {
-        return "NoAssetErrorResponse";
-      }
-    };
-  }  // namespace interface
+  /**
+   * Error response of broken query, no specified asset
+   */
+  class NoAssetErrorResponse
+      : public AbstractErrorResponse<NoAssetErrorResponse> {
+   private:
+    std::string reason() const override {
+      return "NoAssetErrorResponse";
+    }
+  };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_NO_ASSET_ERROR_RESPONSE_HPP

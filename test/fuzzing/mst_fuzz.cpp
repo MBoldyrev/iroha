@@ -35,7 +35,7 @@ namespace fuzzing {
       // TODO luckychess 25.12.2018 Component initialisation reuse
       // IR-1886, IR-142
       std::unique_ptr<shared_model::validation::AbstractValidator<
-          shared_model::interface::Transaction>>
+          shared_model::Transaction>>
           interface_validator = std::make_unique<
               shared_model::validation::DefaultUnsignedTransactionValidator>(
               iroha::test::kTestsValidatorsConfig);
@@ -46,19 +46,19 @@ namespace fuzzing {
 
       auto tx_factory =
           std::make_shared<shared_model::proto::ProtoTransportFactory<
-              shared_model::interface::Transaction,
+              shared_model::Transaction,
               shared_model::proto::Transaction>>(std::move(interface_validator),
                                                  std::move(tx_validator));
-      auto parser = std::make_shared<
-          shared_model::interface::TransactionBatchParserImpl>();
+      auto parser =
+          std::make_shared<shared_model::TransactionBatchParserImpl>();
       std::shared_ptr<shared_model::validation::AbstractValidator<
-          shared_model::interface::TransactionBatch>>
+          shared_model::TransactionBatch>>
           batch_validator =
               std::make_shared<shared_model::validation::BatchValidator>(
                   iroha::test::kTestsValidatorsConfig);
-      auto batch_factory = std::make_shared<
-          shared_model::interface::TransactionBatchFactoryImpl>(
-          batch_validator);
+      auto batch_factory =
+          std::make_shared<shared_model::TransactionBatchFactoryImpl>(
+              batch_validator);
       auto storage =
           std::make_shared<NiceMock<iroha::ametsuchi::MockStorage>>();
       auto cache =

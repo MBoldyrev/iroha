@@ -7,24 +7,22 @@
 #include "utils/string_builder.hpp"
 
 namespace shared_model {
-  namespace interface {
 
-    std::string AccountAssetResponse::toString() const {
-      return detail::PrettyStringBuilder()
-          .init("AccountAssetResponse")
-          .appendAll(
-              "assets", accountAssets(), [](auto &tx) { return tx.toString(); })
-          .append("total assets number",
-                  std::to_string(totalAccountAssetsNumber()))
-          .append("next asset id", nextAssetId().value_or("(none)"))
-          .finalize();
-    }
+  std::string AccountAssetResponse::toString() const {
+    return detail::PrettyStringBuilder()
+        .init("AccountAssetResponse")
+        .appendAll(
+            "assets", accountAssets(), [](auto &tx) { return tx.toString(); })
+        .append("total assets number",
+                std::to_string(totalAccountAssetsNumber()))
+        .append("next asset id", nextAssetId().value_or("(none)"))
+        .finalize();
+  }
 
-    bool AccountAssetResponse::operator==(const ModelType &rhs) const {
-      return accountAssets() == rhs.accountAssets()
-          and totalAccountAssetsNumber() == rhs.totalAccountAssetsNumber()
-          and nextAssetId() == rhs.nextAssetId();
-    }
+  bool AccountAssetResponse::operator==(const ModelType &rhs) const {
+    return accountAssets() == rhs.accountAssets()
+        and totalAccountAssetsNumber() == rhs.totalAccountAssetsNumber()
+        and nextAssetId() == rhs.nextAssetId();
+  }
 
-  }  // namespace interface
 }  // namespace shared_model

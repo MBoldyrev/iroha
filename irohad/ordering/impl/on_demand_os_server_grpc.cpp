@@ -22,9 +22,8 @@ using namespace iroha::ordering::transport;
 OnDemandOsServerGrpc::OnDemandOsServerGrpc(
     std::shared_ptr<OdOsNotification> ordering_service,
     std::shared_ptr<TransportFactoryType> transaction_factory,
-    std::shared_ptr<shared_model::interface::TransactionBatchParser>
-        batch_parser,
-    std::shared_ptr<shared_model::interface::TransactionBatchFactory>
+    std::shared_ptr<shared_model::TransactionBatchParser> batch_parser,
+    std::shared_ptr<shared_model::TransactionBatchFactory>
         transaction_batch_factory,
     logger::LoggerPtr log)
     : ordering_service_(ordering_service),
@@ -45,7 +44,7 @@ grpc::Status OnDemandOsServerGrpc::SendBatches(
     return ::grpc::Status::OK;
   }
 
-  auto batches = shared_model::interface::parseAndCreateBatches(
+  auto batches = shared_model::parseAndCreateBatches(
       *batch_parser_,
       *batch_factory_,
       *expected::resultToOptionalValue(std::move(transactions)));

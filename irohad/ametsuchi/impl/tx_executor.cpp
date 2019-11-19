@@ -15,8 +15,7 @@ TransactionExecutor::TransactionExecutor(
     : command_executor_(std::move(command_executor)) {}
 
 iroha::expected::Result<void, TxExecutionError> TransactionExecutor::execute(
-    const shared_model::interface::Transaction &transaction,
-    bool do_validation) const {
+    const shared_model::Transaction &transaction, bool do_validation) const {
   size_t cmd_index = 0;
   for (const auto &cmd : transaction.commands()) {
     if (auto cmd_error =

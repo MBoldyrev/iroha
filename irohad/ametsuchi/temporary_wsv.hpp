@@ -12,9 +12,7 @@
 #include "validation/stateful_validator_common.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class Transaction;
-  }  // namespace interface
+  class Transaction;
 }  // namespace shared_model
 
 namespace iroha {
@@ -45,7 +43,7 @@ namespace iroha {
        * @return True if transaction was successfully applied, false otherwise
        */
       virtual expected::Result<void, validation::CommandError> apply(
-          const shared_model::interface::Transaction &transaction) = 0;
+          const shared_model::Transaction &transaction) = 0;
 
       /**
        * Create a savepoint for wsv state

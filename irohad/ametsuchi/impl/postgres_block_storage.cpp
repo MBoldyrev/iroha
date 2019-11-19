@@ -10,7 +10,7 @@
 
 using namespace iroha::ametsuchi;
 
-using shared_model::interface::types::HeightType;
+using shared_model::types::HeightType;
 
 PostgresBlockStorage::PostgresBlockStorage(
     std::shared_ptr<PoolWrapper> pool_wrapper,
@@ -23,7 +23,7 @@ PostgresBlockStorage::PostgresBlockStorage(
       log_(std::move(log)) {}
 
 bool PostgresBlockStorage::insert(
-    std::shared_ptr<const shared_model::interface::Block> block) {
+    std::shared_ptr<const shared_model::Block> block) {
   auto inserted_height = block->height();
 
   auto opt_range = getBlockHeightsRange();
@@ -55,7 +55,7 @@ bool PostgresBlockStorage::insert(
   }
 }
 
-boost::optional<std::shared_ptr<const shared_model::interface::Block>>
+boost::optional<std::shared_ptr<const shared_model::Block>>
 PostgresBlockStorage::fetch(HeightType height) const {
   soci::session sql(*pool_wrapper_->connection_pool_);
   using QueryTuple = boost::tuple<boost::optional<std::string>>;
@@ -80,12 +80,12 @@ PostgresBlockStorage::fetch(HeightType height) const {
                 .match(
                     [&](auto &&v) {
                       return boost::make_optional(
-                          std::shared_ptr<const shared_model::interface::Block>(
+                          std::shared_ptr<const shared_model::Block>(
                               std::move(v.value)));
                     },
                     [&](const auto &e)
-                        -> boost::optional<std::shared_ptr<
-                            const shared_model::interface::Block>> {
+                        -> boost::optional<
+                            std::shared_ptr<const shared_model::Block>> {
                       log_->error("Could not build block at height {}: {}",
                                   height,
                                   e.error);

@@ -26,13 +26,13 @@ class PeerQueryWSVTest : public ::testing::Test {
  * @then get a vector with all peers in the ledger
  */
 TEST_F(PeerQueryWSVTest, GetPeers) {
-  std::vector<std::shared_ptr<shared_model::interface::Peer>> peers;
-  std::shared_ptr<shared_model::interface::Peer> peer1 =
+  std::vector<std::shared_ptr<shared_model::Peer>> peers;
+  std::shared_ptr<shared_model::Peer> peer1 =
       std::make_shared<shared_model::plain::Peer>(
           "some-address",
           shared_model::crypto::PublicKey("some-public-key"),
           boost::none);
-  std::shared_ptr<shared_model::interface::Peer> peer2 =
+  std::shared_ptr<shared_model::Peer> peer2 =
       std::make_shared<shared_model::plain::Peer>(
           "another-address",
           shared_model::crypto::PublicKey("another-public-key"),

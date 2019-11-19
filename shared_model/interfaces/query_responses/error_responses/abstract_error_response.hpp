@@ -11,31 +11,29 @@
 #include "utils/string_builder.hpp"
 
 namespace shared_model {
-  namespace interface {
+  /**
+   * Abstract error response
+   * @tparam Model - concrete model error response
+   */
+  template <typename Model>
+  class AbstractErrorResponse : public ModelPrimitive<Model> {
+   private:
     /**
-     * Abstract error response
-     * @tparam Model - concrete model error response
+     * @return string representation of error reason
      */
-    template <typename Model>
-    class AbstractErrorResponse : public ModelPrimitive<Model> {
-     private:
-      /**
-       * @return string representation of error reason
-       */
-      virtual std::string reason() const = 0;
+    virtual std::string reason() const = 0;
 
-     public:
-      // ------------------------| Primitive override |-------------------------
+   public:
+    // ------------------------| Primitive override |-------------------------
 
-      std::string toString() const override {
-        return detail::PrettyStringBuilder().init(reason()).finalize();
-      }
+    std::string toString() const override {
+      return detail::PrettyStringBuilder().init(reason()).finalize();
+    }
 
-      bool operator==(const Model &rhs) const override {
-        return true;
-      }
-    };
-  }  // namespace interface
+    bool operator==(const Model &rhs) const override {
+      return true;
+    }
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_ABSTRACT_ERROR_RESPONSE_HPP

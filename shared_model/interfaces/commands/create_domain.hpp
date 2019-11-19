@@ -11,26 +11,24 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
+  /**
+   * Create domain in Iroha
+   */
+  class CreateDomain : public ModelPrimitive<CreateDomain> {
+   public:
     /**
-     * Create domain in Iroha
+     * @return Id of the domain to create
      */
-    class CreateDomain : public ModelPrimitive<CreateDomain> {
-     public:
-      /**
-       * @return Id of the domain to create
-       */
-      virtual const types::DomainIdType &domainId() const = 0;
-      /**
-       * @return default role of the user in the domain
-       */
-      virtual const types::RoleIdType &userDefaultRole() const = 0;
+    virtual const types::DomainIdType &domainId() const = 0;
+    /**
+     * @return default role of the user in the domain
+     */
+    virtual const types::RoleIdType &userDefaultRole() const = 0;
 
-      std::string toString() const override;
+    std::string toString() const override;
 
-      bool operator==(const ModelType &rhs) const override;
-    };
-  }  // namespace interface
+    bool operator==(const ModelType &rhs) const override;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_CREATE_DOMAIN_HPP

@@ -20,7 +20,7 @@
 #include "interfaces/query_responses/transactions_response.hpp"
 
 using namespace common_constants;
-using shared_model::interface::permissions::Role;
+using shared_model::permissions::Role;
 
 static logger::LoggerPtr log_ = getTestLogger("RegressionTest");
 
@@ -42,9 +42,8 @@ TEST(RegressionTest, SequentialInitialization) {
                 .finish();
 
   auto check_stateless_valid_status = [](auto &status) {
-    ASSERT_NO_THROW(
-        boost::get<const shared_model::interface::StatelessValidTxResponse &>(
-            status.get()));
+    ASSERT_NO_THROW(boost::get<const shared_model::StatelessValidTxResponse &>(
+        status.get()));
   };
   auto checkProposal = [](auto &proposal) {
     ASSERT_EQ(proposal->transactions().size(), 1);
@@ -112,8 +111,7 @@ TEST(RegressionTest, StateRecovery) {
   auto checkQuery = [&tx](auto &status) {
     ASSERT_NO_THROW({
       const auto &resp =
-          boost::get<const shared_model::interface::TransactionsResponse &>(
-              status.get());
+          boost::get<const shared_model::TransactionsResponse &>(status.get());
       ASSERT_EQ(resp.transactions().size(), 1);
       ASSERT_EQ(resp.transactions().front(), tx);
     });

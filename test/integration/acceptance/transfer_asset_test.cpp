@@ -27,10 +27,10 @@ class TransferAsset : public AcceptanceFixture {
    * @param perms are the permissions of the user
    * @return built tx
    */
-  auto makeFirstUser(const interface::RolePermissionSet &perms = {
-                         interface::permissions::Role::kTransfer}) {
+  auto makeFirstUser(const RolePermissionSet &perms = {
+                         permissions::Role::kTransfer}) {
     auto new_perms = perms;
-    new_perms.set(interface::permissions::Role::kAddAssetQty);
+    new_perms.set(permissions::Role::kAddAssetQty);
     return AcceptanceFixture::makeUserWithPerms(new_perms);
   }
 
@@ -39,8 +39,8 @@ class TransferAsset : public AcceptanceFixture {
    * @param perms are the permissions of the user
    * @return built tx
    */
-  auto makeSecondUser(const interface::RolePermissionSet &perms = {
-                          interface::permissions::Role::kReceive}) {
+  auto makeSecondUser(const RolePermissionSet &perms = {
+                          permissions::Role::kReceive}) {
     return createUserWithPerms(kUser2, kUser2Keypair.publicKey(), kRole2, perms)
         .build()
         .signAndAddSignature(kAdminKeypair)
@@ -127,7 +127,7 @@ TEST_F(TransferAsset, WithoutCanReceive) {
       .setInitialState(kAdminKeypair)
       .sendTxAwait(makeFirstUser(), CHECK_TXS_QUANTITY(1))
       // TODO(@l4l) 23/06/18: remove permission with IR-1367
-      .sendTxAwait(makeSecondUser({interface::permissions::Role::kAddPeer}),
+      .sendTxAwait(makeSecondUser({permissions::Role::kAddPeer}),
                    CHECK_TXS_QUANTITY(1))
       .sendTxAwait(addAssets(), CHECK_TXS_QUANTITY(1))
       .sendTx(makeTransfer())
@@ -325,7 +325,7 @@ TEST_F(TransferAsset, InterDomain) {
   auto make_second_user =
       baseTx()
           .creatorAccountId(kAdminId)
-          .createRole(kRole2, {interface::permissions::Role::kReceive})
+          .createRole(kRole2, {permissions::Role::kReceive})
           .createDomain(kNewDomain, kRole2)
           .createAccount(kUser2, kNewDomain, kUser2Keypair.publicKey())
           .createAsset(kAssetName, kNewDomain, 1)
@@ -373,8 +373,7 @@ TEST_F(TransferAsset, BigPrecision) {
   auto check_balance = [](std::string account_id, std::string val) {
     return [a = std::move(account_id), v = val](auto &resp) {
       auto &acc_ast =
-          boost::get<const shared_model::interface::AccountAssetResponse &>(
-              resp.get());
+          boost::get<const shared_model::AccountAssetResponse &>(resp.get());
       for (auto &ast : acc_ast.accountAssets()) {
         if (ast.accountId() == a) {
           ASSERT_EQ(v, ast.balance().toStringRepr());

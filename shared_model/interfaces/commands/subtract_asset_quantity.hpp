@@ -12,27 +12,25 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
 
+  /**
+   * Subtract amount of asset from an account
+   */
+  class SubtractAssetQuantity : public ModelPrimitive<SubtractAssetQuantity> {
+   public:
     /**
-     * Subtract amount of asset from an account
+     * @return asset identifier
      */
-    class SubtractAssetQuantity : public ModelPrimitive<SubtractAssetQuantity> {
-     public:
-      /**
-       * @return asset identifier
-       */
-      virtual const types::AssetIdType &assetId() const = 0;
-      /**
-       * @return quantity of asset for subtracting
-       */
-      virtual const Amount &amount() const = 0;
+    virtual const types::AssetIdType &assetId() const = 0;
+    /**
+     * @return quantity of asset for subtracting
+     */
+    virtual const Amount &amount() const = 0;
 
-      std::string toString() const override;
+    std::string toString() const override;
 
-      bool operator==(const ModelType &rhs) const override;
-    };
-  }  // namespace interface
+    bool operator==(const ModelType &rhs) const override;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_SUBTRACT_ASSET_QUANTITY_HPP

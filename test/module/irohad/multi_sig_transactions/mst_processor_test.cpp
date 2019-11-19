@@ -41,10 +41,9 @@ class MstProcessorTest : public testing::Test {
   std::shared_ptr<MockPropagationStrategy> propagation_strategy;
   std::shared_ptr<MockTimeProvider> time_provider;
 
-  const shared_model::interface::types::CounterType time_now =
-      iroha::time::now();
-  const shared_model::interface::types::CounterType time_before = time_now - 1;
-  const shared_model::interface::types::CounterType time_after = time_now + 1;
+  const shared_model::types::CounterType time_now = iroha::time::now();
+  const shared_model::types::CounterType time_before = time_now - 1;
+  const shared_model::types::CounterType time_after = time_now + 1;
 
  protected:
   void SetUp() override {
@@ -285,9 +284,9 @@ TEST_F(MstProcessorTest, onNewPropagationUsecase) {
   EXPECT_CALL(*transport, sendState(_, _)).Times(2);
 
   // ---------------------------------| when |----------------------------------
-  std::vector<std::shared_ptr<shared_model::interface::Peer>> peers{
-      makePeer("one", shared_model::interface::types::PubkeyType("sign_one")),
-      makePeer("two", shared_model::interface::types::PubkeyType("sign_two"))};
+  std::vector<std::shared_ptr<shared_model::Peer>> peers{
+      makePeer("one", shared_model::types::PubkeyType("sign_one")),
+      makePeer("two", shared_model::types::PubkeyType("sign_two"))};
   propagation_subject.get_subscriber().on_next(peers);
 }
 
@@ -305,8 +304,8 @@ TEST_F(MstProcessorTest, emptyStatePropagation) {
   EXPECT_CALL(*transport, sendState(_, _)).Times(0);
 
   // ---------------------------------| given |---------------------------------
-  auto another_peer = makePeer(
-      "another", shared_model::interface::types::PubkeyType("sign_one"));
+  auto another_peer =
+      makePeer("another", shared_model::types::PubkeyType("sign_one"));
 
   auto another_peer_state = MstState::empty(
       getTestLogger("MstState"),
@@ -318,7 +317,7 @@ TEST_F(MstProcessorTest, emptyStatePropagation) {
       storage->getDiffState(another_peer->pubkey(), time_now).isEmpty());
 
   // ---------------------------------| when |----------------------------------
-  std::vector<std::shared_ptr<shared_model::interface::Peer>> peers{
+  std::vector<std::shared_ptr<shared_model::Peer>> peers{
       std::move(another_peer)};
   propagation_subject.get_subscriber().on_next(peers);
 }

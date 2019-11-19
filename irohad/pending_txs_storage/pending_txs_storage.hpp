@@ -32,11 +32,9 @@ namespace iroha {
      * pagination over the storage contents
      */
     struct Response {
-      shared_model::interface::types::SharedTxsCollectionType transactions;
-      shared_model::interface::types::TransactionsNumberType
-          all_transactions_size;
-      boost::optional<
-          shared_model::interface::PendingTransactionsPageResponse::BatchInfo>
+      shared_model::types::SharedTxsCollectionType transactions;
+      shared_model::types::TransactionsNumberType all_transactions_size;
+      boost::optional<shared_model::PendingTransactionsPageResponse::BatchInfo>
           next_batch_info;
 
       Response() : all_transactions_size(0) {}
@@ -49,13 +47,11 @@ namespace iroha {
      *
      * Get all the pending transactions associated with request originator
      * @param account_id - query creator
-     * @return collection of interface::Transaction objects
+     * @return collection of Transaction objects
      */
-    [[deprecated]] virtual shared_model::interface::types::
-        SharedTxsCollectionType
-        getPendingTransactions(
-            const shared_model::interface::types::AccountIdType &account_id)
-            const = 0;
+    [[deprecated]] virtual shared_model::types::SharedTxsCollectionType
+    getPendingTransactions(
+        const shared_model::types::AccountIdType &account_id) const = 0;
 
     /**
      * Fetch pending transactions associated with request originator
@@ -67,10 +63,10 @@ namespace iroha {
      * not be set when the end is reached). One of ErrorCode in case of error.
      */
     virtual expected::Result<Response, ErrorCode> getPendingTransactions(
-        const shared_model::interface::types::AccountIdType &account_id,
-        const shared_model::interface::types::TransactionsNumberType page_size,
-        const boost::optional<shared_model::interface::types::HashType>
-            &first_tx_hash) const = 0;
+        const shared_model::types::AccountIdType &account_id,
+        const shared_model::types::TransactionsNumberType page_size,
+        const boost::optional<shared_model::types::HashType> &first_tx_hash)
+        const = 0;
 
     virtual ~PendingTransactionStorage() = default;
   };

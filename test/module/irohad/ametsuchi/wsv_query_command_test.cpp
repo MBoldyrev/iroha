@@ -55,8 +55,8 @@ namespace iroha {
         peer = makePeer(address, pk);
       }
       std::shared_ptr<MockPeer> peer;
-      shared_model::interface::types::AddressType address{""};
-      shared_model::interface::types::PubkeyType pk{""};
+      shared_model::types::AddressType address{""};
+      shared_model::types::PubkeyType pk{""};
     };
 
     /**

@@ -11,7 +11,7 @@
 using namespace integration_framework;
 using namespace shared_model;
 using namespace common_constants;
-using namespace shared_model::interface::permissions;
+using namespace shared_model::permissions;
 
 class ReplayFixture : public AcceptanceFixture {
  public:
@@ -30,7 +30,7 @@ class ReplayFixture : public AcceptanceFixture {
   }
 
   IntegrationTestFramework itf;
-  const interface::types::RoleIdType kReceiverRole;
+  const types::RoleIdType kReceiverRole;
 };
 
 /**

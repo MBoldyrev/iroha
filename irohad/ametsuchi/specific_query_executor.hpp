@@ -12,17 +12,14 @@
 #include "interfaces/permissions.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class Query;
-    class QueryResponse;
-  }  // namespace interface
+  class Query;
+  class QueryResponse;
 }  // namespace shared_model
 
 namespace iroha {
   namespace ametsuchi {
 
-    using QueryExecutorResult =
-        std::unique_ptr<shared_model::interface::QueryResponse>;
+    using QueryExecutorResult = std::unique_ptr<shared_model::QueryResponse>;
 
     /**
      * Executes query variant types
@@ -31,11 +28,10 @@ namespace iroha {
      public:
       virtual ~SpecificQueryExecutor() = default;
 
-      virtual QueryExecutorResult execute(
-          const shared_model::interface::Query &qry) = 0;
+      virtual QueryExecutorResult execute(const shared_model::Query &qry) = 0;
 
       virtual bool hasAccountRolePermission(
-          shared_model::interface::permissions::Role permission,
+          shared_model::permissions::Role permission,
           const std::string &account_id) const = 0;
     };
   }  // namespace ametsuchi

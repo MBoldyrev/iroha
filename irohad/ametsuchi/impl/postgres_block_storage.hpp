@@ -26,11 +26,10 @@ namespace iroha {
                            std::string table,
                            logger::LoggerPtr log);
 
-      bool insert(
-          std::shared_ptr<const shared_model::interface::Block> block) override;
+      bool insert(std::shared_ptr<const shared_model::Block> block) override;
 
-      boost::optional<std::shared_ptr<const shared_model::interface::Block>>
-      fetch(shared_model::interface::types::HeightType height) const override;
+      boost::optional<std::shared_ptr<const shared_model::Block>> fetch(
+          shared_model::types::HeightType height) const override;
 
       size_t size() const override;
 
@@ -40,8 +39,8 @@ namespace iroha {
 
      private:
       struct HeightRange {
-        shared_model::interface::types::HeightType min;
-        shared_model::interface::types::HeightType max;
+        shared_model::types::HeightType min;
+        shared_model::types::HeightType max;
       };
 
       /// Get the range of stored block heights.

@@ -10,10 +10,8 @@
 #include "common/result.hpp"
 
 namespace shared_model {
-  namespace interface {
-    class Command;
-    class Transaction;
-  }  // namespace interface
+  class Command;
+  class Transaction;
 }  // namespace shared_model
 
 namespace iroha {
@@ -30,7 +28,7 @@ namespace iroha {
           std::shared_ptr<CommandExecutor> command_executor);
 
       iroha::expected::Result<void, TxExecutionError> execute(
-          const shared_model::interface::Transaction &transaction,
+          const shared_model::Transaction &transaction,
           bool do_validation) const;
 
      private:

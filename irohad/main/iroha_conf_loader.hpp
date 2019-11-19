@@ -55,7 +55,7 @@ struct IrohadConfig {
   boost::optional<uint32_t> max_round_delay_ms;
   boost::optional<uint32_t> stale_stream_max_rounds;
   boost::optional<logger::LoggerManagerTreePtr> logger_manager;
-  boost::optional<shared_model::interface::types::PeerList> initial_peers;
+  boost::optional<shared_model::types::PeerList> initial_peers;
 };
 
 /**
@@ -65,7 +65,6 @@ struct IrohadConfig {
  */
 IrohadConfig parse_iroha_config(
     const std::string &conf_path,
-    std::shared_ptr<shared_model::interface::CommonObjectsFactory>
-        common_objects_factory);
+    std::shared_ptr<shared_model::CommonObjectsFactory> common_objects_factory);
 
 #endif  // IROHA_CONF_LOADER_HPP

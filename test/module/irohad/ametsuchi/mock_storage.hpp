@@ -40,22 +40,21 @@ namespace iroha {
           createQueryExecutor,
           boost::optional<std::shared_ptr<QueryExecutor>>(
               std::shared_ptr<PendingTransactionStorage>,
-              std::shared_ptr<shared_model::interface::QueryResponseFactory>));
+              std::shared_ptr<shared_model::QueryResponseFactory>));
       MOCK_METHOD1(doCommit, CommitResult(MutableStorage *storage));
       MOCK_CONST_METHOD0(preparedCommitEnabled, bool());
-      MOCK_METHOD1(
-          commitPrepared,
-          CommitResult(std::shared_ptr<const shared_model::interface::Block>));
+      MOCK_METHOD1(commitPrepared,
+                   CommitResult(std::shared_ptr<const shared_model::Block>));
       MOCK_METHOD1(insertBlock,
-                   bool(std::shared_ptr<const shared_model::interface::Block>));
+                   bool(std::shared_ptr<const shared_model::Block>));
       MOCK_METHOD2(
           createMutableStorage,
           std::unique_ptr<MutableStorage>(std::shared_ptr<CommandExecutor>,
                                           BlockStorageFactory &));
 
-      MOCK_METHOD1(insertPeer,
-                   expected::Result<void, std::string>(
-                       const shared_model::interface::Peer &));
+      MOCK_METHOD1(
+          insertPeer,
+          expected::Result<void, std::string>(const shared_model::Peer &));
       MOCK_METHOD0(reset, void());
       MOCK_METHOD0(resetWsv, expected::Result<void, std::string>());
       MOCK_METHOD0(resetPeers, void());
@@ -68,15 +67,14 @@ namespace iroha {
         prepareBlock_(wsv);
       }
 
-      rxcpp::observable<std::shared_ptr<const shared_model::interface::Block>>
-      on_commit() override {
+      rxcpp::observable<std::shared_ptr<const shared_model::Block>> on_commit()
+          override {
         return notifier.get_observable();
       }
       CommitResult commit(std::unique_ptr<MutableStorage> storage) override {
         return doCommit(storage.get());
       }
-      rxcpp::subjects::subject<
-          std::shared_ptr<const shared_model::interface::Block>>
+      rxcpp::subjects::subject<std::shared_ptr<const shared_model::Block>>
           notifier;
     };
 

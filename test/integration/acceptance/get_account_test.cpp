@@ -26,10 +26,10 @@ class GetAccount : public AcceptanceFixture {
    * @param perms are the permissions of the user
    * @return built tx
    */
-  auto makeUserWithPerms(const interface::RolePermissionSet &perms = {
-                             interface::permissions::Role::kGetMyAccount}) {
+  auto makeUserWithPerms(const RolePermissionSet &perms = {
+                             permissions::Role::kGetMyAccount}) {
     auto new_perms = perms;
-    new_perms.set(interface::permissions::Role::kSetQuorum);
+    new_perms.set(permissions::Role::kSetQuorum);
     return AcceptanceFixture::makeUserWithPerms(kNewRole, new_perms);
   }
 
@@ -39,8 +39,7 @@ class GetAccount : public AcceptanceFixture {
    * @return itf with the base state
    */
   IntegrationTestFramework &prepareState(
-      const interface::RolePermissionSet &perms = {
-          interface::permissions::Role::kGetMyAccount}) {
+      const RolePermissionSet &perms = {permissions::Role::kGetMyAccount}) {
     itf.setInitialState(kAdminKeypair)
         .sendTxAwait(makeUserWithPerms(perms), CHECK_TXS_QUANTITY(1));
     return itf;
@@ -69,10 +68,10 @@ class GetAccount : public AcceptanceFixture {
    */
   auto checkNoAccountResponse() {
     return [](auto &response) {
-      ASSERT_TRUE(boost::apply_visitor(
-          shared_model::interface::QueryErrorResponseChecker<
-              shared_model::interface::NoAccountErrorResponse>(),
-          response.get()))
+      ASSERT_TRUE(
+          boost::apply_visitor(shared_model::QueryErrorResponseChecker<
+                                   shared_model::NoAccountErrorResponse>(),
+                               response.get()))
           << "Actual response: " << response.toString();
     };
   }
@@ -89,8 +88,7 @@ class GetAccount : public AcceptanceFixture {
     return [&](const proto::QueryResponse &response) {
       ASSERT_NO_THROW({
         const auto &resp =
-            boost::get<const shared_model::interface::AccountResponse &>(
-                response.get());
+            boost::get<const shared_model::AccountResponse &>(response.get());
         ASSERT_EQ(resp.account().accountId(), user);
         ASSERT_EQ(resp.account().domainId(), domain);
         ASSERT_EQ(resp.roles().size(), 1);
@@ -111,12 +109,11 @@ class GetAccount : public AcceptanceFixture {
    * @return a command for creating second user in the default domain
    */
   auto makeSecondUser() {
-    return complete(
-        createUserWithPerms(kUser2,
-                            kUser2Keypair.publicKey(),
-                            kRole2,
-                            {interface::permissions::Role::kSetQuorum}),
-        kAdminKeypair);
+    return complete(createUserWithPerms(kUser2,
+                                        kUser2Keypair.publicKey(),
+                                        kRole2,
+                                        {permissions::Role::kSetQuorum}),
+                    kAdminKeypair);
   }
 
   /**
@@ -126,7 +123,7 @@ class GetAccount : public AcceptanceFixture {
     return complete(
         baseTx()
             .creatorAccountId(kAdminId)
-            .createRole(kRole2, {interface::permissions::Role::kSetQuorum})
+            .createRole(kRole2, {permissions::Role::kSetQuorum})
             .createDomain(kNewDomain, kRole2)
             .createAccount(kUser2, kNewDomain, kUser2Keypair.publicKey()),
         kAdminKeypair);
@@ -152,8 +149,7 @@ class GetAccount : public AcceptanceFixture {
 TEST_F(GetAccount, EmptyAccount) {
   prepareState().sendQuery(
       makeQuery(""),
-      checkQueryErrorResponse<
-          shared_model::interface::StatelessFailedErrorResponse>());
+      checkQueryErrorResponse<shared_model::StatelessFailedErrorResponse>());
 }
 
 /**
@@ -169,8 +165,7 @@ TEST_F(GetAccount, NonexistentAccount) {
   prepareState().sendQuery(
       complete(baseQry().queryCounter(1).getAccount("inexistent@" + kDomain)),
 
-      checkQueryErrorResponse<
-          shared_model::interface::StatefulFailedErrorResponse>());
+      checkQueryErrorResponse<shared_model::StatefulFailedErrorResponse>());
 }
 
 /**
@@ -186,8 +181,7 @@ TEST_F(GetAccount, NonexistentAccount) {
 TEST_F(GetAccount, NoPermission) {
   prepareState({}).sendQuery(
       makeQuery(),
-      checkQueryErrorResponse<
-          shared_model::interface::StatefulFailedErrorResponse>());
+      checkQueryErrorResponse<shared_model::StatefulFailedErrorResponse>());
 }
 
 /**
@@ -214,7 +208,7 @@ TEST_F(GetAccount, WithGetMyPermission) {
  * @then there is a valid AccountResponse
  */
 TEST_F(GetAccount, WithGetDomainPermission) {
-  prepareState({interface::permissions::Role::kGetDomainAccounts})
+  prepareState({permissions::Role::kGetDomainAccounts})
       .sendQuery(makeQuery(), checkValidAccount());
 }
 
@@ -229,7 +223,7 @@ TEST_F(GetAccount, WithGetDomainPermission) {
  * @then there is a valid AccountResponse
  */
 TEST_F(GetAccount, WithGetAllPermission) {
-  prepareState({interface::permissions::Role::kGetAllAccounts})
+  prepareState({permissions::Role::kGetAllAccounts})
       .sendQuery(makeQuery(), checkValidAccount());
 }
 
@@ -246,9 +240,9 @@ TEST_F(GetAccount, NoPermissionOtherAccount) {
   const std::string kUser2Id = kUser2 + "@" + kDomain;
   prepareState({})
       .sendTxAwait(makeSecondUser(), CHECK_TXS_QUANTITY(1))
-      .sendQuery(makeQuery(kUser2Id),
-                 checkQueryErrorResponse<
-                     shared_model::interface::StatefulFailedErrorResponse>());
+      .sendQuery(
+          makeQuery(kUser2Id),
+          checkQueryErrorResponse<shared_model::StatefulFailedErrorResponse>());
 }
 
 /**
@@ -262,11 +256,11 @@ TEST_F(GetAccount, NoPermissionOtherAccount) {
  */
 TEST_F(GetAccount, WithGetMyPermissionOtherAccount) {
   const std::string kUser2Id = kUser2 + "@" + kDomain;
-  prepareState({interface::permissions::Role::kGetMyAccount})
+  prepareState({permissions::Role::kGetMyAccount})
       .sendTxAwait(makeSecondUser(), CHECK_TXS_QUANTITY(1))
-      .sendQuery(makeQuery(kUser2Id),
-                 checkQueryErrorResponse<
-                     shared_model::interface::StatefulFailedErrorResponse>());
+      .sendQuery(
+          makeQuery(kUser2Id),
+          checkQueryErrorResponse<shared_model::StatefulFailedErrorResponse>());
 }
 
 /**
@@ -280,7 +274,7 @@ TEST_F(GetAccount, WithGetMyPermissionOtherAccount) {
  */
 TEST_F(GetAccount, WithGetDomainPermissionOtherAccount) {
   const std::string kUser2Id = kUser2 + "@" + kDomain;
-  prepareState({interface::permissions::Role::kGetDomainAccounts})
+  prepareState({permissions::Role::kGetDomainAccounts})
       .sendTxAwait(makeSecondUser(), CHECK_TXS_QUANTITY(1))
       .sendQuery(makeQuery(kUser2Id),
                  checkValidAccount(kDomain, kUser2Id, kRole2));
@@ -296,7 +290,7 @@ TEST_F(GetAccount, WithGetDomainPermissionOtherAccount) {
  */
 TEST_F(GetAccount, WithGetAllPermissionOtherAccount) {
   const std::string kUser2Id = kUser2 + "@" + kDomain;
-  prepareState({interface::permissions::Role::kGetAllAccounts})
+  prepareState({permissions::Role::kGetAllAccounts})
       .sendTxAwait(makeSecondUser(), CHECK_TXS_QUANTITY(1))
       .sendQuery(makeQuery(kUser2Id),
                  checkValidAccount(kDomain, kUser2Id, kRole2));
@@ -315,9 +309,9 @@ TEST_F(GetAccount, NoPermissionOtherAccountInterdomain) {
   const std::string kUser2Id = kUser2 + "@" + kNewDomain;
   prepareState({})
       .sendTxAwait(makeSecondInterdomainUser(), CHECK_TXS_QUANTITY(1))
-      .sendQuery(makeQuery(kUser2Id),
-                 checkQueryErrorResponse<
-                     shared_model::interface::StatefulFailedErrorResponse>());
+      .sendQuery(
+          makeQuery(kUser2Id),
+          checkQueryErrorResponse<shared_model::StatefulFailedErrorResponse>());
 }
 
 /**
@@ -331,11 +325,11 @@ TEST_F(GetAccount, NoPermissionOtherAccountInterdomain) {
  */
 TEST_F(GetAccount, WithGetMyPermissionOtherAccountInterdomain) {
   const std::string kUser2Id = kUser2 + "@" + kNewDomain;
-  prepareState({interface::permissions::Role::kGetMyAccount})
+  prepareState({permissions::Role::kGetMyAccount})
       .sendTxAwait(makeSecondInterdomainUser(), CHECK_TXS_QUANTITY(1))
-      .sendQuery(makeQuery(kUser2Id),
-                 checkQueryErrorResponse<
-                     shared_model::interface::StatefulFailedErrorResponse>());
+      .sendQuery(
+          makeQuery(kUser2Id),
+          checkQueryErrorResponse<shared_model::StatefulFailedErrorResponse>());
 }
 
 /**
@@ -349,11 +343,11 @@ TEST_F(GetAccount, WithGetMyPermissionOtherAccountInterdomain) {
  */
 TEST_F(GetAccount, WithGetDomainPermissionOtherAccountInterdomain) {
   const std::string kUser2Id = kUser2 + "@" + kNewDomain;
-  prepareState({interface::permissions::Role::kGetDomainAccounts})
+  prepareState({permissions::Role::kGetDomainAccounts})
       .sendTxAwait(makeSecondInterdomainUser(), CHECK_TXS_QUANTITY(1))
-      .sendQuery(makeQuery(kUser2Id),
-                 checkQueryErrorResponse<
-                     shared_model::interface::StatefulFailedErrorResponse>());
+      .sendQuery(
+          makeQuery(kUser2Id),
+          checkQueryErrorResponse<shared_model::StatefulFailedErrorResponse>());
 }
 
 /**
@@ -369,7 +363,7 @@ TEST_F(GetAccount, WithGetDomainPermissionOtherAccountInterdomain) {
  */
 TEST_F(GetAccount, WithGetAllPermissionOtherAccountInterdomain) {
   const std::string kUser2Id = kUser2 + "@" + kNewDomain;
-  prepareState({interface::permissions::Role::kGetAllAccounts})
+  prepareState({permissions::Role::kGetAllAccounts})
       .sendTxAwait(makeSecondInterdomainUser(), CHECK_TXS_QUANTITY(1))
       .sendQuery(makeQuery(kUser2Id),
                  checkValidAccount(kNewDomain, kUser2Id, kRole2));

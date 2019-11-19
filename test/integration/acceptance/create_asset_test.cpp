@@ -15,15 +15,15 @@ using namespace common_constants;
 
 class CreateAssetFixture : public AcceptanceFixture {
  public:
-  auto makeUserWithPerms(const interface::RolePermissionSet &perms = {
-                             interface::permissions::Role::kCreateAsset}) {
+  auto makeUserWithPerms(const RolePermissionSet &perms = {
+                             permissions::Role::kCreateAsset}) {
     return AcceptanceFixture::makeUserWithPerms(perms);
   }
 
-  const interface::types::AssetNameType kAnotherAssetName = "newcoin";
-  const interface::types::PrecisionType kPrecision = 1;
-  const interface::types::PrecisionType kNonDefaultPrecision = kPrecision + 17;
-  const interface::types::DomainIdType kNonExistingDomain = "nonexisting";
+  const types::AssetNameType kAnotherAssetName = "newcoin";
+  const types::PrecisionType kPrecision = 1;
+  const types::PrecisionType kNonDefaultPrecision = kPrecision + 17;
+  const types::DomainIdType kNonExistingDomain = "nonexisting";
 };
 
 /*
@@ -47,8 +47,8 @@ TEST_F(CreateAssetFixture, Basic) {
   const auto asset_amount = "100.0";
   IntegrationTestFramework(1)
       .setInitialState(kAdminKeypair)
-      .sendTx(makeUserWithPerms({interface::permissions::Role::kCreateAsset,
-                                 interface::permissions::Role::kAddAssetQty}))
+      .sendTx(makeUserWithPerms(
+          {permissions::Role::kCreateAsset, permissions::Role::kAddAssetQty}))
       .skipProposal()
       .checkBlock(
           [](auto &block) { ASSERT_EQ(block->transactions().size(), 1); })

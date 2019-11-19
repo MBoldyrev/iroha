@@ -27,18 +27,16 @@ namespace shared_model {
   namespace crypto {
     class Keypair;
   }
-  namespace interface {
-    template <typename Interface, typename Transport>
-    class AbstractTransportFactory;
-    class CommonObjectsFactory;
-    class Block;
-    class Proposal;
-    class TransactionBatch;
-    class TransactionBatchFactory;
-    class TransactionBatchParser;
-    class TransactionResponse;
-    class TransactionSequence;
-  }  // namespace interface
+  template <typename Interface, typename Transport>
+  class AbstractTransportFactory;
+  class CommonObjectsFactory;
+  class Block;
+  class Proposal;
+  class TransactionBatch;
+  class TransactionBatchFactory;
+  class TransactionBatchParser;
+  class TransactionResponse;
+  class TransactionSequence;
   namespace proto {
     class Block;
     class Transaction;
@@ -105,12 +103,11 @@ namespace integration_framework {
    private:
     using VerifiedProposalType =
         std::shared_ptr<iroha::validation::VerifiedProposalAndErrors>;
-    using BlockType = std::shared_ptr<const shared_model::interface::Block>;
-    using TxResponseType =
-        std::shared_ptr<shared_model::interface::TransactionResponse>;
+    using BlockType = std::shared_ptr<const shared_model::Block>;
+    using TxResponseType = std::shared_ptr<shared_model::TransactionResponse>;
 
    public:
-    using TransactionBatchType = shared_model::interface::TransactionBatch;
+    using TransactionBatchType = shared_model::TransactionBatch;
     using TransactionBatchSPtr = std::shared_ptr<TransactionBatchType>;
 
    private:
@@ -171,8 +168,7 @@ namespace integration_framework {
     shared_model::proto::Block defaultBlock() const;
 
     /// Set the provided genesis block.
-    IntegrationTestFramework &setGenesisBlock(
-        const shared_model::interface::Block &block);
+    IntegrationTestFramework &setGenesisBlock(const shared_model::Block &block);
 
     /**
      * Initialize Iroha instance with default genesis block and provided signing
@@ -196,7 +192,7 @@ namespace integration_framework {
      */
     IntegrationTestFramework &setInitialState(
         const shared_model::crypto::Keypair &keypair,
-        const shared_model::interface::Block &block);
+        const shared_model::Block &block);
 
     /**
      * Initialize Iroha instance using the data left in block store from
@@ -263,7 +259,7 @@ namespace integration_framework {
      * @return this
      */
     IntegrationTestFramework &sendTxSequence(
-        const shared_model::interface::TransactionSequence &tx_sequence,
+        const shared_model::TransactionSequence &tx_sequence,
         std::function<void(std::vector<shared_model::proto::TransactionResponse>
                                &)> validation = [](const auto &) {});
 
@@ -275,7 +271,7 @@ namespace integration_framework {
      * @return this
      */
     IntegrationTestFramework &sendTxSequenceAwait(
-        const shared_model::interface::TransactionSequence &tx_sequence,
+        const shared_model::TransactionSequence &tx_sequence,
         std::function<void(const BlockType &)> check);
 
     /**
@@ -310,7 +306,7 @@ namespace integration_framework {
 
     /// Send proposal to this peer's ordering service.
     IntegrationTestFramework &sendProposal(
-        std::unique_ptr<shared_model::interface::Proposal> proposal);
+        std::unique_ptr<shared_model::Proposal> proposal);
 
     /// Send a batch of transactions to this peer's ordering service.
     IntegrationTestFramework &sendBatch(const TransactionBatchSPtr &batch);
@@ -329,7 +325,7 @@ namespace integration_framework {
      * @param timeout - the timeout for waiting the proposal
      * @return the proposal if received one
      */
-    boost::optional<std::shared_ptr<const shared_model::interface::Proposal>>
+    boost::optional<std::shared_ptr<const shared_model::Proposal>>
     requestProposal(const iroha::consensus::Round &round,
                     std::chrono::milliseconds timeout);
 
@@ -357,13 +353,12 @@ namespace integration_framework {
     /**
      * Request next proposal from queue and serve it with custom handler
      * @param validation - callback that receives object of type \relates
-     * std::shared_ptr<shared_model::interface::Proposal> by reference
+     * std::shared_ptr<shared_model::Proposal> by reference
      * @return this
      */
     IntegrationTestFramework &checkProposal(
         std::function<void(
-            const std::shared_ptr<const shared_model::interface::Proposal> &)>
-            validation);
+            const std::shared_ptr<const shared_model::Proposal> &)> validation);
 
     /**
      * Request next proposal from queue and skip it
@@ -375,15 +370,14 @@ namespace integration_framework {
      * Request next verified proposal from queue and check it with provided
      * function
      * @param validation - callback that receives object of type \relates
-     * std::shared_ptr<shared_model::interface::Proposal> by reference
+     * std::shared_ptr<shared_model::Proposal> by reference
      * @return this
      * TODO mboldyrev 27.10.2018: make validation function accept
      *                IR-1822     VerifiedProposalType argument
      */
     IntegrationTestFramework &checkVerifiedProposal(
         std::function<void(
-            const std::shared_ptr<const shared_model::interface::Proposal> &)>
-            validation);
+            const std::shared_ptr<const shared_model::Proposal> &)> validation);
 
     /**
      * Request next verified proposal from queue and skip it
@@ -394,7 +388,7 @@ namespace integration_framework {
     /**
      * Request next block from queue and serve it with custom handler
      * @param validation - callback that receives object of type \relates
-     * std::shared_ptr<const shared_model::interface::Block> by reference
+     * std::shared_ptr<const shared_model::Block> by reference
      * @return this
      */
     IntegrationTestFramework &checkBlock(
@@ -409,12 +403,10 @@ namespace integration_framework {
     rxcpp::observable<std::shared_ptr<iroha::MstState>>
     getMstStateUpdateObservable();
 
-    rxcpp::observable<
-        std::shared_ptr<shared_model::interface::TransactionBatch>>
+    rxcpp::observable<std::shared_ptr<shared_model::TransactionBatch>>
     getMstPreparedBatchesObservable();
 
-    rxcpp::observable<
-        std::shared_ptr<shared_model::interface::TransactionBatch>>
+    rxcpp::observable<std::shared_ptr<shared_model::TransactionBatch>>
     getMstExpiredBatchesObservable();
 
     rxcpp::observable<iroha::consensus::GateObject> getYacOnCommitObservable();
@@ -431,7 +423,7 @@ namespace integration_framework {
      * @return this
      */
     IntegrationTestFramework &checkStatus(
-        const shared_model::interface::types::HashType &tx_hash,
+        const shared_model::types::HashType &tx_hash,
         std::function<void(const shared_model::proto::TransactionResponse &)>
             validation);
 
@@ -455,8 +447,8 @@ namespace integration_framework {
     /// Start the ITF.
     void subscribeQueuesAndRun();
 
-    /// Get interface::Peer object for this instance.
-    std::shared_ptr<shared_model::interface::Peer> getThisPeer() const;
+    /// Get Peer object for this instance.
+    std::shared_ptr<shared_model::Peer> getThisPeer() const;
 
     /// Get this node address.
     std::string getAddress() const;
@@ -492,8 +484,7 @@ namespace integration_framework {
     logger::LoggerPtr log_;
     logger::LoggerManagerTreePtr log_manager_;
 
-    std::unique_ptr<
-        CheckerQueue<std::shared_ptr<const shared_model::interface::Proposal>>>
+    std::unique_ptr<CheckerQueue<std::shared_ptr<const shared_model::Proposal>>>
         proposal_queue_;
     std::unique_ptr<CheckerQueue<VerifiedProposalType>>
         verified_proposal_queue_;
@@ -517,29 +508,27 @@ namespace integration_framework {
 
     size_t maximum_proposal_size_;
 
-    std::shared_ptr<shared_model::interface::CommonObjectsFactory>
-        common_objects_factory_;
-    std::shared_ptr<shared_model::interface::AbstractTransportFactory<
-        shared_model::interface::Transaction,
-        iroha::protocol::Transaction>>
+    std::shared_ptr<shared_model::CommonObjectsFactory> common_objects_factory_;
+    std::shared_ptr<
+        shared_model::AbstractTransportFactory<shared_model::Transaction,
+                                               iroha::protocol::Transaction>>
         transaction_factory_;
-    std::shared_ptr<shared_model::interface::TransactionBatchParser>
-        batch_parser_;
+    std::shared_ptr<shared_model::TransactionBatchParser> batch_parser_;
     std::shared_ptr<shared_model::validation::AbstractValidator<
-        shared_model::interface::TransactionBatch>>
+        shared_model::TransactionBatch>>
         batch_validator_;
-    std::shared_ptr<shared_model::interface::TransactionBatchFactory>
+    std::shared_ptr<shared_model::TransactionBatchFactory>
         transaction_batch_factory_;
-    std::shared_ptr<shared_model::interface::AbstractTransportFactory<
-        shared_model::interface::Proposal,
-        iroha::protocol::Proposal>>
+    std::shared_ptr<
+        shared_model::AbstractTransportFactory<shared_model::Proposal,
+                                               iroha::protocol::Proposal>>
         proposal_factory_;
     std::shared_ptr<iroha::ametsuchi::TxPresenceCache> tx_presence_cache_;
     std::shared_ptr<iroha::network::MstTransportGrpc> mst_transport_;
     std::shared_ptr<iroha::consensus::yac::YacNetwork> yac_transport_;
 
     boost::optional<shared_model::crypto::Keypair> my_key_;
-    std::shared_ptr<shared_model::interface::Peer> this_peer_;
+    std::shared_ptr<shared_model::Peer> this_peer_;
 
    private:
     bool cleanup_on_exit_;

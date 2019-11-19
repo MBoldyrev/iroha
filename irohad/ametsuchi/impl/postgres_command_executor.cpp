@@ -38,14 +38,14 @@
 #include "interfaces/permission_to_string.hpp"
 #include "utils/string_builder.hpp"
 
-using shared_model::interface::permissions::Grantable;
-using shared_model::interface::permissions::Role;
+using shared_model::permissions::Grantable;
+using shared_model::permissions::Role;
 
 namespace {
   constexpr size_t kRolePermissionSetSize =
-      shared_model::interface::RolePermissionSet::size();
+      shared_model::RolePermissionSet::size();
   constexpr size_t kGrantablePermissionSetSize =
-      shared_model::interface::GrantablePermissionSet::size();
+      shared_model::GrantablePermissionSet::size();
 
   // soci does not allow boolean variable exchange, so use PostgreSQL conversion
   // from string
@@ -170,13 +170,13 @@ namespace {
 
   template <typename T>
   std::string permissionSetToBitString(
-      const shared_model::interface::PermissionSet<T> &set) {
+      const shared_model::PermissionSet<T> &set) {
     return (boost::format("'%s'") % set.toBitstring()).str();
   }
 
   std::string checkAccountRolePermission(
       const std::string &permission_bitstring,
-      const shared_model::interface::types::AccountIdType &account_id) {
+      const shared_model::types::AccountIdType &account_id) {
     std::string query = (boost::format(R"(
           SELECT
               COALESCE(bit_or(rp.permission), '0'::bit(%1%))
@@ -192,21 +192,18 @@ namespace {
   }
 
   std::string checkAccountRolePermission(
-      Role permission,
-      const shared_model::interface::types::AccountIdType &account_id) {
+      Role permission, const shared_model::types::AccountIdType &account_id) {
     return checkAccountRolePermission(
-        permissionSetToBitString(
-            shared_model::interface::RolePermissionSet({permission})),
+        permissionSetToBitString(shared_model::RolePermissionSet({permission})),
         account_id);
   }
 
   std::string checkAccountGrantablePermission(
       Grantable permission,
-      const shared_model::interface::types::AccountIdType &creator_id,
-      const shared_model::interface::types::AccountIdType &account_id) {
+      const shared_model::types::AccountIdType &creator_id,
+      const shared_model::types::AccountIdType &account_id) {
     const auto perm_str =
-        shared_model::interface::GrantablePermissionSet({permission})
-            .toBitstring();
+        shared_model::GrantablePermissionSet({permission}).toBitstring();
     std::string query = (boost::format(R"(
           SELECT
               COALESCE(bit_or(permission), '0'::bit(%1%)) & '%2%' = '%2%'
@@ -229,24 +226,20 @@ namespace {
    * any of listed permissions is present
    */
   auto hasQueryPermission(
-      const shared_model::interface::types::AccountIdType &creator,
-      const shared_model::interface::types::AccountIdType &target_account,
+      const shared_model::types::AccountIdType &creator,
+      const shared_model::types::AccountIdType &target_account,
       Role indiv_permission_id,
       Role all_permission_id,
       Role domain_permission_id,
-      const shared_model::interface::types::DomainIdType &creator_domain,
-      const shared_model::interface::types::DomainIdType
-          &target_account_domain) {
-    const auto bits = shared_model::interface::RolePermissionSet::size();
+      const shared_model::types::DomainIdType &creator_domain,
+      const shared_model::types::DomainIdType &target_account_domain) {
+    const auto bits = shared_model::RolePermissionSet::size();
     const auto perm_str =
-        shared_model::interface::RolePermissionSet({indiv_permission_id})
-            .toBitstring();
+        shared_model::RolePermissionSet({indiv_permission_id}).toBitstring();
     const auto all_perm_str =
-        shared_model::interface::RolePermissionSet({all_permission_id})
-            .toBitstring();
+        shared_model::RolePermissionSet({all_permission_id}).toBitstring();
     const auto domain_perm_str =
-        shared_model::interface::RolePermissionSet({domain_permission_id})
-            .toBitstring();
+        shared_model::RolePermissionSet({domain_permission_id}).toBitstring();
 
     boost::format cmd(R"(
     has_root_perm AS (%1%),
@@ -285,9 +278,8 @@ namespace {
   std::string checkAccountDomainRoleOrGlobalRolePermission(
       Role global_permission,
       Role domain_permission,
-      const shared_model::interface::types::AccountIdType &creator_id,
-      const shared_model::interface::types::AssetIdType
-          &id_with_target_domain) {
+      const shared_model::types::AccountIdType &creator_id,
+      const shared_model::types::AssetIdType &id_with_target_domain) {
     std::string query = (boost::format(R"(WITH
           has_global_role_perm AS (%1%),
           has_domain_role_perm AS (%2%)
@@ -310,8 +302,8 @@ namespace {
   std::string checkAccountHasRoleOrGrantablePerm(
       Role role,
       Grantable grantable,
-      const shared_model::interface::types::AccountIdType &creator_id,
-      const shared_model::interface::types::AccountIdType &account_id) {
+      const shared_model::types::AccountIdType &creator_id,
+      const shared_model::types::AccountIdType &account_id) {
     return (boost::format(R"(WITH
           has_role_perm AS (%s),
           has_root_perm AS (%s),
@@ -381,8 +373,7 @@ namespace iroha {
           std::unique_ptr<CommandStatements> &statements,
           bool enable_validation,
           std::string command_name,
-          std::shared_ptr<shared_model::interface::PermissionToString>
-              perm_converter)
+          std::shared_ptr<shared_model::PermissionToString> perm_converter)
           : statement_(statements->getStatement(enable_validation)),
             command_name_(std::move(command_name)),
             perm_converter_(std::move(perm_converter)) {
@@ -400,8 +391,7 @@ namespace iroha {
 
       void use(const std::string &argument_name, const Role &permission) {
         temp_values_.emplace_front(
-            shared_model::interface::RolePermissionSet({permission})
-                .toBitstring());
+            shared_model::RolePermissionSet({permission}).toBitstring());
         statement_.exchange(soci::use(temp_values_.front(), argument_name));
         addArgumentToString(argument_name,
                             perm_converter_->toString(permission));
@@ -409,16 +399,14 @@ namespace iroha {
 
       void use(const std::string &argument_name, const Grantable &permission) {
         temp_values_.emplace_front(
-            shared_model::interface::GrantablePermissionSet({permission})
-                .toBitstring());
+            shared_model::GrantablePermissionSet({permission}).toBitstring());
         statement_.exchange(soci::use(temp_values_.front(), argument_name));
         addArgumentToString(argument_name,
                             perm_converter_->toString(permission));
       }
 
-      void use(
-          const std::string &argument_name,
-          const shared_model::interface::RolePermissionSet &permission_set) {
+      void use(const std::string &argument_name,
+               const shared_model::RolePermissionSet &permission_set) {
         temp_values_.emplace_front(permission_set.toBitstring());
         statement_.exchange(soci::use(temp_values_.front(), argument_name));
         addArgumentToString(
@@ -477,8 +465,7 @@ namespace iroha {
      private:
       soci::statement &statement_;
       std::string command_name_;
-      std::shared_ptr<shared_model::interface::PermissionToString>
-          perm_converter_;
+      std::shared_ptr<shared_model::PermissionToString> perm_converter_;
       shared_model::detail::PrettyStringBuilder arguments_string_builder_;
       std::forward_list<std::string> temp_values_;
     };
@@ -1354,8 +1341,7 @@ namespace iroha {
 
     PostgresCommandExecutor::PostgresCommandExecutor(
         std::unique_ptr<soci::session> sql,
-        std::shared_ptr<shared_model::interface::PermissionToString>
-            perm_converter)
+        std::shared_ptr<shared_model::PermissionToString> perm_converter)
         : sql_(std::move(sql)), perm_converter_{std::move(perm_converter)} {
       initStatements();
     }
@@ -1363,8 +1349,8 @@ namespace iroha {
     PostgresCommandExecutor::~PostgresCommandExecutor() = default;
 
     CommandResult PostgresCommandExecutor::execute(
-        const shared_model::interface::Command &cmd,
-        const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::Command &cmd,
+        const shared_model::types::AccountIdType &creator_account_id,
         bool do_validation) {
       return boost::apply_visitor(
           [this, &creator_account_id, do_validation](const auto &command) {
@@ -1378,8 +1364,8 @@ namespace iroha {
     }
 
     CommandResult PostgresCommandExecutor::operator()(
-        const shared_model::interface::AddAssetQuantity &command,
-        const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::AddAssetQuantity &command,
+        const shared_model::types::AccountIdType &creator_account_id,
         bool do_validation) {
       auto &asset_id = command.assetId();
       auto quantity = command.amount().toStringRepr();
@@ -1398,8 +1384,8 @@ namespace iroha {
     }
 
     CommandResult PostgresCommandExecutor::operator()(
-        const shared_model::interface::AddPeer &command,
-        const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::AddPeer &command,
+        const shared_model::types::AccountIdType &creator_account_id,
         bool do_validation) {
       auto &peer = command.peer();
 
@@ -1414,8 +1400,8 @@ namespace iroha {
     }
 
     CommandResult PostgresCommandExecutor::operator()(
-        const shared_model::interface::AddSignatory &command,
-        const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::AddSignatory &command,
+        const shared_model::types::AccountIdType &creator_account_id,
         bool do_validation) {
       auto &target = command.accountId();
       const auto &pubkey = command.pubkey().hex();
@@ -1432,8 +1418,8 @@ namespace iroha {
     }
 
     CommandResult PostgresCommandExecutor::operator()(
-        const shared_model::interface::AppendRole &command,
-        const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::AppendRole &command,
+        const shared_model::types::AccountIdType &creator_account_id,
         bool do_validation) {
       auto &target = command.accountId();
       auto &role = command.roleName();
@@ -1450,8 +1436,8 @@ namespace iroha {
     }
 
     CommandResult PostgresCommandExecutor::operator()(
-        const shared_model::interface::CompareAndSetAccountDetail &command,
-        const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::CompareAndSetAccountDetail &command,
+        const shared_model::types::AccountIdType &creator_account_id,
         bool do_validation) {
       std::string new_json_value = makeJsonString(command.value());
       const std::string expected_json_value =
@@ -1475,13 +1461,13 @@ namespace iroha {
     }
 
     CommandResult PostgresCommandExecutor::operator()(
-        const shared_model::interface::CreateAccount &command,
-        const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::CreateAccount &command,
+        const shared_model::types::AccountIdType &creator_account_id,
         bool do_validation) {
       auto &account_name = command.accountName();
       auto &domain_id = command.domainId();
       auto &pubkey = command.pubkey().hex();
-      shared_model::interface::types::AccountIdType account_id =
+      shared_model::types::AccountIdType account_id =
           account_name + "@" + domain_id;
 
       StatementExecutor executor(create_account_statements_,
@@ -1497,8 +1483,8 @@ namespace iroha {
     }
 
     CommandResult PostgresCommandExecutor::operator()(
-        const shared_model::interface::CreateAsset &command,
-        const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::CreateAsset &command,
+        const shared_model::types::AccountIdType &creator_account_id,
         bool do_validation) {
       auto &domain_id = command.domainId();
       auto asset_id = command.assetName() + "#" + domain_id;
@@ -1517,8 +1503,8 @@ namespace iroha {
     }
 
     CommandResult PostgresCommandExecutor::operator()(
-        const shared_model::interface::CreateDomain &command,
-        const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::CreateDomain &command,
+        const shared_model::types::AccountIdType &creator_account_id,
         bool do_validation) {
       auto &domain_id = command.domainId();
       auto &default_role = command.userDefaultRole();
@@ -1535,8 +1521,8 @@ namespace iroha {
     }
 
     CommandResult PostgresCommandExecutor::operator()(
-        const shared_model::interface::CreateRole &command,
-        const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::CreateRole &command,
+        const shared_model::types::AccountIdType &creator_account_id,
         bool do_validation) {
       auto &role_id = command.roleName();
       auto &permissions = command.rolePermissions();
@@ -1554,8 +1540,8 @@ namespace iroha {
     }
 
     CommandResult PostgresCommandExecutor::operator()(
-        const shared_model::interface::DetachRole &command,
-        const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::DetachRole &command,
+        const shared_model::types::AccountIdType &creator_account_id,
         bool do_validation) {
       auto &account_id = command.accountId();
       auto &role_name = command.roleName();
@@ -1572,13 +1558,13 @@ namespace iroha {
     }
 
     CommandResult PostgresCommandExecutor::operator()(
-        const shared_model::interface::GrantPermission &command,
-        const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::GrantPermission &command,
+        const shared_model::types::AccountIdType &creator_account_id,
         bool do_validation) {
       auto &permittee_account_id = command.accountId();
       auto granted_perm = command.permissionName();
       auto required_perm =
-          shared_model::interface::permissions::permissionFor(granted_perm);
+          shared_model::permissions::permissionFor(granted_perm);
 
       StatementExecutor executor(grant_permission_statements_,
                                  do_validation,
@@ -1593,8 +1579,8 @@ namespace iroha {
     }
 
     CommandResult PostgresCommandExecutor::operator()(
-        const shared_model::interface::RemovePeer &command,
-        const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::RemovePeer &command,
+        const shared_model::types::AccountIdType &creator_account_id,
         bool do_validation) {
       auto pubkey = command.pubkey().hex();
 
@@ -1609,8 +1595,8 @@ namespace iroha {
     }
 
     CommandResult PostgresCommandExecutor::operator()(
-        const shared_model::interface::RemoveSignatory &command,
-        const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::RemoveSignatory &command,
+        const shared_model::types::AccountIdType &creator_account_id,
         bool do_validation) {
       auto &account_id = command.accountId();
       auto &pubkey = command.pubkey().hex();
@@ -1627,8 +1613,8 @@ namespace iroha {
     }
 
     CommandResult PostgresCommandExecutor::operator()(
-        const shared_model::interface::RevokePermission &command,
-        const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::RevokePermission &command,
+        const shared_model::types::AccountIdType &creator_account_id,
         bool do_validation) {
       auto &permittee_account_id = command.accountId();
       auto revoked_perm = command.permissionName();
@@ -1645,8 +1631,8 @@ namespace iroha {
     }
 
     CommandResult PostgresCommandExecutor::operator()(
-        const shared_model::interface::SetAccountDetail &command,
-        const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::SetAccountDetail &command,
+        const shared_model::types::AccountIdType &creator_account_id,
         bool do_validation) {
       auto &account_id = command.accountId();
       auto &key = command.key();
@@ -1672,8 +1658,8 @@ namespace iroha {
     }
 
     CommandResult PostgresCommandExecutor::operator()(
-        const shared_model::interface::SetQuorum &command,
-        const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::SetQuorum &command,
+        const shared_model::types::AccountIdType &creator_account_id,
         bool do_validation) {
       auto &account_id = command.accountId();
       int quorum = command.newQuorum();
@@ -1688,8 +1674,8 @@ namespace iroha {
     }
 
     CommandResult PostgresCommandExecutor::operator()(
-        const shared_model::interface::SubtractAssetQuantity &command,
-        const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::SubtractAssetQuantity &command,
+        const shared_model::types::AccountIdType &creator_account_id,
         bool do_validation) {
       auto &asset_id = command.assetId();
       auto quantity = command.amount().toStringRepr();
@@ -1708,8 +1694,8 @@ namespace iroha {
     }
 
     CommandResult PostgresCommandExecutor::operator()(
-        const shared_model::interface::TransferAsset &command,
-        const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::TransferAsset &command,
+        const shared_model::types::AccountIdType &creator_account_id,
         bool do_validation) {
       auto &src_account_id = command.srcAccountId();
       auto &dest_account_id = command.destAccountId();
@@ -1732,8 +1718,8 @@ namespace iroha {
     }
 
     CommandResult PostgresCommandExecutor::operator()(
-        const shared_model::interface::SetSettingValue &command,
-        const shared_model::interface::types::AccountIdType &creator_account_id,
+        const shared_model::SetSettingValue &command,
+        const shared_model::types::AccountIdType &creator_account_id,
         bool do_validation) {
       auto &key = command.key();
       auto &value = command.value();

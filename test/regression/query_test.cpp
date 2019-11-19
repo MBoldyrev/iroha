@@ -45,10 +45,8 @@ TEST(QueryTest, FailedQueryTest) {
       createInvalidQuery(makeQuery<TestQueryBuilder>(), key_pair);
   auto stateless_invalid_query_response = [](auto &status) {
     auto &resp =
-        boost::get<const shared_model::interface::ErrorQueryResponse &>(
-            status.get());
-    boost::get<const shared_model::interface::StatelessFailedErrorResponse &>(
-        resp.get());
+        boost::get<const shared_model::ErrorQueryResponse &>(status.get());
+    boost::get<const shared_model::StatelessFailedErrorResponse &>(resp.get());
   };
 
   integration_framework::IntegrationTestFramework itf(1);

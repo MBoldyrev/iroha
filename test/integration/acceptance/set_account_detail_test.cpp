@@ -15,23 +15,23 @@ using namespace common_constants;
 
 class SetAccountDetail : public AcceptanceFixture {
  public:
-  auto makeUserWithPerms(const interface::RolePermissionSet &perms = {
-                             interface::permissions::Role::kAddPeer}) {
+  auto makeUserWithPerms(const RolePermissionSet &perms = {
+                             permissions::Role::kAddPeer}) {
     return AcceptanceFixture::makeUserWithPerms(perms);
   }
 
-  auto baseTx(const interface::types::AccountIdType &account_id,
-              const interface::types::AccountDetailKeyType &key,
-              const interface::types::AccountDetailValueType &value) {
+  auto baseTx(const types::AccountIdType &account_id,
+              const types::AccountDetailKeyType &key,
+              const types::AccountDetailValueType &value) {
     return AcceptanceFixture::baseTx().setAccountDetail(account_id, key, value);
   }
 
-  auto baseTx(const interface::types::AccountIdType &account_id) {
+  auto baseTx(const types::AccountIdType &account_id) {
     return baseTx(account_id, kKey, kValue);
   }
 
-  auto makeSecondUser(const interface::RolePermissionSet &perms = {
-                          interface::permissions::Role::kAddPeer}) {
+  auto makeSecondUser(const RolePermissionSet &perms = {
+                          permissions::Role::kAddPeer}) {
     static const std::string kRole2 = "roletwo";
     return AcceptanceFixture::createUserWithPerms(
                kUser2, kUser2Keypair.publicKey(), kRole2, perms)
@@ -40,8 +40,8 @@ class SetAccountDetail : public AcceptanceFixture {
         .finish();
   }
 
-  const interface::types::AccountDetailKeyType kKey = "key";
-  const interface::types::AccountDetailValueType kValue = "value";
+  const types::AccountDetailKeyType kKey = "key";
+  const types::AccountDetailValueType kValue = "value";
   const std::string kUser2 = "user2";
   const std::string kUser2Id = kUser2 + "@" + kDomain;
   const crypto::Keypair kUser2Keypair =

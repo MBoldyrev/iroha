@@ -216,8 +216,8 @@ namespace iroha {
         return alternative_order_ ? *alternative_order_ : cluster_order_;
       }
 
-      boost::optional<std::shared_ptr<shared_model::interface::Peer>>
-      Yac::findPeer(const VoteMessage &vote) {
+      boost::optional<std::shared_ptr<shared_model::Peer>> Yac::findPeer(
+          const VoteMessage &vote) {
         auto peers = cluster_order_.getPeers();
         auto it =
             std::find_if(peers.begin(), peers.end(), [&](const auto &peer) {
@@ -328,7 +328,7 @@ namespace iroha {
         }
       }
 
-      void Yac::propagateStateDirectly(const shared_model::interface::Peer &to,
+      void Yac::propagateStateDirectly(const shared_model::Peer &to,
                                        const std::vector<VoteMessage> &msg) {
         network_->sendState(to, msg);
       }

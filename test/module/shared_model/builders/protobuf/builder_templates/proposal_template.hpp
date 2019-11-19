@@ -65,7 +65,7 @@ namespace shared_model {
                 transport_proposal ? iroha::test::kProposalTestsValidatorsConfig
                                    : iroha::test::kTestsValidatorsConfig)) {}
 
-      auto height(const interface::types::HeightType height) const {
+      auto height(const types::HeightType height) const {
         return transform<Height>(
             [&](auto &proposal) { proposal.set_height(height); });
       }
@@ -80,8 +80,7 @@ namespace shared_model {
         });
       }
 
-      auto createdTime(const interface::types::TimestampType created_time)
-          const {
+      auto createdTime(const types::TimestampType created_time) const {
         return transform<CreatedTime>(
             [&](auto &proposal) { proposal.set_created_time(created_time); });
       }

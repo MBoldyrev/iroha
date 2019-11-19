@@ -31,18 +31,18 @@ class ChainValidationTest : public ::testing::Test {
     validator = std::make_shared<ChainValidatorImpl>(
         supermajority_checker, getTestLogger("ChainValidato"));
     storage = std::make_shared<MockMutableStorage>();
-    peers = std::vector<std::shared_ptr<shared_model::interface::Peer>>();
+    peers = std::vector<std::shared_ptr<shared_model::Peer>>();
 
     auto peer = std::make_shared<MockPeer>();
     EXPECT_CALL(*peer, pubkey())
         .WillRepeatedly(ReturnRefOfCopy(
-            shared_model::interface::types::PubkeyType(std::string(32, '0'))));
+            shared_model::types::PubkeyType(std::string(32, '0'))));
     peers.push_back(peer);
 
     auto signature = std::make_shared<MockSignature>();
     EXPECT_CALL(*signature, publicKey())
         .WillRepeatedly(ReturnRefOfCopy(
-            shared_model::interface::types::PubkeyType(std::string(32, '0'))));
+            shared_model::types::PubkeyType(std::string(32, '0'))));
     signatures.push_back(signature);
 
     EXPECT_CALL(*block, height()).WillRepeatedly(Return(height));
@@ -63,16 +63,15 @@ class ChainValidationTest : public ::testing::Test {
   std::shared_ptr<ChainValidatorImpl> validator;
   std::shared_ptr<MockMutableStorage> storage;
 
-  std::vector<std::shared_ptr<shared_model::interface::Signature>> signatures;
-  std::vector<std::shared_ptr<shared_model::interface::Peer>> peers;
+  std::vector<std::shared_ptr<shared_model::Signature>> signatures;
+  std::vector<std::shared_ptr<shared_model::Peer>> peers;
   shared_model::crypto::Hash prev_hash =
       shared_model::crypto::Hash("previous top hash");
-  shared_model::interface::types::HeightType prev_height = 1;
-  shared_model::interface::types::HeightType height = prev_height + 1;
+  shared_model::types::HeightType prev_height = 1;
+  shared_model::types::HeightType height = prev_height + 1;
   std::shared_ptr<MockBlock> block = std::make_shared<MockBlock>();
-  rxcpp::observable<std::shared_ptr<shared_model::interface::Block>> blocks =
-      rxcpp::observable<>::just(
-          std::shared_ptr<shared_model::interface::Block>(block));
+  rxcpp::observable<std::shared_ptr<shared_model::Block>> blocks =
+      rxcpp::observable<>::just(std::shared_ptr<shared_model::Block>(block));
 };
 
 /**

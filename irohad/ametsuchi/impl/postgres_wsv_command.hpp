@@ -17,61 +17,54 @@ namespace iroha {
      public:
       explicit PostgresWsvCommand(soci::session &sql);
       WsvCommandResult insertRole(
-          const shared_model::interface::types::RoleIdType &role_name) override;
+          const shared_model::types::RoleIdType &role_name) override;
 
       WsvCommandResult insertAccountRole(
-          const shared_model::interface::types::AccountIdType &account_id,
-          const shared_model::interface::types::RoleIdType &role_name) override;
+          const shared_model::types::AccountIdType &account_id,
+          const shared_model::types::RoleIdType &role_name) override;
       WsvCommandResult deleteAccountRole(
-          const shared_model::interface::types::AccountIdType &account_id,
-          const shared_model::interface::types::RoleIdType &role_name) override;
+          const shared_model::types::AccountIdType &account_id,
+          const shared_model::types::RoleIdType &role_name) override;
 
       WsvCommandResult insertRolePermissions(
-          const shared_model::interface::types::RoleIdType &role_id,
-          const shared_model::interface::RolePermissionSet &permissions)
-          override;
+          const shared_model::types::RoleIdType &role_id,
+          const shared_model::RolePermissionSet &permissions) override;
 
       WsvCommandResult insertAccount(
-          const shared_model::interface::Account &account) override;
+          const shared_model::Account &account) override;
       WsvCommandResult updateAccount(
-          const shared_model::interface::Account &account) override;
+          const shared_model::Account &account) override;
       WsvCommandResult setAccountKV(
-          const shared_model::interface::types::AccountIdType &account_id,
-          const shared_model::interface::types::AccountIdType
-              &creator_account_id,
+          const shared_model::types::AccountIdType &account_id,
+          const shared_model::types::AccountIdType &creator_account_id,
           const std::string &key,
           const std::string &val) override;
-      WsvCommandResult insertAsset(
-          const shared_model::interface::Asset &asset) override;
+      WsvCommandResult insertAsset(const shared_model::Asset &asset) override;
       WsvCommandResult upsertAccountAsset(
-          const shared_model::interface::AccountAsset &asset) override;
+          const shared_model::AccountAsset &asset) override;
       WsvCommandResult insertSignatory(
-          const shared_model::interface::types::PubkeyType &signatory) override;
+          const shared_model::types::PubkeyType &signatory) override;
       WsvCommandResult insertAccountSignatory(
-          const shared_model::interface::types::AccountIdType &account_id,
-          const shared_model::interface::types::PubkeyType &signatory) override;
+          const shared_model::types::AccountIdType &account_id,
+          const shared_model::types::PubkeyType &signatory) override;
       WsvCommandResult deleteAccountSignatory(
-          const shared_model::interface::types::AccountIdType &account_id,
-          const shared_model::interface::types::PubkeyType &signatory) override;
+          const shared_model::types::AccountIdType &account_id,
+          const shared_model::types::PubkeyType &signatory) override;
       WsvCommandResult deleteSignatory(
-          const shared_model::interface::types::PubkeyType &signatory) override;
-      WsvCommandResult insertPeer(
-          const shared_model::interface::Peer &peer) override;
-      WsvCommandResult deletePeer(
-          const shared_model::interface::Peer &peer) override;
+          const shared_model::types::PubkeyType &signatory) override;
+      WsvCommandResult insertPeer(const shared_model::Peer &peer) override;
+      WsvCommandResult deletePeer(const shared_model::Peer &peer) override;
       WsvCommandResult insertDomain(
-          const shared_model::interface::Domain &domain) override;
+          const shared_model::Domain &domain) override;
       WsvCommandResult insertAccountGrantablePermission(
-          const shared_model::interface::types::AccountIdType
-              &permittee_account_id,
-          const shared_model::interface::types::AccountIdType &account_id,
-          shared_model::interface::permissions::Grantable permission) override;
+          const shared_model::types::AccountIdType &permittee_account_id,
+          const shared_model::types::AccountIdType &account_id,
+          shared_model::permissions::Grantable permission) override;
 
       WsvCommandResult deleteAccountGrantablePermission(
-          const shared_model::interface::types::AccountIdType
-              &permittee_account_id,
-          const shared_model::interface::types::AccountIdType &account_id,
-          shared_model::interface::permissions::Grantable permission) override;
+          const shared_model::types::AccountIdType &permittee_account_id,
+          const shared_model::types::AccountIdType &account_id,
+          shared_model::permissions::Grantable permission) override;
 
      private:
       soci::session &sql_;

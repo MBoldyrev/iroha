@@ -25,8 +25,7 @@ namespace iroha {
         : supermajority_checker_(supermajority_checker), log_(std::move(log)) {}
 
     bool ChainValidatorImpl::validateAndApply(
-        rxcpp::observable<std::shared_ptr<shared_model::interface::Block>>
-            blocks,
+        rxcpp::observable<std::shared_ptr<shared_model::Block>> blocks,
         ametsuchi::MutableStorage &storage) const {
       log_->info("validate chain...");
 
@@ -37,8 +36,8 @@ namespace iroha {
     }
 
     bool ChainValidatorImpl::validatePreviousHash(
-        const shared_model::interface::Block &block,
-        const shared_model::interface::types::HashType &top_hash) const {
+        const shared_model::Block &block,
+        const shared_model::types::HashType &top_hash) const {
       auto same_prev_hash = block.prevHash() == top_hash;
 
       if (not same_prev_hash) {
@@ -53,8 +52,8 @@ namespace iroha {
     }
 
     bool ChainValidatorImpl::validateHeight(
-        const shared_model::interface::Block &block,
-        const shared_model::interface::types::HeightType &top_height) const {
+        const shared_model::Block &block,
+        const shared_model::types::HeightType &top_height) const {
       const bool valid_height = block.height() == top_height + 1;
 
       if (not valid_height) {
@@ -69,9 +68,8 @@ namespace iroha {
     }
 
     bool ChainValidatorImpl::validatePeerSupermajority(
-        const shared_model::interface::Block &block,
-        const std::vector<std::shared_ptr<shared_model::interface::Peer>>
-            &peers) const {
+        const shared_model::Block &block,
+        const std::vector<std::shared_ptr<shared_model::Peer>> &peers) const {
       const auto &signatures = block.signatures();
       auto has_supermajority = supermajority_checker_->hasSupermajority(
                                    boost::size(signatures), peers.size())
@@ -98,7 +96,7 @@ namespace iroha {
     }
 
     bool ChainValidatorImpl::validateBlock(
-        std::shared_ptr<const shared_model::interface::Block> block,
+        std::shared_ptr<const shared_model::Block> block,
         const iroha::LedgerState &ledger_state) const {
       log_->debug("validate block: height {}, hash {}",
                   block->height(),

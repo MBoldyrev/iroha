@@ -11,26 +11,24 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
+  /**
+   * Set quorum of the account
+   */
+  class SetQuorum : public ModelPrimitive<SetQuorum> {
+   public:
     /**
-     * Set quorum of the account
+     * @return Id of the account to set quorum
      */
-    class SetQuorum : public ModelPrimitive<SetQuorum> {
-     public:
-      /**
-       * @return Id of the account to set quorum
-       */
-      virtual const types::AccountIdType &accountId() const = 0;
-      /**
-       * @return value of a new quorum
-       */
-      virtual types::QuorumType newQuorum() const = 0;
+    virtual const types::AccountIdType &accountId() const = 0;
+    /**
+     * @return value of a new quorum
+     */
+    virtual types::QuorumType newQuorum() const = 0;
 
-      std::string toString() const override;
+    std::string toString() const override;
 
-      bool operator==(const ModelType &rhs) const override;
-    };
-  }  // namespace interface
+    bool operator==(const ModelType &rhs) const override;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_SET_QUORUM_HPP

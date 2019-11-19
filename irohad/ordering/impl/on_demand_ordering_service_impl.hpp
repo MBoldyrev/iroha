@@ -51,8 +51,7 @@ namespace iroha {
        */
       OnDemandOrderingServiceImpl(
           size_t transaction_limit,
-          std::shared_ptr<shared_model::interface::UnsafeProposalFactory>
-              proposal_factory,
+          std::shared_ptr<shared_model::UnsafeProposalFactory> proposal_factory,
           std::shared_ptr<ametsuchi::TxPresenceCache> tx_cache,
           std::shared_ptr<ProposalCreationStrategy> proposal_creation_strategy,
           logger::LoggerPtr log,
@@ -77,12 +76,11 @@ namespace iroha {
       void packNextProposals(const consensus::Round &round);
 
       using TransactionsCollectionType =
-          std::vector<std::shared_ptr<shared_model::interface::Transaction>>;
+          std::vector<std::shared_ptr<shared_model::Transaction>>;
 
-      void tryCreateProposal(
-          consensus::Round round,
-          const TransactionsCollectionType &txs,
-          shared_model::interface::types::TimestampType created_time);
+      void tryCreateProposal(consensus::Round round,
+                             const TransactionsCollectionType &txs,
+                             shared_model::types::TimestampType created_time);
 
       /**
        * Removes last elements if it is required
@@ -94,8 +92,7 @@ namespace iroha {
       /**
        * Check if batch was already processed by the peer
        */
-      bool batchAlreadyProcessed(
-          const shared_model::interface::TransactionBatch &batch);
+      bool batchAlreadyProcessed(const shared_model::TransactionBatch &batch);
 
       /**
        * Max number of transaction in one proposal
@@ -122,8 +119,7 @@ namespace iroha {
        */
       std::shared_timed_mutex batches_mutex_, proposals_mutex_;
 
-      std::shared_ptr<shared_model::interface::UnsafeProposalFactory>
-          proposal_factory_;
+      std::shared_ptr<shared_model::UnsafeProposalFactory> proposal_factory_;
 
       /**
        * Processed transactions cache used for replay prevention

@@ -38,12 +38,10 @@ namespace iroha {
     CommandServiceTransportGrpc::CommandServiceTransportGrpc(
         std::shared_ptr<CommandService> command_service,
         std::shared_ptr<iroha::torii::StatusBus> status_bus,
-        std::shared_ptr<shared_model::interface::TxStatusFactory>
-            status_factory,
+        std::shared_ptr<shared_model::TxStatusFactory> status_factory,
         std::shared_ptr<TransportFactoryType> transaction_factory,
-        std::shared_ptr<shared_model::interface::TransactionBatchParser>
-            batch_parser,
-        std::shared_ptr<shared_model::interface::TransactionBatchFactory>
+        std::shared_ptr<shared_model::TransactionBatchParser> batch_parser,
+        std::shared_ptr<shared_model::TransactionBatchFactory>
             transaction_batch_factory,
         rxcpp::observable<ConsensusGateEvent> consensus_gate_objects,
         int maximum_rounds_without_update,
@@ -79,8 +77,7 @@ namespace iroha {
           status_bus_->publish(status_factory_->makeStatelessFail(
               HashProvider::makeHash(
                   shared_model::proto::makeBlob(tx.payload())),
-              shared_model::interface::TxStatusFactory::TransactionError{
-                  message, 0, 0}));
+              shared_model::TxStatusFactory::TransactionError{message, 0, 0}));
         }
         return grpc::Status::OK;
       };
@@ -94,7 +91,7 @@ namespace iroha {
                         e->error));
       }
 
-      auto batches = shared_model::interface::parseAndCreateBatches(
+      auto batches = shared_model::parseAndCreateBatches(
           *batch_parser_,
           *batch_factory_,
           *expected::resultToOptionalValue(std::move(transactions)));

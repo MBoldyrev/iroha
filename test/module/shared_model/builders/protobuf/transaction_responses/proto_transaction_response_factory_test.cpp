@@ -34,8 +34,7 @@ TEST(ProtoTransactionStatusFactoryTest, TestStatusType) {
   ASSERT_EQ(response->errorCode(), error_code);
 
   ASSERT_NO_THROW(
-      boost::get<const shared_model::interface::CommittedTxResponse &>(
-          response->get()));
+      boost::get<const shared_model::CommittedTxResponse &>(response->get()));
 }
 
 /**

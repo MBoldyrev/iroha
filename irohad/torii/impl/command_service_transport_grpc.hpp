@@ -22,11 +22,9 @@ namespace iroha {
 }  // namespace iroha
 
 namespace shared_model {
-  namespace interface {
-    class TxStatusFactory;
-    class TransactionBatchParser;
-    class TransactionBatchFactory;
-  }  // namespace interface
+  class TxStatusFactory;
+  class TransactionBatchParser;
+  class TransactionBatchFactory;
 }  // namespace shared_model
 
 namespace iroha {
@@ -35,9 +33,8 @@ namespace iroha {
         : public iroha::protocol::CommandService_v1::Service {
      public:
       using TransportFactoryType =
-          shared_model::interface::AbstractTransportFactory<
-              shared_model::interface::Transaction,
-              iroha::protocol::Transaction>;
+          shared_model::AbstractTransportFactory<shared_model::Transaction,
+                                                 iroha::protocol::Transaction>;
 
       struct ConsensusGateEvent {};
 
@@ -57,12 +54,10 @@ namespace iroha {
       CommandServiceTransportGrpc(
           std::shared_ptr<CommandService> command_service,
           std::shared_ptr<iroha::torii::StatusBus> status_bus,
-          std::shared_ptr<shared_model::interface::TxStatusFactory>
-              status_factory,
+          std::shared_ptr<shared_model::TxStatusFactory> status_factory,
           std::shared_ptr<TransportFactoryType> transaction_factory,
-          std::shared_ptr<shared_model::interface::TransactionBatchParser>
-              batch_parser,
-          std::shared_ptr<shared_model::interface::TransactionBatchFactory>
+          std::shared_ptr<shared_model::TransactionBatchParser> batch_parser,
+          std::shared_ptr<shared_model::TransactionBatchFactory>
               transaction_batch_factory,
           rxcpp::observable<ConsensusGateEvent> consensus_gate_objects,
           int maximum_rounds_without_update,
@@ -121,12 +116,10 @@ namespace iroha {
      private:
       std::shared_ptr<CommandService> command_service_;
       std::shared_ptr<iroha::torii::StatusBus> status_bus_;
-      std::shared_ptr<shared_model::interface::TxStatusFactory> status_factory_;
+      std::shared_ptr<shared_model::TxStatusFactory> status_factory_;
       std::shared_ptr<TransportFactoryType> transaction_factory_;
-      std::shared_ptr<shared_model::interface::TransactionBatchParser>
-          batch_parser_;
-      std::shared_ptr<shared_model::interface::TransactionBatchFactory>
-          batch_factory_;
+      std::shared_ptr<shared_model::TransactionBatchParser> batch_parser_;
+      std::shared_ptr<shared_model::TransactionBatchFactory> batch_factory_;
       logger::LoggerPtr log_;
 
       rxcpp::observable<ConsensusGateEvent> consensus_gate_objects_;

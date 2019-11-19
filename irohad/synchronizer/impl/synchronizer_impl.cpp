@@ -84,19 +84,20 @@ namespace iroha {
     }
 
     ametsuchi::CommitResult SynchronizerImpl::downloadAndCommitMissingBlocks(
-        const shared_model::interface::types::HeightType start_height,
-        const shared_model::interface::types::HeightType target_height,
+        const shared_model::types::HeightType start_height,
+        const shared_model::types::HeightType target_height,
         const PublicKeysRange &public_keys) {
       // TODO andrei 17.10.18 IR-1763 Add delay strategy for loading blocks
       for (const auto &public_key : public_keys) {
         auto storage = getStorage();
 
-        shared_model::interface::types::HeightType my_height = start_height;
+        shared_model::types::HeightType my_height = start_height;
         auto network_chain =
             block_loader_->retrieveBlocks(start_height, public_key)
                 .tap([&my_height](
-                         const std::shared_ptr<shared_model::interface::Block>
-                             &block) { my_height = block->height(); });
+                         const std::shared_ptr<shared_model::Block> &block) {
+                  my_height = block->height();
+                });
 
         if (validator_->validateAndApply(network_chain, *storage)
             and my_height >= target_height) {
@@ -150,7 +151,7 @@ namespace iroha {
 
     void SynchronizerImpl::processDifferent(
         const consensus::Synchronizable &msg,
-        shared_model::interface::types::HeightType required_height) {
+        shared_model::types::HeightType required_height) {
       log_->info("at handleDifferent");
 
       auto commit_result = downloadAndCommitMissingBlocks(

@@ -19,7 +19,7 @@
 #include "logger/logger.hpp"
 
 namespace {
-  shared_model::interface::types::TimestampType oldestTimestamp(
+  shared_model::types::TimestampType oldestTimestamp(
       const iroha::BatchPtr &batch) {
     const bool batch_is_empty = boost::empty(batch->transactions());
     assert(not batch_is_empty);
@@ -29,8 +29,9 @@ namespace {
     auto timestamps =
         batch->transactions()
         | boost::adaptors::transformed(
-              +[](const std::shared_ptr<shared_model::interface::Transaction>
-                      &tx) { return tx->createdTime(); });
+              +[](const std::shared_ptr<shared_model::Transaction> &tx) {
+                return tx->createdTime();
+              });
     const auto min_it =
         boost::first_min_element(timestamps.begin(), timestamps.end());
     assert(min_it != timestamps.end());

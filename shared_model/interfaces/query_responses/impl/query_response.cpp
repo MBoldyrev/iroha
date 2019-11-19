@@ -20,8 +20,7 @@
 #include "interfaces/query_responses/transactions_response.hpp"
 #include "utils/visitor_apply_for_all.hpp"
 
-using Variant =
-    shared_model::interface::QueryResponse::QueryResponseVariantType;
+using Variant = shared_model::QueryResponse::QueryResponseVariantType;
 template Variant::~variant();
 template Variant::variant(Variant &&);
 template bool Variant::operator==(const Variant &) const;
@@ -32,15 +31,13 @@ template bool Variant::using_backup() const noexcept;
 template Variant::convert_copy_into::convert_copy_into(void *) noexcept;
 
 namespace shared_model {
-  namespace interface {
 
-    std::string QueryResponse::toString() const {
-      return boost::apply_visitor(detail::ToStringVisitor(), get());
-    }
+  std::string QueryResponse::toString() const {
+    return boost::apply_visitor(detail::ToStringVisitor(), get());
+  }
 
-    bool QueryResponse::operator==(const ModelType &rhs) const {
-      return queryHash() == rhs.queryHash() and get() == rhs.get();
-    }
+  bool QueryResponse::operator==(const ModelType &rhs) const {
+    return queryHash() == rhs.queryHash() and get() == rhs.get();
+  }
 
-  }  // namespace interface
 }  // namespace shared_model

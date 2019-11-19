@@ -13,15 +13,15 @@ using namespace common_constants;
 
 class RemoveSignatory : public AcceptanceFixture {
  public:
-  auto makeFirstUser(const interface::RolePermissionSet &perms = {
-                         interface::permissions::Role::kRemoveSignatory}) {
+  auto makeFirstUser(const RolePermissionSet &perms = {
+                         permissions::Role::kRemoveSignatory}) {
     auto new_perms = perms;
-    new_perms.set(interface::permissions::Role::kAddSignatory);
+    new_perms.set(permissions::Role::kAddSignatory);
     return AcceptanceFixture::makeUserWithPerms(new_perms);
   }
 
-  auto makeSecondUser(const interface::RolePermissionSet &perms = {
-                          interface::permissions::Role::kReceive}) {
+  auto makeSecondUser(const RolePermissionSet &perms = {
+                          permissions::Role::kReceive}) {
     return complete(
         createUserWithPerms(kUser2, kUser2Keypair.publicKey(), kRole2, perms)
             .creatorAccountId(kAdminId),
@@ -105,18 +105,16 @@ TEST_F(RemoveSignatory, NoPermission) {
 TEST_F(RemoveSignatory, GrantedPermission) {
   IntegrationTestFramework(1)
       .setInitialState(kAdminKeypair)
-      .sendTxAwait(
-          makeFirstUser({interface::permissions::Role::kRemoveMySignatory}),
-          CHECK_TXS_QUANTITY(1))
+      .sendTxAwait(makeFirstUser({permissions::Role::kRemoveMySignatory}),
+                   CHECK_TXS_QUANTITY(1))
       .sendTxAwait(makeSecondUser(), CHECK_TXS_QUANTITY(1))
       .sendTxAwait(
           complete(baseTx().addSignatory(kUserId, kUser2Keypair.publicKey()),
                    kUserKeypair),
           CHECK_TXS_QUANTITY(1))
-      .sendTxAwait(
-          complete(baseTx().grantPermission(
-              kUser2Id, interface::permissions::Grantable::kRemoveMySignatory)),
-          CHECK_TXS_QUANTITY(1))
+      .sendTxAwait(complete(baseTx().grantPermission(
+                       kUser2Id, permissions::Grantable::kRemoveMySignatory)),
+                   CHECK_TXS_QUANTITY(1))
       .sendTxAwait(complete(baseTx().creatorAccountId(kUser2Id).removeSignatory(
                                 kUserId, kUser2Keypair.publicKey()),
                             kUser2Keypair),
@@ -136,9 +134,8 @@ TEST_F(RemoveSignatory, GrantedPermission) {
 TEST_F(RemoveSignatory, NonGrantedPermission) {
   IntegrationTestFramework(1)
       .setInitialState(kAdminKeypair)
-      .sendTxAwait(
-          makeFirstUser({interface::permissions::Role::kRemoveMySignatory}),
-          CHECK_TXS_QUANTITY(1))
+      .sendTxAwait(makeFirstUser({permissions::Role::kRemoveMySignatory}),
+                   CHECK_TXS_QUANTITY(1))
       .sendTxAwait(makeSecondUser(), CHECK_TXS_QUANTITY(1))
       .sendTxAwait(
           complete(baseTx().addSignatory(kUserId, kUser2Keypair.publicKey()),

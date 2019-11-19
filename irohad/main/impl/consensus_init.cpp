@@ -85,8 +85,7 @@ namespace iroha {
           Round initial_round,
           std::shared_ptr<iroha::ametsuchi::PeerQueryFactory>
               peer_query_factory,
-          boost::optional<shared_model::interface::types::PeerList>
-              alternative_peers,
+          boost::optional<shared_model::types::PeerList> alternative_peers,
           std::shared_ptr<simulator::BlockCreator> block_creator,
           std::shared_ptr<network::BlockLoader> block_loader,
           const shared_model::crypto::Keypair &keypair,
@@ -104,7 +103,7 @@ namespace iroha {
 
         consensus_network_ = std::make_shared<NetworkImpl>(
             async_call,
-            [](const shared_model::interface::Peer &peer) {
+            [](const shared_model::Peer &peer) {
               return network::createClient<proto::Yac>(peer.address());
             },
             consensus_log_manager->getChild("Network")->getLogger());

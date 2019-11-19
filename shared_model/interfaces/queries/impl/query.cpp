@@ -21,7 +21,7 @@
 #include "interfaces/queries/query_payload_meta.hpp"
 #include "utils/visitor_apply_for_all.hpp"
 
-using Variant = shared_model::interface::Query::QueryVariantType;
+using Variant = shared_model::Query::QueryVariantType;
 template Variant::~variant();
 template Variant::variant(Variant &&);
 template bool Variant::operator==(const Variant &) const;
@@ -32,21 +32,19 @@ template bool Variant::using_backup() const noexcept;
 template Variant::convert_copy_into::convert_copy_into(void *) noexcept;
 
 namespace shared_model {
-  namespace interface {
 
-    std::string Query::toString() const {
-      return detail::PrettyStringBuilder()
-          .init("Query")
-          .append("creatorId", creatorAccountId())
-          .append("queryCounter", std::to_string(queryCounter()))
-          .append(Signable::toString())
-          .append(boost::apply_visitor(detail::ToStringVisitor(), get()))
-          .finalize();
-    }
+  std::string Query::toString() const {
+    return detail::PrettyStringBuilder()
+        .init("Query")
+        .append("creatorId", creatorAccountId())
+        .append("queryCounter", std::to_string(queryCounter()))
+        .append(Signable::toString())
+        .append(boost::apply_visitor(detail::ToStringVisitor(), get()))
+        .finalize();
+  }
 
-    bool Query::operator==(const ModelType &rhs) const {
-      return this->get() == rhs.get();
-    }
+  bool Query::operator==(const ModelType &rhs) const {
+    return this->get() == rhs.get();
+  }
 
-  }  // namespace interface
 }  // namespace shared_model

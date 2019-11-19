@@ -24,8 +24,7 @@ class TransactionBatchTest : public Test {
     auto batch_validator =
         std::make_shared<shared_model::validation::BatchValidator>(
             iroha::test::kTestsValidatorsConfig);
-    factory_ = std::make_shared<interface::TransactionBatchFactoryImpl>(
-        batch_validator);
+    factory_ = std::make_shared<TransactionBatchFactoryImpl>(batch_validator);
   }
 
   /**
@@ -35,7 +34,7 @@ class TransactionBatchTest : public Test {
    */
   auto createValidUnsignedTransaction(
       size_t created_time = iroha::time::now()) {
-    return std::shared_ptr<interface::Transaction>(
+    return std::shared_ptr<Transaction>(
         clone(framework::batch::prepareTransactionBuilder("valid@account",
                                                           created_time)
                   .build()));
@@ -48,7 +47,7 @@ class TransactionBatchTest : public Test {
    */
   auto createInvalidUnsignedTransaction(
       size_t created_time = iroha::time::now()) {
-    return std::shared_ptr<interface::Transaction>(
+    return std::shared_ptr<Transaction>(
         clone(framework::batch::prepareTransactionBuilder("invalid#@account",
                                                           created_time)
                   .build()));
@@ -59,13 +58,12 @@ class TransactionBatchTest : public Test {
    * @param quorum quorum size
    * @return batch with transactions with one signature and quorum size
    */
-  auto createBatchWithTransactionsWithQuorum(
-      const interface::types::QuorumType &quorum) {
+  auto createBatchWithTransactionsWithQuorum(const types::QuorumType &quorum) {
     auto keypair = crypto::DefaultCryptoAlgorithmType::generateKeypair();
 
     auto now = iroha::time::now();
 
-    auto batch_type = shared_model::interface::types::BatchType::ATOMIC;
+    auto batch_type = shared_model::types::BatchType::ATOMIC;
     std::string userone = "a@domain";
     std::string usertwo = "b@domain";
 
@@ -87,7 +85,7 @@ class TransactionBatchTest : public Test {
    * @return test tx builder
    */
   inline auto makeTxBuilder(
-      const shared_model::interface::types::QuorumType &acc_quorum = 1,
+      const shared_model::types::QuorumType &acc_quorum = 1,
       uint64_t created_time = iroha::time::now(),
       uint8_t quorum = 3) {
     return framework::batch::prepareTransactionBuilder(
@@ -95,14 +93,14 @@ class TransactionBatchTest : public Test {
   }
 
   inline auto makeSignedTxBuilder(
-      const shared_model::interface::types::QuorumType &acc_quorum = 1,
+      const shared_model::types::QuorumType &acc_quorum = 1,
       uint64_t created_time = iroha::time::now(),
       uint8_t quorum = 3) {
     return framework::batch::prepareUnsignedTransactionBuilder(
         "user@test", created_time, quorum);
   }
 
-  std::shared_ptr<interface::TransactionBatchFactory> factory_;
+  std::shared_ptr<TransactionBatchFactory> factory_;
 };
 
 /**
@@ -111,15 +109,12 @@ class TransactionBatchTest : public Test {
  * @then transaction batch is created
  */
 TEST_F(TransactionBatchTest, CreateTransactionBatchWhenValid) {
-  using BatchTypeAndCreatorPair =
-      std::pair<interface::types::BatchType, std::string>;
+  using BatchTypeAndCreatorPair = std::pair<types::BatchType, std::string>;
 
   auto txs = framework::batch::createBatchOneSignTransactions(
       std::vector<BatchTypeAndCreatorPair>{
-          BatchTypeAndCreatorPair{interface::types::BatchType::ATOMIC,
-                                  "a@domain"},
-          BatchTypeAndCreatorPair{interface::types::BatchType::ATOMIC,
-                                  "b@domain"}});
+          BatchTypeAndCreatorPair{types::BatchType::ATOMIC, "a@domain"},
+          BatchTypeAndCreatorPair{types::BatchType::ATOMIC, "b@domain"}});
 
   auto transaction_batch = factory_->createTransactionBatch(txs);
   ASSERT_TRUE(framework::expected::val(transaction_batch))
@@ -133,10 +128,10 @@ TEST_F(TransactionBatchTest, CreateTransactionBatchWhenValid) {
  * @then transaction batch is not created
  */
 TEST_F(TransactionBatchTest, CreateTransactionBatchWhenDifferentBatchType) {
-  auto tx1_fields = std::make_pair(interface::types::BatchType::ORDERED,
-                                   std::string("a@domain"));
-  auto tx2_fields = std::make_pair(interface::types::BatchType::ATOMIC,
-                                   std::string("b@domain"));
+  auto tx1_fields =
+      std::make_pair(types::BatchType::ORDERED, std::string("a@domain"));
+  auto tx2_fields =
+      std::make_pair(types::BatchType::ATOMIC, std::string("b@domain"));
 
   auto txs = framework::batch::createUnsignedBatchTransactions(
       std::vector<decltype(tx1_fields)>{tx1_fields, tx2_fields});
@@ -153,7 +148,7 @@ TEST_F(TransactionBatchTest, CreateTransactionBatchWhenDifferentBatchType) {
  */
 TEST_F(TransactionBatchTest, CreateBatchWithValidAndInvalidTx) {
   auto txs = framework::batch::createUnsignedBatchTransactions(
-      interface::types::BatchType::ATOMIC,
+      types::BatchType::ATOMIC,
       std::vector<std::string>{"valid@name", "invalid#@name"});
 
   auto transaction_batch = factory_->createTransactionBatch(txs);
@@ -228,7 +223,7 @@ TEST_F(TransactionBatchTest, BatchWithNoSignatures) {
   const size_t batch_size = 5;
   auto unsigned_transactions =
       framework::batch::createUnsignedBatchTransactions(
-          interface::types::BatchType::ATOMIC, batch_size);
+          types::BatchType::ATOMIC, batch_size);
   auto transaction_batch =
       factory_->createTransactionBatch(unsigned_transactions);
   ASSERT_TRUE(framework::expected::err(transaction_batch));

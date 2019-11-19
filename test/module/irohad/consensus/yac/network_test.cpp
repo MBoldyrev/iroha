@@ -36,8 +36,8 @@ namespace iroha {
           // stub will be deleted by unique_ptr created in client_creator
           stub = new iroha::consensus::yac::proto::MockYacStub();
           std::function<std::unique_ptr<proto::Yac::StubInterface>(
-              const shared_model::interface::Peer &)>
-              client_creator([this](const shared_model::interface::Peer &peer) {
+              const shared_model::Peer &)>
+              client_creator([this](const shared_model::Peer &peer) {
                 return std::unique_ptr<
                     iroha::consensus::yac::proto::MockYacStub>(stub);
               });
@@ -62,7 +62,7 @@ namespace iroha {
         std::shared_ptr<network::AsyncGrpcClient<google::protobuf::Empty>>
             async_call;
         std::shared_ptr<NetworkImpl> network;
-        std::shared_ptr<shared_model::interface::Peer> peer;
+        std::shared_ptr<shared_model::Peer> peer;
         VoteMessage message;
         iroha::consensus::yac::proto::MockYacStub *stub;
       };

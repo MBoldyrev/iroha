@@ -21,7 +21,7 @@ using namespace framework::expected;
 using namespace iroha::ametsuchi;
 using namespace iroha::expected;
 using namespace iroha::integration_framework;
-using namespace shared_model::interface::types;
+using namespace shared_model::types;
 
 namespace executor_testing {
 
@@ -81,10 +81,9 @@ void ExecutorTestBase::createAsset(const std::string &name,
           name, domain, precision)));
 }
 
-void ExecutorTestBase::addAsset(
-    const AccountIdType &dest_account_id,
-    const AssetIdType &asset_id,
-    const shared_model::interface::Amount &quantity) {
+void ExecutorTestBase::addAsset(const AccountIdType &dest_account_id,
+                                const AssetIdType &asset_id,
+                                const shared_model::Amount &quantity) {
   SCOPED_TRACE("addAsset");
   assertResultValue(getItf().executeMaintenanceCommand(
       *getItf().getMockCommandFactory()->constructAddAssetQuantity(asset_id,
@@ -99,7 +98,7 @@ void ExecutorTestBase::checkAssetQuantities(
     const std::vector<AssetQuantity> &reference_quantities) {
   static const auto make_asset_matcher = [](AssetQuantity reference) {
     return ::testing::Truly(
-        [reference](const shared_model::interface::AccountAsset &tested) {
+        [reference](const shared_model::AccountAsset &tested) {
           if (tested.assetId() == reference.asset_id) {
             EXPECT_EQ(tested.balance(), reference.balance)
                 << "Wrong balance of asset " << reference.asset_id;

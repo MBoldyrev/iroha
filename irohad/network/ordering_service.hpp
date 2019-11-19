@@ -17,7 +17,7 @@ namespace iroha {
        * @param proposal - object for propagation
        */
       virtual void publishProposal(
-          std::unique_ptr<shared_model::interface::Proposal> proposal) = 0;
+          std::unique_ptr<shared_model::Proposal> proposal) = 0;
     };
   }  // namespace network
 }  // namespace iroha

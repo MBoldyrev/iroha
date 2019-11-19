@@ -25,7 +25,7 @@
 using namespace common_constants;
 using namespace shared_model;
 using namespace integration_framework;
-using namespace shared_model::interface::permissions;
+using namespace shared_model::permissions;
 
 static constexpr std::chrono::seconds kMstStateWaitingTime(20);
 static constexpr std::chrono::seconds kSynchronizerWaitingTime(20);
@@ -158,9 +158,9 @@ TEST_F(FakePeerFixture, RealPeerIsAdded) {
   auto initial_peer = itf_->addFakePeer(boost::none);
 
   // create a genesis block without only initial fake peer in it
-  shared_model::interface::RolePermissionSet all_perms{};
+  shared_model::RolePermissionSet all_perms{};
   for (size_t i = 0; i < all_perms.size(); ++i) {
-    auto perm = static_cast<shared_model::interface::permissions::Role>(i);
+    auto perm = static_cast<shared_model::permissions::Role>(i);
     all_perms.set(perm);
   }
   auto genesis_tx =

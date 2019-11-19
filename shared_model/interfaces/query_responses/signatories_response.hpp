@@ -11,21 +11,19 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
+  /**
+   * Container of asset, for fetching data.
+   */
+  class SignatoriesResponse : public ModelPrimitive<SignatoriesResponse> {
+   public:
     /**
-     * Container of asset, for fetching data.
+     * @return All public keys attached to account
      */
-    class SignatoriesResponse : public ModelPrimitive<SignatoriesResponse> {
-     public:
-      /**
-       * @return All public keys attached to account
-       */
-      virtual const types::PublicKeyCollectionType &keys() const = 0;
+    virtual const types::PublicKeyCollectionType &keys() const = 0;
 
-      std::string toString() const override;
+    std::string toString() const override;
 
-      bool operator==(const ModelType &rhs) const override;
-    };
-  }  // namespace interface
+    bool operator==(const ModelType &rhs) const override;
+  };
 }  // namespace shared_model
 #endif  // IROHA_SHARED_MODEL_SIGNATORIES_RESPONSE_HPP

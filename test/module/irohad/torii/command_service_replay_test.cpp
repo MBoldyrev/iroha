@@ -23,8 +23,8 @@ using ::testing::Return;
 
 // Return matcher for batch, which passes it by const &
 // used when passing batch as an argument to check() in transaction cache
-auto batchRef(const shared_model::interface::TransactionBatch &batch) {
-  return Matcher<const shared_model::interface::TransactionBatch &>(Ref(batch));
+auto batchRef(const shared_model::TransactionBatch &batch) {
+  return Matcher<const shared_model::TransactionBatch &>(Ref(batch));
 }
 
 /**
@@ -55,22 +55,21 @@ class CommandServiceReplayTest : public ::testing::Test {
   }
 
   auto prepareBatch() {
-    auto batch_type = shared_model::interface::types::BatchType::ORDERED;
+    auto batch_type = shared_model::types::BatchType::ORDERED;
     auto creator_id = "user@test";
     auto created_time = iroha::time::now();
-    shared_model::interface::types::QuorumType quorum = 2;
+    shared_model::types::QuorumType quorum = 2;
     auto txs_collection = framework::batch::createBatchOneSignTransactions(
         {std::make_pair(batch_type, creator_id)}, created_time, quorum);
     auto batch =
-        std::make_shared<shared_model::interface::TransactionBatchImpl>(
-            txs_collection);
+        std::make_shared<shared_model::TransactionBatchImpl>(txs_collection);
     return batch;
   }
 
   std::shared_ptr<iroha::torii::MockTransactionProcessor> transaction_processor;
   std::shared_ptr<iroha::ametsuchi::MockStorage> storage;
   std::shared_ptr<iroha::torii::StatusBus> status_bus;
-  std::shared_ptr<shared_model::interface::TxStatusFactory> tx_status_factory;
+  std::shared_ptr<shared_model::TxStatusFactory> tx_status_factory;
   std::shared_ptr<iroha::ametsuchi::MockTxPresenceCache> tx_presence_cache;
   logger::LoggerPtr log;
   std::shared_ptr<iroha::torii::CommandServiceImpl::CacheType> cache;

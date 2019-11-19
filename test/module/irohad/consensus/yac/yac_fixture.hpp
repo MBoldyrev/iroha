@@ -36,15 +36,13 @@ namespace iroha {
         std::shared_ptr<Yac> yac;
 
         // ------|One round|------
-        std::vector<std::shared_ptr<shared_model::interface::Peer>>
-            default_peers = [] {
-              std::vector<std::shared_ptr<shared_model::interface::Peer>>
-                  result;
-              for (size_t i = 0; i < 7; ++i) {
-                result.push_back(makePeer(std::to_string(i)));
-              }
-              return result;
-            }();
+        std::vector<std::shared_ptr<shared_model::Peer>> default_peers = [] {
+          std::vector<std::shared_ptr<shared_model::Peer>> result;
+          for (size_t i = 0; i < 7; ++i) {
+            result.push_back(makePeer(std::to_string(i)));
+          }
+          return result;
+        }();
         Round initial_round{1, 1};
 
         void SetUp() override {

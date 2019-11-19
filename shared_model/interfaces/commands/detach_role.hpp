@@ -11,27 +11,25 @@
 #include "interfaces/common_objects/types.hpp"
 
 namespace shared_model {
-  namespace interface {
 
+  /**
+   * Remove role from account used in Iroha
+   */
+  class DetachRole : public ModelPrimitive<DetachRole> {
+   public:
     /**
-     * Remove role from account used in Iroha
+     * @return Account to remove the role
      */
-    class DetachRole : public ModelPrimitive<DetachRole> {
-     public:
-      /**
-       * @return Account to remove the role
-       */
-      virtual const types::AccountIdType &accountId() const = 0;
-      /**
-       * @return Role name to remove from account
-       */
-      virtual const types::RoleIdType &roleName() const = 0;
+    virtual const types::AccountIdType &accountId() const = 0;
+    /**
+     * @return Role name to remove from account
+     */
+    virtual const types::RoleIdType &roleName() const = 0;
 
-      std::string toString() const override;
+    std::string toString() const override;
 
-      bool operator==(const ModelType &rhs) const override;
-    };
-  }  // namespace interface
+    bool operator==(const ModelType &rhs) const override;
+  };
 }  // namespace shared_model
 
 #endif  // IROHA_SHARED_MODEL_DETACH_ROLE_HPP

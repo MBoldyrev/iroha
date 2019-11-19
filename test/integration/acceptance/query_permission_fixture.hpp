@@ -11,7 +11,7 @@
 
 using namespace shared_model;
 using namespace integration_framework;
-using namespace shared_model::interface::permissions;
+using namespace shared_model::permissions;
 
 template <class QueryPermissionTest>
 class QueryPermissionFixture : public AcceptanceFixture {

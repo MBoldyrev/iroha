@@ -280,8 +280,8 @@ class ValidatorsTest : public ::testing::Test {
   std::string hash;
   std::string writer;
   iroha::protocol::Transaction::Payload::BatchMeta batch_meta;
-  shared_model::interface::permissions::Role model_role_permission;
-  shared_model::interface::permissions::Grantable model_grantable_permission;
+  shared_model::permissions::Role model_role_permission;
+  shared_model::permissions::Grantable model_grantable_permission;
   iroha::protocol::RolePermission role_permission;
   iroha::protocol::GrantablePermission grantable_permission;
   uint8_t quorum;

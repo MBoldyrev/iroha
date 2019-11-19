@@ -42,7 +42,7 @@ namespace fuzzing {
               std::shared_ptr<iroha::ametsuchi::BlockQuery>(storage_))));
       EXPECT_CALL(*storage_, getBlock(_)).WillRepeatedly(Invoke([](auto) {
         return iroha::expected::makeValue(
-            clone<shared_model::interface::Block>(TestBlockBuilder().build()));
+            clone<shared_model::Block>(TestBlockBuilder().build()));
       }));
     }
   };
