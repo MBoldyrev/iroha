@@ -12,16 +12,15 @@
 namespace shared_model {
   namespace validation {
 
-    class BatchValidator
-        : public AbstractValidator<interface::TransactionBatch> {
+    class BatchValidator : public AbstractValidator<TransactionBatch> {
      public:
       BatchValidator(std::shared_ptr<ValidatorsConfig> config);
 
-      Answer validate(const interface::TransactionBatch &batch) const override;
+      Answer validate(const TransactionBatch &batch) const override;
 
      private:
-      Answer validate(interface::types::TransactionsForwardCollectionType
-                          transactions) const;
+      Answer validate(
+          types::TransactionsForwardCollectionType transactions) const;
 
       const uint64_t max_batch_size_;
       const bool partial_ordered_batches_are_valid_;

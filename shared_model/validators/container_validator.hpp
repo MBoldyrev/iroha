@@ -26,8 +26,8 @@ namespace shared_model {
      protected:
       void validateTransactions(
           ReasonsGroupType &reason,
-          const interface::types::TransactionsCollectionType &transactions,
-          interface::types::TimestampType current_timestamp) const {
+          const types::TransactionsCollectionType &transactions,
+          types::TimestampType current_timestamp) const {
         auto answer = transactions_collection_validator_.validate(
             transactions, current_timestamp);
         if (answer.hasErrors()) {

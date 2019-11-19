@@ -15,8 +15,7 @@ namespace shared_model {
     template <typename Error>
     class QueryErrorResponseChecker : public boost::static_visitor<bool> {
      public:
-      bool operator()(
-          const shared_model::interface::ErrorQueryResponse &status) const {
+      bool operator()(const shared_model::ErrorQueryResponse &status) const {
         return iroha::visit_in_place(status.get(),
                                      [](const Error &) { return true; },
                                      [](const auto &) { return false; });
@@ -31,7 +30,7 @@ namespace shared_model {
     template <typename Error, typename QueryVariant>
     bool checkForQueryError(QueryVariant &&query) {
       return boost::apply_visitor(
-          shared_model::interface::QueryErrorResponseChecker<Error>(),
+          shared_model::QueryErrorResponseChecker<Error>(),
           std::forward<QueryVariant>(query));
     }
   }  // namespace interface

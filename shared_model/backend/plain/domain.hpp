@@ -13,18 +13,18 @@
 namespace shared_model {
   namespace plain {
 
-    class Domain final : public interface::Domain {
+    class Domain final : public Domain {
      public:
-      Domain(const interface::types::DomainIdType &domain_id,
-             const interface::types::RoleIdType &default_role_id);
+      Domain(const types::DomainIdType &domain_id,
+             const types::RoleIdType &default_role_id);
 
-      const interface::types::DomainIdType &domainId() const override;
+      const types::DomainIdType &domainId() const override;
 
-      const interface::types::RoleIdType &defaultRole() const override;
+      const types::RoleIdType &defaultRole() const override;
 
      private:
-      const interface::types::DomainIdType domain_id_;
-      const interface::types::RoleIdType default_role_id_;
+      const types::DomainIdType domain_id_;
+      const types::RoleIdType default_role_id_;
     };
   }  // namespace plain
 }  // namespace shared_model

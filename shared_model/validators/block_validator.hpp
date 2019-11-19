@@ -24,13 +24,13 @@ namespace shared_model {
      */
     template <typename FieldValidator, typename TransactionsCollectionValidator>
     class BlockValidator
-        : public ContainerValidator<interface::Block,
+        : public ContainerValidator<Block,
                                     FieldValidator,
                                     TransactionsCollectionValidator>,
-          public AbstractValidator<interface::Block> {
+          public AbstractValidator<Block> {
      public:
       using ContainerValidator<
-          interface::Block,
+          Block,
           FieldValidator,
           TransactionsCollectionValidator>::ContainerValidator;
       /**
@@ -38,8 +38,8 @@ namespace shared_model {
        * @param block
        * @return Answer containing found error if any
        */
-      Answer validate(const interface::Block &block) const override {
-        Answer answer = ContainerValidator<interface::Block,
+      Answer validate(const Block &block) const override {
+        Answer answer = ContainerValidator<Block,
                                            FieldValidator,
                                            TransactionsCollectionValidator>::
             validate(block, "Block", [this](auto &reason, const auto &cont) {

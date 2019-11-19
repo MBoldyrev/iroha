@@ -5,7 +5,7 @@
 
 #include "backend/plain/account_detail_record_id.hpp"
 
-using namespace shared_model::interface::types;
+using namespace shared_model::types;
 using namespace shared_model::plain;
 
 AccountDetailRecordId::AccountDetailRecordId(AccountIdType writer,

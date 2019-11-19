@@ -43,32 +43,28 @@ namespace shared_model {
                        return iroha::time::now();
                      });
 
-      void validateAccountId(
-          ReasonsGroupType &reason,
-          const interface::types::AccountIdType &account_id) const;
+      void validateAccountId(ReasonsGroupType &reason,
+                             const types::AccountIdType &account_id) const;
 
       void validateAssetId(ReasonsGroupType &reason,
-                           const interface::types::AssetIdType &asset_id) const;
+                           const types::AssetIdType &asset_id) const;
 
-      void validatePeer(ReasonsGroupType &reason,
-                        const interface::Peer &peer) const;
+      void validatePeer(ReasonsGroupType &reason, const Peer &peer) const;
 
-      void validateAmount(ReasonsGroupType &reason,
-                          const interface::Amount &amount) const;
+      void validateAmount(ReasonsGroupType &reason, const Amount &amount) const;
 
       void validatePubkey(ReasonsGroupType &reason,
-                          const interface::types::PubkeyType &pubkey) const;
+                          const types::PubkeyType &pubkey) const;
 
-      void validatePeerAddress(
-          ReasonsGroupType &reason,
-          const interface::types::AddressType &address) const;
+      void validatePeerAddress(ReasonsGroupType &reason,
+                               const types::AddressType &address) const;
 
       void validateRoleId(ReasonsGroupType &reason,
-                          const interface::types::RoleIdType &role_id) const;
+                          const types::RoleIdType &role_id) const;
 
       void validateAccountName(
           ReasonsGroupType &reason,
-          const interface::types::AccountNameType &account_name) const;
+          const types::AccountNameType &account_name) const;
 
       // clang-format off
       /**
@@ -92,95 +88,88 @@ namespace shared_model {
        * If the validation is not successful reason is updated with corresponding message
        */
       // clang-format on
-      void validateDomainId(
-          ReasonsGroupType &reason,
-          const interface::types::DomainIdType &domain_id) const;
+      void validateDomainId(ReasonsGroupType &reason,
+                            const types::DomainIdType &domain_id) const;
 
-      void validateAssetName(
-          ReasonsGroupType &reason,
-          const interface::types::AssetNameType &asset_name) const;
+      void validateAssetName(ReasonsGroupType &reason,
+                             const types::AssetNameType &asset_name) const;
 
       void validateAccountDetailKey(
           ReasonsGroupType &reason,
-          const interface::types::AccountDetailKeyType &key) const;
+          const types::AccountDetailKeyType &key) const;
 
       void validateAccountDetailValue(
           ReasonsGroupType &reason,
-          const interface::types::AccountDetailValueType &value) const;
+          const types::AccountDetailValueType &value) const;
 
       void validateOldAccountDetailValue(
           ReasonsGroupType &reason,
-          const boost::optional<interface::types::AccountDetailValueType>
-              &old_value) const;
+          const boost::optional<types::AccountDetailValueType> &old_value)
+          const;
 
-      void validatePrecision(
-          ReasonsGroupType &reason,
-          const interface::types::PrecisionType &precision) const;
+      void validatePrecision(ReasonsGroupType &reason,
+                             const types::PrecisionType &precision) const;
 
-      void validateRolePermission(
-          ReasonsGroupType &reason,
-          const interface::permissions::Role &permission) const;
+      void validateRolePermission(ReasonsGroupType &reason,
+                                  const permissions::Role &permission) const;
 
       void validateGrantablePermission(
           ReasonsGroupType &reason,
-          const interface::permissions::Grantable &permission) const;
+          const permissions::Grantable &permission) const;
 
       void validateQuorum(ReasonsGroupType &reason,
-                          const interface::types::QuorumType &quorum) const;
+                          const types::QuorumType &quorum) const;
 
       void validateCreatorAccountId(
           ReasonsGroupType &reason,
-          const interface::types::AccountIdType &account_id) const;
+          const types::AccountIdType &account_id) const;
 
       /**
        * Validate timestamp against now
        */
       void validateCreatedTime(ReasonsGroupType &reason,
-                               interface::types::TimestampType timestamp,
-                               interface::types::TimestampType now) const;
+                               types::TimestampType timestamp,
+                               types::TimestampType now) const;
 
       /**
        * Validate timestamp against time_provider_
        */
       void validateCreatedTime(ReasonsGroupType &reason,
-                               interface::types::TimestampType timestamp) const;
+                               types::TimestampType timestamp) const;
 
       void validateCounter(ReasonsGroupType &reason,
-                           const interface::types::CounterType &counter) const;
+                           const types::CounterType &counter) const;
 
-      void validateSignatures(
-          ReasonsGroupType &reason,
-          const interface::types::SignatureRangeType &signatures,
-          const crypto::Blob &source) const;
+      void validateSignatures(ReasonsGroupType &reason,
+                              const types::SignatureRangeType &signatures,
+                              const crypto::Blob &source) const;
 
-      void validateQueryPayloadMeta(
-          ReasonsGroupType &reason,
-          const interface::QueryPayloadMeta &meta) const;
+      void validateQueryPayloadMeta(ReasonsGroupType &reason,
+                                    const QueryPayloadMeta &meta) const;
 
-      void validateDescription(
-          ReasonsGroupType &reason,
-          const interface::types::DescriptionType &description) const;
+      void validateDescription(ReasonsGroupType &reason,
+                               const types::DescriptionType &description) const;
 
       void validateBatchMeta(ReasonsGroupType &reason,
-                             const interface::BatchMeta &description) const;
+                             const BatchMeta &description) const;
 
       void validateHeight(ReasonsGroupType &reason,
-                          const interface::types::HeightType &height) const;
+                          const types::HeightType &height) const;
 
       void validateHash(ReasonsGroupType &reason,
                         const crypto::Hash &hash) const;
 
       void validateTxPaginationMeta(
           ReasonsGroupType &reason,
-          const interface::TxPaginationMeta &tx_pagination_meta) const;
+          const TxPaginationMeta &tx_pagination_meta) const;
 
       void validateAssetPaginationMeta(
           ReasonsGroupType &reason,
-          const interface::AssetPaginationMeta &asset_pagination_meta) const;
+          const AssetPaginationMeta &asset_pagination_meta) const;
 
       void validateAccountDetailPaginationMeta(
           ReasonsGroupType &reason,
-          const interface::AccountDetailPaginationMeta &pagination_meta) const;
+          const AccountDetailPaginationMeta &pagination_meta) const;
 
      private:
       const static std::string account_name_pattern_;
@@ -225,7 +214,7 @@ namespace shared_model {
     };
 
     boost::optional<ConcreteReasonType> validatePubkey(
-        const interface::types::PubkeyType &pubkey);
+        const types::PubkeyType &pubkey);
 
   }  // namespace validation
 }  // namespace shared_model

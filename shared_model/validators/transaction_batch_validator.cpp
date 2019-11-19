@@ -29,7 +29,7 @@ namespace {
    * @return enum, reporting about success result or containing a found error
    */
   BatchCheckResult batchIsWellFormed(
-      const shared_model::interface::types::TransactionsForwardCollectionType
+      const shared_model::types::TransactionsForwardCollectionType
           &transactions,
       const uint64_t max_batch_size,
       const bool partial_ordered_batches_are_valid) {
@@ -51,8 +51,8 @@ namespace {
       return BatchCheckResult::kNoBatchMeta;
     }
 
-    bool batch_is_atomic = batch_meta_opt->get()->type()
-        == shared_model::interface::types::BatchType::ATOMIC;
+    bool batch_is_atomic =
+        batch_meta_opt->get()->type() == shared_model::types::BatchType::ATOMIC;
 
     const auto &batch_hashes = batch_meta_opt->get()->reducedHashes();
     // todo igor-egorov 24.04.2019 IR-455 Split batches validator
@@ -107,15 +107,13 @@ namespace shared_model {
           partial_ordered_batches_are_valid_(
               config->partial_ordered_batches_are_valid) {}
 
-    Answer BatchValidator::validate(
-        const interface::TransactionBatch &batch) const {
+    Answer BatchValidator::validate(const TransactionBatch &batch) const {
       auto transactions = batch.transactions();
       return validate(transactions | boost::adaptors::indirected);
     }
 
     Answer BatchValidator::validate(
-        interface::types::TransactionsForwardCollectionType transactions)
-        const {
+        types::TransactionsForwardCollectionType transactions) const {
       std::string reason_name = "Transaction batch factory: ";
       validation::ReasonsGroupType batch_reason;
       batch_reason.first = reason_name;

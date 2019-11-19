@@ -22,15 +22,13 @@ namespace shared_model {
     class TransactionsCollectionValidator {
      protected:
       TransactionValidator transaction_validator_;
-      std::shared_ptr<AbstractValidator<interface::TransactionBatch>>
-          batch_validator_;
+      std::shared_ptr<AbstractValidator<TransactionBatch>> batch_validator_;
       bool txs_duplicates_allowed_;
 
      private:
       template <typename Validator>
       Answer validateImpl(
-          const interface::types::TransactionsForwardCollectionType
-              &transactions,
+          const types::TransactionsForwardCollectionType &transactions,
           Validator &&validator) const;
 
       explicit TransactionsCollectionValidator(
@@ -50,19 +48,17 @@ namespace shared_model {
        * @param transactions collection of transactions
        * @return Answer containing errors if any
        */
-      Answer validate(const interface::types::TransactionsForwardCollectionType
-                          &transactions) const;
+      Answer validate(
+          const types::TransactionsForwardCollectionType &transactions) const;
+
+      Answer validate(const types::SharedTxsCollectionType &transactions) const;
 
       Answer validate(
-          const interface::types::SharedTxsCollectionType &transactions) const;
+          const types::TransactionsForwardCollectionType &transactions,
+          types::TimestampType current_timestamp) const;
 
-      Answer validate(const interface::types::TransactionsForwardCollectionType
-                          &transactions,
-                      interface::types::TimestampType current_timestamp) const;
-
-      Answer validate(
-          const interface::types::SharedTxsCollectionType &transactions,
-          interface::types::TimestampType current_timestamp) const;
+      Answer validate(const types::SharedTxsCollectionType &transactions,
+                      types::TimestampType current_timestamp) const;
 
       const TransactionValidator &getTransactionValidator() const;
     };

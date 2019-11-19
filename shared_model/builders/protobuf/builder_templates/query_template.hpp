@@ -84,9 +84,8 @@ namespace shared_model {
       template <typename PageMetaPayload>
       static auto setTxPaginationMeta(
           PageMetaPayload * page_meta_payload,
-          interface::types::TransactionsNumberType page_size,
-          const boost::optional<interface::types::HashType> &first_hash =
-              boost::none) {
+          types::TransactionsNumberType page_size,
+          const boost::optional<types::HashType> &first_hash = boost::none) {
         page_meta_payload->set_page_size(page_size);
         if (first_hash) {
           page_meta_payload->set_first_tx_hash(first_hash->hex());
@@ -102,36 +101,35 @@ namespace shared_model {
       TemplateQueryBuilder()
           : TemplateQueryBuilder(SV(iroha::test::kTestsValidatorsConfig)) {}
 
-      auto createdTime(interface::types::TimestampType created_time) const {
+      auto createdTime(types::TimestampType created_time) const {
         return transform<CreatedTime>([&](auto &qry) {
           qry.mutable_payload()->mutable_meta()->set_created_time(created_time);
         });
       }
 
-      auto creatorAccountId(
-          const interface::types::AccountIdType &creator_account_id) const {
+      auto creatorAccountId(const types::AccountIdType &creator_account_id)
+          const {
         return transform<CreatorAccountId>([&](auto &qry) {
           qry.mutable_payload()->mutable_meta()->set_creator_account_id(
               creator_account_id);
         });
       }
 
-      auto queryCounter(interface::types::CounterType query_counter) const {
+      auto queryCounter(types::CounterType query_counter) const {
         return transform<QueryCounter>([&](auto &qry) {
           qry.mutable_payload()->mutable_meta()->set_query_counter(
               query_counter);
         });
       }
 
-      auto getAccount(const interface::types::AccountIdType &account_id) const {
+      auto getAccount(const types::AccountIdType &account_id) const {
         return queryField([&](auto proto_query) {
           auto query = proto_query->mutable_get_account();
           query->set_account_id(account_id);
         });
       }
 
-      auto getSignatories(const interface::types::AccountIdType &account_id)
-          const {
+      auto getSignatories(const types::AccountIdType &account_id) const {
         return queryField([&](auto proto_query) {
           auto query = proto_query->mutable_get_signatories();
           query->set_account_id(account_id);
@@ -139,10 +137,10 @@ namespace shared_model {
       }
 
       auto getAccountTransactions(
-          const interface::types::AccountIdType &account_id,
-          interface::types::TransactionsNumberType page_size,
-          const boost::optional<interface::types::HashType> &first_hash =
-              boost::none) const {
+          const types::AccountIdType &account_id,
+          types::TransactionsNumberType page_size,
+          const boost::optional<types::HashType> &first_hash = boost::none)
+          const {
         return queryField([&](auto proto_query) {
           auto query = proto_query->mutable_get_account_transactions();
           query->set_account_id(account_id);
@@ -152,11 +150,11 @@ namespace shared_model {
       }
 
       auto getAccountAssetTransactions(
-          const interface::types::AccountIdType &account_id,
-          const interface::types::AssetIdType &asset_id,
-          interface::types::TransactionsNumberType page_size,
-          const boost::optional<interface::types::HashType> &first_hash =
-              boost::none) const {
+          const types::AccountIdType &account_id,
+          const types::AssetIdType &asset_id,
+          types::TransactionsNumberType page_size,
+          const boost::optional<types::HashType> &first_hash = boost::none)
+          const {
         return queryField([&](auto proto_query) {
           auto query = proto_query->mutable_get_account_asset_transactions();
           query->set_account_id(account_id);
@@ -167,10 +165,10 @@ namespace shared_model {
       }
 
       auto getAccountAssets(
-          const interface::types::AccountIdType &account_id,
+          const types::AccountIdType &account_id,
           size_t page_size,
-          boost::optional<shared_model::interface::types::AssetIdType>
-              first_asset_id) const {
+          boost::optional<shared_model::types::AssetIdType> first_asset_id)
+          const {
         return queryField([&](auto proto_query) {
           auto query = proto_query->mutable_get_account_assets();
           query->set_account_id(account_id);
@@ -184,9 +182,9 @@ namespace shared_model {
 
       auto getAccountDetail(
           size_t page_size,
-          const interface::types::AccountIdType &account_id = "",
-          const interface::types::AccountDetailKeyType &key = "",
-          const interface::types::AccountIdType &writer = "",
+          const types::AccountIdType &account_id = "",
+          const types::AccountDetailKeyType &key = "",
+          const types::AccountIdType &writer = "",
           const boost::optional<plain::AccountDetailRecordId> &first_record_id =
               boost::none) {
         return queryField([&](auto proto_query) {
@@ -211,7 +209,7 @@ namespace shared_model {
         });
       }
 
-      auto getBlock(interface::types::HeightType height) const {
+      auto getBlock(types::HeightType height) const {
         return queryField([&](auto proto_query) {
           auto query = proto_query->mutable_get_block();
           query->set_height(height);
@@ -223,15 +221,14 @@ namespace shared_model {
             [&](auto proto_query) { proto_query->mutable_get_roles(); });
       }
 
-      auto getAssetInfo(const interface::types::AssetIdType &asset_id) const {
+      auto getAssetInfo(const types::AssetIdType &asset_id) const {
         return queryField([&](auto proto_query) {
           auto query = proto_query->mutable_get_asset_info();
           query->set_asset_id(asset_id);
         });
       }
 
-      auto getRolePermissions(const interface::types::RoleIdType &role_id)
-          const {
+      auto getRolePermissions(const types::RoleIdType &role_id) const {
         return queryField([&](auto proto_query) {
           auto query = proto_query->mutable_get_role_permissions();
           query->set_role_id(role_id);
@@ -248,8 +245,8 @@ namespace shared_model {
         });
       }
 
-      auto getTransactions(
-          std::initializer_list<interface::types::HashType> hashes) const {
+      auto getTransactions(std::initializer_list<types::HashType> hashes)
+          const {
         return getTransactions(hashes);
       }
 
@@ -265,9 +262,9 @@ namespace shared_model {
       }
 
       auto getPendingTransactions(
-          interface::types::TransactionsNumberType page_size,
-          const boost::optional<interface::types::HashType> &first_hash =
-              boost::none) const {
+          types::TransactionsNumberType page_size,
+          const boost::optional<types::HashType> &first_hash = boost::none)
+          const {
         return queryField([&](auto proto_query) {
           auto query = proto_query->mutable_get_pending_transactions();
           setTxPaginationMeta(

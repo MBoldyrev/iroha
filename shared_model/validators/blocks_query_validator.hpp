@@ -16,8 +16,7 @@ namespace shared_model {
      * @tparam FieldValidator - field validator type
      */
     template <typename FieldValidator>
-    class BlocksQueryValidator
-        : public AbstractValidator<interface::BlocksQuery> {
+    class BlocksQueryValidator : public AbstractValidator<BlocksQuery> {
       BlocksQueryValidator(FieldValidator field_validator)
           : field_validator_(std::move(field_validator)) {}
 
@@ -30,7 +29,7 @@ namespace shared_model {
        * @param qry - query to validate
        * @return Answer containing found error if any
        */
-      Answer validate(const interface::BlocksQuery &qry) const {
+      Answer validate(const BlocksQuery &qry) const {
         Answer answer;
         std::string qry_reason_name = "Blocks query";
         ReasonsGroupType qry_reason(qry_reason_name, GroupedReasons());

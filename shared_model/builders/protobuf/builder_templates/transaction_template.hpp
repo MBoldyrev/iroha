@@ -97,8 +97,7 @@ namespace shared_model {
           : TemplateTransactionBuilder(
                 SV(iroha::test::kTestsValidatorsConfig)) {}
 
-      auto creatorAccountId(const interface::types::AccountIdType &account_id)
-          const {
+      auto creatorAccountId(const types::AccountIdType &account_id) const {
         return transform<CreatorAccountId>([&](auto &tx) {
           tx.mutable_payload()
               ->mutable_reduced_payload()
@@ -106,8 +105,8 @@ namespace shared_model {
         });
       }
 
-      auto batchMeta(interface::types::BatchType type,
-                     std::vector<interface::types::HashType> hashes) const {
+      auto batchMeta(types::BatchType type, std::vector<types::HashType> hashes)
+          const {
         return transform<0>([&](auto &tx) {
           tx.mutable_payload()->mutable_batch()->set_type(
               static_cast<
@@ -120,20 +119,20 @@ namespace shared_model {
         });
       }
 
-      auto createdTime(interface::types::TimestampType created_time) const {
+      auto createdTime(types::TimestampType created_time) const {
         return transform<CreatedTime>([&](auto &tx) {
           tx.mutable_payload()->mutable_reduced_payload()->set_created_time(
               created_time);
         });
       }
 
-      auto quorum(interface::types::QuorumType quorum) const {
+      auto quorum(types::QuorumType quorum) const {
         return transform<Quorum>([&](auto &tx) {
           tx.mutable_payload()->mutable_reduced_payload()->set_quorum(quorum);
         });
       }
 
-      auto addAssetQuantity(const interface::types::AssetIdType &asset_id,
+      auto addAssetQuantity(const types::AssetIdType &asset_id,
                             const std::string &amount) const {
         return addCommand([&](auto proto_command) {
           auto command = proto_command->mutable_add_asset_quantity();
@@ -143,10 +142,10 @@ namespace shared_model {
       }
 
       auto addPeerRaw(
-          const interface::types::AddressType &address,
+          const types::AddressType &address,
           const std::string &peer_key,
-          const boost::optional<interface::types::TLSCertificateType>
-              &tls_certificate = boost::none) const {
+          const boost::optional<types::TLSCertificateType> &tls_certificate =
+              boost::none) const {
         return addCommand([&](auto proto_command) {
           auto command = proto_command->mutable_add_peer();
           auto peer = command->mutable_peer();
@@ -158,21 +157,22 @@ namespace shared_model {
         });
       }
 
-      auto addPeer(const interface::types::AddressType &address,
-                   const interface::types::PubkeyType &peer_key,
-                   const boost::optional<interface::types::TLSCertificateType>
-                       &tls_certificate = boost::none) const {
+      auto addPeer(
+          const types::AddressType &address,
+          const types::PubkeyType &peer_key,
+          const boost::optional<types::TLSCertificateType> &tls_certificate =
+              boost::none) const {
         return addPeerRaw(address, peer_key.hex(), tls_certificate);
       }
 
-      auto removePeer(const interface::types::PubkeyType &public_key) const {
+      auto removePeer(const types::PubkeyType &public_key) const {
         return addCommand([&](auto proto_command) {
           auto command = proto_command->mutable_remove_peer();
           command->set_public_key(public_key.hex());
         });
       }
 
-      auto addSignatoryRaw(const interface::types::AccountIdType &account_id,
+      auto addSignatoryRaw(const types::AccountIdType &account_id,
                            const std::string &public_key) const {
         return addCommand([&](auto proto_command) {
           auto command = proto_command->mutable_add_signatory();
@@ -181,12 +181,12 @@ namespace shared_model {
         });
       }
 
-      auto addSignatory(const interface::types::AccountIdType &account_id,
-                        const interface::types::PubkeyType &public_key) const {
+      auto addSignatory(const types::AccountIdType &account_id,
+                        const types::PubkeyType &public_key) const {
         return addSignatoryRaw(account_id, public_key.hex());
       }
 
-      auto removeSignatoryRaw(const interface::types::AccountIdType &account_id,
+      auto removeSignatoryRaw(const types::AccountIdType &account_id,
                               const std::string &public_key) const {
         return addCommand([&](auto proto_command) {
           auto command = proto_command->mutable_remove_signatory();
@@ -195,14 +195,13 @@ namespace shared_model {
         });
       }
 
-      auto removeSignatory(const interface::types::AccountIdType &account_id,
-                           const interface::types::PubkeyType &public_key)
-          const {
+      auto removeSignatory(const types::AccountIdType &account_id,
+                           const types::PubkeyType &public_key) const {
         return removeSignatoryRaw(account_id, public_key.hex());
       }
 
-      auto appendRole(const interface::types::AccountIdType &account_id,
-                      const interface::types::RoleIdType &role_name) const {
+      auto appendRole(const types::AccountIdType &account_id,
+                      const types::RoleIdType &role_name) const {
         return addCommand([&](auto proto_command) {
           auto command = proto_command->mutable_append_role();
           command->set_account_id(account_id);
@@ -210,9 +209,9 @@ namespace shared_model {
         });
       }
 
-      auto createAsset(const interface::types::AssetNameType &asset_name,
-                       const interface::types::DomainIdType &domain_id,
-                       interface::types::PrecisionType precision) const {
+      auto createAsset(const types::AssetNameType &asset_name,
+                       const types::DomainIdType &domain_id,
+                       types::PrecisionType precision) const {
         return addCommand([&](auto proto_command) {
           auto command = proto_command->mutable_create_asset();
           command->set_asset_name(asset_name);
@@ -221,10 +220,9 @@ namespace shared_model {
         });
       }
 
-      auto createAccountRaw(
-          const interface::types::AccountNameType &account_name,
-          const interface::types::DomainIdType &domain_id,
-          const std::string &main_pubkey) const {
+      auto createAccountRaw(const types::AccountNameType &account_name,
+                            const types::DomainIdType &domain_id,
+                            const std::string &main_pubkey) const {
         return addCommand([&](auto proto_command) {
           auto command = proto_command->mutable_create_account();
           command->set_account_name(account_name);
@@ -233,16 +231,14 @@ namespace shared_model {
         });
       }
 
-      auto createAccount(const interface::types::AccountNameType &account_name,
-                         const interface::types::DomainIdType &domain_id,
-                         const interface::types::PubkeyType &main_pubkey)
-          const {
+      auto createAccount(const types::AccountNameType &account_name,
+                         const types::DomainIdType &domain_id,
+                         const types::PubkeyType &main_pubkey) const {
         return createAccountRaw(account_name, domain_id, main_pubkey.hex());
       }
 
-      auto createDomain(const interface::types::DomainIdType &domain_id,
-                        const interface::types::RoleIdType &default_role)
-          const {
+      auto createDomain(const types::DomainIdType &domain_id,
+                        const types::RoleIdType &default_role) const {
         return addCommand([&](auto proto_command) {
           auto command = proto_command->mutable_create_domain();
           command->set_domain_id(domain_id);
@@ -250,13 +246,13 @@ namespace shared_model {
         });
       }
 
-      auto createRole(const interface::types::RoleIdType &role_name,
-                      const interface::RolePermissionSet &permissions) const {
+      auto createRole(const types::RoleIdType &role_name,
+                      const RolePermissionSet &permissions) const {
         return addCommand([&](auto proto_command) {
           auto command = proto_command->mutable_create_role();
           command->set_role_name(role_name);
           for (size_t i = 0; i < permissions.size(); ++i) {
-            auto perm = static_cast<interface::permissions::Role>(i);
+            auto perm = static_cast<permissions::Role>(i);
             if (permissions.isSet(perm)) {
               command->add_permissions(permissions::toTransport(perm));
             }
@@ -264,8 +260,8 @@ namespace shared_model {
         });
       }
 
-      auto detachRole(const interface::types::AccountIdType &account_id,
-                      const interface::types::RoleIdType &role_name) const {
+      auto detachRole(const types::AccountIdType &account_id,
+                      const types::RoleIdType &role_name) const {
         return addCommand([&](auto proto_command) {
           auto command = proto_command->mutable_detach_role();
           command->set_account_id(account_id);
@@ -273,8 +269,8 @@ namespace shared_model {
         });
       }
 
-      auto grantPermission(const interface::types::AccountIdType &account_id,
-                           interface::permissions::Grantable permission) const {
+      auto grantPermission(const types::AccountIdType &account_id,
+                           permissions::Grantable permission) const {
         return addCommand([&](auto proto_command) {
           auto command = proto_command->mutable_grant_permission();
           command->set_account_id(account_id);
@@ -282,9 +278,8 @@ namespace shared_model {
         });
       }
 
-      auto revokePermission(const interface::types::AccountIdType &account_id,
-                            interface::permissions::Grantable permission)
-          const {
+      auto revokePermission(const types::AccountIdType &account_id,
+                            permissions::Grantable permission) const {
         return addCommand([&](auto proto_command) {
           auto command = proto_command->mutable_revoke_permission();
           command->set_account_id(account_id);
@@ -292,10 +287,9 @@ namespace shared_model {
         });
       }
 
-      auto setAccountDetail(
-          const interface::types::AccountIdType &account_id,
-          const interface::types::AccountDetailKeyType &key,
-          const interface::types::AccountDetailValueType &value) const {
+      auto setAccountDetail(const types::AccountIdType &account_id,
+                            const types::AccountDetailKeyType &key,
+                            const types::AccountDetailValueType &value) const {
         return addCommand([&](auto proto_command) {
           auto command = proto_command->mutable_set_account_detail();
           command->set_account_id(account_id);
@@ -304,8 +298,8 @@ namespace shared_model {
         });
       }
 
-      auto setAccountQuorum(const interface::types::AddressType &account_id,
-                            interface::types::QuorumType quorum) const {
+      auto setAccountQuorum(const types::AddressType &account_id,
+                            types::QuorumType quorum) const {
         return addCommand([&](auto proto_command) {
           auto command = proto_command->mutable_set_account_quorum();
           command->set_account_id(account_id);
@@ -313,7 +307,7 @@ namespace shared_model {
         });
       }
 
-      auto subtractAssetQuantity(const interface::types::AssetIdType &asset_id,
+      auto subtractAssetQuantity(const types::AssetIdType &asset_id,
                                  const std::string &amount) const {
         return addCommand([&](auto proto_command) {
           auto command = proto_command->mutable_subtract_asset_quantity();
@@ -322,10 +316,10 @@ namespace shared_model {
         });
       }
 
-      auto transferAsset(const interface::types::AccountIdType &src_account_id,
-                         const interface::types::AccountIdType &dest_account_id,
-                         const interface::types::AssetIdType &asset_id,
-                         const interface::types::DescriptionType &description,
+      auto transferAsset(const types::AccountIdType &src_account_id,
+                         const types::AccountIdType &dest_account_id,
+                         const types::AssetIdType &asset_id,
+                         const types::DescriptionType &description,
                          const std::string &amount) const {
         return addCommand([&](auto proto_command) {
           auto command = proto_command->mutable_transfer_asset();

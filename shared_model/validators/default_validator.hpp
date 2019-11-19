@@ -35,7 +35,7 @@ namespace shared_model {
      */
     using DefaultSignedTransactionValidator =
         SignableModelValidator<DefaultUnsignedTransactionValidator,
-                               const interface::Transaction &,
+                               const Transaction &,
                                FieldValidator>;
 
     /**
@@ -44,7 +44,7 @@ namespace shared_model {
      */
     using DefaultOptionalSignedTransactionValidator =
         SignableModelValidator<DefaultUnsignedTransactionValidator,
-                               const interface::Transaction &,
+                               const Transaction &,
                                FieldValidator,
                                false>;
 
@@ -61,7 +61,7 @@ namespace shared_model {
      */
     using DefaultSignedQueryValidator =
         SignableModelValidator<DefaultUnsignedQueryValidator,
-                               const interface::Query &,
+                               const Query &,
                                FieldValidator>;
 
     /**
@@ -76,7 +76,7 @@ namespace shared_model {
      */
     using DefaultSignedBlocksQueryValidator =
         SignableModelValidator<DefaultUnsignedBlocksQueryValidator,
-                               const interface::BlocksQuery &,
+                               const BlocksQuery &,
                                FieldValidator>;
 
     // ------------| Transactions collection validation |--------------
@@ -123,7 +123,7 @@ namespace shared_model {
      */
     using DefaultSignedBlockValidator =
         SignableModelValidator<DefaultUnsignedBlockValidator,
-                               const interface::Block &,
+                               const Block &,
                                FieldValidator>;
 
   }  // namespace validation

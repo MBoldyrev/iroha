@@ -13,11 +13,11 @@
 namespace shared_model {
   namespace validation {
     std::string BatchOrderValidator::canFollow(
-        boost::optional<std::shared_ptr<interface::Transaction>> tr1,
-        boost::optional<std::shared_ptr<interface::Transaction>> tr2) const {
-      boost::optional<std::shared_ptr<interface::BatchMeta>> batch1 =
+        boost::optional<std::shared_ptr<Transaction>> tr1,
+        boost::optional<std::shared_ptr<Transaction>> tr2) const {
+      boost::optional<std::shared_ptr<BatchMeta>> batch1 =
           tr1 ? tr1.value()->batchMeta() : boost::none;
-      boost::optional<std::shared_ptr<interface::BatchMeta>> batch2 =
+      boost::optional<std::shared_ptr<BatchMeta>> batch2 =
           tr2 ? tr2.value()->batchMeta() : boost::none;
       // both transactions are not a part of any batch
       if (not batch1 and not batch2) {
@@ -86,11 +86,11 @@ namespace shared_model {
     }
 
     Answer BatchOrderValidator::validate(
-        const interface::types::SharedTxsCollectionType &transactions) const {
+        const types::SharedTxsCollectionType &transactions) const {
       Answer res;
       ReasonsGroupType reason;
       reason.first = "Transaction order";
-      boost::optional<interface::types::SharedTxsCollectionType::value_type>
+      boost::optional<types::SharedTxsCollectionType::value_type>
           prev_transaction = boost::none;
 
       for (auto &transaction : transactions) {

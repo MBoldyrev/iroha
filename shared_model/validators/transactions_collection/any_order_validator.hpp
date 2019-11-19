@@ -12,8 +12,8 @@ namespace shared_model {
   namespace validation {
     class AnyOrderValidator : public OrderValidator {
      public:
-      Answer validate(const interface::types::SharedTxsCollectionType
-                          &transactions) const override {
+      Answer validate(
+          const types::SharedTxsCollectionType &transactions) const override {
         return Answer();
       };
     };

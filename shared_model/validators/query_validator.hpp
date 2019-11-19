@@ -46,7 +46,7 @@ namespace shared_model {
       QueryValidatorVisitor(std::shared_ptr<ValidatorsConfig> config)
           : QueryValidatorVisitor(FieldValidator{std::move(config)}) {}
 
-      ReasonsGroupType operator()(const interface::GetAccount &qry) const {
+      ReasonsGroupType operator()(const GetAccount &qry) const {
         ReasonsGroupType reason;
         reason.first = "GetAccount";
 
@@ -55,7 +55,7 @@ namespace shared_model {
         return reason;
       }
 
-      ReasonsGroupType operator()(const interface::GetBlock &qry) const {
+      ReasonsGroupType operator()(const GetBlock &qry) const {
         ReasonsGroupType reason;
         reason.first = "GetBlock";
 
@@ -64,7 +64,7 @@ namespace shared_model {
         return reason;
       }
 
-      ReasonsGroupType operator()(const interface::GetSignatories &qry) const {
+      ReasonsGroupType operator()(const GetSignatories &qry) const {
         ReasonsGroupType reason;
         reason.first = "GetSignatories";
 
@@ -73,8 +73,7 @@ namespace shared_model {
         return reason;
       }
 
-      ReasonsGroupType operator()(
-          const interface::GetAccountTransactions &qry) const {
+      ReasonsGroupType operator()(const GetAccountTransactions &qry) const {
         ReasonsGroupType reason;
         reason.first = "GetAccountTransactions";
 
@@ -85,7 +84,7 @@ namespace shared_model {
       }
 
       ReasonsGroupType operator()(
-          const interface::GetAccountAssetTransactions &qry) const {
+          const GetAccountAssetTransactions &qry) const {
         ReasonsGroupType reason;
         reason.first = "GetAccountAssetTransactions";
 
@@ -96,7 +95,7 @@ namespace shared_model {
         return reason;
       }
 
-      ReasonsGroupType operator()(const interface::GetTransactions &qry) const {
+      ReasonsGroupType operator()(const GetTransactions &qry) const {
         ReasonsGroupType reason;
         reason.first = "GetTransactions";
 
@@ -112,8 +111,7 @@ namespace shared_model {
         return reason;
       }
 
-      ReasonsGroupType operator()(
-          const interface::GetAccountAssets &qry) const {
+      ReasonsGroupType operator()(const GetAccountAssets &qry) const {
         ReasonsGroupType reason;
         reason.first = "GetAccountAssets";
 
@@ -124,8 +122,7 @@ namespace shared_model {
         return reason;
       }
 
-      ReasonsGroupType operator()(
-          const interface::GetAccountDetail &qry) const {
+      ReasonsGroupType operator()(const GetAccountDetail &qry) const {
         ReasonsGroupType reason;
         reason.first = "GetAccountDetail";
 
@@ -146,15 +143,14 @@ namespace shared_model {
         return reason;
       }
 
-      ReasonsGroupType operator()(const interface::GetRoles &qry) const {
+      ReasonsGroupType operator()(const GetRoles &qry) const {
         ReasonsGroupType reason;
         reason.first = "GetRoles";
 
         return reason;
       }
 
-      ReasonsGroupType operator()(
-          const interface::GetRolePermissions &qry) const {
+      ReasonsGroupType operator()(const GetRolePermissions &qry) const {
         ReasonsGroupType reason;
         reason.first = "GetRolePermissions";
 
@@ -163,7 +159,7 @@ namespace shared_model {
         return reason;
       }
 
-      ReasonsGroupType operator()(const interface::GetAssetInfo &qry) const {
+      ReasonsGroupType operator()(const GetAssetInfo &qry) const {
         ReasonsGroupType reason;
         reason.first = "GetAssetInfo";
 
@@ -172,8 +168,7 @@ namespace shared_model {
         return reason;
       }
 
-      ReasonsGroupType operator()(
-          const interface::GetPendingTransactions &qry) const {
+      ReasonsGroupType operator()(const GetPendingTransactions &qry) const {
         ReasonsGroupType reason;
         reason.first = "GetPendingTransactions";
         if (qry.paginationMeta()) {
@@ -184,7 +179,7 @@ namespace shared_model {
         return reason;
       }
 
-      ReasonsGroupType operator()(const interface::GetPeers &qry) const {
+      ReasonsGroupType operator()(const GetPeers &qry) const {
         ReasonsGroupType reason;
         reason.first = "GetPeers";
 
@@ -201,7 +196,7 @@ namespace shared_model {
      * @tparam QueryFieldValidator - concrete query validator type
      */
     template <typename FieldValidator, typename QueryFieldValidator>
-    class QueryValidator : public AbstractValidator<interface::Query> {
+    class QueryValidator : public AbstractValidator<Query> {
       QueryValidator(const FieldValidator &field_validator,
                      const QueryFieldValidator &query_field_validator)
           : field_validator_(field_validator),
@@ -217,7 +212,7 @@ namespace shared_model {
        * @param qry - query to validate
        * @return Answer containing found error if any
        */
-      Answer validate(const interface::Query &qry) const override {
+      Answer validate(const Query &qry) const override {
         Answer answer;
         std::string qry_reason_name = "Query";
         ReasonsGroupType qry_reason(qry_reason_name, GroupedReasons());

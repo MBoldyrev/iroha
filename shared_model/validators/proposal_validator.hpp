@@ -25,13 +25,13 @@ namespace shared_model {
      */
     template <typename FieldValidator, typename TransactionsCollectionValidator>
     class ProposalValidator
-        : public ContainerValidator<interface::Proposal,
+        : public ContainerValidator<Proposal,
                                     FieldValidator,
                                     TransactionsCollectionValidator>,
-          public AbstractValidator<interface::Proposal> {
+          public AbstractValidator<Proposal> {
      public:
       using ContainerValidator<
-          interface::Proposal,
+          Proposal,
           FieldValidator,
           TransactionsCollectionValidator>::ContainerValidator;
       /**
@@ -39,9 +39,9 @@ namespace shared_model {
        * @param proposal
        * @return Answer containing found error if any
        */
-      Answer validate(const interface::Proposal &prop) const {
+      Answer validate(const Proposal &prop) const {
         return ContainerValidator<
-            interface::Proposal,
+            Proposal,
             FieldValidator,
             TransactionsCollectionValidator>::validate(prop, "Proposal");
       }

@@ -56,8 +56,7 @@ namespace shared_model {
       CommandValidatorVisitor(std::shared_ptr<ValidatorsConfig> config)
           : CommandValidatorVisitor(FieldValidator{std::move(config)}) {}
 
-      ReasonsGroupType operator()(
-          const interface::AddAssetQuantity &aaq) const {
+      ReasonsGroupType operator()(const AddAssetQuantity &aaq) const {
         ReasonsGroupType reason;
         addInvalidCommand(reason, "AddAssetQuantity");
 
@@ -67,7 +66,7 @@ namespace shared_model {
         return reason;
       }
 
-      ReasonsGroupType operator()(const interface::AddPeer &ap) const {
+      ReasonsGroupType operator()(const AddPeer &ap) const {
         ReasonsGroupType reason;
         addInvalidCommand(reason, "AddPeer");
 
@@ -76,7 +75,7 @@ namespace shared_model {
         return reason;
       }
 
-      ReasonsGroupType operator()(const interface::AddSignatory &as) const {
+      ReasonsGroupType operator()(const AddSignatory &as) const {
         ReasonsGroupType reason;
         addInvalidCommand(reason, "AddSignatory");
 
@@ -86,7 +85,7 @@ namespace shared_model {
         return reason;
       }
 
-      ReasonsGroupType operator()(const interface::AppendRole &ar) const {
+      ReasonsGroupType operator()(const AppendRole &ar) const {
         ReasonsGroupType reason;
         addInvalidCommand(reason, "AppendRole");
 
@@ -96,7 +95,7 @@ namespace shared_model {
         return reason;
       }
 
-      ReasonsGroupType operator()(const interface::CreateAccount &ca) const {
+      ReasonsGroupType operator()(const CreateAccount &ca) const {
         ReasonsGroupType reason;
         addInvalidCommand(reason, "CreateAccount");
 
@@ -107,7 +106,7 @@ namespace shared_model {
         return reason;
       }
 
-      ReasonsGroupType operator()(const interface::CreateAsset &ca) const {
+      ReasonsGroupType operator()(const CreateAsset &ca) const {
         ReasonsGroupType reason;
         addInvalidCommand(reason, "CreateAsset");
 
@@ -118,7 +117,7 @@ namespace shared_model {
         return reason;
       }
 
-      ReasonsGroupType operator()(const interface::CreateDomain &cd) const {
+      ReasonsGroupType operator()(const CreateDomain &cd) const {
         ReasonsGroupType reason;
         addInvalidCommand(reason, "CreateDomain");
 
@@ -128,7 +127,7 @@ namespace shared_model {
         return reason;
       }
 
-      ReasonsGroupType operator()(const interface::CreateRole &cr) const {
+      ReasonsGroupType operator()(const CreateRole &cr) const {
         ReasonsGroupType reason;
         addInvalidCommand(reason, "CreateRole");
 
@@ -140,7 +139,7 @@ namespace shared_model {
         return reason;
       }
 
-      ReasonsGroupType operator()(const interface::DetachRole &dr) const {
+      ReasonsGroupType operator()(const DetachRole &dr) const {
         ReasonsGroupType reason;
         addInvalidCommand(reason, "DetachRole");
 
@@ -150,7 +149,7 @@ namespace shared_model {
         return reason;
       }
 
-      ReasonsGroupType operator()(const interface::GrantPermission &gp) const {
+      ReasonsGroupType operator()(const GrantPermission &gp) const {
         ReasonsGroupType reason;
         addInvalidCommand(reason, "GrantPermission");
 
@@ -160,7 +159,7 @@ namespace shared_model {
         return reason;
       }
 
-      ReasonsGroupType operator()(const interface::RemovePeer &rp) const {
+      ReasonsGroupType operator()(const RemovePeer &rp) const {
         ReasonsGroupType reason;
         addInvalidCommand(reason, "RemovePeer");
 
@@ -169,7 +168,7 @@ namespace shared_model {
         return reason;
       }
 
-      ReasonsGroupType operator()(const interface::RemoveSignatory &rs) const {
+      ReasonsGroupType operator()(const RemoveSignatory &rs) const {
         ReasonsGroupType reason;
         addInvalidCommand(reason, "RemoveSignatory");
 
@@ -178,7 +177,7 @@ namespace shared_model {
 
         return reason;
       }
-      ReasonsGroupType operator()(const interface::RevokePermission &rp) const {
+      ReasonsGroupType operator()(const RevokePermission &rp) const {
         ReasonsGroupType reason;
         addInvalidCommand(reason, "RevokePermission");
 
@@ -188,8 +187,7 @@ namespace shared_model {
         return reason;
       }
 
-      ReasonsGroupType operator()(
-          const interface::SetAccountDetail &sad) const {
+      ReasonsGroupType operator()(const SetAccountDetail &sad) const {
         ReasonsGroupType reason;
         addInvalidCommand(reason, "SetAccountDetail");
 
@@ -200,7 +198,7 @@ namespace shared_model {
         return reason;
       }
 
-      ReasonsGroupType operator()(const interface::SetQuorum &sq) const {
+      ReasonsGroupType operator()(const SetQuorum &sq) const {
         ReasonsGroupType reason;
         addInvalidCommand(reason, "SetQuorum");
 
@@ -210,8 +208,7 @@ namespace shared_model {
         return reason;
       }
 
-      ReasonsGroupType operator()(
-          const interface::SubtractAssetQuantity &saq) const {
+      ReasonsGroupType operator()(const SubtractAssetQuantity &saq) const {
         ReasonsGroupType reason;
         addInvalidCommand(reason, "SubtractAssetQuantity");
 
@@ -221,7 +218,7 @@ namespace shared_model {
         return reason;
       }
 
-      ReasonsGroupType operator()(const interface::TransferAsset &ta) const {
+      ReasonsGroupType operator()(const TransferAsset &ta) const {
         ReasonsGroupType reason;
         addInvalidCommand(reason, "TransferAsset");
 
@@ -240,7 +237,7 @@ namespace shared_model {
       }
 
       ReasonsGroupType operator()(
-          const interface::CompareAndSetAccountDetail &casad) const {
+          const CompareAndSetAccountDetail &casad) const {
         ReasonsGroupType reason;
         addInvalidCommand(reason, "CompareAndSetAccountDetail");
 
@@ -255,7 +252,7 @@ namespace shared_model {
         return reason;
       }
 
-      ReasonsGroupType operator()(const interface::SetSettingValue &ssv) const {
+      ReasonsGroupType operator()(const SetSettingValue &ssv) const {
         ReasonsGroupType reason;
         addInvalidCommand(reason, "SetSettingValue");
 
@@ -285,11 +282,10 @@ namespace shared_model {
      * @tparam CommandValidator
      */
     template <typename FieldValidator, typename CommandValidator>
-    class TransactionValidator
-        : public AbstractValidator<interface::Transaction> {
+    class TransactionValidator : public AbstractValidator<Transaction> {
      private:
       template <typename CreatedTimeValidator>
-      Answer validateImpl(const interface::Transaction &tx,
+      Answer validateImpl(const Transaction &tx,
                           CreatedTimeValidator &&validator) const {
         Answer answer;
         std::string tx_reason_name = "Transaction";
@@ -338,7 +334,7 @@ namespace shared_model {
        * @param tx - transaction to validate
        * @return Answer containing found error if any
        */
-      Answer validate(const interface::Transaction &tx) const override {
+      Answer validate(const Transaction &tx) const override {
         return validateImpl(tx, [this](auto &reason, auto time) {
           field_validator_.validateCreatedTime(reason, time);
         });
@@ -348,8 +344,8 @@ namespace shared_model {
        * Validates transaction against current_timestamp instead of time
        * provider
        */
-      Answer validate(const interface::Transaction &tx,
-                      interface::types::TimestampType current_timestamp) const {
+      Answer validate(const Transaction &tx,
+                      types::TimestampType current_timestamp) const {
         return validateImpl(tx,
                             [this, current_timestamp](auto &reason, auto time) {
                               field_validator_.validateCreatedTime(

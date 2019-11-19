@@ -14,20 +14,18 @@ namespace shared_model {
   namespace plain {
 
     /// Provides query metadata for AccountDetail list pagination.
-    class AccountDetailRecordId final
-        : public interface::AccountDetailRecordId {
+    class AccountDetailRecordId final : public AccountDetailRecordId {
      public:
-      AccountDetailRecordId(
-          shared_model::interface::types::AccountIdType writer,
-          shared_model::interface::types::AccountDetailKeyType key);
+      AccountDetailRecordId(shared_model::types::AccountIdType writer,
+                            shared_model::types::AccountDetailKeyType key);
 
-      shared_model::interface::types::AccountIdType writer() const override;
+      shared_model::types::AccountIdType writer() const override;
 
-      shared_model::interface::types::AccountDetailKeyType key() const override;
+      shared_model::types::AccountDetailKeyType key() const override;
 
      private:
-      shared_model::interface::types::AccountIdType writer_;
-      shared_model::interface::types::AccountDetailKeyType key_;
+      shared_model::types::AccountIdType writer_;
+      shared_model::types::AccountDetailKeyType key_;
     };
   }  // namespace plain
 }  // namespace shared_model

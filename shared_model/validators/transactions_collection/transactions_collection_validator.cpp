@@ -35,9 +35,9 @@ namespace shared_model {
     template <typename Validator>
     Answer TransactionsCollectionValidator<TransactionValidator,
                                            CollectionCanBeEmpty>::
-        validateImpl(const interface::types::TransactionsForwardCollectionType
-                         &transactions,
-                     Validator &&validator) const {
+        validateImpl(
+            const types::TransactionsForwardCollectionType &transactions,
+            Validator &&validator) const {
       Answer res;
       ReasonsGroupType reason;
       reason.first = "Transaction list";
@@ -78,17 +78,16 @@ namespace shared_model {
         }
       }
 
-      interface::TransactionBatchParserImpl batch_parser;
+      TransactionBatchParserImpl batch_parser;
       auto batches = batch_parser.parseBatches(transactions);
       for (auto &batch : batches) {
-        interface::types::SharedTxsCollectionType batch_transactions;
+        types::SharedTxsCollectionType batch_transactions;
         for (auto &tx : batch) {
-          batch_transactions.emplace_back(
-              const_cast<interface::Transaction *>(&tx), [](auto) {});
+          batch_transactions.emplace_back(const_cast<Transaction *>(&tx),
+                                          [](auto) {});
         }
-        std::unique_ptr<interface::TransactionBatch> batch_ptr =
-            std::make_unique<interface::TransactionBatchImpl>(
-                batch_transactions);
+        std::unique_ptr<TransactionBatch> batch_ptr =
+            std::make_unique<TransactionBatchImpl>(batch_transactions);
         if (auto answer = batch_validator_->validate(*batch_ptr)) {
           reason.second.emplace_back(answer.reason());
         }
@@ -103,8 +102,8 @@ namespace shared_model {
     template <typename TransactionValidator, bool CollectionCanBeEmpty>
     Answer TransactionsCollectionValidator<TransactionValidator,
                                            CollectionCanBeEmpty>::
-        validate(const shared_model::interface::types::
-                     TransactionsForwardCollectionType &transactions) const {
+        validate(const shared_model::types::TransactionsForwardCollectionType
+                     &transactions) const {
       return validateImpl(transactions, [this](const auto &tx) {
         return transaction_validator_.validate(tx);
       });
@@ -113,7 +112,7 @@ namespace shared_model {
     template <typename TransactionValidator, bool CollectionCanBeEmpty>
     Answer TransactionsCollectionValidator<TransactionValidator,
                                            CollectionCanBeEmpty>::
-        validate(const shared_model::interface::types::SharedTxsCollectionType
+        validate(const shared_model::types::SharedTxsCollectionType
                      &transactions) const {
       return validate(transactions | boost::adaptors::indirected);
     }
@@ -121,9 +120,8 @@ namespace shared_model {
     template <typename TransactionValidator, bool CollectionCanBeEmpty>
     Answer TransactionsCollectionValidator<TransactionValidator,
                                            CollectionCanBeEmpty>::
-        validate(const interface::types::TransactionsForwardCollectionType
-                     &transactions,
-                 interface::types::TimestampType current_timestamp) const {
+        validate(const types::TransactionsForwardCollectionType &transactions,
+                 types::TimestampType current_timestamp) const {
       return validateImpl(
           transactions, [this, current_timestamp](const auto &tx) {
             return transaction_validator_.validate(tx, current_timestamp);
@@ -133,8 +131,8 @@ namespace shared_model {
     template <typename TransactionValidator, bool CollectionCanBeEmpty>
     Answer TransactionsCollectionValidator<TransactionValidator,
                                            CollectionCanBeEmpty>::
-        validate(const interface::types::SharedTxsCollectionType &transactions,
-                 interface::types::TimestampType current_timestamp) const {
+        validate(const types::SharedTxsCollectionType &transactions,
+                 types::TimestampType current_timestamp) const {
       return validate(transactions | boost::adaptors::indirected,
                       current_timestamp);
     }

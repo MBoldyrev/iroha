@@ -83,14 +83,13 @@ namespace shared_model {
         return std::move(object_);
       }
 
-      interface::types::HashType hash() {
+      types::HashType hash() {
         return object_.hash();
       }
 
       template <typename U = T>
-      std::enable_if_t<
-          std::is_base_of<shared_model::interface::Transaction, U>::value,
-          interface::types::HashType>
+      std::enable_if_t<std::is_base_of<shared_model::Transaction, U>::value,
+                       types::HashType>
       reducedHash() const {
         return object_.reducedHash();
       }

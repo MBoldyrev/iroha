@@ -14,20 +14,20 @@ namespace shared_model {
 
   namespace plain {
 
-    class Signature final : public interface::Signature {
+    class Signature final : public Signature {
      public:
       Signature(const SignedType &signedData, const PublicKeyType &publicKey);
 
-      const interface::Signature::PublicKeyType &publicKey() const override;
+      const Signature::PublicKeyType &publicKey() const override;
 
-      const interface::Signature::SignedType &signedData() const override;
+      const Signature::SignedType &signedData() const override;
 
      protected:
-      interface::Signature *clone() const override;
+      Signature *clone() const override;
 
      private:
-      const interface::Signature::SignedType signed_data_;
-      const interface::Signature::PublicKeyType public_key_;
+      const Signature::SignedType signed_data_;
+      const Signature::PublicKeyType public_key_;
     };
 
   }  // namespace plain

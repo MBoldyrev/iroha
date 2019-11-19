@@ -75,7 +75,7 @@ namespace shared_model {
 
     void FieldValidator::validateAccountId(
         ReasonsGroupType &reason,
-        const interface::types::AccountIdType &account_id) const {
+        const types::AccountIdType &account_id) const {
       if (not std::regex_match(account_id, account_id_regex_)) {
         auto message =
             (boost::format("Wrongly formed account_id, passed value: '%s'. "
@@ -87,8 +87,7 @@ namespace shared_model {
     }
 
     void FieldValidator::validateAssetId(
-        ReasonsGroupType &reason,
-        const interface::types::AssetIdType &asset_id) const {
+        ReasonsGroupType &reason, const types::AssetIdType &asset_id) const {
       if (not std::regex_match(asset_id, asset_id_regex_)) {
         auto message = (boost::format("Wrongly formed asset_id, passed value: "
                                       "'%s'. Field should match regex '%s'")
@@ -99,22 +98,21 @@ namespace shared_model {
     }
 
     void FieldValidator::validatePeer(ReasonsGroupType &reason,
-                                      const interface::Peer &peer) const {
+                                      const Peer &peer) const {
       validatePeerAddress(reason, peer.address());
       validatePubkey(reason, peer.pubkey());
     }
 
     void FieldValidator::validateAmount(ReasonsGroupType &reason,
-                                        const interface::Amount &amount) const {
+                                        const Amount &amount) const {
       if (amount.sign() <= 0) {
         reason.second.push_back(
             "Invalid number, amount must be greater than 0");
       }
     }
 
-    void FieldValidator::validatePubkey(
-        ReasonsGroupType &reason,
-        const interface::types::PubkeyType &pubkey) const {
+    void FieldValidator::validatePubkey(ReasonsGroupType &reason,
+                                        const types::PubkeyType &pubkey) const {
       auto opt_reason = shared_model::validation::validatePubkey(pubkey);
       if (opt_reason) {
         reason.second.push_back(std::move(*opt_reason));
@@ -122,8 +120,7 @@ namespace shared_model {
     }
 
     void FieldValidator::validatePeerAddress(
-        ReasonsGroupType &reason,
-        const interface::types::AddressType &address) const {
+        ReasonsGroupType &reason, const types::AddressType &address) const {
       if (not std::regex_match(address, peer_address_regex_)) {
         auto message =
             (boost::format("Wrongly formed peer address, passed value: '%s'. "
@@ -137,8 +134,7 @@ namespace shared_model {
     }
 
     void FieldValidator::validateRoleId(
-        ReasonsGroupType &reason,
-        const interface::types::RoleIdType &role_id) const {
+        ReasonsGroupType &reason, const types::RoleIdType &role_id) const {
       if (not std::regex_match(role_id, role_id_regex_)) {
         auto message = (boost::format("Wrongly formed role_id, passed value: "
                                       "'%s'. Field should match regex '%s'")
@@ -150,7 +146,7 @@ namespace shared_model {
 
     void FieldValidator::validateAccountName(
         ReasonsGroupType &reason,
-        const interface::types::AccountNameType &account_name) const {
+        const types::AccountNameType &account_name) const {
       if (not std::regex_match(account_name, account_name_regex_)) {
         auto message =
             (boost::format("Wrongly formed account_name, passed value: '%s'. "
@@ -162,8 +158,7 @@ namespace shared_model {
     }
 
     void FieldValidator::validateDomainId(
-        ReasonsGroupType &reason,
-        const interface::types::DomainIdType &domain_id) const {
+        ReasonsGroupType &reason, const types::DomainIdType &domain_id) const {
       if (not std::regex_match(domain_id, domain_regex_)) {
         auto message = (boost::format("Wrongly formed domain_id, passed value: "
                                       "'%s'. Field should match regex '%s'")
@@ -175,7 +170,7 @@ namespace shared_model {
 
     void FieldValidator::validateAssetName(
         ReasonsGroupType &reason,
-        const interface::types::AssetNameType &asset_name) const {
+        const types::AssetNameType &asset_name) const {
       if (not std::regex_match(asset_name, asset_name_regex_)) {
         auto message =
             (boost::format("Wrongly formed asset_name, passed value: '%s'. "
@@ -188,7 +183,7 @@ namespace shared_model {
 
     void FieldValidator::validateAccountDetailKey(
         ReasonsGroupType &reason,
-        const interface::types::AccountDetailKeyType &key) const {
+        const types::AccountDetailKeyType &key) const {
       if (not std::regex_match(key, detail_key_regex_)) {
         auto message = (boost::format("Wrongly formed key, passed value: '%s'. "
                                       "Field should match regex '%s'")
@@ -200,7 +195,7 @@ namespace shared_model {
 
     void FieldValidator::validateAccountDetailValue(
         ReasonsGroupType &reason,
-        const interface::types::AccountDetailValueType &value) const {
+        const types::AccountDetailValueType &value) const {
       if (value.size() > value_size) {
         auto message =
             (boost::format("Detail value size should be less or equal '%d'")
@@ -212,22 +207,20 @@ namespace shared_model {
 
     void FieldValidator::validateOldAccountDetailValue(
         ReasonsGroupType &reason,
-        const boost::optional<interface::types::AccountDetailValueType>
-            &old_value) const {
+        const boost::optional<types::AccountDetailValueType> &old_value) const {
       if (old_value) {
         validateAccountDetailValue(reason, old_value.value());
       }
     }
 
     void FieldValidator::validatePrecision(
-        ReasonsGroupType &reason,
-        const interface::types::PrecisionType &precision) const {
+        ReasonsGroupType &reason, const types::PrecisionType &precision) const {
       /* The following validation is pointless since PrecisionType is already
        * uint8_t, but it is going to be changed and the validation will become
        * meaningful.
        */
-      interface::types::PrecisionType min = std::numeric_limits<uint8_t>::min();
-      interface::types::PrecisionType max = std::numeric_limits<uint8_t>::max();
+      types::PrecisionType min = std::numeric_limits<uint8_t>::min();
+      types::PrecisionType max = std::numeric_limits<uint8_t>::max();
       if (precision < min or precision > max) {
         auto message =
             (boost::format(
@@ -239,8 +232,7 @@ namespace shared_model {
     }
 
     void FieldValidator::validateRolePermission(
-        ReasonsGroupType &reason,
-        const interface::permissions::Role &permission) const {
+        ReasonsGroupType &reason, const permissions::Role &permission) const {
       if (not isValid(permission)) {
         reason.second.emplace_back("Provided role permission does not exist");
       }
@@ -248,16 +240,15 @@ namespace shared_model {
 
     void FieldValidator::validateGrantablePermission(
         ReasonsGroupType &reason,
-        const interface::permissions::Grantable &permission) const {
+        const permissions::Grantable &permission) const {
       if (not isValid(permission)) {
         reason.second.emplace_back(
             "Provided grantable permission does not exist");
       }
     }
 
-    void FieldValidator::validateQuorum(
-        ReasonsGroupType &reason,
-        const interface::types::QuorumType &quorum) const {
+    void FieldValidator::validateQuorum(ReasonsGroupType &reason,
+                                        const types::QuorumType &quorum) const {
       if (quorum == 0 or quorum > 128) {
         reason.second.emplace_back("Quorum should be within range (0, 128]");
       }
@@ -265,7 +256,7 @@ namespace shared_model {
 
     void FieldValidator::validateCreatorAccountId(
         ReasonsGroupType &reason,
-        const interface::types::AccountIdType &account_id) const {
+        const types::AccountIdType &account_id) const {
       if (not std::regex_match(account_id, account_id_regex_)) {
         auto message =
             (boost::format("Wrongly formed creator_account_id, passed value: "
@@ -276,10 +267,9 @@ namespace shared_model {
       }
     }
 
-    void FieldValidator::validateCreatedTime(
-        ReasonsGroupType &reason,
-        interface::types::TimestampType timestamp,
-        interface::types::TimestampType now) const {
+    void FieldValidator::validateCreatedTime(ReasonsGroupType &reason,
+                                             types::TimestampType timestamp,
+                                             types::TimestampType now) const {
       if (now + future_gap_ < timestamp) {
         auto message = (boost::format("bad timestamp: sent from future, "
                                       "timestamp: %llu, now: %llu")
@@ -298,14 +288,12 @@ namespace shared_model {
     }
 
     void FieldValidator::validateCreatedTime(
-        ReasonsGroupType &reason,
-        interface::types::TimestampType timestamp) const {
+        ReasonsGroupType &reason, types::TimestampType timestamp) const {
       validateCreatedTime(reason, timestamp, time_provider_());
     }
 
     void FieldValidator::validateCounter(
-        ReasonsGroupType &reason,
-        const interface::types::CounterType &counter) const {
+        ReasonsGroupType &reason, const types::CounterType &counter) const {
       if (counter <= 0) {
         auto message =
             (boost::format("Counter should be > 0, passed value: %d") % counter)
@@ -316,7 +304,7 @@ namespace shared_model {
 
     void FieldValidator::validateSignatures(
         ReasonsGroupType &reason,
-        const interface::types::SignatureRangeType &signatures,
+        const types::SignatureRangeType &signatures,
         const crypto::Blob &source) const {
       if (boost::empty(signatures)) {
         reason.second.emplace_back("Signatures cannot be empty");
@@ -349,13 +337,11 @@ namespace shared_model {
     }
 
     void FieldValidator::validateQueryPayloadMeta(
-        ReasonsGroupType &reason,
-        const interface::QueryPayloadMeta &meta) const {}
+        ReasonsGroupType &reason, const QueryPayloadMeta &meta) const {}
 
     void FieldValidator::validateDescription(
         shared_model::validation::ReasonsGroupType &reason,
-        const shared_model::interface::types::DescriptionType &description)
-        const {
+        const shared_model::types::DescriptionType &description) const {
       if (description.size() > max_description_size) {
         reason.second.push_back(
             (boost::format("Description size should be less or equal '%d'")
@@ -365,11 +351,11 @@ namespace shared_model {
     }
     void FieldValidator::validateBatchMeta(
         shared_model::validation::ReasonsGroupType &reason,
-        const interface::BatchMeta &batch_meta) const {}
+        const BatchMeta &batch_meta) const {}
 
     void FieldValidator::validateHeight(
         shared_model::validation::ReasonsGroupType &reason,
-        const shared_model::interface::types::HeightType &height) const {
+        const shared_model::types::HeightType &height) const {
       if (height <= 0) {
         auto message =
             (boost::format("Height should be > 0, passed value: %d") % height)
@@ -387,7 +373,7 @@ namespace shared_model {
     }
 
     boost::optional<ConcreteReasonType> validatePubkey(
-        const interface::types::PubkeyType &pubkey) {
+        const types::PubkeyType &pubkey) {
       if (pubkey.blob().size() != FieldValidator::public_key_size) {
         return (boost::format("Public key has wrong size, passed size: "
                               "%d. Expected size: %d")
@@ -410,7 +396,7 @@ namespace shared_model {
 
     void FieldValidator::validateTxPaginationMeta(
         ReasonsGroupType &reason,
-        const interface::TxPaginationMeta &tx_pagination_meta) const {
+        const TxPaginationMeta &tx_pagination_meta) const {
       validatePaginationMetaPageSize(reason, tx_pagination_meta.pageSize());
       const auto first_hash = tx_pagination_meta.firstTxHash();
       if (first_hash) {
@@ -420,7 +406,7 @@ namespace shared_model {
 
     void FieldValidator::validateAssetPaginationMeta(
         ReasonsGroupType &reason,
-        const interface::AssetPaginationMeta &asset_pagination_meta) const {
+        const AssetPaginationMeta &asset_pagination_meta) const {
       validatePaginationMetaPageSize(reason, asset_pagination_meta.pageSize());
       const auto first_asset_id = asset_pagination_meta.firstAssetId();
       if (first_asset_id) {
@@ -430,7 +416,7 @@ namespace shared_model {
 
     void FieldValidator::validateAccountDetailPaginationMeta(
         ReasonsGroupType &reason,
-        const interface::AccountDetailPaginationMeta &pagination_meta) const {
+        const AccountDetailPaginationMeta &pagination_meta) const {
       validatePaginationMetaPageSize(reason, pagination_meta.pageSize());
       pagination_meta.firstRecordId() |
           [&reason, this](const auto &first_record_id) {

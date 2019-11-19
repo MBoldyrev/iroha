@@ -16,7 +16,7 @@ namespace shared_model {
     /**
      * Class for holding a keypair: public key and private key
      */
-    class Keypair : public interface::ModelPrimitive<Keypair> {
+    class Keypair : public ModelPrimitive<Keypair> {
      public:
       /// Type of public key
       using PublicKeyType = PublicKey;

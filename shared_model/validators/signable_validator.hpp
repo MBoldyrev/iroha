@@ -41,7 +41,7 @@ namespace shared_model {
           : SignableModelValidator(config, FieldValidator{config}) {}
 
       Answer validate(const Model &model,
-                      interface::types::TimestampType current_timestamp) const {
+                      types::TimestampType current_timestamp) const {
         return validateImpl(model, [&, current_timestamp](const Model &m) {
           return ModelValidator::validate(m, current_timestamp);
         });

@@ -19,6 +19,6 @@ const Signature::SignedType &Signature::signedData() const {
   return signed_data_;
 }
 
-shared_model::interface::Signature *Signature::clone() const {
+shared_model::Signature *Signature::clone() const {
   return new Signature(signed_data_, public_key_);
 }

@@ -13,26 +13,26 @@
 namespace shared_model {
   namespace plain {
 
-    class Account final : public interface::Account {
+    class Account final : public Account {
      public:
-      Account(const interface::types::AccountIdType &account_id,
-              const interface::types::DomainIdType &domain_id,
-              interface::types::QuorumType quorum,
-              const interface::types::JsonType &json_data);
+      Account(const types::AccountIdType &account_id,
+              const types::DomainIdType &domain_id,
+              types::QuorumType quorum,
+              const types::JsonType &json_data);
 
-      const interface::types::AccountIdType &accountId() const override;
+      const types::AccountIdType &accountId() const override;
 
-      const interface::types::DomainIdType &domainId() const override;
+      const types::DomainIdType &domainId() const override;
 
-      interface::types::QuorumType quorum() const override;
+      types::QuorumType quorum() const override;
 
-      const interface::types::JsonType &jsonData() const override;
+      const types::JsonType &jsonData() const override;
 
      private:
-      const interface::types::AccountIdType account_id_;
-      const interface::types::DomainIdType domain_id_;
-      interface::types::QuorumType quorum_;
-      const interface::types::JsonType json_data_;
+      const types::AccountIdType account_id_;
+      const types::DomainIdType domain_id_;
+      types::QuorumType quorum_;
+      const types::JsonType json_data_;
     };
   }  // namespace plain
 }  // namespace shared_model

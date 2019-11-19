@@ -13,8 +13,8 @@ namespace shared_model {
   namespace validation {
     class OrderValidator {
      public:
-      virtual Answer validate(const interface::types::SharedTxsCollectionType
-                                  &transactions) const = 0;
+      virtual Answer validate(
+          const types::SharedTxsCollectionType &transactions) const = 0;
     };
   }  // namespace validation
 }  // namespace shared_model

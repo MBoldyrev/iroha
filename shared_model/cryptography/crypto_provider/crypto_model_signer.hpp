@@ -15,8 +15,7 @@ namespace shared_model {
 
   namespace crypto {
     template <typename Algorithm = CryptoSigner<>>
-    class CryptoModelSigner
-        : public AbstractCryptoModelSigner<interface::Block> {
+    class CryptoModelSigner : public AbstractCryptoModelSigner<Block> {
      public:
       explicit CryptoModelSigner(const shared_model::crypto::Keypair &keypair);
 
@@ -28,8 +27,8 @@ namespace shared_model {
         signable.addSignature(signedBlob, keypair_.publicKey());
       }
 
-      void sign(interface::Block &m) const override {
-        sign<interface::Block>(m);
+      void sign(Block &m) const override {
+        sign<Block>(m);
       }
 
      private:

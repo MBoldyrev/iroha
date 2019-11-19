@@ -19,7 +19,7 @@ namespace shared_model {
     class AmountTrueValidator {
      public:
       void validateAmount(ReasonsGroupType &reason,
-                          const interface::Amount &amount) const {};
+                          const Amount &amount) const {};
     };
   }  // namespace validation
 }  // namespace shared_model
