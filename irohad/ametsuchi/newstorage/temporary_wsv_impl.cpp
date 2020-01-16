@@ -90,6 +90,10 @@ namespace iroha {
               log_manager_->getChild("SavepointWrapper")->getLogger());
     }
 
+    bool TemporaryWsvImpl::rollback(bool block_is_prepared) {
+      // seems inapplicable
+    }
+
     TemporaryWsvImpl::~TemporaryWsvImpl() {
       try {
         db_tx_.rollback();
