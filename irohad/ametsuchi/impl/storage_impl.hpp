@@ -64,6 +64,9 @@ namespace iroha {
       boost::optional<std::unique_ptr<SettingQuery>> createSettingQuery()
           const override;
 
+      boost::optional<std::shared_ptr<PeerQuery>> createPeerQuery()
+          const override;
+
       std::shared_ptr<QueryExecutor> createQueryExecutor() const override;
 
       bool insertBlock(

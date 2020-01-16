@@ -29,6 +29,7 @@ namespace iroha {
     class MutableStorage;
     class TemporaryWsv;
     class QueryExecutor;
+    class SettingQuery;
     class Storage;
 
     class StorageFactory {
@@ -49,6 +50,9 @@ namespace iroha {
 
       virtual std::shared_ptr<PeerQuery> getPeerQuery() const = 0;
 
+      virtual boost::optional<std::unique_ptr<SettingQuery>>
+      createSettingQuery() const = 0;
+
       /**
        * Creates a temporary world state view from the current state.
        * Temporary state will be not committed and will be erased on destructor
@@ -66,6 +70,8 @@ namespace iroha {
        */
       virtual void prepareBlock(std::unique_ptr<TemporaryWsv> wsv) = 0;
 
+      virtual boost::optional<std::shared_ptr<PeerQuery>> createPeerQuery()
+          const = 0;
 
       // reuse!
       //virtual void releaseTemporaryWsv(std::unique_ptr<TemporaryWsv> wsv) = 0;

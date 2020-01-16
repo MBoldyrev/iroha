@@ -97,7 +97,7 @@ namespace iroha {
 
         if (validator_->validateAndApply(network_chain, *storage)
             and my_height >= target_height) {
-          return storage->commit(std::move(storage));
+          return storage_->commit(std::move(storage));
         }
       }
       return expected::makeError(

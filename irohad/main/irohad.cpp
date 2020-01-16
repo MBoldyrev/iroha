@@ -288,6 +288,7 @@ int main(int argc, char *argv[]) {
 
       log->info("create mutable storage");
       auto mutable_storage = irohad.getStorage()->createMutableStorage();
+      const auto txs_num = block->transactions().size();
       bool is_inserted = mutable_storage->apply(std::move(block));
       irohad.getStorage()->commit(std::move(mutable_storage));
 

@@ -25,6 +25,7 @@
 #include "ametsuchi/impl/postgres_wsv_command.hpp"
 #include "ametsuchi/impl/postgres_wsv_query.hpp"
 #include "ametsuchi/impl/temporary_wsv_impl.hpp"
+#include "ametsuchi/setting_query.hpp"
 #include "ametsuchi/tx_executor.hpp"
 #include "backend/protobuf/permissions.hpp"
 #include "common/bind.hpp"
@@ -91,6 +92,16 @@ namespace iroha {
 
     std::unique_ptr<MutableStorage> StorageImpl::createMutableStorage() {
       return createMutableStorage(*temporary_block_storage_factory_);
+    }
+
+    boost::optional<std::shared_ptr<PeerQuery>> StorageImpl::createPeerQuery()
+        const {
+      auto wsv = getWsvQuery();
+      if (not wsv) {
+        return boost::none;
+      }
+      return boost::make_optional<std::shared_ptr<PeerQuery>>(
+          std::make_shared<PeerQueryWsv>(wsv));
     }
 
     std::shared_ptr<QueryExecutor>
