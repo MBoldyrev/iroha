@@ -6,32 +6,21 @@
 #ifndef IROHA_WSV_CACHE_HPP
 #define IROHA_WSV_CACHE_HPP
 
-#include "result_code.hpp"
-#include "interfaces/permissions.hpp"
-#include <boost/multiprecision/cpp_int.hpp>
+#include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-#include <string>
+
+#include <boost/multiprecision/cpp_int.hpp>
+#include <boost/optional/optional.hpp>
+#include "interfaces/permissions.hpp"
+#include "result_code.hpp"
+#include "wsv_types.hpp"
 
 namespace iroha {
   namespace newstorage {
 
     class WsvSqliteDB;
-
-    using ID = std::string;
-    using AccountID = ID;
-    using shared_model::interface::RolePermissionSet;
-    using shared_model::interface::GrantablePermissionSet;
-    using GrantablePermission = shared_model::interface::permissions::Grantable;
-    using RolePermission = shared_model::interface::permissions::Role;
-    using RoleID = ID;
-    using DomainID = ID;
-    using AssetID = ID;
-    using PK = std::string;
-    using NetworkAddress = std::string;
-    using uint256_t = boost::multiprecision::uint256_t;
-    using PeerTlsCertificate = std::string;
 
     class Roles {
      public:
@@ -67,32 +56,28 @@ namespace iroha {
       std::unordered_map<DomainID, RoleID> table_;
     };
 
-    struct PeerView {
-      const NetworkAddress &address;
-      PK *pub_key;
-      boost::optional<PeerTlsCertificate> &tls_certificate;
-    };
-
     class Peers {
      public:
+      struct PeerDataByPubKey {
+        NetworkAddress address;
+        boost::optional<PeerTlsCertificate> tls_certificate;
+      };
+
       void load(WsvSqliteDB& db);
 
       //returns nullptr if no such a peer
-      const NetworkAddress* get(const PK& key) const;
+      const PeerDataByPubKey* get(const PK& key) const;
 
       // returns all peers
       void get(const std::function<void(PeerView)> &callback) const;
 
      private:
       // returns false if peer already exists (ether PK or address)
-      bool append(const PK& key, const NetworkAddress& address);
+      bool append(const PK &key,
+                  const NetworkAddress &address,
+                  boost::optional<const PeerTlsCertificate &> tls_certificate);
 
-      struct PeerDataByPk {
-        NetworkAddress address;
-        boost::optional<PeerTlsCertificate> tls_certificate;
-      };
-
-      std::unordered_map<PK, PeerDataByPk> table_;
+      std::unordered_map<PK, PeerDataByPubKey> table_;
       std::unordered_set<NetworkAddress> addresses_;
     };
 

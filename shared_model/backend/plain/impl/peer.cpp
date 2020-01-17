@@ -5,8 +5,12 @@
 
 #include "backend/plain/peer.hpp"
 
+#include "common/bind.hpp"
+
 using namespace shared_model;
 using namespace shared_model::plain;
+
+using namespace iroha::operator|;
 
 Peer::Peer(const interface::types::AddressType &address,
            const interface::types::PubkeyType &public_key,
@@ -15,6 +19,16 @@ Peer::Peer(const interface::types::AddressType &address,
     : address_(address),
       public_key_(public_key),
       tls_certificate_(tls_certificate) {}
+
+Peer::Peer(const interface::types::AddressType &address,
+           const interface::types::PubkeyType &public_key,
+           boost::optional<const interface::types::TLSCertificateType &>
+               tls_certificate)
+    : Peer(
+        address, public_key, tls_certificate | [](const auto &tls_certificate) {
+          return boost::optional<interface::types::TLSCertificateType>(
+              tls_certificate);
+        }){};
 
 const shared_model::interface::types::AddressType &Peer::address() const {
   return address_;

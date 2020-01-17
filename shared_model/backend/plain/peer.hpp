@@ -21,6 +21,11 @@ namespace shared_model {
            const boost::optional<interface::types::TLSCertificateType>
                &tls_certificate);
 
+      Peer(const interface::types::AddressType &address,
+           const interface::types::PubkeyType &public_key,
+           boost::optional<const interface::types::TLSCertificateType &>
+               tls_certificate);
+
       const interface::types::AddressType &address() const override;
 
       const interface::types::PubkeyType &pubkey() const override;

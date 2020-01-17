@@ -28,6 +28,7 @@ namespace shared_model {
     class RevokePermission;
     class SetAccountDetail;
     class SetQuorum;
+    class SetSettingValue;
     class SubtractAssetQuantity;
     class TransferAsset;
   }  // namespace interface
@@ -158,6 +159,12 @@ namespace iroha {
 
       CommandResult operator()(
           const shared_model::interface::TransferAsset &command,
+          const shared_model::interface::types::AccountIdType
+              &creator_account_id,
+          bool do_validation);
+
+      CommandResult operator()(
+          const shared_model::interface::SetSettingValue &command,
           const shared_model::interface::types::AccountIdType
               &creator_account_id,
           bool do_validation);

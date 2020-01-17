@@ -4,6 +4,8 @@
  */
 
 #include "ametsuchi/newstorage/mutable_storage_impl.hpp"
+
+#include <rxcpp/operators/rx-all.hpp>
 #include "ametsuchi/command_executor.hpp"
 #include "ametsuchi/ledger_state.hpp"
 #include "ametsuchi/newstorage/block_index.hpp"

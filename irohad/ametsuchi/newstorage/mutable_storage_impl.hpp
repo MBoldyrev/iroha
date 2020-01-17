@@ -6,8 +6,9 @@
 #ifndef IROHA_MUTABLE_NEWSTORAGE_IMPL_HPP
 #define IROHA_MUTABLE_NEWSTORAGE_IMPL_HPP
 
-#include "ametsuchi/block_storage.hpp"
 #include "ametsuchi/mutable_storage.hpp"
+
+#include "ametsuchi/block_storage.hpp"
 #include "ametsuchi/newstorage/mutable_wsv.hpp"
 #include "interfaces/common_objects/types.hpp"
 #include "logger/logger_fwd.hpp"

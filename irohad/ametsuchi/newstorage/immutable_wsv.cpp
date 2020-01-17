@@ -4,7 +4,11 @@
  */
 
 #include "ametsuchi/newstorage/immutable_wsv.hpp"
+
 #include <stdexcept>
+
+#include "backend/plain/peer.hpp"
+#include "cryptography/public_key.hpp"
 
 namespace iroha {
   namespace newstorage {
@@ -166,6 +170,26 @@ namespace iroha {
           RolePermission::kGetPeers, query_initiator);
       if (rc == ResultCode::kOk) {
         peers_.get(callback);
+      }
+      return rc;
+    }
+
+    ResultCode ImmutableWsv::getPeerByPublicKey(
+        const AccountID &query_initiator_id,
+        const PK &public_key,
+        boost::optional<std::shared_ptr<shared_model::interface::Peer>> &peer) {
+      Account *query_initiator = nullptr;
+      ResultCode rc = loadAccount(
+          query_initiator_id, RolePermission::kGetPeers, query_initiator);
+      if (rc == ResultCode::kOk) {
+        auto peer_data = peers_.get(public_key);
+        if (peer_data) {
+          peer = std::make_shared<shared_model::plain::Peer>(
+              peer_data->address,
+              shared_model::crypto::PublicKey{
+                  shared_model::crypto::Blob::fromHexString(public_key)},
+              peer_data->tls_certificate);
+        }
       }
       return rc;
     }

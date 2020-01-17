@@ -10,6 +10,12 @@
 #include "ametsuchi/newstorage/wsv_sqlite_db.hpp"
 #include "ametsuchi/newstorage/account_detail_storage.hpp"
 
+namespace shared_model {
+  namespace interface {
+    class Peer;
+  }
+}  // namespace shared_model
+
 namespace iroha {
   namespace newstorage {
 
@@ -60,6 +66,12 @@ namespace iroha {
 
       ResultCode getPeers(const AccountID &query_initiator_id,
                           const std::function<void(PeerView)> &callback);
+
+      ResultCode getPeerByPublicKey(
+          const AccountID &query_initiator_id,
+          const PK &public_key,
+          boost::optional<std::shared_ptr<shared_model::interface::Peer>>
+              &peer);
 
       ResultCode getAccountDetail(
           const AccountID& query_initiator_id,

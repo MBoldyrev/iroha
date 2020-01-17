@@ -106,6 +106,12 @@ namespace iroha {
                            const uint256_t& amount,
                            uint8_t precision);
 
+      ResultCode setSettingValue(
+          const AccountID &creator_id,
+          bool do_validation,
+          const shared_model::interface::types::SettingKeyType &key,
+          const shared_model::interface::types::SettingValueType &value);
+
       // ResultCode addAssetQuantity(const AccountID& creator_id, bool
       // do_validation, ); ResultCode subtractAssetQuantity(const AccountID&
       // creator_id, bool do_validation, ); ResultCode transferAsset(const

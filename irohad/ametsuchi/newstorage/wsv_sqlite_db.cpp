@@ -32,19 +32,23 @@ namespace iroha {
       return db_->getErrMsg();
     }
 
-    void WsvSqliteDB::loadRoles(
-        const std::function<void(const std::string& role, const std::string& permissions)>&
-        callback)
-    {
-      execQuery(db_, load_roles_, callback);
+    void WsvSqliteDB::loadRoles(const std::function<void(RoleView)> &callback) {
+      execQuery(
+          db_,
+          load_roles_,
+          [&callback](const std::string &id, const std::string &permissions) {
+            callback(RoleView{id, permissions});
+          });
     }
 
     void WsvSqliteDB::loadDomains(
-        const std::function<
-            void(const std::string& domain, const std::string& role)>&
-        callback
-    ) {
-      execQuery(db_, load_domains_, callback);
+        const std::function<void(DomainView)> &callback) {
+      execQuery(
+          db_,
+          load_domains_,
+          [&callback](const std::string &id, const std::string &default_role) {
+            callback(DomainView{id, default_role});
+          });
     }
 
     void WsvSqliteDB::loadAllSignatories(
@@ -53,18 +57,29 @@ namespace iroha {
       execQuery(db_, load_all_signatories_, callback);
     }
 
-    void WsvSqliteDB::loadPeers(
-        const std::function<void(const std::string& pk, const std::string& address)>& callback
-    ) {
-      execQuery(db_, load_peers_, callback);
+    void WsvSqliteDB::loadPeers(const std::function<void(PeerView)> &callback) {
+      execQuery(db_,
+                load_peers_,
+                [&callback](const std::string &pk,
+                            const std::string &address,
+                            std::unique_ptr<std::string> opt_tls_cert_ptr) {
+                  boost::optional<const std::string &> opt_tls_cert_ref;
+                  if (opt_tls_cert_ptr) {
+                    opt_tls_cert_ref = *opt_tls_cert_ptr;
+                  }
+                  callback(PeerView{pk, address, opt_tls_cert_ref});
+                });
     }
 
     void WsvSqliteDB::loadAssets(
-        const std::function<
-            void(const std::string& id, const std::string& domain, uint8_t precision)>&
-        callback
-    ) {
-      execQuery(db_, load_assets_, callback);
+        const std::function<void(AssetView)> &callback) {
+      execQuery(db_,
+                load_assets_,
+                [&callback](const std::string &id,
+                            const std::string &domain,
+                            uint8_t precision) {
+                  callback(AssetView{id, domain, precision});
+                });
     }
 
     bool WsvSqliteDB::getLedgerState(uint64_t &height, std::string &hash) {
@@ -85,13 +100,17 @@ namespace iroha {
     }
 
     bool WsvSqliteDB::loadAccountAssets(
-        const std::string& account_id,
-        const std::function<
-            void(const std::string& asset_id, const std::string& balance, uint8_t precision)>&
-        callback
-    ) {
-      return execQueryNoThrow(db_,
-          load_account_assets_, callback, account_id);
+        const std::string &account_id,
+        const std::function<void(AccountAssetView)> &callback) {
+      return execQueryNoThrow(
+          db_,
+          load_account_assets_,
+          [&callback](const std::string &id,
+                      const std::string &balance,
+                      uint8_t precision) {
+            callback(AccountAssetView{id, balance, precision});
+          },
+          account_id);
     }
 
     bool WsvSqliteDB::loadAccountPermissions(
@@ -247,6 +266,12 @@ namespace iroha {
       return execCommand(db_, update_permissions_, permissions, account_id);
     }
 
+    int WsvSqliteDB::setSettingValue(
+        const shared_model::interface::types::SettingKeyType &key,
+        const shared_model::interface::types::SettingValueType &value) {
+      return execCommand(db_, set_setting_value_, key, value);
+    }
+
     void WsvSqliteDB::createSchema() {
       static const char *prepare_tables_sql[] = {
           R"(CREATE TABLE IF NOT EXISTS ledger_state (
@@ -260,7 +285,8 @@ namespace iroha {
             default_role TEXT REFERENCES role(role_id)))",
           R"(CREATE TABLE IF NOT EXISTS peer (
             public_key TEXT PRIMARY KEY,
-            address TEXT NOT NULL UNIQUE))",
+            address TEXT NOT NULL UNIQUE,
+            tls_certificate TEXT))",
           R"(CREATE TABLE IF NOT EXISTS asset (
             asset_id TEXT PRIMARY KEY,
             domain_id TEXT REFERENCES domain(domain_id),
@@ -294,7 +320,10 @@ namespace iroha {
             permittee_account_id TEXT REFERENCES account(account_id),
             account_id TEXT REFERENCES account(account_id),
             permission TEXT NOT NULL,
-            PRIMARY KEY (permittee_account_id, account_id)))"};
+            PRIMARY KEY (permittee_account_id, account_id)))",
+          R"(CREATE TABLE IF NOT EXISTS settings (
+            key text primary key,
+            value text))"};
 
       try {
         *db_ << "PRAGMA foreign_keys = ON";
@@ -317,7 +346,8 @@ namespace iroha {
             R"(SELECT DISTINCT(public_key) FROM peer
             UNION SELECT DISTINCT(public_key) from account_has_signatory)");
 
-        load_peers_ = db_->createStatement("SELECT * FROM peer");
+        load_peers_ = db_->createStatement(
+            "SELECT public_key, address, tls_certificate FROM peer");
 
         load_assets_ = db_->createStatement("SELECT * FROM asset");
 
@@ -394,6 +424,10 @@ namespace iroha {
 
         update_permissions_ = db_->createStatement(
             "UPDATE account SET permission = ? WHERE account_id = ?");
+
+        set_setting_value_ = db_->createStatement(
+            "insert into settings (key, value) values (?, ?) "
+            "on conflict replace");
 
         tx.commit();
       } catch (sqlite::sqlite_exception &e) {

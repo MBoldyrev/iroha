@@ -9,7 +9,10 @@
 #include <functional>
 #include <string>
 #include <vector>
+
+#include "interfaces/common_objects/types.hpp"
 #include "logger/logger_fwd.hpp"
+#include "wsv_types.hpp"
 
 namespace iroha {
   namespace newstorage {
@@ -25,31 +28,17 @@ namespace iroha {
 
       // these functions throw on error
 
-      void loadRoles(
-          const std::function<
-              void(const std::string& role, const std::string& permissions)>&
-          callback
-      );
+      void loadRoles(const std::function<void(RoleView)> &callback);
 
-      void loadDomains(
-          const std::function<
-              void(const std::string& domain, const std::string& def_role)>&
-          callback
-      );
+      void loadDomains(const std::function<void(DomainView)> &callback);
 
       void loadAllSignatories(
            const std::function<void(const std::string& signatory)>& callback
       );
 
-      void loadPeers(
-          const std::function<void(const std::string& pk, const std::string& address)>& callback
-      );
+      void loadPeers(const std::function<void(PeerView)> &callback);
 
-      void loadAssets(
-          const std::function<
-              void(const std::string& id, const std::string& domain, uint8_t precision)>&
-          callback
-      );
+      void loadAssets(const std::function<void(AssetView)> &callback);
 
       // query functions dont throw
 
@@ -58,11 +47,8 @@ namespace iroha {
       bool peerExists(const std::string& pk);
 
       bool loadAccountAssets(
-          const std::string& account_id,
-          const std::function<
-              void(const std::string& asset_id, const std::string& balance, uint8_t precision)>&
-          callback
-      );
+          const std::string &account_id,
+          const std::function<void(AccountAssetView)> &callback);
 
       bool loadAccountPermissions(const std::string& account_id, std::string& perm_string);
 
@@ -133,6 +119,11 @@ namespace iroha {
 
       int updateAccountPermissions(const std::string& account_id,
                                       const std::string& permissions);
+
+      int setSettingValue(
+          const shared_model::interface::types::SettingKeyType &key,
+          const shared_model::interface::types::SettingValueType &value);
+
      private:
       void createSchema();
 
@@ -166,6 +157,7 @@ namespace iroha {
       StatementHandle update_grantable_permissions_ = 0;
       StatementHandle set_quorum_ = 0;
       StatementHandle update_permissions_ = 0;
+      StatementHandle set_setting_value_ = 0;
     };
   }  // namespace newstorage
 }  // namespace iroha

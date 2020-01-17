@@ -361,5 +361,20 @@ namespace iroha {
                                      const AccountID &account_id,
                                      uint16_t quorum);
 */
+
+    ResultCode MutableWsv::setSettingValue(
+        const AccountID &creator_id,
+        bool do_validation,
+        const shared_model::interface::types::SettingKeyType &key,
+        const shared_model::interface::types::SettingValueType &value) {
+      if (!inside_tx_) beginTx();
+      try {
+        db_.setSettingValue(key, value);
+      } catch (const std::exception& e) {
+        return ResultCode::kDataIntegrityError;
+      }
+      return ResultCode::kOk;
+    }
+
   }  // namespace newstorage
 }  // namespace iroha

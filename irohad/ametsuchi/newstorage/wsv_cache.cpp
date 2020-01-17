@@ -10,14 +10,12 @@ namespace iroha {
   namespace newstorage {
 
     void Roles::load(WsvSqliteDB &db) {
-      db.loadRoles(
-          [this](const std::string& role, const std::string& permissions) {
-            RolePermissionSet p(permissions);
-            if (!append(role, p)) {
-              throw std::runtime_error("inconsistency in loadRoles");
-            }
-          }
-      );
+      db.loadRoles([this](RoleView role) {
+        RolePermissionSet p(role.permissions);
+        if (!append(role.id, p)) {
+          throw std::runtime_error("inconsistency in loadRoles");
+        }
+      });
     }
 
     bool Roles::append(RoleID id, RolePermissionSet permissions) {
@@ -43,16 +41,14 @@ namespace iroha {
     }
 
     void Domains::load(WsvSqliteDB& db, const Roles& roles) {
-      db.loadDomains(
-          [this, &roles](const std::string& domain, const std::string& def_role) {
-            if (roles.getRolePermissions(def_role) == nullptr) {
-              throw std::runtime_error("loadDomains: role not found");
-            }
-            if (!append(domain, def_role)) {
-              throw std::runtime_error("inconsistency in loadDomains");
-            }
-          }
-      );
+      db.loadDomains([this, &roles](DomainView domain) {
+        if (roles.getRolePermissions(domain.default_role) == nullptr) {
+          throw std::runtime_error("loadDomains: role not found");
+        }
+        if (!append(domain.id, domain.default_role)) {
+          throw std::runtime_error("inconsistency in loadDomains");
+        }
+      });
     }
 
     bool Domains::append(DomainID id, RoleID default_role_id) {
@@ -73,36 +69,41 @@ namespace iroha {
     }
 
     void Peers::load(WsvSqliteDB& db) {
-      db.loadPeers(
-          [this](const std::string& pk, const std::string& address) {
-            if (!append(pk, address))
-              throw std::runtime_error("inconsistency in loadPeers");
-          }
-      );
+      db.loadPeers([this](PeerView peer) {
+        if (!append(peer.pub_key, peer.address, peer.tls_certificate))
+          throw std::runtime_error("inconsistency in loadPeers");
+      });
     }
 
-    bool Peers::append(const PK& key, const NetworkAddress& address) {
+    bool Peers::append(
+        const PK &key,
+        const NetworkAddress &address,
+        boost::optional<const PeerTlsCertificate &> tls_certificate) {
       if (addresses_.count(address) || table_.count(key) > 0) {
         return false;
       }
-      table_[key] = address;
+      PeerDataByPubKey &peer_data = table_[key];
+      peer_data.address = address;
+      peer_data.tls_certificate = tls_certificate;
       addresses_.insert(address);
       return true;
     }
 
-    const NetworkAddress* Peers::get(const PK& key) const {
-      const NetworkAddress* address = nullptr;
+    const Peers::PeerDataByPubKey *Peers::get(const PK &key) const {
       auto it = table_.find(key);
       if (it != table_.end()) {
-        address = &it->second;
+        return &it->second;
       }
-      return address;
+      return nullptr;
     }
 
-    void Peers::get(const std::function<PeerView> &callback) const {
+    void Peers::get(const std::function<void(PeerView)> &callback) const {
       for (const auto& kv : table_) {
-        callback(
-            PeerView{kv.second.address, kv.first, kv.second.tls_certificate});
+        boost::optional<const PeerTlsCertificate &> tls_certificate;
+        if (kv.second.tls_certificate) {
+          tls_certificate = *kv.second.tls_certificate;
+        }
+        callback(PeerView{kv.second.address, kv.first, tls_certificate});
       }
     }
 
@@ -139,19 +140,15 @@ namespace iroha {
     }
 
     void Assets::load(WsvSqliteDB &db, const Domains& domains) {
-      db.loadAssets(
-          [this, &domains](
-              const std::string& id, const std::string& domain, uint8_t precision
-          ) {
-            if (domains.getDefaultRole(domain) == nullptr) {
-              throw std::runtime_error("loadAssets: domain not found");
-            }
-            if (getAssetInfo(id) != nullptr) {
-              throw std::runtime_error("inconsistency in loadAssets");
-            }
-            table_[id] = { domain, precision };
-          }
-      );
+      db.loadAssets([this, &domains](AssetView asset) {
+        if (domains.getDefaultRole(asset.domain) == nullptr) {
+          throw std::runtime_error("loadAssets: domain not found");
+        }
+        if (getAssetInfo(asset.id) != nullptr) {
+          throw std::runtime_error("inconsistency in loadAssets");
+        }
+        table_[asset.id] = {asset.domain, asset.precision};
+      });
     }
 
     const Assets::Info* Assets::getAssetInfo(const AssetID& id) {

@@ -29,6 +29,7 @@
 #include "interfaces/commands/revoke_permission.hpp"
 #include "interfaces/commands/set_account_detail.hpp"
 #include "interfaces/commands/set_quorum.hpp"
+#include "interfaces/commands/set_setting_value.hpp"
 #include "interfaces/commands/subtract_asset_quantity.hpp"
 #include "interfaces/commands/transfer_asset.hpp"
 #include "interfaces/common_objects/types.hpp"
@@ -635,5 +636,28 @@ namespace iroha {
           return executor.execute();
         }
     */
+
+    CommandResult CommandExecutorImpl::operator()(
+        const shared_model::interface::SetSettingValue &command,
+        const shared_model::interface::types::AccountIdType &creator_account_id,
+        bool do_validation) {
+      ResultCode res = db_.setSettingValue(
+          creator_account_id, do_validation, command.key(), command.value());
+
+      if (res != ResultCode::kOk) {
+        return ErrorBuilder(string_builder_,
+                            "SetSettingValue",
+                            res,
+                            db_.getLastError(),
+                            do_validation)
+            .append("creator", creator_account_id)
+            .append("key", command.key())
+            .append("value", command.value())
+            .finalize();
+      }
+
+      return {};
+    }
+
   }  // namespace newstorage
 }  // namespace iroha

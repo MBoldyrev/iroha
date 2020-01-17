@@ -45,25 +45,37 @@ namespace iroha {
     boost::optional<std::vector<std::shared_ptr<shared_model::interface::Peer>>>
     WsvQueryImpl::getPeers() {
       std::vector<std::shared_ptr<shared_model::interface::Peer>> peers;
-      auto res = wsv_.getPeers(
-          std::string(),
-          [&peers, this](const std::string& pk, const std::string& address) {
-            auto blob = shared_model::crypto::Blob::fromHexString(pk);
-            if (blob.size() > 0 && !address.empty()) {
-              peers.emplace_back(
-                  std::make_shared<shared_model::plain::Peer>(
-                      address,
-                      shared_model::crypto::PublicKey{
-                          shared_model::crypto::Blob::fromHexString(pk)}
-                  )
-              );
-            } else {
-              log_->error("invalid peer pk={}, address={}", pk, address);
-            }
-          }
-      );
+      auto res = wsv_.getPeers(std::string(), [&peers, this](PeerView peer) {
+        auto blob = shared_model::crypto::Blob::fromHexString(peer.pub_key);
+        if (blob.size() > 0 && !peer.address.empty()) {
+          peers.emplace_back(std::make_shared<shared_model::plain::Peer>(
+              peer.address,
+              shared_model::crypto::PublicKey{
+                  shared_model::crypto::Blob::fromHexString(peer.pub_key)},
+              peer.tls_certificate));
+        } else {
+          log_->error(
+              "invalid peer pk={}, address={}", peer.pub_key, peer.address);
+        }
+      });
       if (res == ResultCode::kOk) {
-        return boost::make_optional(std::move(peers));
+        if (not peers.empty()) {
+          return boost::make_optional(std::move(peers));
+        }
+        return boost::none;
+      }
+      // TODO res to str -> log
+      return boost::none;
+    }
+
+    boost::optional<std::shared_ptr<shared_model::interface::Peer>>
+    WsvQueryImpl::getPeerByPublicKey(
+        const shared_model::interface::types::PubkeyType &public_key) {
+      boost::optional<std::shared_ptr<shared_model::interface::Peer>> peer;
+      auto res =
+          wsv_.getPeerByPublicKey({}, public_key.hex(), peer);
+      if (res == ResultCode::kOk) {
+        return peer;
       }
       // TODO res to str -> log
       return boost::none;
