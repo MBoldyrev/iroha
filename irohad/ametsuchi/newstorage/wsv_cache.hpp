@@ -31,6 +31,7 @@ namespace iroha {
     using PK = std::string;
     using NetworkAddress = std::string;
     using uint256_t = boost::multiprecision::uint256_t;
+    using PeerTlsCertificate = std::string;
 
     class Roles {
      public:
@@ -66,13 +67,10 @@ namespace iroha {
       std::unordered_map<DomainID, RoleID> table_;
     };
 
-    struct Peer {
-      NetworkAddress address;
-      PK pub_key;
-      // TODO certificate
-
-      Peer(NetworkAddress a, PK pk) : address(std::move(a)), pub_key(std::move(pk))
-      {}
+    struct PeerView {
+      const NetworkAddress &address;
+      PK *pub_key;
+      boost::optional<PeerTlsCertificate> &tls_certificate;
     };
 
     class Peers {
@@ -83,13 +81,18 @@ namespace iroha {
       const NetworkAddress* get(const PK& key) const;
 
       // returns all peers
-      void get(const std::function<void(const std::string&, const std::string&)>& callback) const;
+      void get(const std::function<void(PeerView)> &callback) const;
 
      private:
       // returns false if peer already exists (ether PK or address)
       bool append(const PK& key, const NetworkAddress& address);
 
-      std::unordered_map<PK, NetworkAddress> table_;
+      struct PeerDataByPk {
+        NetworkAddress address;
+        boost::optional<PeerTlsCertificate> tls_certificate;
+      };
+
+      std::unordered_map<PK, PeerDataByPk> table_;
       std::unordered_set<NetworkAddress> addresses_;
     };
 

@@ -1143,20 +1143,15 @@ namespace iroha {
         const shared_model::interface::types::HashType &query_hash) {
 
       std::vector<std::shared_ptr<shared_model::interface::Peer>> peers;
-      ResultCode res = db_.getPeers(creator_id,
-          [&peers](const std::string& pk, const std::string& address) {
-            auto blob = shared_model::crypto::Blob::fromHexString(pk);
-            if (blob.size() > 0 && !address.empty()) {
-              peers.emplace_back(
-                  std::make_shared<shared_model::plain::Peer>(
-                      address,
-                      shared_model::crypto::PublicKey{
-                          shared_model::crypto::Blob::fromHexString(pk)}
-                  )
-              );
-            }
-          }
-      );
+      ResultCode res =
+          db_.getPeers(creator_id, [&peers](PeerView peer) {
+            auto blob = shared_model::crypto::Blob::fromHexString(peer.pub_key);
+            assert(blob.size() > 0 && !peer.address.empty());
+            peers.emplace_back(std::make_shared<shared_model::plain::Peer>(
+                peer.address,
+                shared_model::crypto::PublicKey{std::move(blob)},
+                peer.tls_certificate));
+          });
 
       if (res == ResultCode::kOk) {
         return query_response_factory_->createPeersResponse(

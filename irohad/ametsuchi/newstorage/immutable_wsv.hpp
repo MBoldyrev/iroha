@@ -58,10 +58,8 @@ namespace iroha {
           uint8_t& precision
       );
 
-      ResultCode getPeers(
-          const AccountID& query_initiator_id,
-          const std::function<void(const std::string&, const std::string&)>& callback
-      );
+      ResultCode getPeers(const AccountID &query_initiator_id,
+                          const std::function<void(PeerView)> &callback);
 
       ResultCode getAccountDetail(
           const AccountID& query_initiator_id,

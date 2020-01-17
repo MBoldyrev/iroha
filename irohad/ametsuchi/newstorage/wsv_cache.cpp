@@ -99,12 +99,10 @@ namespace iroha {
       return address;
     }
 
-    void Peers::get(
-        const std::function<void(const std::string&, const std::string&)>&
-        callback) const
-     {
+    void Peers::get(const std::function<PeerView> &callback) const {
       for (const auto& kv : table_) {
-        callback(kv.second, kv.first);
+        callback(
+            PeerView{kv.second.address, kv.first, kv.second.tls_certificate});
       }
     }
 

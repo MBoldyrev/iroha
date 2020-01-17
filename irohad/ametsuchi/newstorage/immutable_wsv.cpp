@@ -158,9 +158,8 @@ namespace iroha {
     }
 
     ResultCode ImmutableWsv::getPeers(
-        const AccountID& query_initiator_id,
-        const std::function<void(const std::string&, const std::string&)>& callback
-    ) {
+        const AccountID &query_initiator_id,
+        const std::function<void(PeerView)> &callback) {
       Account* query_initiator = nullptr;
       ResultCode rc = loadAccount(
           query_initiator_id,
