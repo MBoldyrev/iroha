@@ -35,7 +35,7 @@ namespace shared_model {
        * @return string with internal state of object
        */
       virtual std::string toString() const {
-        return detail::PrettyStringBuilder()
+        return shared_model::detail::PrettyStringBuilder()
             .init("NonCopyablePrimitive")
             .append("address", std::to_string(reinterpret_cast<uint64_t>(this)))
             .finalize();
