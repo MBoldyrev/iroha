@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <cassert>
 #include <csignal>
 #include <fstream>
 #include <thread>
@@ -23,6 +24,39 @@
 #include "main/iroha_conf_loader.hpp"
 #include "main/raw_block_loader.hpp"
 #include "validators/field_validator.hpp"
+
+#include "backend/protobuf/proposal.hpp"
+#include "interfaces/iroha_internal/transaction_batch_impl.hpp"
+#include "obj_counter.hpp"
+
+const char *const kObjCounterOutDir = std::getenv("OBJ_COUNTER_OUT_DIR");
+size_t obj_counter_out_iteration = 0;
+void printCountedObjectsStats(int s) {
+  auto save_stats = [&](const char *name, const std::string &stats) {
+    auto file_path = fmt::format(
+        "{}/{:>08}_{}", kObjCounterOutDir, obj_counter_out_iteration, name);
+    std::ofstream of(file_path);
+    assert(of.good());
+    of << stats;
+    of.close();
+  };
+  using namespace shared_model;
+  save_stats("transaction",
+             proto::Transaction::getStats()
+                 + UniquePtrCounter<interface::Transaction>::getStats()
+                 + SharedPtrCounter<interface::Transaction>::getStats());
+  save_stats("proposal",
+             proto::Proposal::getStats()
+                 + UniquePtrCounter<interface::Proposal>::getStats()
+                 + SharedPtrCounter<interface::Proposal>::getStats());
+  save_stats("batch",
+             interface::TransactionBatch::getStats()
+                 + UniquePtrCounter<interface::TransactionBatchImpl>::getStats()
+                 + SharedPtrCounter<interface::TransactionBatchImpl>::getStats()
+                 + UniquePtrCounter<interface::TransactionBatch>::getStats()
+                 + SharedPtrCounter<interface::TransactionBatch>::getStats());
+  ++obj_counter_out_iteration;
+};
 
 static const std::string kListenIp = "0.0.0.0";
 static const std::string kLogSettingsFromConfigFile = "config_file";
@@ -331,6 +365,9 @@ int main(int argc, char *argv[]) {
 #ifdef SIGQUIT
   std::signal(SIGQUIT, handler);
 #endif
+
+  assert(kObjCounterOutDir != nullptr);
+  std::signal(SIGUSR1, printCountedObjectsStats);
 
   // runs iroha
   log->info("Running iroha");
