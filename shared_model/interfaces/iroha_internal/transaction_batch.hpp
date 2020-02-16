@@ -13,13 +13,16 @@
 #include "interfaces/common_objects/transaction_sequence_common.hpp"
 #include "interfaces/common_objects/types.hpp"
 
+#include "obj_counter.hpp"
+
 namespace shared_model {
   namespace interface {
 
     /**
      * Represents collection of transactions, which are to be processed together
      */
-    class TransactionBatch : public ModelPrimitive<TransactionBatch> {
+    class TransactionBatch : public ModelPrimitive<TransactionBatch>,
+                             public ::ObjCounter<TransactionBatch> {
      public:
       /**
        * Get transactions list

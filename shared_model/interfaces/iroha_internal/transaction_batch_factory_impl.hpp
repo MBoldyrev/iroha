@@ -17,7 +17,7 @@ namespace shared_model {
     class TransactionBatchFactoryImpl : public TransactionBatchFactory {
      public:
       using FactoryImplResult =
-          FactoryResult<std::unique_ptr<TransactionBatch>>;
+          FactoryResult<UniquePtrCounter<TransactionBatch>>;
 
       TransactionBatchFactoryImpl(
           std::shared_ptr<validation::AbstractValidator<TransactionBatch>>

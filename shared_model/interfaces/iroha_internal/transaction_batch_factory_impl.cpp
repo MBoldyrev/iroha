@@ -22,7 +22,7 @@ namespace shared_model {
     TransactionBatchFactoryImpl::FactoryImplResult
     TransactionBatchFactoryImpl::createTransactionBatch(
         const types::SharedTxsCollectionType &transactions) const {
-      std::unique_ptr<TransactionBatch> batch_ptr =
+      UniquePtrCounter<TransactionBatch> batch_ptr =
           std::make_unique<TransactionBatchImpl>(transactions);
       if (auto answer = batch_validator_->validate(*batch_ptr)) {
         return iroha::expected::makeError(answer.reason());

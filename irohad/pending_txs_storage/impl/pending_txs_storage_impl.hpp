@@ -27,7 +27,7 @@ namespace iroha {
         shared_model::interface::types::SharedTxsCollectionType;
     using TransactionBatch = shared_model::interface::TransactionBatch;
     using SharedState = std::shared_ptr<MstState>;
-    using SharedBatch = std::shared_ptr<TransactionBatch>;
+    using SharedBatch = SharedPtrCounter<TransactionBatch>;
     using StateObservable = rxcpp::observable<SharedState>;
     using BatchObservable = rxcpp::observable<SharedBatch>;
     using PreparedTransactionDescriptor = std::pair<AccountIdType, HashType>;

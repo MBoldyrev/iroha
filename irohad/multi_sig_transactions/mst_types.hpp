@@ -10,6 +10,8 @@
 
 #include "interfaces/common_objects/types.hpp"
 
+#include "obj_counter.hpp"
+
 namespace shared_model {
   namespace interface {
     class TransactionBatch;
@@ -20,7 +22,7 @@ namespace shared_model {
 
 namespace iroha {
 
-  using BatchPtr = std::shared_ptr<shared_model::interface::TransactionBatch>;
+  using BatchPtr = SharedPtrCounter<shared_model::interface::TransactionBatch>;
   using ConstPeer = const shared_model::interface::Peer;
   using TimeType = shared_model::interface::types::TimestampType;
   using TxResponse =

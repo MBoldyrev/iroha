@@ -30,7 +30,7 @@ namespace shared_model {
           std::vector<SharedPtrCounter<Transaction>>;
 
       using BatchesCollectionType =
-          std::vector<std::shared_ptr<TransactionBatch>>;
+          std::vector<SharedPtrCounter<TransactionBatch>>;
     }  // namespace types
   }    // namespace interface
 }  // namespace shared_model
