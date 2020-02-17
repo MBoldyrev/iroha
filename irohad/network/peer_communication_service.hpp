@@ -11,6 +11,8 @@
 #include "simulator/verified_proposal_creator_common.hpp"
 #include "synchronizer/synchronizer_common.hpp"
 
+#include "obj_counter.hpp"
+
 namespace shared_model {
   namespace interface {
     class Proposal;
@@ -31,7 +33,7 @@ namespace iroha {
        * @param batch - batch for propagation
        */
       virtual void propagate_batch(
-          std::shared_ptr<shared_model::interface::TransactionBatch> batch)
+          SharedPtrCounter<shared_model::interface::TransactionBatch> batch)
           const = 0;
 
       /**

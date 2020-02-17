@@ -17,6 +17,8 @@
 #include "torii/processor/transaction_processor.hpp"
 #include "torii/status_bus.hpp"
 
+#include "obj_counter.hpp"
+
 namespace iroha {
   namespace torii {
     /**
@@ -60,7 +62,7 @@ namespace iroha {
       CommandServiceImpl &operator=(const CommandServiceImpl &) = delete;
 
       void handleTransactionBatch(
-          std::shared_ptr<shared_model::interface::TransactionBatch> batch)
+          SharedPtrCounter<shared_model::interface::TransactionBatch> batch)
           override;
 
       std::shared_ptr<shared_model::interface::TransactionResponse> getStatus(
@@ -95,7 +97,7 @@ namespace iroha {
        * @param batch to be processed
        */
       void processBatch(
-          std::shared_ptr<shared_model::interface::TransactionBatch> batch);
+          SharedPtrCounter<shared_model::interface::TransactionBatch> batch);
 
       std::shared_ptr<iroha::torii::TransactionProcessor> tx_processor_;
       std::shared_ptr<iroha::ametsuchi::Storage> storage_;

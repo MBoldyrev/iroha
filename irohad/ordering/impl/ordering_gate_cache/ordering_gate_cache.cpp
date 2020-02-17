@@ -12,7 +12,7 @@ namespace iroha {
     namespace cache {
 
       size_t OrderingGateCache::BatchPointerHasher::operator()(
-          const std::shared_ptr<shared_model::interface::TransactionBatch> &a)
+          const SharedPtrCounter<shared_model::interface::TransactionBatch> &a)
           const {
         return hasher_(a->reducedHash());
       }

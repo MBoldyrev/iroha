@@ -10,6 +10,8 @@
 
 #include "cryptography/hash.hpp"
 
+#include "obj_counter.hpp"
+
 namespace shared_model {
   namespace interface {
     class TransactionBatch;
@@ -32,7 +34,7 @@ namespace iroha {
           shared_model::crypto::Hash::Hasher hasher_;
 
           size_t operator()(
-              const std::shared_ptr<shared_model::interface::TransactionBatch>
+              const SharedPtrCounter<shared_model::interface::TransactionBatch>
                   &a) const;
         };
 
@@ -41,7 +43,7 @@ namespace iroha {
         /// remove batch from BatchSet with O(1) complexity, which is the case
         /// in remove method
         using BatchesSetType = std::unordered_set<
-            std::shared_ptr<shared_model::interface::TransactionBatch>,
+            SharedPtrCounter<shared_model::interface::TransactionBatch>,
             BatchPointerHasher>;
 
         using HashesSetType =

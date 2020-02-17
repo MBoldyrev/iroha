@@ -31,7 +31,7 @@ namespace iroha {
           logger::LoggerPtr log);
 
       void propagate_batch(
-          std::shared_ptr<shared_model::interface::TransactionBatch> batch)
+          SharedPtrCounter<shared_model::interface::TransactionBatch> batch)
           const override;
 
       rxcpp::observable<OrderingEvent> onProposal() const override;

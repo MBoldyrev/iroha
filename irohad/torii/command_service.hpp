@@ -9,6 +9,8 @@
 #include <rxcpp/rx.hpp>
 #include "interfaces/common_objects/types.hpp"
 
+#include "obj_counter.hpp"
+
 namespace shared_model {
   namespace interface {
     class TransactionBatch;
@@ -32,7 +34,8 @@ namespace iroha {
        * @param batch - transactions we've received
        */
       virtual void handleTransactionBatch(
-          std::shared_ptr<shared_model::interface::TransactionBatch> batch) = 0;
+          SharedPtrCounter<shared_model::interface::TransactionBatch>
+              batch) = 0;
 
       /**
        * Request to retrieve a status of any particular transaction

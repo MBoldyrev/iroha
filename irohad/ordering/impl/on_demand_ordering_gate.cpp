@@ -76,7 +76,7 @@ OnDemandOrderingGate::~OnDemandOrderingGate() {
 }
 
 void OnDemandOrderingGate::propagateBatch(
-    std::shared_ptr<shared_model::interface::TransactionBatch> batch) {
+    SharedPtrCounter<shared_model::interface::TransactionBatch> batch) {
   cache_->addToBack({batch});
 
   network_client_->onBatches(
@@ -175,7 +175,6 @@ OnDemandOrderingGate::removeReplays(
       | boost::adaptors::transformed(
             [](const auto &el) -> decltype(auto) { return el.value(); });
 
-  return UniquePtrCounter<const shared_model::interface::Proposal>(
-      proposal_factory_->unsafeCreateProposal(
-          proposal->height(), proposal->createdTime(), unprocessed_txs));
+  return proposal_factory_->unsafeCreateProposal(
+      proposal->height(), proposal->createdTime(), unprocessed_txs);
 }

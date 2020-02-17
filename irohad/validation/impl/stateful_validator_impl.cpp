@@ -138,10 +138,10 @@ namespace iroha {
       // All transactions are validated as well
       // This allows for unsafe construction of proposal
       validation_result->verified_proposal =
-          std::const_pointer_cast<const shared_model::interface::Proposal>(
-              std::shared_ptr<shared_model::interface::Proposal>(
+          SharedPtrCounter<const shared_model::interface::Proposal>{
+              SharedPtrCounter<shared_model::interface::Proposal>{
                   factory_->unsafeCreateProposal(
-                      proposal.height(), proposal.createdTime(), valid_txs)));
+                      proposal.height(), proposal.createdTime(), valid_txs)}};
 
       log_->info("transactions in verified proposal: {}",
                  validation_result->verified_proposal->transactions().size());

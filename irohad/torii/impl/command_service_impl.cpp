@@ -57,7 +57,7 @@ namespace iroha {
     }
 
     void CommandServiceImpl::handleTransactionBatch(
-        std::shared_ptr<shared_model::interface::TransactionBatch> batch) {
+        SharedPtrCounter<shared_model::interface::TransactionBatch> batch) {
       processBatch(batch);
     }
 
@@ -192,7 +192,7 @@ namespace iroha {
     }
 
     void CommandServiceImpl::processBatch(
-        std::shared_ptr<shared_model::interface::TransactionBatch> batch) {
+        SharedPtrCounter<shared_model::interface::TransactionBatch> batch) {
       const auto status_issuer = "ToriiBatchProcessor";
       const auto &txs = batch->transactions();
 

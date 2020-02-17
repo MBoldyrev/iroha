@@ -91,7 +91,7 @@ namespace iroha {
      * stored batches. Used for query response and memory management.
      */
     struct AccountBatches {
-      std::list<std::shared_ptr<TransactionBatch>> batches;
+      std::list<SharedPtrCounter<TransactionBatch>> batches;
       std::
           unordered_map<HashType, decltype(batches)::iterator, HashType::Hasher>
               index;

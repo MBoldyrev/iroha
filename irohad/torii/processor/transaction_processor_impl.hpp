@@ -42,7 +42,7 @@ namespace iroha {
           logger::LoggerPtr log);
 
       void batchHandle(
-          std::shared_ptr<shared_model::interface::TransactionBatch>
+          SharedPtrCounter<shared_model::interface::TransactionBatch>
               transaction_batch) const override;
 
      private:

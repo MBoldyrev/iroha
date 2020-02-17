@@ -12,6 +12,8 @@
 #include "network/ordering_gate_common.hpp"
 #include "network/peer_communication_service.hpp"
 
+#include "obj_counter.hpp"
+
 namespace shared_model {
   namespace interface {
     class Proposal;
@@ -32,7 +34,8 @@ namespace iroha {
        * @param batch
        */
       virtual void propagateBatch(
-          std::shared_ptr<shared_model::interface::TransactionBatch> batch) = 0;
+          SharedPtrCounter<shared_model::interface::TransactionBatch>
+              batch) = 0;
 
       /**
        * Return observable of all proposals in the consensus

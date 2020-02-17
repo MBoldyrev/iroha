@@ -5,7 +5,6 @@
 #include <memory>
 #include <mutex>
 #include <sstream>
-#include <map>
 
 #include <execinfo.h>
 #include <boost/core/demangle.hpp>
@@ -15,10 +14,10 @@ static std::atomic<size_t> obj_counter_longest_class_name(0);
 class ConstrBt {
  public:
   ConstrBt() {
-    //void *addresses[kMaxBtSize];
+    // void *addresses[kMaxBtSize];
 
     bt_size_ = backtrace(bt_addresses_, kMaxBtSize);
-    //backtrace_ = backtrace_symbols(addresses, bt_size_);
+    // backtrace_ = backtrace_symbols(addresses, bt_size_);
   }
 
   std::string getBt() {
@@ -34,14 +33,13 @@ class ConstrBt {
  private:
   static constexpr size_t kMaxBtSize = 100;
 
-  //char **backtrace_;
+  // char **backtrace_;
   void *bt_addresses_[kMaxBtSize];
   size_t bt_size_{0};
 };
 
 template <typename T>
 struct ObjCounter : public ConstrBt {
-
   ObjCounter() noexcept {
     std::lock_guard<std::mutex> lock(counter_mu_);
     object_id_ = objects_created++;
@@ -84,8 +82,7 @@ struct ObjCounter : public ConstrBt {
 };
 
 template <typename T>
-class UniquePtrCounter : public ObjCounter<UniquePtrCounter<T>>,
-                         public std::unique_ptr<T> {
+class UniquePtrCounter : public ObjCounter<UniquePtrCounter<T>> {
  public:
   constexpr UniquePtrCounter() noexcept : std::unique_ptr<T>() {}
 
@@ -93,10 +90,14 @@ class UniquePtrCounter : public ObjCounter<UniquePtrCounter<T>>,
             typename = std::enable_if_t<
                 std::is_constructible<std::unique_ptr<T>, Types &&...>::value>>
   UniquePtrCounter(Types &&... args) noexcept
-      : std::unique_ptr<T>(std::forward<Types>(args)...) {}
+      : ptr_(std::forward<Types>(args)...) {}
 
-  UniquePtrCounter(UniquePtrCounter<T> &&p) noexcept
-      : std::unique_ptr<T>(std::move(p)) {}
+  template <typename U,
+            typename = std::enable_if_t<
+                std::is_constructible<std::unique_ptr<T>,
+                                      std::unique_ptr<U> &&>::value>>
+  UniquePtrCounter(UniquePtrCounter<U> &&o) noexcept
+      : ptr_(std::move(o.ptr_)) {}
 
   /*
   explicit UniquePtrCounter(T *p) noexcept : std::unique_ptr<T>(p) {}
@@ -115,7 +116,7 @@ class UniquePtrCounter : public ObjCounter<UniquePtrCounter<T>>,
           decltype(std::declval<std::unique_ptr<T>>() = std::declval<U &&>()),
           std::unique_ptr<T> &>::value>>
   UniquePtrCounter &operator=(U &&o) noexcept {
-    std::unique_ptr<T>::operator=(std::forward<U>(o));
+    ptr_ = (std::forward<U>(o));
   }
 
   /*
@@ -128,35 +129,50 @@ class UniquePtrCounter : public ObjCounter<UniquePtrCounter<T>>,
     std::unique_ptr<T>::operator=(std::move(p));
   }
   */
+
+  T *get() const noexcept {
+    return ptr_.get();
+  }
+
+  typename std::add_lvalue_reference<T>::type operator*() const {
+    return *ptr_;
+  }
+
+  T *operator->() const noexcept {
+    return ptr_.operator->();
+  }
+
+  std::unique_ptr<T> ptr_;
 };
 
 template <typename T>
-class SharedPtrCounter : public ObjCounter<SharedPtrCounter<T>>,
-                         public std::shared_ptr<T> {
+class SharedPtrCounter : public ObjCounter<SharedPtrCounter<T>> {
  public:
+  using element_type = T;
+
   template <typename... Types,
             typename = std::enable_if_t<
                 std::is_constructible<std::shared_ptr<T>, Types &&...>::value>>
   constexpr SharedPtrCounter(Types &&... args) noexcept
-      : std::shared_ptr<T>(std::forward<Types>(args)...) {}
+      : ptr_(std::forward<Types>(args)...) {}
 
-  template <class Y>
-  SharedPtrCounter(const SharedPtrCounter<Y> &p, T *o) noexcept
-      : std::shared_ptr<T>(p, o) {}
+  // template <class Y>
+  // SharedPtrCounter(const SharedPtrCounter<Y> &p, T *o) noexcept : ptr_(p, o)
+  // {}
 
-  SharedPtrCounter(const SharedPtrCounter &p) noexcept
-      : std::shared_ptr<T>(p) {}
+  template <class U,
+            typename = std::enable_if_t<
+                std::is_constructible<std::shared_ptr<T>,
+                                      std::unique_ptr<U> &&>::value>>
+  SharedPtrCounter(UniquePtrCounter<U> &&o) noexcept
+      : ptr_(std::move(o.ptr_)) {}
 
-  template <class Y>
-  SharedPtrCounter(const SharedPtrCounter<Y> &p) noexcept
-      : std::shared_ptr<T>(p) {}
-
-  SharedPtrCounter(SharedPtrCounter &&p) noexcept
-      : std::shared_ptr<T>(std::move(p)) {}
-
-  template <class Y>
-  SharedPtrCounter(SharedPtrCounter<Y> &&p) noexcept
-      : std::shared_ptr<T>(std::move(p)) {}
+  template <class U,
+            typename = std::enable_if_t<
+                std::is_constructible<std::shared_ptr<T>,
+                                      std::shared_ptr<U> &&>::value>>
+  SharedPtrCounter(SharedPtrCounter<U> &&o) noexcept
+      : ptr_(std::move(o.ptr_)) {}
 
   /*
   constexpr SharedPtrCounter() noexcept : std::shared_ptr<T>() {}
@@ -224,61 +240,46 @@ class SharedPtrCounter : public ObjCounter<SharedPtrCounter<T>>,
   SharedPtrCounter(std::unique_ptr<T> &&p) : std::shared_ptr<T>(std::move(p)) {}
   */
 
-  SharedPtrCounter &operator=(const std::shared_ptr<T> &p) noexcept {
-    std::shared_ptr<T>::operator=(p);
+  static constexpr char const *kMagic = "qwer";
+
+  template <class U,
+            typename = std::enable_if_t<U::kMagic == kMagic>,
+            typename = std::enable_if_t<std::is_same<
+                decltype(std::declval<std::shared_ptr<T>>() =
+                             std::declval<std::shared_ptr<U> &&>()),
+                std::shared_ptr<T> &>::value>>
+  SharedPtrCounter &operator=(U &&o) {
+    ptr_ = std::forward<U>(o.ptr_);
     return *this;
   }
 
-  template <class Y>
-  SharedPtrCounter &operator=(const std::shared_ptr<Y> &p) noexcept {
-    std::shared_ptr<T>::operator=(p);
+  template <class U,
+            typename = std::enable_if_t<std::is_same<
+                decltype(std::declval<std::shared_ptr<T>>() =
+                             std::declval<std::unique_ptr<U> &&>()),
+                std::shared_ptr<T> &>::value>>
+  SharedPtrCounter &operator=(UniquePtrCounter<U> &&o) {
+    ptr_ = std::move(o.ptr_);
     return *this;
   }
 
-  SharedPtrCounter &operator=(std::shared_ptr<T> &&p) noexcept {
-    std::shared_ptr<T>::operator=(std::move(p));
-    return *this;
+  bool operator==(const SharedPtrCounter<T> &o) const {
+    return ptr_ == o.ptr_;
   }
 
-  template <class Y>
-  SharedPtrCounter &operator=(std::shared_ptr<Y> &&p) noexcept {
-    std::shared_ptr<T>::operator=(std::move(p));
-    return *this;
+  T *get() const noexcept {
+    return ptr_.get();
   }
 
-  template <class Y, class Deleter>
-  SharedPtrCounter &operator=(std::unique_ptr<Y, Deleter> &&p) {
-    std::shared_ptr<T>::operator=(std::move(p));
-    return *this;
+  typename std::add_lvalue_reference<T>::type operator*() const {
+    return *ptr_;
   }
 
-  SharedPtrCounter &operator=(const SharedPtrCounter &p) noexcept {
-    std::shared_ptr<T>::operator=(p);
-    return *this;
+  T *operator->() const noexcept {
+    return ptr_.operator->();
   }
 
-  template <class Y>
-  SharedPtrCounter &operator=(const SharedPtrCounter<Y> &p) noexcept {
-    std::shared_ptr<T>::operator=(p);
-    return *this;
-  }
-
-  SharedPtrCounter &operator=(SharedPtrCounter &&p) noexcept {
-    std::shared_ptr<T>::operator=(std::move(p));
-    return *this;
-  }
-
-  template <class Y>
-  SharedPtrCounter &operator=(SharedPtrCounter<Y> &&p) noexcept {
-    std::shared_ptr<T>::operator=(std::move(p));
-    return *this;
-  }
-
-  template <class Y, class Deleter>
-  SharedPtrCounter &operator=(UniquePtrCounter<Y> &&p) {
-    std::shared_ptr<T>::operator=(std::move(p));
-    return *this;
-  }
+  std::shared_ptr<T> ptr_;
 };
 
 template <typename T, typename... Types>

@@ -63,7 +63,7 @@ namespace iroha {
       ~OnDemandOrderingGate() override;
 
       void propagateBatch(
-          std::shared_ptr<shared_model::interface::TransactionBatch> batch)
+          SharedPtrCounter<shared_model::interface::TransactionBatch> batch)
           override;
 
       rxcpp::observable<network::OrderingEvent> onProposal() override;

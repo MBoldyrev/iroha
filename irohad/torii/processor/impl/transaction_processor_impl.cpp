@@ -120,7 +120,7 @@ namespace iroha {
     }
 
     void TransactionProcessorImpl::batchHandle(
-        std::shared_ptr<shared_model::interface::TransactionBatch>
+        SharedPtrCounter<shared_model::interface::TransactionBatch>
             transaction_batch) const {
       log_->info("handle batch");
       if (transaction_batch->hasAllSignatures()

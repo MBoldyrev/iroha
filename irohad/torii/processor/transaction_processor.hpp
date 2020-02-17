@@ -8,6 +8,8 @@
 
 #include <memory>
 
+#include "obj_counter.hpp"
+
 namespace shared_model {
   namespace interface {
     class TransactionBatch;
@@ -27,7 +29,7 @@ namespace iroha {
        * @param transaction_batch - transaction batch for processing
        */
       virtual void batchHandle(
-          std::shared_ptr<shared_model::interface::TransactionBatch>
+          SharedPtrCounter<shared_model::interface::TransactionBatch>
               transaction_batch) const = 0;
 
       virtual ~TransactionProcessor() = default;

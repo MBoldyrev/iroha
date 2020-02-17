@@ -41,7 +41,7 @@ namespace iroha {
          * Type of stored transaction batches
          */
         using TransactionBatchType =
-            std::shared_ptr<shared_model::interface::TransactionBatch>;
+            SharedPtrCounter<shared_model::interface::TransactionBatch>;
 
         /**
          * Type of inserted collections
