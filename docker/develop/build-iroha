@@ -1,0 +1,29 @@
+FROM debug-base
+
+# number of concurrent threads during build
+# usage: docker build --build-arg PARALLELISM=8 -t name/name .
+ARG PARALLELISM=1
+ARG CMAKE_BUILD_TYPE=Debug
+
+USER root
+
+COPY .clang-format CMakeLists.txt /opt/iroha/
+COPY cmake /opt/iroha/cmake/
+COPY example /opt/iroha/example/
+COPY iroha-cli /opt/iroha/iroha-cli/
+COPY irohad /opt/iroha/irohad/
+COPY libs /opt/iroha/libs/
+COPY schema /opt/iroha/schema/
+COPY shared_model /opt/iroha/shared_model/
+COPY test /opt/iroha/test/
+
+RUN cmake -B/opt/iroha/builds/clang -H/opt/iroha -DCMAKE_C_COMPILER=clang-9 -DCMAKE_CXX_COMPILER=clang++-9 -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} && \
+    cmake --build /opt/iroha/builds/clang --target irohad -- -j3;
+
+RUN ln -sv /opt/iroha/builds/clang/bin/irohad /usr/local/bin/irohad
+ENV PATH "/usr/local/gdb91/bin:/usr/local/bin:${PATH}"
+
+COPY docker/release/entrypoint.sh docker/release/wait-for-it.sh /
+RUN chmod +x /entrypoint.sh /wait-for-it.sh
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["/sbin/init"]

@@ -1,0 +1,89 @@
+FROM ubuntu:19.10
+
+# number of concurrent threads during build
+# usage: docker build --build-arg PARALLELISM=8 -t name/name .
+ARG PARALLELISM=1
+ARG CMAKE_BUILD_TYPE=Debug
+
+ENV IROHA_HOME /opt/iroha
+ENV IROHA_BUILD /opt/iroha/build
+ENV PATH "/home/iroha-ci/.cargo/bin:/usr/local/gdb91/bin:${PATH}"
+
+RUN apt-get update && \
+    apt-get -y --no-install-recommends install apt-utils software-properties-common gpg-agent wget; \
+    apt-get -y clean
+
+# add repos
+RUN set -e; \
+    wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -; \
+    echo 'deb http://apt.llvm.org/eoan/ llvm-toolchain-eoan-9 main' >> /etc/apt/sources.list; \
+    apt-get update
+
+RUN set -e; \
+    apt-get -y --no-install-recommends install \
+        automake libtool \
+        # compilers (gcc-5, gcc-7, clang-6)
+        build-essential clang lldb g++ \
+        # dev dependencies
+        cmake libssl-dev zlib1g-dev libcurl4-openssl-dev libc6-dbg golang python3-all-dev \
+        ipython ipython3 \
+        # CI dependencies
+        git ssh tar gzip ca-certificates gnupg \
+        # Pythons
+        python-pip python3-pip python3-setuptools python-dev \
+        # other
+        curl file gdb gdbserver ccache tmux gdb texinfo \
+        gcovr cppcheck doxygen rsync graphviz graphviz-dev unzip vim zip pkg-config; \
+    apt-get -y clean
+
+# compiler clang-7 and libc++ only on x86_64, for debug purpose
+RUN set -e; \
+    if [ `uname -m` = "x86_64" ]; then \
+      apt-get -y --no-install-recommends install \
+        libc++-dev libc++abi-dev clang-format-7; \
+      apt-get -y clean; \
+    fi
+
+# gdb9
+RUN set -e; \
+    cd /tmp; \
+    wget -O - https://ftp.gnu.org/gnu/gdb/gdb-9.1.tar.xz | tar Jx; \
+    mkdir build_gdb && cd build_gdb; \
+    ../gdb-9.1/configure --prefix=/usr/local/gdb91 --program-suffix=91 --enable-gold=yes --enable-ld=yes --enable-libada --enable-libssp --enable-lto --enable-vtable-verify --enable-werror; \
+    make -j3; \
+    make install;
+
+# python bindings dependencies
+RUN set -e; \
+    pip3 install grpcio_tools pysha3 iroha
+
+# install dependencies
+COPY vcpkg /tmp/vcpkg-vars
+RUN set -e; \
+    git clone https://github.com/microsoft/vcpkg /tmp/vcpkg; \
+    (cd /tmp/vcpkg ; git checkout $(cat /tmp/vcpkg-vars/VCPKG_COMMIT_SHA)); \
+    for i in /tmp/vcpkg-vars/patches/*.patch; do git -C /tmp/vcpkg apply $i; done; \
+    git -C /tmp/vcpkg checkout 2ade1ec32 -- ports/grpc/00008-fix-duplicate-gettid.patch; \
+    sed '/004/a00008-fix-duplicate-gettid.patch' -i /tmp/vcpkg/ports/grpc/portfile.cmake; \
+    sh /tmp/vcpkg/bootstrap-vcpkg.sh; \
+    cat /tmp/vcpkg-vars/VCPKG_DEPS_LIST | xargs /tmp/vcpkg/vcpkg install; \
+    cat /tmp/vcpkg-vars/VCPKG_HEAD_DEPS_LIST | xargs /tmp/vcpkg/vcpkg install --head; \
+    mv /tmp/vcpkg /opt/dependencies; \
+    chmod +x /opt/dependencies/installed/x64-linux/tools/protobuf/protoc*;
+
+# non-interactive adduser
+#   -m = create home dir
+#   -s = set default shell
+#   iroha-ci = username
+#   -u = userid, default for Ubuntu is 1000
+#   -U = create a group same as username
+#   no password
+RUN useradd -ms /bin/bash iroha -u 1000 -U; \
+    echo 'set history save on' >> /home/iroha/.gdbinit
+
+
+#WORKDIR /opt/iroha
+USER iroha
+
+ENV CMAKE_TOOLCHAIN_FILE /opt/dependencies/scripts/buildsystems/vcpkg.cmake
+ENTRYPOINT ["/bin/bash"]

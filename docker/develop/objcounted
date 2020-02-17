@@ -1,0 +1,4 @@
+FROM my-debug-build
+
+ENV OBJ_COUNTER_OUT_DIR /opt/iroha_debug/obj_counters
+RUN mkdir -p /opt/iroha_debug/obj_counters && chmod -R a+rwx /opt/iroha_debug
