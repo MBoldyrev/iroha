@@ -32,12 +32,9 @@
 const char *const kObjCounterOutDir = std::getenv("OBJ_COUNTER_OUT_DIR");
 size_t obj_counter_out_iteration = 0;
 void printCountedObjectsStats(int s) {
-  auto file_path =
-      fmt::format("{}/{:>08}", kObjCounterOutDir, obj_counter_out_iteration);
-  std::ofstream of(file_path);
-  assert(of.good());
-  AllCountedStats::getAllStats(of);
-  of.close();
+  auto file_path_format = fmt::format(
+      "{}/{:>08}_{{}}", kObjCounterOutDir, obj_counter_out_iteration);
+  AllCountedStats::getAllStats(file_path_format);
   ++obj_counter_out_iteration;
 };
 

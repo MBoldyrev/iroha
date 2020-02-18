@@ -1,6 +1,7 @@
 #pragma once
 
 #include <atomic>
+#include <fstream>
 #include <iostream>
 #include <map>
 #include <memory>
@@ -9,12 +10,13 @@
 #include <vector>
 
 #include <execinfo.h>
+#include <fmt/core.h>
 #include <boost/core/demangle.hpp>
 
 static std::atomic<size_t> obj_counter_longest_class_name(0);
 
 struct AllCountedStats {
-  using GetStatsFn = void (*)(std::ostream &);
+  using GetStatsFn = void (*)(const std::string &);
   AllCountedStats(GetStatsFn f) {
     std::lock_guard<std::mutex> lock(mu_);
     get_stats_.emplace_back(f);
@@ -23,11 +25,10 @@ struct AllCountedStats {
   // for this object to be ever used
   void useMe() const {}
 
-  static void getAllStats(std::ostream &os) {
+  static void getAllStats(const std::string &file_path_format) {
     std::lock_guard<std::mutex> lock(mu_);
     for (const auto &f : get_stats_) {
-      (*f)(os);
-      os << std::endl;
+      (*f)(file_path_format);
     }
   }
 
@@ -69,23 +70,29 @@ struct ObjCounter : public ConstrBt {
     all_stats_register_.useMe();
   }
 
-  static void getStats(std::ostream &os) {
-    std::lock_guard<std::mutex> lock(counter_mu_);
-    const size_t class_name_padding_length =
-        obj_counter_longest_class_name.load(std::memory_order_relaxed)
-        - class_name_.size();
-    os << class_name_ << ": " << std::string(class_name_padding_length, '.')
-       << " created " << objects_created
-       << ", alive :" << objects_alive_.size();
+  static void getStats(const std::string &file_path_format) {
+    auto file_path = fmt::format(file_path_format, class_name_);
+    std::ofstream of(file_path);
+    assert(of.good());
+    {
+      std::lock_guard<std::mutex> lock(counter_mu_);
+      const size_t class_name_padding_length =
+          obj_counter_longest_class_name.load(std::memory_order_relaxed)
+          - class_name_.size();
+      of << class_name_ << ": " << std::string(class_name_padding_length, '.')
+         << " created " << objects_created
+         << ", alive :" << objects_alive_.size();
 
-    os << std::endl << "Living objects' backtraces:" << std::endl;
-    for (const auto &id_and_ptr : objects_alive_) {
-      os << id_and_ptr.first << ":" << std::endl;
-      id_and_ptr.second->getBt(os);
+      of << std::endl << "Living objects' backtraces:" << std::endl;
+      for (const auto &id_and_ptr : objects_alive_) {
+        of << id_and_ptr.first << ":" << std::endl;
+        id_and_ptr.second->getBt(of);
+      }
     }
-    os << std::endl
+    of << std::endl
        << "End of " << class_name_ << " living objects' backtraces."
        << std::endl;
+    of.close();
   }
 
  protected:
