@@ -1,15 +1,40 @@
 #pragma once
 
 #include <atomic>
+#include <iostream>
 #include <map>
 #include <memory>
 #include <mutex>
 #include <sstream>
+#include <vector>
 
 #include <execinfo.h>
 #include <boost/core/demangle.hpp>
 
 static std::atomic<size_t> obj_counter_longest_class_name(0);
+
+struct AllCountedStats {
+  using GetStatsFn = void (*)(std::ostream &);
+  AllCountedStats(GetStatsFn f) {
+    std::lock_guard<std::mutex> lock(mu_);
+    get_stats_.emplace_back(f);
+  }
+
+  // for this object to be ever used
+  void useMe() const {}
+
+  static void getAllStats(std::ostream &os) {
+    std::lock_guard<std::mutex> lock(mu_);
+    for (const auto &f : get_stats_) {
+      (*f)(os);
+      os << std::endl;
+    }
+  }
+
+ private:
+  static std::mutex mu_;
+  static std::vector<GetStatsFn> get_stats_;
+};
 
 class ConstrBt {
  public:
@@ -20,14 +45,11 @@ class ConstrBt {
     // backtrace_ = backtrace_symbols(addresses, bt_size_);
   }
 
-  std::string getBt() {
-    std::stringstream bt;
-    bt << std::hex;
+  void getBt(std::ostream &os) {
+    os << std::hex;
     for (size_t i = 0; i < bt_size_; ++i) {
-      bt << bt_addresses_[i] << std::endl;
+      os << bt_addresses_[i] << std::endl;
     }
-
-    return bt.str();
   }
 
  private:
@@ -44,24 +66,26 @@ struct ObjCounter : public ConstrBt {
     std::lock_guard<std::mutex> lock(counter_mu_);
     object_id_ = objects_created++;
     objects_alive_.emplace(std::make_pair(object_id_, this));
+    all_stats_register_.useMe();
   }
 
-  static std::string getStats() {
+  static void getStats(std::ostream &os) {
     std::lock_guard<std::mutex> lock(counter_mu_);
     const size_t class_name_padding_length =
         obj_counter_longest_class_name.load(std::memory_order_relaxed)
         - class_name_.size();
-    std::stringstream ss;
-    ss << class_name_ << ": " << std::string(class_name_padding_length, '.')
+    os << class_name_ << ": " << std::string(class_name_padding_length, '.')
        << " created " << objects_created
        << ", alive :" << objects_alive_.size();
 
-    ss << std::endl << "Living objects' backtraces:" << std::endl;
+    os << std::endl << "Living objects' backtraces:" << std::endl;
     for (const auto &id_and_ptr : objects_alive_) {
-      ss << id_and_ptr.first << ":" << std::endl << id_and_ptr.second->getBt();
+      os << id_and_ptr.first << ":" << std::endl;
+      id_and_ptr.second->getBt(os);
     }
-    ss << std::endl << "End of living objects' backtraces." << std::endl;
-    return ss.str();
+    os << std::endl
+       << "End of " << class_name_ << " living objects' backtraces."
+       << std::endl;
   }
 
  protected:
@@ -74,6 +98,7 @@ struct ObjCounter : public ConstrBt {
 
  private:
   static std::string class_name_;
+  static const AllCountedStats all_stats_register_;
 
   static std::mutex counter_mu_;
   static std::map<size_t, ConstrBt *> objects_alive_;
@@ -306,6 +331,9 @@ std::string ObjCounter<T>::class_name_([] {
     ;
   return class_name;
 }());
+template <typename T>
+const AllCountedStats ObjCounter<T>::all_stats_register_(
+    &ObjCounter<T>::getStats);
 template <typename T>
 std::mutex ObjCounter<T>::counter_mu_;
 template <typename T>

@@ -12,8 +12,8 @@
 
 // TODO: IR-1317 @l4l (02/05/18) magics should be replaced with options via
 // cli parameters
-static constexpr std::chrono::milliseconds kDefaultPeriod =
-    std::chrono::seconds(5);
+static const std::chrono::milliseconds kDefaultPeriod = std::chrono::seconds(
+    std::atoi(std::getenv("IROHA_GOSSIP_PROPAGATION_DELAY")));
 static constexpr uint32_t kDefaultAmount = 2;
 
 namespace iroha {
