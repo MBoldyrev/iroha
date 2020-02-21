@@ -201,11 +201,8 @@ namespace iroha {
 
         network_->sendState(current_leader, {vote});
         cluster_order.switchToNext();
-        auto has_next = cluster_order.hasNext();
         lock.unlock();
-        if (has_next) {
-          timer_->invokeAfterDelay([this, vote] { this->votingStep(vote); });
-        }
+        timer_->invokeAfterDelay([this, vote] { this->votingStep(vote); });
       }
 
       void Yac::closeRound() {
