@@ -28,40 +28,6 @@ using namespace iroha::consensus::yac;
 using namespace framework::test_subscriber;
 using namespace std;
 
-void YacTest::setNetworkOrderChecker(const ClusterOrdering &order,
-                                     const YacHash &hash,
-                                     size_t times_to_send_state) {
-  const auto &peers = order.getPeers();
-
-  auto times_sent_state = std::make_shared<size_t>(0);
-
-  ::testing::InSequence seq;
-
-  EXPECT_CALL(*network,
-              sendState(_,
-                        ::testing::ElementsAre(::testing::Field(
-                            &VoteMessage::hash, ::testing::Eq(hash)))))
-      .Times(times_to_send_state)
-      .WillRepeatedly([&peers, times_sent_state](
-                          const auto &peer, const auto & /* state */) mutable {
-        const auto it =
-            std::find_if(peers.begin(), peers.end(), [&](auto &peer_ptr) {
-              return *peer_ptr == peer;
-            });
-        EXPECT_NE(it, peers.end()) << "peer out of list";
-        EXPECT_EQ(it - peers.begin(), (*times_sent_state)++ % peers.size())
-            << "wrong order";
-      });
-
-  // stop after sending a vote \a times_to_send_state times.
-  EXPECT_CALL(*network,
-              sendState(_,
-                        ::testing::ElementsAre(::testing::Field(
-                            &VoteMessage::hash, ::testing::Eq(hash)))))
-      .WillOnce(::testing::InvokeWithoutArgs(
-          [this] { timer->setInvokeEnabled(false); }));
-}
-
 /**
  * @given Yac and ordering over some peers
  * @when yac gets a call to \ref vote()
@@ -73,7 +39,7 @@ TEST_F(YacTest, YacWhenVoting) {
   auto order = ClusterOrdering::create(default_peers);
   ASSERT_TRUE(order);
 
-  setNetworkOrderChecker(order.value(), my_hash, 20);
+  setNetworkOrderCheckerSingleVote(order.value(), my_hash, 20);
 
   yac->vote(my_hash, *order);
 }
@@ -284,7 +250,7 @@ class YacAlternativeOrderTest : public YacTest {
  * @then alternative order is used for sending votes
  */
 TEST_F(YacAlternativeOrderTest, Voting) {
-  setNetworkOrderChecker(alternative_order, my_hash, 20);
+  setNetworkOrderCheckerSingleVote(alternative_order, my_hash, 20);
 
   yac->vote(my_hash, order, alternative_order);
 }
@@ -297,7 +263,7 @@ TEST_F(YacAlternativeOrderTest, Voting) {
  *       and an outcome for synchronization is emitted
  */
 TEST_F(YacAlternativeOrderTest, OnState) {
-  setNetworkOrderChecker(alternative_order, my_hash, 20);
+  setNetworkOrderCheckerSingleVote(alternative_order, my_hash, 20);
 
   yac->vote(my_hash, order, alternative_order);
 
@@ -323,7 +289,7 @@ TEST_F(YacAlternativeOrderTest, OnState) {
  *       kNotSentNotProcessed action is not executed
  */
 TEST_F(YacAlternativeOrderTest, OnStateCurrentRoundAlternativePeer) {
-  setNetworkOrderChecker(alternative_order, my_hash, 20);
+  setNetworkOrderCheckerSingleVote(alternative_order, my_hash, 20);
 
   yac->vote(my_hash, order, alternative_order);
 
