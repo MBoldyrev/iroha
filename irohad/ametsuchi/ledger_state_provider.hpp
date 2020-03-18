@@ -13,9 +13,9 @@
 namespace iroha {
   class LedgerStateProvider {
    public:
-    virtual std::shared_ptr<LedgerState> get() const;
+    virtual std::shared_ptr<const LedgerState> get() const;
 
-    virtual void set(std::shared_ptr<LedgerState> state);
+    virtual void set(std::shared_ptr<const LedgerState> state);
   };
 }  // namespace iroha
 

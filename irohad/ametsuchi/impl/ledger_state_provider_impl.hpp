@@ -11,12 +11,12 @@
 namespace iroha {
   class LedgerStateProviderImpl {
    public:
-    std::shared_ptr<LedgerState> get() const override;
+    std::shared_ptr<const LedgerState> get() const override;
 
-    void set(std::shared_ptr<LedgerState> state) override;
+    void set(std::shared_ptr<const LedgerState> state) override;
 
    private:
-    std::shared_ptr<LedgerState> state_;
+    std::shared_ptr<const LedgerState> state_;
   };
 }  // namespace iroha
 

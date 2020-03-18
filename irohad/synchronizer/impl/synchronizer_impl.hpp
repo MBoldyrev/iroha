@@ -10,8 +10,8 @@
 
 #include <rxcpp/rx-lite.hpp>
 #include "ametsuchi/commit_result.hpp"
+#include "ametsuchi/ledger_state_provider.hpp"
 #include "ametsuchi/mutable_factory.hpp"
-#include "ametsuchi/peer_query_factory.hpp"
 #include "logger/logger_fwd.hpp"
 #include "network/block_loader.hpp"
 #include "network/consensus_gate.hpp"
@@ -33,7 +33,7 @@ namespace iroha {
           std::shared_ptr<network::ConsensusGate> consensus_gate,
           std::shared_ptr<validation::ChainValidator> validator,
           std::shared_ptr<ametsuchi::MutableFactory> mutable_factory,
-          std::shared_ptr<ametsuchi::BlockQueryFactory> block_query_factory,
+          std::shared_ptr<iroha::LedgerStateProvider> ledger_state_provider,
           std::shared_ptr<network::BlockLoader> block_loader,
           logger::LoggerPtr log);
 
@@ -50,13 +50,11 @@ namespace iroha {
       /**
        * Iterate through the peers which signed the commit message, load and
        * apply the missing blocks
-       * @param start_height - the block from which to start synchronization
        * @param target_height - the block height that must be reached
        * @param public_keys - public keys of peers from which to ask the blocks
        * @return Result of committing the downloaded blocks.
        */
       ametsuchi::CommitResult downloadAndCommitMissingBlocks(
-          const shared_model::interface::types::HeightType start_height,
           const shared_model::interface::types::HeightType target_height,
           const PublicKeysRange &public_keys);
 

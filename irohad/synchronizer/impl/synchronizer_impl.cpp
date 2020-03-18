@@ -24,13 +24,12 @@ namespace iroha {
         std::shared_ptr<network::ConsensusGate> consensus_gate,
         std::shared_ptr<validation::ChainValidator> validator,
         std::shared_ptr<ametsuchi::MutableFactory> mutable_factory,
-        std::shared_ptr<ametsuchi::BlockQueryFactory> block_query_factory,
+        std::shared_ptr<iroha::LedgerStateProvider> ledger_state_provider,
         std::shared_ptr<network::BlockLoader> block_loader,
         logger::LoggerPtr log)
         : command_executor_(std::move(command_executor)),
           validator_(std::move(validator)),
           mutable_factory_(std::move(mutable_factory)),
-          block_query_factory_(std::move(block_query_factory)),
           block_loader_(std::move(block_loader)),
           notifier_(notifier_lifetime_),
           log_(std::move(log)) {
@@ -43,57 +42,45 @@ namespace iroha {
     void SynchronizerImpl::processOutcome(consensus::GateObject object) {
       log_->info("processing consensus outcome");
 
-      auto process_reject = [this](auto outcome_type, const auto &msg) {
-        assert(msg.ledger_state->top_block_info.height + 1
-               == msg.round.block_round);
-        notifier_.get_subscriber().on_next(
-            SynchronizationEvent{outcome_type, msg.round, msg.ledger_state});
-      };
-
-      visit_in_place(object,
-                     [this](const consensus::PairValid &msg) {
-                       assert(msg.ledger_state->top_block_info.height + 1
-                              == msg.round.block_round);
-                       this->processNext(msg);
-                     },
-                     [this](const consensus::VoteOther &msg) {
-                       assert(msg.ledger_state->top_block_info.height + 1
-                              == msg.round.block_round);
-                       this->processDifferent(msg, msg.round.block_round);
-                     },
-                     [&](const consensus::ProposalReject &msg) {
-                       process_reject(SynchronizationOutcomeType::kReject, msg);
-                     },
-                     [&](const consensus::BlockReject &msg) {
-                       process_reject(SynchronizationOutcomeType::kReject, msg);
-                     },
-                     [&](const consensus::AgreementOnNone &msg) {
-                       process_reject(SynchronizationOutcomeType::kNothing,
-                                      msg);
-                     },
-                     [this](const consensus::Future &msg) {
-                       assert(msg.ledger_state->top_block_info.height + 1
-                              < msg.round.block_round);
-                       // we do not know the ledger state for round n, so we
-                       // cannot claim that the bunch of votes we got is a
-                       // commit certificate and hence we do not know if the
-                       // block n is committed and cannot require its
-                       // acquisition.
-                       this->processDifferent(msg, msg.round.block_round - 1);
-                     });
+      visit_in_place(
+          object,
+          [this](const consensus::PairValid &msg) { this->processNext(msg); },
+          [this](const consensus::VoteOther &msg) {
+            this->processDifferent(msg, msg.round.block_round);
+          },
+          [&](const consensus::ProposalReject &msg) {
+            notifier_.get_subscriber().on_next(
+                SynchronizationOutcomeType::kReject);
+          },
+          [&](const consensus::BlockReject &msg) {
+            notifier_.get_subscriber().on_next(
+                SynchronizationOutcomeType::kReject);
+          },
+          [&](const consensus::AgreementOnNone &msg) {
+            notifier_.get_subscriber().on_next(
+                SynchronizationOutcomeType::kNothing);
+          },
+          [this](const consensus::Future &msg) {
+            // we do not know the ledger state for round n, so we
+            // cannot claim that the bunch of votes we got is a
+            // commit certificate and hence we do not know if the
+            // block n is committed and cannot require its
+            // acquisition.
+            this->processDifferent(msg, msg.round.block_round - 1);
+          });
     }
 
     ametsuchi::CommitResult SynchronizerImpl::downloadAndCommitMissingBlocks(
-        const shared_model::interface::types::HeightType start_height,
         const shared_model::interface::types::HeightType target_height,
         const PublicKeysRange &public_keys) {
       // TODO andrei 17.10.18 IR-1763 Add delay strategy for loading blocks
       for (const auto &public_key : public_keys) {
         auto storage = getStorage();
 
-        shared_model::interface::types::HeightType my_height = start_height;
+        shared_model::interface::types::HeightType my_height =
+            ledger_state_provider_->get()->top_block_info.height;
         auto network_chain =
-            block_loader_->retrieveBlocks(start_height, public_key)
+            block_loader_->retrieveBlocks(my_height, public_key)
                 .tap([&my_height](
                          const std::shared_ptr<shared_model::interface::Block>
                              &block) { my_height = block->height(); });
@@ -113,18 +100,11 @@ namespace iroha {
 
     void SynchronizerImpl::processNext(const consensus::PairValid &msg) {
       log_->info("at handleNext");
-      const auto notify =
-          [this,
-           &msg](std::shared_ptr<const iroha::LedgerState> &&ledger_state) {
-            this->notifier_.get_subscriber().on_next(
-                SynchronizationEvent{SynchronizationOutcomeType::kCommit,
-                                     msg.round,
-                                     std::move(ledger_state)});
-          };
       const bool committed_prepared = mutable_factory_->preparedCommitEnabled()
           and mutable_factory_->commitPrepared(msg.block).match(
-                  [&notify](auto &&value) {
-                    notify(std::move(value.value));
+                  [](const auto &) {
+                    this->notifier_.get_subscriber().on_next(
+                        SynchronizationOutcomeType::kCommit);
                     return true;
                   },
                   [this](const auto &error) {
@@ -137,7 +117,10 @@ namespace iroha {
         if (storage->apply(msg.block)) {
           mutable_factory_->commit(std::move(storage))
               .match(
-                  [&notify](auto &&value) { notify(std::move(value.value)); },
+                  [](const auto &) {
+                    this->notifier_.get_subscriber().on_next(
+                        SynchronizationOutcomeType::kCommit);
+                  },
                   [this](const auto &error) {
                     this->log_->error("Failed to commit mutable storage: {}",
                                       error.error);
@@ -153,29 +136,20 @@ namespace iroha {
         shared_model::interface::types::HeightType required_height) {
       log_->info("at handleDifferent");
 
-      auto commit_result = downloadAndCommitMissingBlocks(
-          msg.ledger_state->top_block_info.height,
-          required_height,
-          msg.public_keys);
+      auto commit_result =
+          downloadAndCommitMissingBlocks(required_height, msg.public_keys);
 
       commit_result.match(
-          [this, &msg](auto &value) {
-            auto &ledger_state = value.value;
-            assert(ledger_state);
-            const auto new_height = ledger_state->top_block_info.height;
+          [this, &msg](const auto &) {
             notifier_.get_subscriber().on_next(
-                SynchronizationEvent{SynchronizationOutcomeType::kCommit,
-                                     new_height != msg.round.block_round
-                                         ? consensus::Round{new_height, 0}
-                                         : msg.round,
-                                     std::move(ledger_state)});
+                SynchronizationOutcomeType::kCommit);
           },
           [this](const auto &error) {
             log_->error("Synchronization failed: {}", error.error);
           });
     }
 
-    rxcpp::observable<SynchronizationEvent>
+    rxcpp::observable<SynchronizationOutcomeType>
     SynchronizerImpl::on_commit_chain() {
       return notifier_.get_observable();
     }

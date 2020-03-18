@@ -24,11 +24,11 @@
 namespace iroha {
   namespace ametsuchi {
     MutableStorageImpl::MutableStorageImpl(
-        boost::optional<std::shared_ptr<const iroha::LedgerState>> ledger_state,
+        std::shared_ptr<iroha::LedgerStateProvider> ledger_state_provider,
         std::shared_ptr<PostgresCommandExecutor> command_executor,
         std::unique_ptr<BlockStorage> block_storage,
         logger::LoggerManagerTreePtr log_manager)
-        : ledger_state_(std::move(ledger_state)),
+        : ledger_state_provider_(std::move(ledger_state_provider)),
           sql_(command_executor->getSession()),
           peer_query_(
               std::make_unique<PeerQueryWsv>(std::make_shared<PostgresWsvQuery>(
@@ -61,8 +61,10 @@ namespace iroha {
                  block->height(),
                  block->hash().hex());
 
+      const auto ledger_state_before_commit = ledger_state_provider_.get();
       auto block_applied =
-          (not ledger_state_ or predicate(block, *ledger_state_.value()))
+          (not ledger_state_before_commit
+           or predicate(block, *ledger_state_before_commit.value()))
           and std::all_of(block->transactions().begin(),
                           block->transactions().end(),
                           execute_transaction);
@@ -76,8 +78,8 @@ namespace iroha {
           return false;
         }
 
-        ledger_state_ = std::make_shared<const LedgerState>(
-            std::move(*opt_ledger_peers), block->height(), block->hash());
+        ledger_state_provider_->set(std::make_shared<const LedgerState>(
+            std::move(*opt_ledger_peers), block->height(), block->hash()));
       }
 
       return block_applied;
@@ -119,11 +121,6 @@ namespace iroha {
             .as_blocking()
             .first();
       });
-    }
-
-    boost::optional<std::shared_ptr<const iroha::LedgerState>>
-    MutableStorageImpl::getLedgerState() const {
-      return ledger_state_;
     }
 
     MutableStorageImpl::~MutableStorageImpl() {

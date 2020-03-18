@@ -18,7 +18,7 @@
 #include "ametsuchi/impl/pool_wrapper.hpp"
 #include "ametsuchi/impl/postgres_options.hpp"
 #include "ametsuchi/key_value_storage.hpp"
-#include "ametsuchi/ledger_state.hpp"
+#include "ametsuchi/ledger_state_provider.hpp"
 #include "ametsuchi/reconnection_strategy.hpp"
 #include "interfaces/permission_to_string.hpp"
 #include "logger/logger_fwd.hpp"
@@ -37,8 +37,10 @@ namespace iroha {
   namespace ametsuchi {
     class StorageImpl : public Storage {
      public:
-      static expected::Result<std::shared_ptr<StorageImpl>, std::string> create(
+      StorageImpl(
+          std::shared_ptr<iroha::LedgerStateProvider> ledger_state_provider,
           std::unique_ptr<ametsuchi::PostgresOptions> postgres_options,
+          std::unique_ptr<BlockStorage> block_store,
           std::shared_ptr<PoolWrapper> pool_wrapper,
           std::shared_ptr<shared_model::interface::PermissionToString>
               perm_converter,
@@ -46,9 +48,8 @@ namespace iroha {
           std::shared_ptr<shared_model::interface::QueryResponseFactory>
               query_response_factory,
           std::unique_ptr<BlockStorageFactory> temporary_block_storage_factory,
-          std::unique_ptr<BlockStorage> persistent_block_storage,
-          logger::LoggerManagerTreePtr log_manager,
-          size_t pool_size = 10);
+          size_t pool_size,
+          logger::LoggerManagerTreePtr log_manager);
 
       expected::Result<std::unique_ptr<CommandExecutor>, std::string>
       createCommandExecutor() override;
@@ -114,21 +115,6 @@ namespace iroha {
       ~StorageImpl() override;
 
      protected:
-      StorageImpl(
-          boost::optional<std::shared_ptr<const iroha::LedgerState>>
-              ledger_state,
-          std::unique_ptr<ametsuchi::PostgresOptions> postgres_options,
-          std::unique_ptr<BlockStorage> block_store,
-          std::shared_ptr<PoolWrapper> pool_wrapper,
-          std::shared_ptr<shared_model::interface::PermissionToString>
-              perm_converter,
-          std::shared_ptr<PendingTransactionStorage> pending_txs_storage,
-          std::shared_ptr<shared_model::interface::QueryResponseFactory>
-              query_response_factory,
-          std::unique_ptr<BlockStorageFactory> temporary_block_storage_factory,
-          size_t pool_size,
-          logger::LoggerManagerTreePtr log_manager);
-
       // db info
       const std::unique_ptr<ametsuchi::PostgresOptions> postgres_options_;
 
@@ -181,7 +167,7 @@ namespace iroha {
 
       std::string prepared_block_name_;
 
-      boost::optional<std::shared_ptr<const iroha::LedgerState>> ledger_state_;
+      std::shared_ptr<iroha::LedgerStateProvider> ledger_state_provider_;
     };
   }  // namespace ametsuchi
 }  // namespace iroha

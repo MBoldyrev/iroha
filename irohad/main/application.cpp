@@ -82,6 +82,9 @@ using namespace std::chrono_literals;
 static constexpr iroha::consensus::yac::ConsistencyModel
     kConsensusConsistencyModel = iroha::consensus::yac::ConsistencyModel::kCft;
 
+/// Database connection pool size. Limits the number of similtaneous accesses.
+static constexpr int kDbPoolSize = 10;
+
 /**
  * Configuring iroha daemon
  */
@@ -224,6 +227,65 @@ Irohad::RunResult Irohad::initValidatorsConfigs() {
 }
 
 /**
+ * Get current ledger state and initialize ledger state provider.
+ */
+Irohad::RunResult Irohad::initLedgerStateProvider() {
+  soci::session sql{*pool_wrapper->connection_pool_};
+
+  using BlockInfoResult = expected::Result<iroha::TopBlockInfo, std::string>;
+  auto get_top_block_info = [&]() -> BlockInfoResult {
+    PostgresBlockQuery block_query(
+        sql,
+        *persistent_block_storage,
+        log_manager->getChild("PostgresBlockQuery")->getLogger());
+    const auto ledger_height = block_query.getTopBlockHeight();
+    return block_query.getBlock(ledger_height)
+        .match(
+            [&ledger_height](const auto &block) -> BlockInfoResult {
+              return expected::makeValue(
+                  iroha::TopBlockInfo{ledger_height, block.value->hash()});
+            },
+            [](auto &&err) -> BlockInfoResult {
+              return std::move(err).error.message;
+            });
+  };
+
+  auto get_ledger_peers =
+      [&]() -> expected::Result<
+                std::vector<std::shared_ptr<shared_model::interface::Peer>>,
+                std::string> {
+    PostgresWsvQuery peer_query(sql,
+                                log_manager->getChild("WsvQuery")->getLogger());
+    return expected::optionalValueToResult(
+        peer_query.getPeers(), std::string{"Failed to get ledger peers!"});
+  };
+
+  return get_top_block_info() | [&](auto &&top_block_info) {
+    return get_ledger_peers() | [&top_block_info](auto &&ledger_peers_value) {
+      ledger_state_provider_->set(std::make_shared<const iroha::LedgerState>(
+          std::move(ledger_peers_value),
+          top_block_info.height,
+          top_block_info.top_hash));
+      return iroha::expected::Value<void>{};
+    };
+  };
+}
+
+/**
+ * Initialize database connection pool.
+ */
+Irohad::RunResult Irohad::initDbConnection() {
+  return PgConnectionInit::createDatabaseIfNotExist(*pg_opt) | [this] {
+    return PgConnectionInit::prepareConnectionPool(
+               iroha::ametsuchi::KTimesReconnectionStrategyFactory{10},
+               *pg_opt,
+               kDbPoolSize,
+               log_manager_)
+        | [this](auto &&pool) { pool_wrapper_ = std::move(pool); };
+  };
+}
+
+/**
  * Initializing iroha daemon storage
  */
 Irohad::RunResult Irohad::initStorage(
@@ -239,30 +301,6 @@ Irohad::RunResult Irohad::initStorage(
           std::make_unique<shared_model::validation::AlwaysValidValidator<
               shared_model::interface::Block>>(),
           std::make_unique<shared_model::validation::ProtoBlockValidator>());
-
-  boost::optional<std::string> string_res = boost::none;
-
-  // create database if it does not exist
-  PgConnectionInit::createDatabaseIfNotExist(*pg_opt).match(
-      [](auto &&val) {},
-      [&string_res](auto &&error) { string_res = error.error; });
-
-  if (string_res) {
-    return expected::makeError(string_res.value());
-  }
-
-  const int pool_size = 10;
-  auto pool = PgConnectionInit::prepareConnectionPool(
-      iroha::ametsuchi::KTimesReconnectionStrategyFactory{10},
-      *pg_opt,
-      pool_size,
-      log_manager_);
-
-  if (auto error = resultToOptionalError(pool)) {
-    return expected::makeError(std::move(*error));
-  }
-
-  pool_wrapper_ = std::move(pool).assumeValue();
 
   std::unique_ptr<BlockStorageFactory> temporary_block_storage_factory =
       std::make_unique<PostgresBlockStorageFactory>(
@@ -299,19 +337,20 @@ Irohad::RunResult Irohad::initStorage(
     persistent_block_storage = std::make_unique<PostgresBlockStorage>(
         pool_wrapper_, block_transport_factory, persistent_table, log_);
   }
-  return StorageImpl::create(std::move(pg_opt),
-                             pool_wrapper_,
-                             perm_converter,
-                             pending_txs_storage_,
-                             query_response_factory_,
-                             std::move(temporary_block_storage_factory),
-                             std::move(persistent_block_storage),
-                             log_manager_->getChild("Storage"))
-             | [&](auto &&v) -> RunResult {
-    storage = std::move(v);
-    log_->info("[Init] => storage");
-    return {};
-  };
+
+  storage =
+      std::make_shared<StorageImpl>(ledger_state_provider_,
+                                    std::move(pg_opt),
+                                    std::move(persistent_block_storage),
+                                    pool_wrapper_,
+                                    perm_converter,
+                                    pending_txs_storage_,
+                                    query_response_factory_,
+                                    std::move(temporary_block_storage_factory),
+                                    kDbPoolSize,
+                                    log_manager_->getChild("Storage"));
+  log_->info("[Init] => storage");
+  return {};
 }
 
 Irohad::RunResult Irohad::restoreWsv() {

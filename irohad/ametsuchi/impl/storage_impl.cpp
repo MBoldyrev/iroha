@@ -43,7 +43,7 @@ namespace iroha {
     const char *kTmpWsv = "TemporaryWsv";
 
     StorageImpl::StorageImpl(
-        boost::optional<std::shared_ptr<const iroha::LedgerState>> ledger_state,
+        std::shared_ptr<iroha::LedgerStateProvider> ledger_state_provider,
         std::unique_ptr<ametsuchi::PostgresOptions> postgres_options,
         std::unique_ptr<BlockStorage> block_store,
         std::shared_ptr<PoolWrapper> pool_wrapper,
@@ -72,7 +72,7 @@ namespace iroha {
               pool_wrapper_->enable_prepared_transactions_),
           block_is_prepared_(false),
           prepared_block_name_(postgres_options_->preparedBlockName()),
-          ledger_state_(std::move(ledger_state)) {}
+          ledger_state_provider_(std::move(ledger_state_provider)) {}
 
     std::unique_ptr<TemporaryWsv> StorageImpl::createTemporaryWsv(
         std::shared_ptr<CommandExecutor> command_executor) {
@@ -189,7 +189,7 @@ namespace iroha {
       // and must be removed to prevent locking
       tryRollback(postgres_command_executor->getSession());
       return std::make_unique<MutableStorageImpl>(
-          ledger_state_,
+          ledger_state_provider_,
           std::move(postgres_command_executor),
           storage_factory.create(),
           log_manager_->getChild("MutableStorageImpl"));
@@ -266,84 +266,6 @@ namespace iroha {
       connection_.reset();
     }
 
-    expected::Result<std::shared_ptr<StorageImpl>, std::string>
-    StorageImpl::create(
-        std::unique_ptr<ametsuchi::PostgresOptions> postgres_options,
-        std::shared_ptr<PoolWrapper> pool_wrapper,
-        std::shared_ptr<shared_model::interface::PermissionToString>
-            perm_converter,
-        std::shared_ptr<PendingTransactionStorage> pending_txs_storage,
-        std::shared_ptr<shared_model::interface::QueryResponseFactory>
-            query_response_factory,
-        std::unique_ptr<BlockStorageFactory> temporary_block_storage_factory,
-        std::unique_ptr<BlockStorage> persistent_block_storage,
-        logger::LoggerManagerTreePtr log_manager,
-        size_t pool_size) {
-      auto opt_ledger_state = [&] {
-        soci::session sql{*pool_wrapper->connection_pool_};
-
-        using BlockInfoResult =
-            expected::Result<iroha::TopBlockInfo, std::string>;
-        auto get_top_block_info = [&]() -> BlockInfoResult {
-          PostgresBlockQuery block_query(
-              sql,
-              *persistent_block_storage,
-              log_manager->getChild("PostgresBlockQuery")->getLogger());
-          const auto ledger_height = block_query.getTopBlockHeight();
-          return block_query.getBlock(ledger_height)
-              .match(
-                  [&ledger_height](const auto &block) -> BlockInfoResult {
-                    return expected::makeValue(iroha::TopBlockInfo{
-                        ledger_height, block.value->hash()});
-                  },
-                  [](auto &&err) -> BlockInfoResult {
-                    return std::move(err).error.message;
-                  });
-        };
-
-        auto get_ledger_peers = [&]()
-            -> expected::Result<
-                std::vector<std::shared_ptr<shared_model::interface::Peer>>,
-                std::string> {
-          PostgresWsvQuery peer_query(
-              sql, log_manager->getChild("WsvQuery")->getLogger());
-          return expected::optionalValueToResult(
-              peer_query.getPeers(),
-              std::string{"Failed to get ledger peers!"});
-        };
-
-        return expected::resultToOptionalValue(
-            get_top_block_info() | [&](auto &&top_block_info) {
-              return get_ledger_peers().match(
-                  [&top_block_info](auto &&ledger_peers_value)
-                      -> expected::Result<
-                          std::shared_ptr<const iroha::LedgerState>,
-                          std::string> {
-                    return expected::makeValue(
-                        std::make_shared<const iroha::LedgerState>(
-                            std::move(ledger_peers_value).value,
-                            top_block_info.height,
-                            top_block_info.top_hash));
-                  },
-                  [](auto &&e) -> expected::Result<
-                                   std::shared_ptr<const iroha::LedgerState>,
-                                   std::string> { return std::move(e); });
-            });
-      }();
-
-      return expected::makeValue(std::shared_ptr<StorageImpl>(
-          new StorageImpl(std::move(opt_ledger_state),
-                          std::move(postgres_options),
-                          std::move(persistent_block_storage),
-                          std::move(pool_wrapper),
-                          perm_converter,
-                          std::move(pending_txs_storage),
-                          std::move(query_response_factory),
-                          std::move(temporary_block_storage_factory),
-                          pool_size,
-                          std::move(log_manager))));
-    }
-
     CommitResult StorageImpl::commit(
         std::unique_ptr<MutableStorage> mutable_storage) {
       auto storage = static_cast<MutableStorageImpl *>(mutable_storage.get());
@@ -359,14 +281,7 @@ namespace iroha {
       storage->block_storage_->forEach(
           [this](const auto &block) { this->storeBlock(block); });
 
-      ledger_state_ = storage->getLedgerState();
-      if (ledger_state_) {
-        return expected::makeValue(ledger_state_.value());
-      } else {
-        return expected::makeError(
-            "This should never happen - a missing ledger state after a "
-            "successful commit!");
-      }
+      return expected::Value<void>{};
     }
 
     bool StorageImpl::preparedCommitEnabled() const {
@@ -414,9 +329,9 @@ namespace iroha {
           }
           assert(opt_ledger_peers);
 
-          ledger_state_ = std::make_shared<const LedgerState>(
-              std::move(*opt_ledger_peers), block->height(), block->hash());
-          return expected::makeValue(ledger_state_.value());
+          ledger_state_provider_->set(std::make_shared<const LedgerState>(
+              std::move(*opt_ledger_peers), block->height(), block->hash()));
+          return expected::Value<void>{};
         };
       } catch (const std::exception &e) {
         std::string msg((boost::format("failed to apply prepared block %s: %s")

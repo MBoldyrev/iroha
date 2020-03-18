@@ -35,12 +35,12 @@ namespace iroha {
      public:
       struct RoundSwitch {
         consensus::Round next_round;
-        std::shared_ptr<const LedgerState> ledger_state;
+        // std::shared_ptr<const LedgerState> ledger_state;
 
-        RoundSwitch(consensus::Round next_round,
-                    std::shared_ptr<const LedgerState> ledger_state)
-            : next_round(std::move(next_round)),
-              ledger_state(std::move(ledger_state)) {}
+        RoundSwitch(consensus::Round next_round)
+            // std::shared_ptr<const LedgerState> ledger_state)
+            : next_round(std::move(next_round)) {}
+        // ledger_state(std::move(ledger_state)) {}
       };
 
       OnDemandOrderingGate(

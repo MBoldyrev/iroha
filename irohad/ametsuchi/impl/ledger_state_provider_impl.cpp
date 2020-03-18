@@ -8,11 +8,11 @@
 #include <atomic>
 
 namespace iroha {
-  std::shared_ptr<LedgerState> LedgerStateProviderImpl::get() const {
+  std::shared_ptr<const LedgerState> LedgerStateProviderImpl::get() const {
     return std::atomic_load_explicit(&state_, std::memory_order_acquire);
   }
 
-  void LedgerStateProviderImpl::set(std::shared_ptr<LedgerState> state) {
+  void LedgerStateProviderImpl::set(std::shared_ptr<const LedgerState> state) {
     return std::atomic_store_explicit(&state_, std::memory_order_release);
   }
 }  // namespace iroha

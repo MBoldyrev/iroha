@@ -10,6 +10,7 @@
 
 #include <soci/soci.h>
 #include "ametsuchi/block_storage.hpp"
+#include "ametsuchi/ledger_state_provider.hpp"
 #include "interfaces/common_objects/types.hpp"
 #include "logger/logger_fwd.hpp"
 #include "logger/logger_manager_fwd.hpp"
@@ -26,8 +27,7 @@ namespace iroha {
 
      public:
       MutableStorageImpl(
-          boost::optional<std::shared_ptr<const iroha::LedgerState>>
-              ledger_state,
+          std::shared_ptr<iroha::LedgerStateProvider> ledger_state_provider,
           std::shared_ptr<PostgresCommandExecutor> command_executor,
           std::unique_ptr<BlockStorage> block_storage,
           logger::LoggerManagerTreePtr log_manager);
@@ -38,9 +38,6 @@ namespace iroha {
       bool apply(rxcpp::observable<
                      std::shared_ptr<shared_model::interface::Block>> blocks,
                  MutableStoragePredicate predicate) override;
-
-      boost::optional<std::shared_ptr<const iroha::LedgerState>>
-      getLedgerState() const;
 
       ~MutableStorageImpl() override;
 

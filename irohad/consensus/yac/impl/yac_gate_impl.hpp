@@ -62,7 +62,6 @@ namespace iroha {
             current_block_;
         YacHash current_hash_;
         boost::optional<ClusterOrdering> alternative_order_;
-        std::shared_ptr<const LedgerState> current_ledger_state_;
 
         rxcpp::observable<GateObject> published_events_;
         std::shared_ptr<YacPeerOrderer> orderer_;
