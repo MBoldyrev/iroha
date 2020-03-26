@@ -448,6 +448,18 @@ inline void JsonDeserializerImpl::getVal<IrohadConfig::DbConfig>(
 }
 
 template <>
+inline void JsonDeserializerImpl::getVal<IrohadConfig::UtilityService>(
+    const std::string &path,
+    IrohadConfig::UtilityService &dest,
+    const rapidjson::Value &src) {
+  assert_fatal(src.IsObject(),
+               path + " utility service config top element must be an object.");
+  const auto obj = src.GetObject();
+  getValByKey(path, dest.ip, obj, config_members::Ip);
+  getValByKey(path, dest.port, obj, config_members::Port);
+}
+
+template <>
 inline void JsonDeserializerImpl::getVal<IrohadConfig>(
     const std::string &path, IrohadConfig &dest, const rapidjson::Value &src) {
   assert_fatal(src.IsObject(),
@@ -475,6 +487,7 @@ inline void JsonDeserializerImpl::getVal<IrohadConfig>(
               config_members::StaleStreamMaxRounds);
   getValByKey(path, dest.logger_manager, obj, config_members::LogSection);
   getValByKey(path, dest.initial_peers, obj, config_members::InitialPeers);
+  getValByKey(path, dest.utility_service, obj, config_members::UtilityService);
 }
 
 // ------------ end of getVal(path, dst, src) specializations ------------
