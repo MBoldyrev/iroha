@@ -4,12 +4,14 @@
  */
 
 #include <boost/variant.hpp>
+#include "cryptography/crypto_provider/crypto_defaults.hpp"
 #include "framework/crypto_literals.hpp"
 #include "framework/integration_framework/integration_test_framework.hpp"
 #include "integration/acceptance/acceptance_fixture.hpp"
 #include "module/shared_model/cryptography/crypto_defaults.hpp"
 
 using namespace common_constants;
+using namespace shared_model::interface::types;
 
 using shared_model::interface::types::PublicKeyHexStringView;
 
@@ -39,6 +41,10 @@ class AcceptanceTest : public AcceptanceFixture {
         .addAssetQuantity(kAssetId, "1.0")
         .quorum(1);
   }
+
+  shared_model::crypto::CryptoSignerInternal<
+      shared_model::crypto::DefaultCryptoAlgorithmType>
+      admins_signer{kAdminKeypair};
 };
 
 /**
@@ -164,15 +170,12 @@ TEST_F(AcceptanceTest, Transaction10MinutesFromFuture) {
  * @then receive STATELESS_VALIDATION_FAILED status
  */
 TEST_F(AcceptanceTest, TransactionEmptyPubKey) {
-  using namespace std::literals;
   shared_model::proto::Transaction tx =
       baseTx<TestTransactionBuilder>().build();
 
-  auto signedBlob = shared_model::crypto::CryptoSigner::sign(
-      shared_model::crypto::Blob(tx.payload()), kAdminKeypair);
-  tx.addSignature(
-      shared_model::interface::types::SignedHexStringView{signedBlob},
-      ""_hex_pubkey);
+  auto signedBlob = admins_signer.sign(tx.payload());
+  tx.addSignature(SignedHexStringView{signedBlob},
+                  ""_hex_pubkey);
   integration_framework::IntegrationTestFramework(1)
       .setInitialState(kAdminKeypair)
       .sendTx(tx, CHECK_STATELESS_INVALID);
@@ -191,7 +194,7 @@ TEST_F(AcceptanceTest, TransactionEmptySignedblob) {
   using namespace std::literals;
   shared_model::proto::Transaction tx =
       baseTx<TestTransactionBuilder>().build();
-  tx.addSignature(shared_model::interface::types::SignedHexStringView{""sv},
+  tx.addSignature(SignedHexStringView{""sv},
                   PublicKeyHexStringView{kAdminKeypair.publicKey()});
   integration_framework::IntegrationTestFramework(1)
       .setInitialState(kAdminKeypair)
@@ -208,13 +211,9 @@ TEST_F(AcceptanceTest, TransactionEmptySignedblob) {
 TEST_F(AcceptanceTest, TransactionInvalidPublicKey) {
   shared_model::proto::Transaction tx =
       baseTx<TestTransactionBuilder>().build();
-  auto signedBlob = shared_model::crypto::CryptoSigner::sign(
-      shared_model::crypto::Blob(tx.payload()), kAdminKeypair);
-  std::string public_key{
-      shared_model::crypto::DefaultCryptoAlgorithmType::kPublicKeyLength, 'a'};
-  tx.addSignature(
-      shared_model::interface::types::SignedHexStringView{signedBlob},
-      shared_model::interface::types::PublicKeyHexStringView{public_key});
+  auto signature_hex = kAdminSigner->sign(tx.payload());
+  tx.addSignature(SignedHexStringView{signature_hex},
+                  kUserSigner->publicKey());
   integration_framework::IntegrationTestFramework(1)
       .setInitialState(kAdminKeypair)
       .sendTx(tx, CHECK_STATELESS_INVALID);
@@ -231,9 +230,7 @@ TEST_F(AcceptanceTest, TransactionInvalidSignedBlob) {
   shared_model::proto::Transaction tx =
       baseTx<TestTransactionBuilder>().build();
 
-  auto wrong_signature = shared_model::crypto::CryptoSigner::sign(
-      shared_model::crypto::Blob(tx.payload()), kUserKeypair);
-
+  auto wrong_signature = kUserSigner->sign(tx.payload());
   tx.addSignature(
       shared_model::interface::types::SignedHexStringView{wrong_signature},
       PublicKeyHexStringView{kAdminKeypair.publicKey()});
