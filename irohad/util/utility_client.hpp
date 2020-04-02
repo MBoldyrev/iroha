@@ -17,7 +17,7 @@ namespace iroha {
 
     class UtilityClient {
      public:
-      UtilityClient(const std::string irohad_address, logger::LoggerPtr log);
+      UtilityClient(std::string const &irohad_address, logger::LoggerPtr log);
 
       ~UtilityClient();
 

@@ -34,23 +34,23 @@ namespace iroha {
       return map;
     }
 
-    boost::optional<std::unique_ptr<proto::Status>> makeProtoStatus(
+    std::optional<std::unique_ptr<proto::Status>> makeProtoStatus(
         Status status) {
       auto status_it = getProtoStatusBimap().left.find(status);
       if (status_it == getProtoStatusBimap().left.end()) {
         assert(status_it != getProtoStatusBimap().left.end());
-        return boost::none;
+        return std::nullopt;
       }
       auto proto_status = std::make_unique<proto::Status>();
       proto_status->set_status(status_it->second);
       return proto_status;
     }
 
-    boost::optional<Status> makeStatus(const proto::Status &status) {
+    std::optional<Status> makeStatus(const proto::Status &status) {
       auto status_it = getProtoStatusBimap().right.find(status.status());
       if (status_it == getProtoStatusBimap().right.end()) {
         assert(status_it != getProtoStatusBimap().right.end());
-        return boost::none;
+        return std::nullopt;
       }
       return status_it->second;
     }

@@ -20,10 +20,6 @@ using namespace iroha::utility_service;
 
 using iroha::operator|;
 
-static_assert(logger::kIsFmtInternalSupported<
-                  iroha::utility_service::proto::Status> == false,
-              "qwe");
-
 struct UtilityClient::StubHolder {
   StubHolder(const std::string &address)
       : channel_(grpc::CreateCustomChannel(
@@ -37,7 +33,7 @@ struct UtilityClient::StubHolder {
   std::unique_ptr<proto::UtilityService_v1::StubInterface> stub_;
 };
 
-UtilityClient::UtilityClient(const std::string irohad_address,
+UtilityClient::UtilityClient(std::string const &irohad_address,
                              logger::LoggerPtr log)
     : log_(std::move(log)),
       stub_holder_(std::make_unique<StubHolder>(irohad_address)) {}

@@ -7,19 +7,19 @@
 #define UTIL_PROTO_STATUS_TOOLS_HPP
 
 #include <memory>
+#include <optional>
 #include <string>
 
-#include <boost/optional.hpp>
 #include "backend/protobuf/proto_enum_to_string.hpp"
 #include "util/status.hpp"
 #include "utility_endpoint.pb.h"
 
 namespace iroha {
   namespace utility_service {
-    boost::optional<std::unique_ptr<proto::Status>> makeProtoStatus(
+    std::optional<std::unique_ptr<proto::Status>> makeProtoStatus(
         Status status);
 
-    boost::optional<Status> makeStatus(const proto::Status &status);
+    std::optional<Status> makeStatus(const proto::Status &status);
 
   }  // namespace utility_service
 }  // namespace iroha
