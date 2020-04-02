@@ -54,7 +54,7 @@ TEST_F(FakePeerFixture, FakePeerIsRemoved) {
   // send removePeer command
   itf.sendTxAwait(complete(baseTx(kAdminId).removePeer(PublicKeyHexStringView{
                                fake_peer->getKeypair().publicKey()}),
-                           kAdminKeypair),
+                           *kAdminSigner),
                   checkBlockHasNTxs<1>);
 
   // ------------------------ THEN -------------------------
@@ -118,7 +118,7 @@ TEST_F(FakePeerFixture, RealPeerIsRemoved) {
   // send removePeer command
   itf.sendTxAwait(complete(baseTx(kAdminId).removePeer(PublicKeyHexStringView{
                                itf_->getThisPeer()->pubkey()}),
-                           kAdminKeypair),
+                           *kAdminSigner),
                   checkBlockHasNTxs<1>);
 
   // ------------------------ THEN -------------------------

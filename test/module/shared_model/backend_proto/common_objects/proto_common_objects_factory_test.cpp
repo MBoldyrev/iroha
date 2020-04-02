@@ -10,6 +10,7 @@
 #include "framework/crypto_literals.hpp"
 #include "framework/result_fixture.hpp"
 #include "framework/stateless_valid_field_helpers.hpp"
+#include "framework/strong_type_literals.hpp"
 #include "module/irohad/common/validators_config.hpp"
 #include "module/shared_model/cryptography/crypto_defaults.hpp"
 #include "validators/field_validator.hpp"

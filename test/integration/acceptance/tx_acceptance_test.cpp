@@ -41,10 +41,6 @@ class AcceptanceTest : public AcceptanceFixture {
         .addAssetQuantity(kAssetId, "1.0")
         .quorum(1);
   }
-
-  shared_model::crypto::CryptoSignerInternal<
-      shared_model::crypto::DefaultCryptoAlgorithmType>
-      admins_signer{kAdminKeypair};
 };
 
 /**
@@ -83,7 +79,7 @@ TEST_F(AcceptanceTest, Transaction1HourOld) {
       .setInitialState(kAdminSigner)
       .sendTx(complete(baseTx<>().createdTime(
                            iroha::time::now(std::chrono::hours(-1))),
-                       kAdminKeypair),
+                       *kAdminSigner),
               checkStatelessValidStatus)
       .skipProposal()
       .skipVerifiedProposal()
@@ -103,7 +99,7 @@ TEST_F(AcceptanceTest, DISABLED_TransactionLess24HourOld) {
       .setInitialState(kAdminSigner)
       .sendTx(complete(baseTx<>().createdTime(iroha::time::now(
                            std::chrono::hours(24) - std::chrono::minutes(1))),
-                       kAdminKeypair),
+                       *kAdminSigner),
               checkStatelessValidStatus)
       .skipProposal()
       .skipVerifiedProposal()
@@ -122,7 +118,7 @@ TEST_F(AcceptanceTest, TransactionMore24HourOld) {
       .setInitialState(kAdminSigner)
       .sendTx(complete(baseTx<>().createdTime(iroha::time::now(
                            std::chrono::hours(24) + std::chrono::minutes(1))),
-                       kAdminKeypair),
+                       *kAdminSigner),
               CHECK_STATELESS_INVALID);
 }
 
@@ -139,7 +135,7 @@ TEST_F(AcceptanceTest, Transaction5MinutesFromFuture) {
       .setInitialState(kAdminSigner)
       .sendTx(complete(baseTx<>().createdTime(iroha::time::now(
                            std::chrono::minutes(5) - std::chrono::seconds(10))),
-                       kAdminKeypair),
+                       *kAdminSigner),
               checkStatelessValidStatus)
       .skipProposal()
       .skipVerifiedProposal()
@@ -158,7 +154,7 @@ TEST_F(AcceptanceTest, Transaction10MinutesFromFuture) {
       .setInitialState(kAdminSigner)
       .sendTx(complete(baseTx<>().createdTime(
                            iroha::time::now(std::chrono::minutes(10))),
-                       kAdminKeypair),
+                       *kAdminSigner),
               CHECK_STATELESS_INVALID);
 }
 
@@ -173,9 +169,8 @@ TEST_F(AcceptanceTest, TransactionEmptyPubKey) {
   shared_model::proto::Transaction tx =
       baseTx<TestTransactionBuilder>().build();
 
-  auto signedBlob = admins_signer.sign(tx.payload());
-  tx.addSignature(SignedHexStringView{signedBlob},
-                  ""_hex_pubkey);
+  auto signature_hex = kAdminSigner->sign(tx.payload());
+  tx.addSignature(SignedHexStringView{signature_hex}, ""_hex_pubkey);
   integration_framework::IntegrationTestFramework(1)
       .setInitialState(kAdminSigner)
       .sendTx(tx, CHECK_STATELESS_INVALID);
@@ -194,7 +189,7 @@ TEST_F(AcceptanceTest, TransactionEmptySignedblob) {
   using namespace std::literals;
   shared_model::proto::Transaction tx =
       baseTx<TestTransactionBuilder>().build();
-  tx.addSignature(SignedHexStringView{""sv},
+  tx.addSignature(""_hex_sign,
                   PublicKeyHexStringView{kAdminSigner->publicKey()});
   integration_framework::IntegrationTestFramework(1)
       .setInitialState(kAdminSigner)
