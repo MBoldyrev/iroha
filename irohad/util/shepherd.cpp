@@ -27,7 +27,7 @@ static bool validateVerbosity(const char *flagname, const std::string &val) {
   return true;
 }
 
-static bool validateSingleAction(const char *flagname, bool val) {
+static bool validateSingleAction(const char * /*flagname*/, bool val) {
   static bool got_a_command = false;
   if (got_a_command && val) {
     std::cerr << "More than one command specified!";
