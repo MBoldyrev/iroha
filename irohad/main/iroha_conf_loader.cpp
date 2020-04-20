@@ -345,7 +345,7 @@ JsonDeserializerImpl::getVal<std::unique_ptr<shared_model::interface::Peer>>(
       getOptValByKey<std::string>(
           path, obj, config_members::TlsCertificatePath);
 
-  boost::optional<std::string> tls_certificate_str;
+  std::optional<std::string> tls_certificate_str;
   if (tls_certificate_path) {
     iroha::readTextFile(*tls_certificate_path)
         .match([&tls_certificate_str](
@@ -358,11 +358,10 @@ JsonDeserializerImpl::getVal<std::unique_ptr<shared_model::interface::Peer>>(
   }
 
   common_objects_factory_
-      ->createPeer(
-          address,
-          shared_model::crypto::PublicKey(
-              shared_model::crypto::Blob::fromHexString(public_key_str)),
-          tls_certificate_str)
+      ->createPeer(address,
+                   shared_model::interface::types::PublicKeyHexStringView{
+                       public_key_str},
+                   tls_certificate_str)
       .match([&dest](auto &&v) { dest = std::move(v.value); },
              [&path](const auto &error) {
                throw JsonDeserializerException("Failed to create a peer at '"

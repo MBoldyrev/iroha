@@ -16,28 +16,29 @@ RUN apt-get update && \
 RUN set -e; \
     add-apt-repository -y ppa:ubuntu-toolchain-r/test; \
     wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1 apt-key add -; \
-    echo 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-6.0 main' >> /etc/apt/sources.list; \
     echo 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-7 main' >> /etc/apt/sources.list; \
+    echo 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main' >> /etc/apt/sources.list; \
     apt-get update
 
 RUN set -e; \
     apt-get -y --no-install-recommends install libtool \
-        # compilers (gcc-7, gcc-9, clang-6)
-        build-essential clang-6.0 lldb-6.0 lld-6.0 g++-9 ninja-build \
+        # compilers (gcc-7, gcc-9)
+        build-essential g++-9 ninja-build \
         # CI dependencies
         git ssh tar gzip ca-certificates gnupg \
-        # Pythons
-        python-pip python3-pip python3-setuptools python-dev \
+        # Python3
+        python3-pip python3-setuptools\
         # other
         curl file gdb gdbserver ccache python3.6-dev \
         gcovr cppcheck doxygen rsync graphviz graphviz-dev unzip vim zip pkg-config; \
     apt-get -y clean
 
-# compiler clang-7 and libc++ only on x86_64, for debug purpose
+# compiler clang-7, clang-9 and libc++ only on x86_64, for debug purpose
 RUN set -e; \
     if [ `uname -m` = "x86_64" ]; then \
       apt-get -y --no-install-recommends install \
-        clang-7 lldb-7 lld-7 libc++-7-dev libc++abi-7-dev clang-format-7; \
+        clang-7 lldb-7 lld-7 libc++-7-dev libc++abi-7-dev clang-format-7 \
+        clang-9; \
       apt-get -y clean; \
     fi
 
@@ -79,7 +80,6 @@ RUN set -e; \
 
 # python bindings dependencies
 RUN set -e; \
-    pip install grpcio_tools pysha3; \
     pip3 install grpcio_tools pysha3 iroha==0.0.5.4
 
 # install lcov

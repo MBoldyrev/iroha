@@ -8,7 +8,7 @@
 
 #include "interfaces/common_objects/peer.hpp"
 
-#include <boost/optional.hpp>
+#include <optional>
 
 #include "backend/protobuf/util.hpp"
 #include "cryptography/hash.hpp"
@@ -35,20 +35,18 @@ namespace shared_model {
         return proto_->address();
       }
 
-      const boost::optional<interface::types::TLSCertificateType>
+      const std::optional<interface::types::TLSCertificateType>
           &tlsCertificate() const override {
         return tls_certificate_;
       }
 
-      const interface::types::PubkeyType &pubkey() const override {
-        return public_key_;
+      const std::string &pubkey() const override {
+        return proto_->peer_key();
       }
 
      private:
       detail::ReferenceHolder<iroha::protocol::Peer> proto_;
-      const interface::types::PubkeyType public_key_{
-          crypto::Hash::fromHexString(proto_->peer_key())};
-      boost::optional<std::string> tls_certificate_;
+      std::optional<std::string> tls_certificate_;
     };
   }  // namespace proto
 }  // namespace shared_model

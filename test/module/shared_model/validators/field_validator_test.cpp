@@ -11,9 +11,9 @@
 #include <google/protobuf/descriptor.h>
 #include <google/protobuf/dynamic_message.h>
 #include <boost/format.hpp>
-#include <boost/optional/optional_io.hpp>
 #include <boost/range/algorithm.hpp>
 #include <boost/range/join.hpp>
+#include <optional>
 #include "block.pb.h"
 
 #include "backend/protobuf/batch_meta.hpp"
@@ -36,7 +36,7 @@ class FieldValidatorTest : public ValidatorsTest {
  protected:
   // Function which performs validation
   using ValidationFunction =
-      std::function<boost::optional<validation::ValidationError>()>;
+      std::function<std::optional<validation::ValidationError>()>;
   // Function which initializes field, allows to have one type when dealing
   // with various types of fields
   using InitFieldFunction = std::function<void()>;
@@ -82,12 +82,10 @@ class FieldValidatorTest : public ValidatorsTest {
             std::make_shared<const shared_model::validation::Settings>(
                 std::move(testSettings)));
 
-    field_validators.insert(makeTransformValidator(
-        "public_key",
-        &FieldValidator::validatePubkey,
-        &FieldValidatorTest::public_key,
-        [](auto &&x) { return interface::types::PubkeyType(x); },
-        public_key_test_cases));
+    field_validators.insert(makeValidator("public_key",
+                                          &FieldValidator::validatePubkey,
+                                          &FieldValidatorTest::public_key,
+                                          public_key_test_cases));
 
     for (const auto &field : {"role_name", "default_role", "role_id"}) {
       field_validators.insert(makeValidator(field,
@@ -196,7 +194,7 @@ class FieldValidatorTest : public ValidatorsTest {
         ASSERT_TRUE(error) << testFailMessage(field_name, testcase.name);
         // TODO IR-1183 add returned message check 29.03.2018
       } else {
-        EXPECT_EQ(error, boost::none)
+        EXPECT_EQ(error, std::nullopt)
             << testFailMessage(field_name, testcase.name);
       }
     }
@@ -410,8 +408,8 @@ class FieldValidatorTest : public ValidatorsTest {
   }
 
   std::vector<FieldTestCase> public_key_test_cases{
-      makeValidCase(&FieldValidatorTest::public_key, std::string(32, '0')),
-      invalidPublicKeyTestCase("invalid_key_length", std::string(64, '0')),
+      makeValidCase(&FieldValidatorTest::public_key, std::string(64, '0')),
+      invalidPublicKeyTestCase("invalid_key_length", std::string(128, '0')),
       invalidPublicKeyTestCase("empty_string", "")};
 
   std::vector<FieldTestCase> peer_test_cases{
@@ -572,7 +570,7 @@ class FieldValidatorTest : public ValidatorsTest {
           std::string(5 * 1024 * 1024, '0'))};
 
   std::vector<FieldTestCase> detail_old_value_test_cases{
-      makeValidCase(&FieldValidatorTest::detail_old_value, boost::none),
+      makeValidCase(&FieldValidatorTest::detail_old_value, std::nullopt),
       makeValidCase(&FieldValidatorTest::detail_old_value, "valid old value"),
       makeValidCase(&FieldValidatorTest::detail_old_value,
                     std::string(4096, '0')),
@@ -750,7 +748,7 @@ class FieldValidatorTest : public ValidatorsTest {
                     counter_test_cases),
       makeValidator(
           "created_time",
-          static_cast<boost::optional<validation::ValidationError> (
+          static_cast<std::optional<validation::ValidationError> (
               FieldValidator::*)(interface::types::TimestampType) const>(
               &FieldValidator::validateCreatedTime),
           &FieldValidatorTest::created_time,
@@ -880,7 +878,7 @@ TEST_F(FieldValidatorTest, TryReachDefaultLimit) {
 
   auto error = custom_field_validator.validateDescription(
       std::string(shared_model::validation::kDefaultDescriptionSize + 1, 0));
-  ASSERT_EQ(error, boost::none);
+  ASSERT_EQ(error, std::nullopt);
 }
 
 /**
@@ -893,7 +891,7 @@ TEST_F(FieldValidatorTest, TryReachNewMaxSize) {
 
   auto error = custom_field_validator.validateDescription(
       std::string(kCustomMaxDescriptionSize, 0));
-  ASSERT_EQ(error, boost::none);
+  ASSERT_EQ(error, std::nullopt);
 }
 
 /**

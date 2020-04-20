@@ -9,7 +9,7 @@
 #include "interfaces/base/model_primitive.hpp"
 #include "interfaces/common_objects/types.hpp"
 
-#include <boost/optional/optional_fwd.hpp>
+#include <optional>
 
 namespace shared_model {
   namespace interface {
@@ -27,13 +27,13 @@ namespace shared_model {
       /**
        * @return Peer TLS certficate
        */
-      virtual const boost::optional<interface::types::TLSCertificateType>
+      virtual const std::optional<interface::types::TLSCertificateType>
           &tlsCertificate() const = 0;
 
       /**
        * @return Public key, for fetching data
        */
-      virtual const interface::types::PubkeyType &pubkey() const = 0;
+      virtual const std::string &pubkey() const = 0;
 
       std::string toString() const override;
 

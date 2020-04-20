@@ -9,8 +9,8 @@ namespace integration_framework {
   namespace fake_peer {
 
     void MstNetworkNotifier::onNewState(
-        const shared_model::crypto::PublicKey &from,
-        iroha::MstState new_state) {
+        shared_model::interface::types::PublicKeyHexStringView from,
+        iroha::MstState &&new_state) {
       std::lock_guard<std::mutex> guard(mst_subject_mutex_);
       mst_subject_.get_subscriber().on_next(
           std::make_shared<MstMessage>(from, std::move(new_state)));

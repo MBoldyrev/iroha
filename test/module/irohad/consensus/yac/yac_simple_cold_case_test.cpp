@@ -18,7 +18,6 @@
 #include "framework/test_subscriber.hpp"
 
 using ::testing::_;
-using ::testing::An;
 using ::testing::AtLeast;
 using ::testing::Invoke;
 using ::testing::Ref;

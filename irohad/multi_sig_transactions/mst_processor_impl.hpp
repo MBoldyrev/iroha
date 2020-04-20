@@ -57,8 +57,8 @@ namespace iroha {
 
     // ------------------| MstTransportNotification override |------------------
 
-    void onNewState(const shared_model::crypto::PublicKey &from,
-                    MstState new_state) override;
+    void onNewState(shared_model::interface::types::PublicKeyHexStringView from,
+                    MstState &&new_state) override;
 
     // ----------------------------| end override |-----------------------------
 
@@ -111,6 +111,8 @@ namespace iroha {
     /// use for tracking the propagation subscription
 
     rxcpp::composite_subscription propagation_subscriber_;
+
+    rxcpp::composite_subscription send_state_subscriber_;
 
     logger::LoggerPtr log_;
   };

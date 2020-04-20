@@ -9,11 +9,12 @@
 #include "interfaces/base/model_primitive.hpp"
 
 #include <boost/functional/hash.hpp>
-#include <boost/optional.hpp>
+#include <optional>
 #include <unordered_set>
 #include "cryptography/default_hash_provider.hpp"
 #include "interfaces/common_objects/range_types.hpp"
 #include "interfaces/common_objects/signature.hpp"
+#include "interfaces/common_objects/string_view_types.hpp"
 #include "interfaces/common_objects/types.hpp"
 #include "utils/string_builder.hpp"
 
@@ -41,11 +42,10 @@ namespace shared_model {
 
       /**
        * Attach signature to object
-       * @param signature - signature object for insertion
        * @return true, if signature was added
        */
-      virtual bool addSignature(const crypto::Signed &signed_blob,
-                                const crypto::PublicKey &public_key) = 0;
+      virtual bool addSignature(types::SignedHexStringView signed_blob,
+                                types::PublicKeyHexStringView public_key) = 0;
 
       /**
        * @return time of creation
@@ -72,7 +72,8 @@ namespace shared_model {
             // is_permutation consumes ~O(N^2)
             and std::is_permutation(signatures().begin(),
                                     signatures().end(),
-                                    rhs.signatures().begin());
+                                    rhs.signatures().begin(),
+                                    rhs.signatures().end());
       }
 
       /**
@@ -114,7 +115,7 @@ namespace shared_model {
          */
         template <typename T>
         size_t operator()(const T &sig) const {
-          return std::hash<std::string>{}(sig.publicKey().hex());
+          return std::hash<std::string>{}(sig.publicKey());
         }
 
         /**
