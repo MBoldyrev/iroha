@@ -26,7 +26,8 @@
 namespace shared_model {
   namespace crypto {
     class CryptoSigner;
-  }
+    class CryptoVerifier;
+  }  // namespace crypto
 }  // namespace shared_model
 
 namespace iroha {
@@ -44,6 +45,8 @@ namespace iroha {
             std::shared_ptr<simulator::BlockCreator> block_creator,
             std::shared_ptr<network::BlockLoader> block_loader,
             std::shared_ptr<shared_model::crypto::CryptoSigner> crypto_signer,
+            std::shared_ptr<shared_model::crypto::CryptoVerifier>
+                crypto_verifier,
             std::shared_ptr<consensus::ConsensusResultCache> block_cache,
             std::chrono::milliseconds vote_delay_milliseconds,
             std::shared_ptr<

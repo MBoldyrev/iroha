@@ -18,8 +18,11 @@ namespace iroha {
     namespace yac {
       CryptoProviderImpl::CryptoProviderImpl(
           std::shared_ptr<shared_model::crypto::CryptoSigner> crypto_signer,
+          std::shared_ptr<shared_model::crypto::CryptoVerifier> crypto_verifier,
           logger::LoggerPtr log)
-          : crypto_signer_(std::move(crypto_signer)), log_(std::move(log)) {}
+          : crypto_signer_(std::move(crypto_signer)),
+            crypto_verifier_(std::move(crypto_verifier)),
+            log_(std::move(log)) {}
 
       bool CryptoProviderImpl::verify(const std::vector<VoteMessage> &msg) {
         return std::all_of(
@@ -29,10 +32,10 @@ namespace iroha {
               auto blob = shared_model::crypto::Blob(serialized);
 
               using namespace shared_model::interface::types;
-              return shared_model::crypto::CryptoVerifier::verify(
-                         SignedHexStringView{vote.signature->signedData()},
-                         blob,
-                         PublicKeyHexStringView{vote.signature->publicKey()})
+              return crypto_verifier_
+                  ->verify(SignedHexStringView{vote.signature->signedData()},
+                           blob,
+                           PublicKeyHexStringView{vote.signature->publicKey()})
                   .match([](const auto &) { return true; },
                          [this](const auto &error) {
                            log_->debug("Vote signature verification failed: {}",
