@@ -19,6 +19,12 @@
 #include "logger/logger_fwd.hpp"
 #include "network/impl/async_grpc_client.hpp"
 
+namespace shared_model {
+  namespace crypto {
+    class CryptoVerifier;
+  }
+}  // namespace shared_model
+
 namespace iroha {
   namespace consensus {
     namespace yac {
@@ -34,6 +40,8 @@ namespace iroha {
                 async_call,
             std::function<std::unique_ptr<proto::Yac::StubInterface>(
                 const shared_model::interface::Peer &)> client_creator,
+            std::shared_ptr<shared_model::crypto::CryptoVerifier>
+                crypto_verifier,
             logger::LoggerPtr log);
 
         void subscribe(
@@ -85,6 +93,7 @@ namespace iroha {
             const shared_model::interface::Peer &)>
             client_creator_;
 
+        std::shared_ptr<shared_model::crypto::CryptoVerifier> crypto_verifier_;
         logger::LoggerPtr log_;
       };
 

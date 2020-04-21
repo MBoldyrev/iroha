@@ -97,6 +97,7 @@ Irohad::Irohad(
     std::chrono::milliseconds vote_delay,
     std::chrono::minutes mst_expiration_time,
     std::shared_ptr<shared_model::crypto::CryptoSigner> crypto_signer,
+    std::shared_ptr<shared_model::crypto::CryptoVerifier> crypto_verifier,
     std::chrono::milliseconds max_rounds_delay,
     size_t stale_stream_max_rounds,
     boost::optional<shared_model::interface::types::PeerList>
@@ -126,6 +127,7 @@ Irohad::Irohad(
       ordering_init(logger_manager->getLogger()),
       yac_init(std::make_unique<iroha::consensus::yac::YacInit>()),
       crypto_signer_(std::move(crypto_signer)),
+      crypto_verifier_(std::move(crypto_verifier)),
       consensus_gate_objects(consensus_gate_objects_lifetime),
       log_manager_(std::move(logger_manager)),
       log_(log_manager_->getLogger()) {
@@ -212,13 +214,13 @@ Irohad::RunResult Irohad::initSettings() {
 Irohad::RunResult Irohad::initValidatorsConfigs() {
   validators_config_ =
       std::make_shared<shared_model::validation::ValidatorsConfig>(
-          max_proposal_size_, settings_);
+          max_proposal_size_, crypto_verifier_, settings_);
   block_validators_config_ =
       std::make_shared<shared_model::validation::ValidatorsConfig>(
-          max_proposal_size_, settings_, true);
+          max_proposal_size_, crypto_verifier_, settings_, true);
   proposal_validators_config_ =
       std::make_shared<shared_model::validation::ValidatorsConfig>(
-          max_proposal_size_, settings_, false, true);
+          max_proposal_size_, crypto_verifier_, settings_, false, true);
   log_->info("[Init] => validators configs");
   return {};
 }
@@ -716,6 +718,7 @@ Irohad::RunResult Irohad::initConsensusGate() {
       simulator,
       block_loader,
       crypto_signer_,
+      crypto_verifier_,
       consensus_result_cache_,
       vote_delay_,
       async_call_,

@@ -31,9 +31,10 @@ namespace {
 
   auto createCryptoProvider(
       std::shared_ptr<shared_model::crypto::CryptoSigner> &&crypto_signer,
+      std::shared_ptr<shared_model::crypto::CryptoVerifier> &&crypto_verifier,
       logger::LoggerPtr log) {
-    return std::make_shared<CryptoProviderImpl>(std::move(crypto_signer),
-                                                std::move(log));
+    return std::make_shared<CryptoProviderImpl>(
+        std::move(crypto_signer), std::move(crypto_verifier), std::move(log));
   }
 
   auto createHashProvider() {
@@ -44,6 +45,7 @@ namespace {
       ClusterOrdering initial_order,
       Round initial_round,
       std::shared_ptr<shared_model::crypto::CryptoSigner> &&crypto_signer,
+      std::shared_ptr<shared_model::crypto::CryptoVerifier> &&crypto_verifier,
       std::shared_ptr<Timer> timer,
       std::shared_ptr<YacNetwork> network,
       ConsistencyModel consistency_model,
@@ -58,6 +60,7 @@ namespace {
         std::move(network),
         createCryptoProvider(
             std::move(crypto_signer),
+            std::move(crypto_verifier),
             consensus_log_manager->getChild("Crypto")->getLogger()),
         std::move(timer),
         initial_order,
@@ -94,6 +97,7 @@ namespace iroha {
           std::shared_ptr<simulator::BlockCreator> block_creator,
           std::shared_ptr<network::BlockLoader> block_loader,
           std::shared_ptr<shared_model::crypto::CryptoSigner> crypto_signer,
+          std::shared_ptr<shared_model::crypto::CryptoVerifier> crypto_verifier,
           std::shared_ptr<consensus::ConsensusResultCache>
               consensus_result_cache,
           std::chrono::milliseconds vote_delay_milliseconds,
@@ -111,11 +115,13 @@ namespace iroha {
             [](const shared_model::interface::Peer &peer) {
               return network::createClient<proto::Yac>(peer.address());
             },
+            crypto_verifier,
             consensus_log_manager->getChild("Network")->getLogger());
 
         auto yac = createYac(*ClusterOrdering::create(peers.value()),
                              initial_round,
                              std::move(crypto_signer),
+                             std::move(crypto_verifier),
                              createTimer(vote_delay_milliseconds),
                              consensus_network_,
                              consistency_model,

@@ -100,7 +100,7 @@ class CryptoUsageTest : public ::testing::Test {
 TEST_F(CryptoUsageTest, RawSignAndVerifyTest) {
   auto signature_hex = signer_->sign(data);
   using namespace shared_model::interface::types;
-  auto verified = CryptoVerifier::verify(
+  auto verified = crypto_verifier_.verify(
       SignedHexStringView{signature_hex}, data, signer_->publicKey());
   IROHA_ASSERT_RESULT_VALUE(verified);
 }

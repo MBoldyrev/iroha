@@ -133,8 +133,9 @@ logger::LoggerManagerTreePtr getDefaultLogManager() {
 
 std::shared_ptr<shared_model::interface::CommonObjectsFactory>
 getCommonObjectsFactory() {
+  // TODO rework crypto signer initialization in FieldValidator
   auto validators_config =
-      std::make_shared<shared_model::validation::ValidatorsConfig>(0);
+      std::make_shared<shared_model::validation::ValidatorsConfig>(0, nullptr);
   return std::make_shared<shared_model::proto::ProtoCommonObjectsFactory<
       shared_model::validation::FieldValidator>>(validators_config);
 }
@@ -160,7 +161,7 @@ std::shared_ptr<shared_model::crypto::CryptoSigner> makeCryptoSignerInternal(
 std::shared_ptr<shared_model::crypto::CryptoSigner> makeCryptoSigner(
     IrohadConfig const &config) {
   using namespace shared_model::crypto;
-  using ReturnType = std::shared_ptr<shared_model::crypto::CryptoSigner>;
+  using ReturnType = std::shared_ptr<CryptoSigner>;
   return std::visit(
       iroha::make_visitor(
           [](const IrohadConfig::Crypto::SignerInternalEd25519Sha3 &)
@@ -181,20 +182,22 @@ std::shared_ptr<shared_model::crypto::CryptoSigner> makeCryptoSigner(
       config.crypto.value_or(kDefaultCryptoConfig).signer);
 }
 
-std::shared_ptr<shared_model::crypto::CryptoSigner> makeAndCheckCryptoSigner(
+std::shared_ptr<shared_model::crypto::CryptoVerifier> makeCryptoVerifier(
     IrohadConfig const &config) {
-  auto crypto_signer = makeCryptoSigner(config);
+  return std::make_shared<shared_model::crypto::CryptoVerifier>();
+}
+
+void checkCrypto(shared_model::crypto::CryptoSigner const &crypto_signer,
+                 shared_model::crypto::CryptoVerifier const &crypto_verifier) {
   shared_model::crypto::Blob test_blob{"12345"};
-  auto signature = crypto_signer->sign(test_blob);
-  if (auto e = iroha::expected::resultToOptionalError(
-          shared_model::crypto::CryptoVerifier::verify(
-              shared_model::interface::types::SignedHexStringView{signature},
-              test_blob,
-              crypto_signer->publicKey()))) {
+  auto signature = crypto_signer.sign(test_blob);
+  if (auto e = iroha::expected::resultToOptionalError(crypto_verifier.verify(
+          shared_model::interface::types::SignedHexStringView{signature},
+          test_blob,
+          crypto_signer.publicKey()))) {
     throw std::runtime_error{
-        fmt::format("{} startup check failed: {}", *crypto_signer, e.value())};
+        fmt::format("{} startup check failed: {}.", crypto_signer, e.value())};
   }
-  return crypto_signer;
 }
 
 int main(int argc, char *argv[]) {
@@ -264,6 +267,10 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
 
+  auto crypto_signer = makeCryptoSigner(config);
+  auto crypto_verifier = makeCryptoVerifier(config);
+  checkCrypto(*crypto_signer, *crypto_verifier);
+
   // Configuring iroha daemon
   Irohad irohad(
       config.block_store_path,
@@ -277,7 +284,8 @@ int main(int argc, char *argv[]) {
       std::chrono::milliseconds(config.vote_delay),
       std::chrono::minutes(
           config.mst_expiration_time.value_or(kMstExpirationTimeDefault)),
-      makeAndCheckCryptoSigner(config),
+      std::move(crypto_signer),
+      std::move(crypto_verifier),
       std::chrono::milliseconds(
           config.max_round_delay_ms.value_or(kMaxRoundsDelayDefault)),
       config.stale_stream_max_rounds.value_or(kStaleStreamMaxRoundsDefault),

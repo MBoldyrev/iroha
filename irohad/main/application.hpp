@@ -70,7 +70,7 @@ namespace iroha {
 namespace shared_model {
   namespace crypto {
     class CryptoSigner;
-    class Keypair;
+    class CryptoVerifier;
   }  // namespace crypto
   namespace interface {
     class QueryResponseFactory;
@@ -120,6 +120,7 @@ class Irohad {
          std::chrono::milliseconds vote_delay,
          std::chrono::minutes mst_expiration_time,
          std::shared_ptr<shared_model::crypto::CryptoSigner> crypto_signer,
+         std::shared_ptr<shared_model::crypto::CryptoVerifier> crypto_verifier,
          std::chrono::milliseconds max_rounds_delay,
          size_t stale_stream_max_rounds,
          boost::optional<shared_model::interface::types::PeerList>
@@ -270,6 +271,7 @@ class Irohad {
 
   // crypto provider
   std::shared_ptr<shared_model::crypto::CryptoSigner> crypto_signer_;
+  std::shared_ptr<shared_model::crypto::CryptoVerifier> crypto_verifier_;
 
   // batch parser
   std::shared_ptr<shared_model::interface::TransactionBatchParser> batch_parser;

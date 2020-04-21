@@ -14,7 +14,8 @@
 namespace shared_model {
   namespace crypto {
     class CryptoSigner;
-  }
+    class CryptoVerifier;
+  }  // namespace crypto
 }  // namespace shared_model
 
 namespace iroha {
@@ -24,6 +25,8 @@ namespace iroha {
        public:
         CryptoProviderImpl(
             std::shared_ptr<shared_model::crypto::CryptoSigner> crypto_signer,
+            std::shared_ptr<shared_model::crypto::CryptoVerifier>
+                crypto_verifier,
             logger::LoggerPtr log);
 
         // TODO 18.04.2020 IR-710 @mboldyrev: make it return Result
@@ -33,6 +36,7 @@ namespace iroha {
 
        private:
         std::shared_ptr<shared_model::crypto::CryptoSigner> crypto_signer_;
+        std::shared_ptr<shared_model::crypto::CryptoVerifier> crypto_verifier_;
         logger::LoggerPtr log_;
       };
     }  // namespace yac
