@@ -6,7 +6,12 @@
 #include <chrono>
 #include <csignal>
 #include <fstream>
+#include <functional>
+#include <memory>
+#include <optional>
+#include <string>
 #include <thread>
+#include <unordered_map>
 
 #include <gflags/gflags.h>
 #include <grpc++/grpc++.h>
@@ -16,9 +21,13 @@
 #include "common/files.hpp"
 #include "common/irohad_version.hpp"
 #include "common/result.hpp"
+#include "common/visitor.hpp"
 #include "crypto/keys_manager_impl.hpp"
+#include "cryptography/crypto_provider/crypto_provider.hpp"
 #include "cryptography/crypto_provider/crypto_signer_internal.hpp"
+#include "cryptography/crypto_provider/crypto_verifier.hpp"
 #include "cryptography/ed25519_sha3_impl/crypto_provider.hpp"
+#include "interfaces/common_objects/string_view_types.hpp"
 #include "logger/logger.hpp"
 #include "logger/logger_manager.hpp"
 #include "main/application.hpp"
@@ -32,6 +41,11 @@
 #include "util/utility_service.hpp"
 #include "validators/field_validator.hpp"
 
+#if defined(USE_LIBURSA)
+#include "cryptography/ed25519_ursa_impl/crypto_provider.hpp"
+#define ED25519_PROVIDER CryptoProviderEd25519Ursa
+#endif
+
 static const std::string kListenIp = "0.0.0.0";
 static const std::string kLogSettingsFromConfigFile = "config_file";
 static const uint32_t kMstExpirationTimeDefault = 1440;
@@ -39,6 +53,10 @@ static const uint32_t kMaxRoundsDelayDefault = 3000;
 static const uint32_t kStaleStreamMaxRoundsDefault = 2;
 static const std::string kDefaultWorkingDatabaseName{"iroha_default"};
 static const std::chrono::milliseconds kExitCheckPeriod{1000};
+static const std::string kDefaultCryptoSignerTag{
+    config_members::kCryptoProviderDefault};
+static const std::string kDefaultCryptoVerifierTag{
+    config_members::kCryptoProviderDefault};
 
 /**
  * Gflag validator.
@@ -169,11 +187,11 @@ getCommonObjectsFactory() {
       shared_model::validation::FieldValidator>>(validators_config);
 }
 
-std::unique_ptr<shared_model::crypto::CryptoSigner> makeCryptoSigner() {
+std::unique_ptr<shared_model::crypto::CryptoSigner> makeCryptoSignerInternal() {
   using namespace shared_model::crypto;
   using namespace shared_model::interface::types;
   using SignerOrError =
-      iroha::expected::Result<std::unique_ptr<CryptoSigner>, std::string>;
+      iroha::expected::Result<std::unique_ptr<CryptoSigner>, char const *>;
   iroha::KeysManagerImpl keys_manager(
       FLAGS_keypair_name, log_manager->getChild("KeysManager")->getLogger());
   SignerOrError signer_result;
@@ -220,6 +238,103 @@ std::unique_ptr<shared_model::crypto::CryptoSigner> makeCryptoSigner() {
         fmt::format("Failed to load keypair: {}", e.value())};
   }
   return std::move(signer_result).assumeValue();
+}
+
+std::unique_ptr<shared_model::crypto::CryptoVerifier>
+makeCryptoVerifierInternal() {
+  return std::make_unique<shared_model::crypto::CryptoVerifier>();
+}
+
+void makeHsmUtimacoCriptoProvider(
+    IrohadConfig::Crypto::HsmUtimaco connection_param,
+    std::optional<std::reference_wrapper<
+        std::shared_ptr<shared_model::crypto::CryptoSigner>>> signer,
+    std::optional<std::reference_wrapper<
+        std::shared_ptr<shared_model::crypto::CryptoVerifier>>> verifier) {}
+
+shared_model::crypto::CryptoProvider makeCryptoProvider(
+    IrohadConfig::Crypto const &config) {
+  using namespace shared_model::crypto;
+  CryptoProvider crypto_provider;
+
+  struct AlgorithmInitializer {
+    IrohadConfig::Crypto::ProviderVariant connection_params;
+    std::optional<std::reference_wrapper<std::shared_ptr<CryptoSigner>>> signer;
+    std::optional<std::reference_wrapper<std::shared_ptr<CryptoVerifier>>>
+        verifier;
+  };
+
+  std::unordered_map<IrohadConfig::Crypto::ProviderId, AlgorithmInitializer>
+      initializers;
+
+  auto get_provider_conf_param = [&config](IrohadConfig::Crypto::ProviderId tag)
+      -> IrohadConfig::Crypto::ProviderVariant const & {
+    if (tag == config_members::kCryptoProviderDefault) {
+      static const IrohadConfig::Crypto::Default default_param;
+      return default_param;
+    }
+    const auto conf_it = config.providers.find(config.signer);
+    if (conf_it == config.providers.end()) {
+      daemon_status_notifier->notify(::iroha::utility_service::Status::kFailed);
+      throw std::runtime_error{
+          fmt::format("Crypto provider with tag '{}' requested but not defined",
+                      config.signer)};
+    }
+    return conf_it->second;
+  };
+
+  auto get_initializer =
+      [&initializers, &get_provider_conf_param](
+          IrohadConfig::Crypto::ProviderId tag) -> AlgorithmInitializer & {
+    auto init_it = initializers.find(tag);
+    if (init_it == initializers.end()) {
+      init_it = initializers
+                    .emplace(tag,
+                             AlgorithmInitializer{get_provider_conf_param(tag),
+                                                  std::nullopt,
+                                                  std::nullopt})
+                    .first;
+    }
+    return init_it->second;
+  };
+
+  get_initializer(config.signer).signer = crypto_provider.signer;
+  get_initializer(config.verifier).verifier = crypto_provider.verifier;
+
+  for (auto const &pair : initializers) {
+    auto &initializer = pair.second;
+    std::visit(
+        iroha::make_visitor(
+            [&initializer](IrohadConfig::Crypto::Default const &) {
+              if (initializer.signer) {
+                initializer.signer.value() = makeCryptoSignerInternal();
+              }
+              if (initializer.verifier) {
+                initializer.verifier.value() = makeCryptoVerifierInternal();
+              }
+            },
+            [&initializer](IrohadConfig::Crypto::HsmUtimaco const &param) {
+              makeHsmUtimacoCriptoProvider(
+                  param, initializer.signer, initializer.verifier);
+            }),
+        initializer.connection_params);
+  }
+}
+
+std::shared_ptr<shared_model::crypto::CryptoSigner> makeAndCheckCryptoSigner(
+    IrohadConfig const &config) {
+  auto crypto_signer = makeCryptoSigner(config);
+  shared_model::crypto::Blob test_blob{"12345"};
+  auto signature = crypto_signer->sign(test_blob);
+  if (auto e = iroha::expected::resultToOptionalError(
+          shared_model::crypto::CryptoVerifier::verify(
+              shared_model::interface::types::SignedHexStringView{signature},
+              test_blob,
+              crypto_signer->publicKey()))) {
+    throw std::runtime_error{
+        fmt::format("{} startup check failed: {}", *crypto_signer, e.value())};
+  }
+  return crypto_signer;
 }
 
 int main(int argc, char *argv[]) {
@@ -315,7 +430,7 @@ int main(int argc, char *argv[]) {
       std::chrono::milliseconds(config.vote_delay),
       std::chrono::minutes(
           config.mst_expiration_time.value_or(kMstExpirationTimeDefault)),
-      makeCryptoSigner(),
+      makeAndCheckCryptoSigner(config),
       std::chrono::milliseconds(
           config.max_round_delay_ms.value_or(kMaxRoundsDelayDefault)),
       config.stale_stream_max_rounds.value_or(kStaleStreamMaxRoundsDefault),
