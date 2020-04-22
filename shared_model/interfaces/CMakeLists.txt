@@ -86,7 +86,7 @@ if (IROHA_ROOT_PROJECT)
       )
 
   add_library(shared_model_interfaces_factories
-      iroha_internal/transaction_sequence_factory.cpp
+      #iroha_internal/transaction_sequence_factory.cpp
       iroha_internal/transaction_batch_factory_impl.cpp
     )
 
