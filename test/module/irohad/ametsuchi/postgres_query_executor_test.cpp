@@ -156,7 +156,7 @@ namespace iroha {
         auto factory =
             std::make_shared<shared_model::proto::ProtoCommonObjectsFactory<
                 shared_model::validation::FieldValidator>>(
-                iroha::test::kTestsValidatorsConfig);
+                iroha::test::getTestsValidatorsConfig());
         executor = std::make_unique<PostgresCommandExecutor>(
             std::make_unique<soci::session>(*soci::factory_postgresql(),
                                             pgopt_),

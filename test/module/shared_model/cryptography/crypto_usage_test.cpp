@@ -12,6 +12,7 @@
 #include "cryptography/crypto_provider/crypto_signer_internal.hpp"
 #include "cryptography/crypto_provider/crypto_verifier.hpp"
 #include "framework/result_gtest_checkers.hpp"
+#include "framework/test_crypto_verifier.hpp"
 #include "module/irohad/common/validators_config.hpp"
 #include "module/shared_model/builders/protobuf/test_block_builder.hpp"
 #include "module/shared_model/builders/protobuf/test_query_builder.hpp"
@@ -85,7 +86,7 @@ class CryptoUsageTest : public ::testing::Test {
   }
 
   shared_model::validation::FieldValidator field_validator_{
-      iroha::test::kTestsValidatorsConfig};
+      iroha::test::getTestsValidatorsConfig()};
 
   std::unique_ptr<shared_model::proto::Block> block;
   std::unique_ptr<shared_model::proto::Query> query;
@@ -100,7 +101,7 @@ class CryptoUsageTest : public ::testing::Test {
 TEST_F(CryptoUsageTest, RawSignAndVerifyTest) {
   auto signature_hex = signer_->sign(data);
   using namespace shared_model::interface::types;
-  auto verified = crypto_verifier_.verify(
+  auto verified = iroha::test::getTestCryptoVerifier()->verify(
       SignedHexStringView{signature_hex}, data, signer_->publicKey());
   IROHA_ASSERT_RESULT_VALUE(verified);
 }
