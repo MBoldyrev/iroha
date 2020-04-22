@@ -24,10 +24,10 @@ namespace iroha {
   }  // namespace utility_service
 }  // namespace iroha
 
-IROHA_DEFINE_PROTO_ENUM_TO_STRING_FWD(
+IROHA_DEFINE_PROTO_ENUM_TO_STRING(
     ::iroha::utility_service::proto::Status::StatusEnum);
-IROHA_DEFINE_IFACE_ENUM_TO_PROTO_STRING_FWD(
-    ::iroha::utility_service::Status,
-    ::iroha::utility_service::getProtoStatusBimap().left);
+
+std::ostream &operator<<(std::ostream &os,
+                         const ::iroha::utility_service::Status &val);
 
 #endif /* UTIL_PROTO_STATUS_TOOLS_HPP */

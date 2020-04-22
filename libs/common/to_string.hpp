@@ -7,12 +7,20 @@
 #define IROHA_LIBS_TO_STRING_HPP
 
 #include <functional>
+#include <ios>
+#include <iostream>
 #include <memory>
 #include <optional>
+#include <ostream>
+#include <sstream>
 #include <string>
 #include <string_view>
 
 #include <boost/optional.hpp>
+#include <boost/optional/optional_io.hpp>
+#include <type_traits>
+
+#include "interfaces/common_objects/string_view_types_to_stream.hpp"
 
 namespace iroha {
   namespace to_string {
@@ -24,104 +32,82 @@ namespace iroha {
 
       /// Print pointers and optionals.
       template <typename T>
-      inline std::string toStringDereferenced(const T &o);
-    }  // namespace detail
-
-    inline std::string toString(std::string const &o) {
-      return o;
-    }
-
-    inline std::string toString(std::string_view o) {
-      return std::string{o};
-    }
-
-    template <typename T>
-    inline auto toString(const T &o) -> std::enable_if_t<
-        std::is_same<decltype(std::to_string(o)), std::string>::value,
-        std::string> {
-      return std::to_string(o);
-    }
-
-    template <typename T>
-    inline auto toString(const T &o) -> std::enable_if_t<
-        std::is_same<typename std::decay_t<decltype(o.toString())>,
-                     std::string>::value,
-        std::string> {
-      return o.toString();
-    }
-
-    template <typename... T>
-    inline std::string toString(const std::reference_wrapper<T...> &o) {
-      return ::iroha::to_string::toString(o.get());
-    }
-
-    template <typename... T>
-    inline std::string toString(const std::optional<T...> &o) {
-      return detail::toStringDereferenced(o);
-    }
-
-    template <typename... T>
-    inline std::string toString(const std::unique_ptr<T...> &o) {
-      return detail::toStringDereferenced(o);
-    }
-
-    template <typename... T>
-    inline std::string toString(const std::shared_ptr<T...> &o) {
-      return detail::toStringDereferenced(o);
-    }
-
-    template <typename T>
-    inline std::string toString(const T *o) {
-      return detail::toStringDereferenced(o);
-    }
-
-    template <typename T>
-    inline auto toString(const T &o) -> std::enable_if_t<
-        boost::optional_detail::is_optional_related<T>::value,
-        std::string> {
-      return detail::toStringDereferenced(o);
-    }
-
-    /// Print a plain collection.
-    template <typename T, typename = decltype(*std::declval<T>().begin())>
-    inline std::string toString(const T &c) {
-      std::string result = detail::kBeginBlockMarker;
-      bool need_field_separator = false;
-      for (auto &o : c) {
-        if (need_field_separator) {
-          result.append(detail::kSingleFieldsSeparator);
-        }
-        result.append(toString(o));
-        need_field_separator = true;
-      }
-      result.append(detail::kEndBlockMarker);
-      return result;
-    }
-
-    namespace detail {
-      /// Print pointers and optionals.
-      template <typename T>
-      inline std::string toStringDereferenced(const T &o) {
-        if (o) {
-          return ::iroha::to_string::toString(*o);
-        } else {
-          return kNotSet;
-        }
-      }
-
-      template <>
-      inline std::string toStringDereferenced<boost::none_t>(
-          const boost::none_t &) {
-        return kNotSet;
-      }
-
-      template <>
-      inline std::string toStringDereferenced<std::nullopt_t>(
-          const std::nullopt_t &) {
-        return kNotSet;
-      }
+      inline std::ostream &outputDereferenced(std::ostream &os, const T &o);
     }  // namespace detail
   }    // namespace to_string
+}  // namespace iroha
+
+template <typename T>
+inline auto operator<<(std::ostream &os, const T &o)
+    -> decltype(os << o.toString()) {
+  return os << o.toString();
+}
+
+template <typename... T>
+inline auto operator<<(std::ostream &os, const std::reference_wrapper<T...> &o)
+    -> decltype(os << o.get()) {
+  return os << o.get();
+}
+
+template <typename... T>
+inline auto operator<<(std::ostream &os, const std::unique_ptr<T...> &o)
+    -> decltype(os << *o) {
+  return iroha::to_string::detail::outputDereferenced(os, o);
+}
+
+template <typename... T>
+inline auto operator<<(std::ostream &os, const std::shared_ptr<T...> &o)
+    -> decltype(os << *o) {
+  return iroha::to_string::detail::outputDereferenced(os, o);
+}
+
+template <typename... T>
+inline auto operator<<(std::ostream &os, const std::optional<T...> &o)
+    -> decltype(os << *o) {
+  return iroha::to_string::detail::outputDereferenced(os, o);
+}
+
+inline std::ostream &operator<<(std::ostream &os, const std::nullopt_t &) {
+  return iroha::to_string::detail::outputDereferenced(
+      os, static_cast<int *>(nullptr));
+}
+
+/// Print a plain collection.
+template <typename T,
+          typename = std::enable_if_t<
+              not std::is_same_v<std::decay_t<typename T::value_type>, char>>>
+inline auto operator<<(std::ostream &os, const T &c)
+    -> decltype(os << *c.begin()) {
+  os << iroha::to_string::detail::kBeginBlockMarker;
+  bool need_field_separator = false;
+  for (auto &o : c) {
+    if (need_field_separator) {
+      os << iroha::to_string::detail::kSingleFieldsSeparator;
+    }
+    os << o;
+    need_field_separator = true;
+  }
+  os << iroha::to_string::detail::kEndBlockMarker;
+  return os;
+}
+
+namespace iroha {
+  namespace to_string {
+    namespace detail {
+      template <typename T>
+      inline std::ostream &outputDereferenced(std::ostream &os, const T &o) {
+        return o ? (os << *o) : (os << kNotSet);
+      }
+    }  // namespace detail
+    template <typename T,
+              typename = decltype(std::declval<std::ostream &>()
+                                  << std::declval<T>())>
+    inline std::string toString(const T &o) {
+      std::stringstream ss;
+      ss << std::boolalpha << o;
+      return ss.str();
+    }
+  }  // namespace to_string
 }  // namespace iroha
 
 #endif

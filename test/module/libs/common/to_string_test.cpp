@@ -9,10 +9,16 @@
 #include <string>
 #include <vector>
 
+#include <gmock/gmock-actions.h>
+#include <gmock/gmock-matchers.h>
+#include <gmock/gmock-spec-builders.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <boost/optional.hpp>
 #include <boost/range/any_range.hpp>
+
+using namespace iroha::to_string;
+using namespace testing;
 
 const std::string kTestString("test");
 
@@ -22,11 +28,15 @@ struct MockToStringable {
 
 std::unique_ptr<MockToStringable> makeObj(std::string string = kTestString) {
   auto obj = std::make_unique<MockToStringable>();
-  EXPECT_CALL(*obj, toString()).WillOnce(::testing::Return(string));
+  ON_CALL(*obj, toString()).WillByDefault(Return(string));
+  EXPECT_CALL(*obj, toString()).Times(1);
   return obj;
 }
 
-using namespace iroha::to_string;
+const auto kToString = [](auto &&matcher) {
+  return ResultOf([](const auto &o) { return toString(o); },
+                  std::move(matcher));
+};
 
 /**
  * @given std::string
@@ -35,7 +45,7 @@ using namespace iroha::to_string;
  */
 TEST(ToStringTest, StdString) {
   const std::string string("Wake up, Neo...");
-  ASSERT_EQ(toString(string), string);
+  EXPECT_THAT(string, kToString(string));
 }
 
 /**
@@ -44,11 +54,10 @@ TEST(ToStringTest, StdString) {
  * @then they are converted as std::to_string does
  */
 TEST(ToStringTest, PlainValues) {
-  auto test = [](auto o) { EXPECT_EQ(toString(o), std::to_string(o)); };
-  test(404);
-  test(-273);
-  test(15.7f);
-  test(true);
+  EXPECT_THAT(404, kToString("404"));
+  EXPECT_THAT(-273, kToString("-273"));
+  EXPECT_THAT(15.7f, kToString("15.7"));
+  EXPECT_THAT(true, kToString("true"));
 }
 
 /**
@@ -57,7 +66,7 @@ TEST(ToStringTest, PlainValues) {
  * @then result equals expected string
  */
 TEST(ToStringTest, ToStringMethod) {
-  EXPECT_EQ(toString(*makeObj()), kTestString);
+  EXPECT_THAT(*makeObj(), kToString(kTestString));
 }
 
 /**
@@ -69,19 +78,20 @@ TEST(ToStringTest, WrappedDereferenceable) {
   // start with unique_ptr
   std::unique_ptr<MockToStringable> o1 = makeObj();
   MockToStringable *raw_obj = o1.get();
-  EXPECT_EQ(toString(o1), kTestString);
+  EXPECT_THAT(o1, kToString(kTestString));
   // wrap it into optional
-  auto o2 = boost::make_optional(std::move(o1));
-  EXPECT_CALL(*raw_obj, toString()).WillOnce(::testing::Return(kTestString));
-  EXPECT_EQ(toString(o2), kTestString);
+  auto o2 = std::make_optional(std::move(o1));
+  EXPECT_CALL(*raw_obj, toString()).Times(1);
+  EXPECT_THAT(o2, kToString(kTestString));
   // wrap it into shared_ptr
   auto o3 = std::make_shared<decltype(o2)>(std::move(o2));
-  EXPECT_CALL(*raw_obj, toString()).WillOnce(::testing::Return(kTestString));
-  EXPECT_EQ(toString(o3), kTestString);
+  EXPECT_CALL(*raw_obj, toString()).Times(1);
+  EXPECT_THAT(o3, kToString(kTestString));
   // wrap it into one more optional
   auto o4 = boost::make_optional(std::move(o3));
-  EXPECT_CALL(*raw_obj, toString()).WillOnce(::testing::Return(kTestString));
-  EXPECT_EQ(toString(o4), kTestString);
+  EXPECT_CALL(*raw_obj, toString()).Times(1);
+  // boost::optional OEM stream output operator adds a whilespace
+  EXPECT_THAT(o4, kToString(" " + kTestString));
 }
 
 /**
@@ -90,12 +100,15 @@ TEST(ToStringTest, WrappedDereferenceable) {
  * @then result has "not set"
  */
 TEST(ToStringTest, UnsetDereferenceable) {
-  auto test = [](const auto &o) { EXPECT_EQ(toString(o), "(not set)"); };
+  auto test = [](const auto &o) {
+    EXPECT_THAT(o, kToString(AnyOf(Eq("(not set)"), Eq("--"))));
+  };
   test(std::unique_ptr<int>{});
   test(std::shared_ptr<int>{});
-  test(static_cast<int *>(0));
   test(boost::optional<int>());
   test(boost::none);
+  test(std::optional<int>());
+  test(std::nullopt);
 }
 
 /**
@@ -105,11 +118,11 @@ TEST(ToStringTest, UnsetDereferenceable) {
  */
 TEST(ToStringTest, VectorOfUniquePointers) {
   std::vector<std::unique_ptr<MockToStringable>> vec;
-  EXPECT_EQ(toString(vec), "[]");
+  EXPECT_THAT(vec, kToString("[]"));
   vec.push_back(makeObj("el1"));
   vec.push_back(makeObj("el2"));
   vec.push_back(nullptr);
-  EXPECT_EQ(toString(vec), "[el1, el2, (not set)]");
+  EXPECT_THAT(vec, kToString("[el1, el2, (not set)]"));
 }
 
 /**
@@ -126,7 +139,7 @@ TEST(ToStringTest, BoostAnyRangeOfSharedPointers) {
                    boost::forward_traversal_tag,
                    const std::shared_ptr<MockToStringable> &>
       range;
-  EXPECT_EQ(toString(range), "[]");
+  EXPECT_THAT(range, kToString("[]"));
   range = vec;
-  EXPECT_EQ(toString(range), "[el1, el2, (not set)]");
+  EXPECT_THAT(range, kToString("[el1, el2, (not set)]"));
 }

@@ -83,6 +83,10 @@ namespace iroha {
 
       bool operator==(const Block &rhs) const;
       bool operator!=(const Block &rhs) const;
+
+      std::string toString() const {
+        return "Block";
+      }
     };
   }  // namespace model
 }  // namespace iroha
