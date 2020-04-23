@@ -11,9 +11,12 @@
 #include <boost/algorithm/string/join.hpp>
 #include <boost/format.hpp>
 #include <forward_list>
+#include <memory>
 
 #include "ametsuchi/default_vm_call.hpp"
 #include "ametsuchi/impl/executor_common.hpp"
+#include "ametsuchi/impl/postgres_block_storage.hpp"
+#include "ametsuchi/impl/postgres_burrow_storage.hpp"
 #include "ametsuchi/impl/soci_std_optional.hpp"
 #include "ametsuchi/impl/soci_utils.hpp"
 #include "interfaces/commands/add_asset_quantity.hpp"
@@ -1387,7 +1390,8 @@ namespace iroha {
         std::shared_ptr<PostgresSpecificQueryExecutor> specific_query_executor)
         : sql_(std::move(sql)),
           perm_converter_{std::move(perm_converter)},
-          specific_query_executor_{std::move(specific_query_executor)} {
+          specific_query_executor_{std::move(specific_query_executor)},
+          burrow_storage_(std::make_unique<PostgresBurrowStorage>(*sql_)) {
       initStatements();
     }
 
@@ -1640,8 +1644,12 @@ namespace iroha {
       char *caller = const_cast<char *>(creator_account_id.c_str());
       char *callee = const_cast<char *>(command.callee().c_str());
       char *input = const_cast<char *>(command.input().c_str());
-      auto res = VmCall(
-          input, caller, callee, this, specific_query_executor_.get(), nullptr);
+      auto res = VmCall(input,
+                        caller,
+                        callee,
+                        this,
+                        specific_query_executor_.get(),
+                        burrow_storage_.get());
       if (res.r1 == 0) {
         // TODO(IvanTyulyandin): need to set appropriate error value, 5 used to
         // pass compilation
