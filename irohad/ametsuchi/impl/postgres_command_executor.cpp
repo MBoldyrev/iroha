@@ -19,7 +19,6 @@
 #include "ametsuchi/impl/postgres_burrow_storage.hpp"
 #include "ametsuchi/impl/soci_std_optional.hpp"
 #include "ametsuchi/impl/soci_utils.hpp"
-#include "default_vm_call.hpp"
 #include "interfaces/commands/add_asset_quantity.hpp"
 #include "interfaces/commands/add_peer.hpp"
 #include "interfaces/commands/add_signatory.hpp"
@@ -45,6 +44,10 @@
 #include "interfaces/permission_to_string.hpp"
 #include "interfaces/permissions.hpp"
 #include "utils/string_builder.hpp"
+
+#if defined(USE_EVM)
+#include DEFAULT_VM_CALL_INCLUDE_IMPL
+#endif
 
 using shared_model::interface::permissions::Grantable;
 using shared_model::interface::permissions::Role;
@@ -1639,6 +1642,9 @@ namespace iroha {
         const std::string &tx_hash,
         shared_model::interface::types::CommandIndexType cmd_index,
         bool do_validation) {
+#if !defined(USE_EVM)
+      return makeCommandError("CallEngine", 1, "Not implemented.");
+#else
       {  // check permissions
         int has_permission = 0;
         using namespace shared_model::interface::permissions;
@@ -1687,6 +1693,7 @@ namespace iroha {
       executor.use("engine_response", engine_response);
 
       return executor.execute();
+#endif
     }
 
     CommandResult PostgresCommandExecutor::operator()(
