@@ -14,13 +14,13 @@
 namespace shared_model {
   namespace proto {
 
-    class EngineResponseRecord final : public interface::EngineResponseRecord {
+    class EngineReceipt final : public interface::EngineReceipt {
      public:
-      using TransportType = iroha::protocol::EngineResponseRecord;
+      using TransportType = iroha::protocol::EngineReceipt;
 
-      explicit EngineResponseRecord(const TransportType &proto);
+      explicit EngineReceipt(const TransportType &proto);
 
-      explicit EngineResponseRecord(const EngineResponseRecord &o);
+      explicit EngineReceipt(const EngineReceipt &o);
 
       shared_model::interface::types::CommandIndexType commandIndex()
           const override;

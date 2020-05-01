@@ -7,13 +7,13 @@
 
 using namespace shared_model::interface;
 
-bool EngineResponseRecord::operator==(const ModelType &rhs) const {
+bool EngineReceipt::operator==(const ModelType &rhs) const {
   return commandIndex() == rhs.commandIndex() and response() == rhs.response();
 }
 
-std::string EngineResponseRecord::toString() const {
+std::string EngineReceipt::toString() const {
   return detail::PrettyStringBuilder()
-      .init("EngineResponseRecord")
+      .init("EngineReceipt")
       .appendNamed("command_index", commandIndex())
       .appendNamed("reponse", response())
       .finalize();

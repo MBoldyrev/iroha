@@ -29,7 +29,7 @@ namespace shared_model {
     class Signature;
     class Transaction;
     class Peer;
-    class EngineResponseRecord;
+    class EngineReceipt;
 
     namespace types {
       /// Type of hash

@@ -1383,18 +1383,23 @@ namespace iroha {
     }
 
     QueryExecutorResult PostgresSpecificQueryExecutor::operator()(
-        const shared_model::interface::GetEngineResponse &q,
+        const shared_model::interface::GetEngineReceipts &q,
         const shared_model::interface::types::AccountIdType &creator_id,
         const shared_model::interface::types::HashType &query_hash) {
-      auto cmd = R"(
-            WITH has_perms AS (SELECT 1),
+      auto cmd = fmt::format(R"(
+            WITH has_perms AS ({}),
             engine_responses AS (
             SELECT cmd_index, engine_response
             FROM engine_response_records
             WHERE creator_id=:creator_account_id and tx_hash=:tx_hash)
             SELECT * FROM engine_responses
             RIGHT OUTER JOIN has_perms ON TRUE;
-            )";
+            )",
+             hasQueryPermission(creator_id,
+                    q.accountId(),
+                    Role::kGetMyEngineReceipts,
+                    Role::kGetAllEngineReceipts,
+                    Role::kGetDomainEngineReceipts));
 
       using QueryTuple =
           QueryType<shared_model::interface::types::CommandIndexType,
@@ -1411,18 +1416,18 @@ namespace iroha {
           [&](auto range, auto &) {
             auto range_without_nulls = resultWithoutNulls(std::move(range));
             std::vector<
-                std::unique_ptr<shared_model::interface::EngineResponseRecord>>
+                std::unique_ptr<shared_model::interface::EngineReceipt>>
                 records;
             for (const auto &row : range_without_nulls) {
               iroha::ametsuchi::apply(
                   row, [&records](auto &cmd_index, auto &engine_response) {
                     records.push_back(
                         std::make_unique<
-                            shared_model::plain::EngineResponseRecord>(
+                            shared_model::plain::EngineReceipt>(
                             cmd_index, engine_response));
                   });
             }
-            return query_response_factory_->createEngineResponse(records,
+            return query_response_factory_->createEngineReceiptsResponse(records,
                                                                  query_hash);
           },
           // Permission missing error is not going to happen in case of that

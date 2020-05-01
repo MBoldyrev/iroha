@@ -8,14 +8,14 @@
 using namespace shared_model::interface::types;
 using namespace shared_model::plain;
 
-EngineResponseRecord::EngineResponseRecord(
+EngineReceipt::EngineReceipt(
     CommandIndexType cmd_index, const SmartContractCodeType &response)
     : cmd_index_(cmd_index), response_(response) {}
 
-CommandIndexType EngineResponseRecord::commandIndex() const {
+CommandIndexType EngineReceipt::commandIndex() const {
   return cmd_index_;
 }
 
-const SmartContractCodeType &EngineResponseRecord::response() const {
+const SmartContractCodeType &EngineReceipt::response() const {
   return response_;
 }

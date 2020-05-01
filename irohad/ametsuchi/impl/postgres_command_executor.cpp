@@ -1674,7 +1674,7 @@ namespace iroha {
                 [&](const auto &value) -> CommandResult {
                   StatementExecutor executor(store_engine_response_statements_,
                                              false,
-                                             "StoreEngineResponse",
+                                             "StoreEngineReceiptsResponse",
                                              perm_converter_);
                   executor.use("creator", creator_account_id);
                   executor.use("tx_hash", tx_hash);

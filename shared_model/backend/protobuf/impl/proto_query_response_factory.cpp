@@ -373,9 +373,9 @@ shared_model::proto::ProtoQueryResponseFactory::createPeersResponse(
 }
 
 std::unique_ptr<shared_model::interface::QueryResponse>
-shared_model::proto::ProtoQueryResponseFactory::createEngineResponse(
+shared_model::proto::ProtoQueryResponseFactory::createEngineReceiptsResponse(
     const std::vector<
-        std::unique_ptr<shared_model::interface::EngineResponseRecord>>
+        std::unique_ptr<shared_model::interface::EngineReceipt>>
         &engine_response_records,
     const crypto::Hash &query_hash) const {
   return createQueryResponse(

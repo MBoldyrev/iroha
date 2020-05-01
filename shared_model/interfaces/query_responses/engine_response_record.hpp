@@ -14,7 +14,7 @@ namespace shared_model {
   namespace interface {
 
     /// Provides a response for a single corresponding EngineCall command
-    class EngineResponseRecord : public ModelPrimitive<EngineResponseRecord> {
+    class EngineReceipt : public ModelPrimitive<EngineReceipt> {
      public:
       /// Get the index
       virtual interface::types::CommandIndexType commandIndex() const = 0;

@@ -7,18 +7,18 @@
 
 using namespace shared_model::proto;
 
-EngineResponseRecord::EngineResponseRecord(const TransportType &proto)
+EngineReceipt::EngineReceipt(const TransportType &proto)
     : proto_(proto) {}
 
-EngineResponseRecord::EngineResponseRecord(const EngineResponseRecord &o)
-    : EngineResponseRecord(o.proto_) {}
+EngineReceipt::EngineReceipt(const EngineReceipt &o)
+    : EngineReceipt(o.proto_) {}
 
 shared_model::interface::types::CommandIndexType
-EngineResponseRecord::commandIndex() const {
+EngineReceipt::commandIndex() const {
   return proto_.command_index();
 }
 
 const shared_model::interface::types::SmartContractCodeType &
-EngineResponseRecord::response() const {
+EngineReceipt::response() const {
   return proto_.response();
 }

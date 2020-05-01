@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef IROHA_SHARED_MODEL_PLAIN_ENGINE_RESPONSE_RECORD_HPP
-#define IROHA_SHARED_MODEL_PLAIN_ENGINE_RESPONSE_RECORD_HPP
+#ifndef IROHA_SHARED_MODEL_PLAIN_ENGINE_RECEIPTS_RESPONSE_RECORD_HPP
+#define IROHA_SHARED_MODEL_PLAIN_ENGINE_RECEIPTS_RESPONSE_RECORD_HPP
 
 #include "interfaces/query_responses/engine_response_record.hpp"
 
@@ -13,9 +13,9 @@
 namespace shared_model {
   namespace plain {
 
-    class EngineResponseRecord final : public interface::EngineResponseRecord {
+    class EngineReceipt final : public interface::EngineReceipt {
      public:
-      EngineResponseRecord(
+      EngineReceipt(
           interface::types::CommandIndexType cmd_index,
           const interface::types::SmartContractCodeType &response);
 
@@ -30,4 +30,4 @@ namespace shared_model {
   }  // namespace plain
 }  // namespace shared_model
 
-#endif  // IROHA_SHARED_MODEL_PLAIN_ENGINE_RESPONSE_RECORD_HPP
+#endif  // IROHA_SHARED_MODEL_PLAIN_ENGINE_RECEIPTS_RESPONSE_RECORD_HPP
