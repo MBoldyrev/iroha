@@ -15,6 +15,9 @@ namespace shared_model {
     namespace types {
       BOOST_STRONG_TYPEDEF(std::string, EvmCalleeHexString)
       BOOST_STRONG_TYPEDEF(std::string, EvmCodeHexString)
+      BOOST_STRONG_TYPEDEF(std::string, EvmAddressHexString)
+      BOOST_STRONG_TYPEDEF(std::string, EvmDataHexString)
+      BOOST_STRONG_TYPEDEF(std::string, EvmTopicsHexString)
     }  // namespace types
   }    // namespace interface
 }  // namespace shared_model
