@@ -18,7 +18,7 @@ EngineReceipt::commandIndex() const {
   return proto_.command_index();
 }
 
-const shared_model::interface::types::SmartContractCodeType &
+/*const shared_model::interface::types::SmartContractCodeType &
 EngineReceipt::response() const {
   return proto_.response();
-}
+}*/

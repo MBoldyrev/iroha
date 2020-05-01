@@ -374,10 +374,8 @@ shared_model::proto::ProtoQueryResponseFactory::createPeersResponse(
 
 std::unique_ptr<shared_model::interface::QueryResponse>
 shared_model::proto::ProtoQueryResponseFactory::createEngineReceiptsResponse(
-    const std::vector<
-        std::unique_ptr<shared_model::interface::EngineReceipt>>
-        &engine_response_records,
-    const crypto::Hash &query_hash) const {
+    std::vector<std::unique_ptr<shared_model::interface::EngineReceipt>> const &engine_receipts,
+    crypto::Hash const &query_hash) const {
   return createQueryResponse(
       [&](iroha::protocol::QueryResponse &protocol_query_response) {
         auto *protocol_specific_response =
@@ -386,7 +384,7 @@ shared_model::proto::ProtoQueryResponseFactory::createEngineReceiptsResponse(
           auto *proto_record =
               protocol_specific_response->add_engine_response_records();
           proto_record->set_command_index(record->commandIndex());
-          proto_record->set_response(record->response());
+//          proto_record->set_response(record->response());
         }
       },
       query_hash);

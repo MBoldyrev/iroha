@@ -1394,12 +1394,12 @@ namespace iroha {
             WHERE creator_id=:creator_account_id and tx_hash=:tx_hash)
             SELECT * FROM engine_responses
             RIGHT OUTER JOIN has_perms ON TRUE;
-            )",
+            )"/*,
              hasQueryPermission(creator_id,
                     q.accountId(),
                     Role::kGetMyEngineReceipts,
                     Role::kGetAllEngineReceipts,
-                    Role::kGetDomainEngineReceipts));
+                    Role::kGetDomainEngineReceipts)*/);
 
       using QueryTuple =
           QueryType<shared_model::interface::types::CommandIndexType,

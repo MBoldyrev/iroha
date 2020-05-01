@@ -16,6 +16,6 @@ CommandIndexType EngineReceipt::commandIndex() const {
   return cmd_index_;
 }
 
-const SmartContractCodeType &EngineReceipt::response() const {
+/*const SmartContractCodeType &EngineReceipt::response() const {
   return response_;
-}
+}*/

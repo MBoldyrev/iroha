@@ -21,7 +21,7 @@ namespace shared_model {
 
       interface::types::CommandIndexType commandIndex() const override;
 
-      const interface::types::SmartContractCodeType &response() const override;
+      //const interface::types::SmartContractCodeType &response() const override;
 
      private:
       interface::types::CommandIndexType cmd_index_;
