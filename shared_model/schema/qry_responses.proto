@@ -117,7 +117,7 @@ message PeersResponse {
 }
 
 message EngineReceiptsResponse {
-  repeated EngineReceipt engine_response_records = 1;
+  repeated EngineReceipt engine_receipts = 1;
 }
 
 message QueryResponse {

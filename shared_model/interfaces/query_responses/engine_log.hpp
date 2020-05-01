@@ -10,6 +10,7 @@
 #include <vector>
 #include "interfaces/base/model_primitive.hpp"
 #include "interfaces/common_objects/types.hpp"
+#include "interfaces/common_objects/string_types.hpp"
 
 namespace shared_model {
   namespace interface {

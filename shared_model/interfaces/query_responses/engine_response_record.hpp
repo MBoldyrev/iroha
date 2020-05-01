@@ -23,7 +23,8 @@ namespace shared_model {
         kPayloadTypeContractAddress
       };
 
-      using EngineLogsCollectionType = std::vector<interface::EngineLog>;
+      using EngineLogsPtr = std::unique_ptr<interface::EngineLog>;
+      using EngineLogsCollectionType = std::vector<EngineLogsPtr>;
 
       /// Get the index
       virtual interface::types::CommandIndexType commandIndex() const = 0;
@@ -47,10 +48,10 @@ namespace shared_model {
       virtual PayloadType getPayloadType() const = 0;
 
       /// Returns payload data
-      virtual EvmAddressHexString const &getPayload() const = 0;
+      virtual types::EvmAddressHexString const &getPayload() const = 0;
 
       /// Return engine logs collection.
-      virtual EngineLogsCollectionType const &const &getEngineLogs() const = 0;
+      virtual EngineLogsCollectionType const &getEngineLogs() const = 0;
 
       std::string toString() const override;
 
