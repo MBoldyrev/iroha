@@ -73,9 +73,9 @@ enum RolePermission {
   can_get_all_txs = 36;
   can_get_blocks = 42;
   can_get_peers = 45;
-  can_get_my_engine_receipts = 49;
-  can_get_domain_engine_receipts = 50;
-  can_get_all_engine_receipts = 51;
+  can_get_my_engine_receipts = 50;
+  can_get_domain_engine_receipts = 51;
+  can_get_all_engine_receipts = 52;
 
   // Grant permissions
   can_grant_can_set_my_quorum = 37;
