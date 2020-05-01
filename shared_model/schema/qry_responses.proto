@@ -116,20 +116,6 @@ message PeersResponse {
   repeated Peer peers = 1;
 }
 
-message EngineReceipt {
-  int32 command_index = 1;
-  string tx_hash = 2;     // hex string
-  int32 tx_index = 3;
-  string block_hash = 4;      // hex string
-  uint64 block_height = 5;
-  string from = 6;        // sender account id
-  oneof opt_to_contract_address {
-    string to = 7;      // hex receiver EVM address
-    string contract_address = 8;    // hex string
-  }
-  repeated EngineLog logs = 9;
-}
-
 message EngineReceiptsResponse {
   repeated EngineReceipt engine_response_records = 1;
 }
