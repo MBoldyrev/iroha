@@ -1420,11 +1420,29 @@ namespace iroha {
                 records;
             for (const auto &row : range_without_nulls) {
               iroha::ametsuchi::apply(
-                  row, [&records](auto &cmd_index, auto &engine_response) {
+                  row, [&records](auto &cmd_index, auto &tx_hash, auto &tx_index, auto &block_height, auto &block_hash, auto &account_id_type, auto &payload_type, auto &payload, ) {
+
+/*
+      EngineReceipt(
+          interface::types::CommandIndexType                  cmd_index,
+          interface::types::HashType                          &&tx_hash,
+          interface::types::TxIndexType                       tx_index,
+          interface::types::HeightType                        block_height,
+          interface::types::HashType                          &&block_hash,
+          interface::types::AccountIdType                     &&account_id_type,
+          interface::EngineReceipt::PayloadType               payload_type,
+          interface::types::EvmAddressHexString               &&payload,
+          interface::EngineReceipt::EngineLogsCollectionType  &&engine_logs
+          );
+*/
+
+
                     records.push_back(
                         std::make_unique<
                             shared_model::plain::EngineReceipt>(
-                            cmd_index, engine_response));
+                            cmd_index, 
+                            engine_response
+                            ));
                   });
             }
             return query_response_factory_->createEngineReceiptsResponse(records,
