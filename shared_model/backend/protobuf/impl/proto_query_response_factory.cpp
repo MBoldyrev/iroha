@@ -380,11 +380,40 @@ shared_model::proto::ProtoQueryResponseFactory::createEngineReceiptsResponse(
       [&](iroha::protocol::QueryResponse &protocol_query_response) {
         auto *protocol_specific_response =
             protocol_query_response.mutable_engine_response();
-        for (const auto &record : engine_response_records) {
-          auto *proto_record =
-              protocol_specific_response->add_engine_response_records();
-          proto_record->set_command_index(record->commandIndex());
-//          proto_record->set_response(record->response());
+
+        for (auto const &receipt : engine_receipts) {
+          auto *proto_receipt =
+              protocol_specific_response->add_engine_receipts();
+
+          /// assign logs
+          for (auto const &e_log : receipt->getEngineLogs()) {
+            assert(!!e_log);
+            auto *p_log = proto_receipt->add_logs();
+            p_log->set_address(e_log->getAddress());
+            p_log->set_data(e_log->getData());
+            for (auto &topic : e_log->getTopics()) {
+              p_log->add_topics(topic);
+            }
+          }
+
+          proto_receipt->set_command_index(receipt->commandIndex());
+          proto_receipt->set_tx_hash(receipt->getTxHash());
+          proto_receipt->set_tx_index(receipt->getTxIndex());
+          proto_receipt->set_block_height(receipt->getBlockHeight());
+          proto_receipt->set_block_hash(receipt->getBlockHash());
+          proto_receipt->set_from(receipt->getFrom());
+
+          switch (receipt->getPayloadType()) {
+            case interface::EngineReceipt::PayloadType::kPayloadTypeTo: {
+              proto_receipt->set_to(receipt->getPayload());
+            } break;
+            case interface::EngineReceipt::PayloadType::kPayloadTypeContractAddress: {
+              proto_receipt->set_contract_address(receipt->getPayload());
+            } break;
+            default: {
+              assert(!"Unexpected payload type!");
+            } break;
+          }
         }
       },
       query_hash);
