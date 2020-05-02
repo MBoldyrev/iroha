@@ -22,14 +22,19 @@ namespace shared_model {
 
       explicit EngineReceipt(const EngineReceipt &o);
 
-      shared_model::interface::types::CommandIndexType commandIndex()
-          const override;
-
-      /*const shared_model::interface::types::SmartContractCodeType &response()
-          const override;*/
+      shared_model::interface::types::CommandIndexType commandIndex() const override;
+      shared_model::interface::types::HashType const &getTxHash() const override;
+      shared_model::interface::types::TxIndexType getTxIndex() const override;
+      shared_model::interface::types::HeightType getBlockHeight() const override;
+      shared_model::interface::types::HashType const &getBlockHash() const override;
+      shared_model::interface::types::AccountIdType getFrom() const override;
+      shared_model::interface::EngineReceipt::PayloadType getPayloadType() const override;
+      shared_model::interface::types::EvmAddressHexString const &getPayload() const override;
+      shared_model::interface::EngineReceipt::EngineLogsCollectionType const &getEngineLogs() const override;
 
      private:
       const TransportType &proto_;
+      shared_model::interface::EngineReceipt::EngineLogsCollectionType engine_logs_;
     };
   }  // namespace proto
 }  // namespace shared_model

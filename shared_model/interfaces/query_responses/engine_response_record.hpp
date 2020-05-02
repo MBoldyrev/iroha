@@ -19,6 +19,7 @@ namespace shared_model {
      public:
 
       enum struct PayloadType {
+        kPayloadTypeUnk,
         kPayloadTypeTo,
         kPayloadTypeContractAddress
       };
