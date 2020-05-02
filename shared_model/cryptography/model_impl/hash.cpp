@@ -28,6 +28,10 @@ namespace shared_model {
           .finalize();
     }
 
+    bool Hash::operator==(Blob const &rhs) const {
+      return blob() == rhs.blob();
+    }
+
     std::size_t Hash::Hasher::operator()(const Hash &h) const {
       using boost::hash_combine;
       using boost::hash_value;

@@ -16,16 +16,37 @@ namespace shared_model {
     class EngineReceipt final : public interface::EngineReceipt {
      public:
       EngineReceipt(
-          interface::types::CommandIndexType cmd_index,
-          const interface::types::SmartContractCodeType &response);
+          interface::types::CommandIndexType                  cmd_index,
+          interface::types::HashType                          &&tx_hash,
+          interface::types::TxIndexType                       tx_index,
+          interface::types::HeightType                        block_height,
+          interface::types::HashType                          &&block_hash,
+          interface::types::AccountIdType                     &&account_id_type,
+          interface::EngineReceipt::PayloadType               payload_type,
+          interface::types::EvmAddressHexString               &&payload,
+          interface::EngineReceipt::EngineLogsCollectionType  &&engine_logs
+          );
 
       interface::types::CommandIndexType commandIndex() const override;
-
-      //const interface::types::SmartContractCodeType &response() const override;
+      interface::types::HashType const &getTxHash() const override;
+      interface::types::TxIndexType getTxIndex() const override;
+      interface::types::HeightType getBlockHeight() const override;
+      interface::types::HashType const &getBlockHash() const override;
+      interface::types::AccountIdType getFrom() const override;
+      interface::EngineReceipt::PayloadType getPayloadType() const override;
+      interface::types::EvmAddressHexString const &getPayload() const override;
+      interface::EngineLogsCollectionType const &getEngineLogs() const override;
 
      private:
-      interface::types::CommandIndexType cmd_index_;
-      interface::types::SmartContractCodeType response_;
+      interface::types::CommandIndexType const                  cmd_index_;
+      interface::types::HashType const                          tx_hash_;
+      interface::types::TxIndexType const                       tx_index_;
+      interface::types::HeightType const                        block_height_;
+      interface::types::HashType const                          block_hash_;
+      interface::types::AccountIdType const                     account_id_type_;
+      interface::EngineReceipt::PayloadType const               payload_type_;
+      interface::types::EvmAddressHexString const               payload_;
+      interface::EngineReceipt::EngineLogsCollectionType const  engine_logs_;
     };
   }  // namespace plain
 }  // namespace shared_model
