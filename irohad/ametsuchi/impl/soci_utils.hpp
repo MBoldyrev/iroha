@@ -6,13 +6,18 @@
 #ifndef IROHA_POSTGRES_WSV_COMMON_HPP
 #define IROHA_POSTGRES_WSV_COMMON_HPP
 
+#include <tuple>
+
 #include <soci/soci.h>
 #include <boost/optional.hpp>
 #include <boost/range/adaptor/filtered.hpp>
 #include <boost/range/adaptor/transformed.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <boost/tuple/tuple.hpp>
+#include <cstddef>
 #include <tuple>
+#include <type_traits>
+#include <utility>
 #include "common/bind.hpp"
 
 namespace iroha {
@@ -34,9 +39,42 @@ namespace iroha {
       }
     }
 
+    template <typename T>
+    struct TupleHelper {};
+
+    template <class... Types>
+    struct TupleHelper<boost::tuple<Types...>> {
+      static constexpr size_t kLength =
+          boost::tuples::length<boost::tuple<Types...>>::value;
+
+      using StdTuple = std::tuple<Types...>;
+
+      template<size_t I, typename T>
+      auto get(T&& t) {
+        return boost::get<I>(std::forward<T>(t));
+      }
+    };
+
+    template <class... Types>
+    struct TupleHelper<std::tuple<Types...>> {
+      static constexpr size_t kLength = std::tuple_size_v<std::tuple<Types...>>;
+
+      using StdTuple = std::tuple<Types...>;
+
+      template<size_t I, typename T>
+      auto get(T&& t) {
+        return std::get<I>(std::forward<T>(t));
+      }
+    };
+
+    template <typename T,
+              typename =
+                  std::enable_if_t<not std::is_same_v<T, std::decay_t<T>>>>
+    TupleHelper<T> : public TupleHelper<std::decay_t<T>>{};
+
     /// tuple length shortcut
     template <typename T>
-    constexpr std::size_t length_v = boost::tuples::length<T>::value;
+    constexpr std::size_t length_v = TupleHelper<T>::kLength;
 
     /// tuple element type shortcut
     template <std::size_t N, typename T>
@@ -47,18 +85,6 @@ namespace iroha {
     auto concat_impl(std::index_sequence<Is...>, std::index_sequence<Js...>)
         -> boost::tuple<element_t<Is, std::decay_t<Tuple1>>...,
                         element_t<Js, std::decay_t<Tuple2>>...>;
-
-    /// tuple with types from two given tuples
-    template <class Tuple1, class Tuple2>
-    using concat = decltype(concat_impl<Tuple1, Tuple2>(
-        std::make_index_sequence<length_v<std::decay_t<Tuple1>>>{},
-        std::make_index_sequence<length_v<std::decay_t<Tuple2>>>{}));
-
-    /// tuple with types from two given tuples
-    template <class Tuple1, class Tuple2>
-    using concat = decltype(concat_impl<Tuple1, Tuple2>(
-        std::make_index_sequence<length_v<std::decay_t<Tuple1>>>{},
-        std::make_index_sequence<length_v<std::decay_t<Tuple2>>>{}));
 
     template <class Tuple1, class Tuple2>
     struct TupleConcatHelper {};
@@ -72,9 +98,17 @@ namespace iroha {
 
     template <class... Types1, class... Types2>
     struct TupleConcatHelper<boost::tuple<Types1...>, boost::tuple<Types2...>> {
-      using ConcatType =
-          concat<boost::tuple<Types1...>, boost::tuple<Types2...>>;
+      using Tuple1 = boost::tuple<Types1...>;
+      using Tuple2 = boost::tuple<Types2...>;
+      using ConcatType = decltype(concat_impl<Tuple1, Tuple2>(
+          std::make_index_sequence<length_v<std::decay_t<Tuple1>>>{},
+          std::make_index_sequence<length_v<std::decay_t<Tuple2>>>{}));
     };
+
+
+    /// tuple with types from two given tuples
+    template <class Tuple1, class Tuple2>
+    using concat = typename TupleConcatHelper<Tuple1, Tuple2>::ConcatType;
 
     /// index sequence helper for index_apply
     template <typename F, std::size_t... Is>
@@ -95,8 +129,7 @@ namespace iroha {
     constexpr decltype(auto) apply(Tuple &&t, F &&f) {
       return index_apply<length_v<std::decay_t<Tuple>>>(
           [&](auto... Is) -> decltype(auto) {
-            return std::forward<F>(f)(
-                boost::get<Is>(std::forward<Tuple>(t))...);
+            return std::forward<F>(f)(TupleHelper<Tuple>::get<Is>(std::forward<Tuple>(t))...);
           });
     }
 
@@ -104,7 +137,7 @@ namespace iroha {
     template <typename R, typename T>
     constexpr auto viewQuery(T &&t) {
       return index_apply<length_v<std::decay_t<R>>>([&](auto... Is) {
-        return boost::make_tuple(std::forward<T>(t).template get<Is>()...);
+        return std::make_tuple(TupleHelper<T>::get<Is>(std::forward<T>(t))...);
       });
     }
 
@@ -112,11 +145,10 @@ namespace iroha {
     template <typename R, typename T>
     constexpr auto viewPermissions(T &&t) {
       return index_apply<length_v<std::decay_t<R>>>([&](auto... Is) {
-        return boost::make_tuple(
-            std::forward<T>(t)
-                .template get<Is
-                              + length_v<std::decay_t<
-                                    T>> - length_v<std::decay_t<R>>>()...);
+        return std::make_tuple(
+            TupleHelper<T>::get<
+                Is + length_v<std::decay_t<T>> - length_v<std::decay_t<R>>>(
+                std::forward<T>(t))...);
       });
     }
 
@@ -124,7 +156,7 @@ namespace iroha {
     template <typename T>
     constexpr auto rebind(T &&t) {
       auto transform = [](auto &&... vals) {
-        return boost::make_tuple(*std::forward<decltype(vals)>(vals)...);
+        return std::make_tuple(*std::forward<decltype(vals)>(vals)...);
       };
 
       using ReturnType = decltype(boost::make_optional(

@@ -252,15 +252,12 @@ namespace iroha {
         const shared_model::interface::types::HashType &query_hash,
         ResponseCreator &&response_creator,
         PermissionsErrResponse &&perms_err_response) {
-      //using T = concat<QueryTuple, PermissionTuple>;
-      using T =
-          typename TupleConcatHelper<QueryTuple, PermissionTuple>::ConcatType;
+      using T = typename TupleHelper<concat<QueryTuple, PermissionTuple>>::StdTuple;
       try {
         soci::rowset<T> st = std::forward<QueryExecutor>(query_executor)();
         auto range = boost::make_iterator_range(st.begin(), st.end());
 
-        return iroha::ametsuchi::apply(
-            viewPermissions<PermissionTuple>(range.front()),
+        return std::apply(
             [this, range, &response_creator, &perms_err_response, &query_hash](
                 auto... perms) {
               bool temp[] = {not perms...};
@@ -281,7 +278,8 @@ namespace iroha {
                   });
               return std::forward<ResponseCreator>(response_creator)(
                   query_range, perms...);
-            });
+            },
+            viewPermissions<PermissionTuple>(range.front()));
       } catch (const std::exception &e) {
         return this->logAndReturnErrorResponse(
             QueryErrorType::kStatefulFailed, e.what(), 1, query_hash);
