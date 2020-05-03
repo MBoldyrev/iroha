@@ -14,14 +14,13 @@ using namespace shared_model::proto;
 
 EngineReceipt::EngineReceipt(const TransportType &proto)
     : proto_(proto)
-    , engine_logs_{ boost::copy_range<shared_model::interface::EngineReceipt::EngineLogsPtr>(proto_.logs()
-        | boost::adaptors::transformed([](auto const &log_entry) {
-            return std::make_unique<shared_model::proto::EngineLog>(log_entry);
-    }))}
     , tx_hash_(shared_model::crypto::Hash::fromHexString(proto_.tx_hash()))
     , block_hash_(shared_model::crypto::Hash::fromHexString(proto_.block_hash()))
     {
-
+        engine_logs_.reserve(proto_.logs().size());
+        for (auto const &log : proto_.logs()) {
+            engine_logs_.emplace_back(std::make_unique<shared_model::proto::EngineLog>(log));
+        }
     }
 
 EngineReceipt::EngineReceipt(const EngineReceipt &o)
@@ -68,7 +67,8 @@ shared_model::interface::types::EvmAddressHexString const &EngineReceipt::getPay
         return proto_.contract_address();
     } else {
         assert(!"Unexpected call. Check payload type.");
-        return shared_model::interface::types::EvmAddressHexString();
+        static shared_model::interface::types::EvmAddressHexString _;
+        return _;
     }
 }
 

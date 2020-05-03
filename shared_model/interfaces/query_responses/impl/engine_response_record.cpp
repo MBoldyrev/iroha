@@ -5,6 +5,8 @@
 
 #include "interfaces/query_responses/engine_response_record.hpp"
 
+#include "cryptography/hash.hpp"
+
 using namespace shared_model::interface;
 
 bool EngineReceipt::operator==(ModelType const &rhs) const {
@@ -32,7 +34,7 @@ std::string EngineReceipt::toString() const {
       .appendNamed("block_height", getBlockHeight())
       .appendNamed("block_hash", getBlockHash())
       .appendNamed("from", getFrom())
-      .appendNamed("payload_type", getPayloadType())
+      .appendNamed("payload_type", EngineReceipt::payloadTypeToStr(getPayloadType()))
       .appendNamed("payload", getPayload())
       .appendNamed("engine_logs", getEngineLogs())
       .finalize();

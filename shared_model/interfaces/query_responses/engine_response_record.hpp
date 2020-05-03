@@ -24,6 +24,14 @@ namespace shared_model {
         kPayloadTypeContractAddress
       };
 
+      static char const *payloadTypeToStr(PayloadType pt) {
+        switch(pt) {
+          case PayloadType::kPayloadTypeTo: return "To";
+          case PayloadType::kPayloadTypeContractAddress: return "Contract address";
+          default: return "Unknown";
+        }
+      }
+
       using EngineLogsPtr = std::unique_ptr<interface::EngineLog>;
       using EngineLogsCollectionType = std::vector<EngineLogsPtr>;
 
