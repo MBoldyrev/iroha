@@ -12,6 +12,7 @@
 #include <boost/range/adaptor/transformed.hpp>
 #include <boost/range/algorithm/transform.hpp>
 #include <boost/range/irange.hpp>
+#include <utility>
 #include "ametsuchi/block_storage.hpp"
 #include "ametsuchi/impl/executor_common.hpp"
 #include "ametsuchi/impl/soci_std_optional.hpp"
@@ -142,7 +143,7 @@ namespace {
 
   /// Query result is a tuple of optionals, since there could be no entry
   template <typename... Value>
-  using QueryType = boost::tuple<std::optional<Value>...>;
+  using QueryType = std::tuple<std::optional<Value>...>;
 
   template <typename... Value>
   using QT = std::tuple<std::optional<Value>...>;
@@ -243,7 +244,6 @@ namespace iroha {
     }
 
     template <typename QueryTuple,
-              typename PermissionTuple,
               typename QueryExecutor,
               typename ResponseCreator,
               typename PermissionsErrResponse>
@@ -252,21 +252,16 @@ namespace iroha {
         const shared_model::interface::types::HashType &query_hash,
         ResponseCreator &&response_creator,
         PermissionsErrResponse &&perms_err_response) {
-      //using T = concat<QueryTuple, PermissionTuple>;
-      using T =
-          typename TupleConcatHelper<QueryTuple, PermissionTuple>::ConcatType;
+      using T = decltype(std::tuple_cat(std::declval<QueryTuple>(),
+                                        std::declval<std::tuple<int>>()));
       try {
         soci::rowset<T> st = std::forward<QueryExecutor>(query_executor)();
         auto range = boost::make_iterator_range(st.begin(), st.end());
 
-        return iroha::ametsuchi::apply(
-            viewPermissions<PermissionTuple>(range.front()),
+        return std::apply(
             [this, range, &response_creator, &perms_err_response, &query_hash](
-                auto... perms) {
-              bool temp[] = {not perms...};
-              if (std::all_of(std::begin(temp), std::end(temp), [](auto b) {
-                    return b;
-                  })) {
+                auto const &..., int const &has_perm) {
+              if (has_perm == 0) {
                 // TODO [IR-1816] Akvinikym 03.12.18: replace magic number 2
                 // with a named constant
                 return this->logAndReturnErrorResponse(
@@ -277,11 +272,17 @@ namespace iroha {
               }
               auto query_range =
                   range | boost::adaptors::transformed([](auto &t) {
-                    return viewQuery<QueryTuple>(t);
+                    return std::apply(
+                        [](auto &&... args, int /*perm*/) {
+                          return std::make_tuple(
+                              std::forward<decltype(args)>(args)...);
+                        },
+                        t);
                   });
               return std::forward<ResponseCreator>(response_creator)(
-                  query_range, perms...);
-            });
+                  query_range);
+            },
+            range.front());
       } catch (const std::exception &e) {
         return this->logAndReturnErrorResponse(
             QueryErrorType::kStatefulFailed, e.what(), 1, query_hash);
@@ -356,7 +357,6 @@ namespace iroha {
       using QueryTuple = QueryType<shared_model::interface::types::HeightType,
                                    uint64_t,
                                    uint64_t>;
-      using PermissionTuple = boost::tuple<int>;
       const auto &pagination_info = q.paginationMeta();
       auto first_hash = pagination_info.firstTxHash();
       // retrieve one extra transaction to populate next_hash
@@ -396,7 +396,7 @@ namespace iroha {
                       related_txs,
                       (first_hash ? first_by_hash : first_tx));
 
-      return executeQuery<QueryTuple, PermissionTuple>(
+      return executeQuery<QueryTuple>(
           applier(query),
           query_hash,
           [&](auto range, auto &) {
@@ -481,8 +481,6 @@ namespace iroha {
                     shared_model::interface::types::QuorumType,
                     shared_model::interface::types::DetailType,
                     std::string>;
-      using PermissionTuple = boost::tuple<int>;
-
       auto cmd = fmt::format(R"(WITH has_perms AS ({}),
       t AS (
           SELECT a.account_id, a.domain_id, a.quorum, a.data, ARRAY_AGG(ar.role_id) AS roles
@@ -513,13 +511,13 @@ namespace iroha {
             account_id, domain_id, quorum, data, std::move(roles), query_hash);
       };
 
-      return executeQuery<QueryTuple, PermissionTuple>(
+      return executeQuery<QueryTuple>(
           [&] {
             return (sql_.prepare << cmd,
                     soci::use(q.accountId(), "target_account_id"));
           },
           query_hash,
-          [this, &q, &query_apply, &query_hash](auto range, auto &) {
+          [this, &q, &query_apply, &query_hash](auto range) {
             auto range_without_nulls = resultWithoutNulls(std::move(range));
             if (range_without_nulls.empty()) {
               return this->logAndReturnErrorResponse(
@@ -582,7 +580,6 @@ namespace iroha {
         const shared_model::interface::types::AccountIdType &creator_id,
         const shared_model::interface::types::HashType &query_hash) {
       using QueryTuple = QueryType<std::string>;
-      using PermissionTuple = boost::tuple<int>;
 
       auto cmd = fmt::format(R"(WITH has_perms AS ({}),
       t AS (
@@ -598,10 +595,10 @@ namespace iroha {
                                                 Role::kGetAllSignatories,
                                                 Role::kGetDomainSignatories));
 
-      return executeQuery<QueryTuple, PermissionTuple>(
+      return executeQuery<QueryTuple>(
           [&] { return (sql_.prepare << cmd, soci::use(q.accountId())); },
           query_hash,
-          [this, &q, &query_hash](auto range, auto &) {
+          [this, &q, &query_hash](auto range) {
             auto range_without_nulls = resultWithoutNulls(std::move(range));
             if (range_without_nulls.empty()) {
               return this->logAndReturnErrorResponse(
@@ -687,7 +684,6 @@ namespace iroha {
 
       using QueryTuple =
           QueryType<shared_model::interface::types::HeightType, std::string>;
-      using PermissionTuple = boost::tuple<int, int>;
 
       auto cmd = fmt::format(
           R"(WITH has_my_perm AS ({}),
@@ -695,7 +691,10 @@ namespace iroha {
       t AS (
           SELECT height, hash FROM position_by_hash WHERE hash IN ({})
       )
-      SELECT height, hash, has_my_perm.perm, has_all_perm.perm FROM t
+      SELECT
+        height, hash, has_my_perm.perm,
+        has_my_perm.perm or has_all_perm.perm
+      FROM t
       RIGHT OUTER JOIN has_my_perm ON TRUE
       RIGHT OUTER JOIN has_all_perm ON TRUE
       )",
@@ -703,12 +702,12 @@ namespace iroha {
           getAccountRolePermissionCheckSql(Role::kGetAllTxs, ":account_id"),
           hash_str);
 
-      return executeQuery<QueryTuple, PermissionTuple>(
+      return executeQuery<QueryTuple>(
           [&] {
             return (sql_.prepare << cmd, soci::use(creator_id, "account_id"));
           },
           query_hash,
-          [&](auto range, auto &my_perm, auto &all_perm) {
+          [&](auto range) {
             auto range_without_nulls = resultWithoutNulls(std::move(range));
             if (boost::size(range_without_nulls)
                 != q.transactionHashes().size()) {
@@ -722,11 +721,15 @@ namespace iroha {
                   4,
                   query_hash);
             }
+            bool have_perm_for_all =
+                std::get<2>(range_without_nulls.front()) != 0;
             std::map<uint64_t, std::unordered_set<std::string>> index;
             for (const auto &t : range_without_nulls) {
-              iroha::ametsuchi::apply(t, [&index](auto &height, auto &hash) {
-                index[height].insert(hash);
-              });
+              std::apply(
+                  [&index](auto &height, auto &hash, auto const &...) {
+                    index[height].insert(hash);
+                  },
+                  t);
             }
 
             std::vector<std::unique_ptr<shared_model::interface::Transaction>>
@@ -739,9 +742,8 @@ namespace iroha {
                   },
                   [&](auto &tx) {
                     return block.second.count(tx.hash().hex()) > 0
-                        and (all_perm
-                             or (my_perm
-                                 and tx.creatorAccountId() == creator_id));
+                        and (have_perm_for_all
+                             or (tx.creatorAccountId() == creator_id));
                   },
                   std::back_inserter(response_txs));
               if (auto e = iroha::expected::resultToOptionalError(txs_result)) {
@@ -824,7 +826,6 @@ namespace iroha {
                     shared_model::interface::types::AssetIdType,
                     std::string,
                     size_t>;
-      using PermissionTuple = boost::tuple<int>;
 
       // get the assets
       auto cmd = fmt::format(R"(
@@ -883,7 +884,7 @@ namespace iroha {
             return std::optional<size_t>(pagination_meta.get().pageSize() + 1);
           };
 
-      return executeQuery<QueryTuple, PermissionTuple>(
+      return executeQuery<QueryTuple>(
           [&] {
             return (sql_.prepare << cmd,
                     soci::use(q.accountId(), "account_id"),
@@ -891,7 +892,7 @@ namespace iroha {
                     soci::use(req_page_size, "page_size"));
           },
           query_hash,
-          [&](auto range, auto &) {
+          [&](auto range) {
             auto range_without_nulls = resultWithoutNulls(std::move(range));
             std::vector<
                 std::tuple<shared_model::interface::types::AccountIdType,
@@ -950,7 +951,6 @@ namespace iroha {
                     shared_model::interface::types::AccountIdType,
                     shared_model::interface::types::AccountDetailKeyType,
                     uint32_t>;
-      using PermissionTuple = boost::tuple<int>;
 
       auto cmd = fmt::format(R"(
       with has_perms as ({}),
@@ -1049,7 +1049,7 @@ namespace iroha {
             };
       };
 
-      return executeQuery<QueryTuple, PermissionTuple>(
+      return executeQuery<QueryTuple>(
           [&] {
             return (sql_.prepare << cmd,
                     soci::use(q.accountId(), "account_id"),
@@ -1060,7 +1060,7 @@ namespace iroha {
                     soci::use(page_size, "page_size"));
           },
           query_hash,
-          [&, this](auto range, auto &) {
+          [&, this](auto range) {
             if (range.empty()) {
               assert(not range.empty());
               log_->error("Empty response range in {}.", q);
@@ -1156,7 +1156,6 @@ namespace iroha {
         const shared_model::interface::types::AccountIdType &creator_id,
         const shared_model::interface::types::HashType &query_hash) {
       using QueryTuple = QueryType<shared_model::interface::types::RoleIdType>;
-      using PermissionTuple = boost::tuple<int>;
 
       auto cmd = fmt::format(
           R"(WITH has_perms AS ({})
@@ -1165,13 +1164,13 @@ namespace iroha {
       )",
           getAccountRolePermissionCheckSql(Role::kGetRoles));
 
-      return executeQuery<QueryTuple, PermissionTuple>(
+      return executeQuery<QueryTuple>(
           [&] {
             return (sql_.prepare << cmd,
                     soci::use(creator_id, "role_account_id"));
           },
           query_hash,
-          [&](auto range, auto &) {
+          [&](auto range) {
             auto range_without_nulls = resultWithoutNulls(std::move(range));
             auto roles = boost::copy_range<
                 std::vector<shared_model::interface::types::RoleIdType>>(
@@ -1191,7 +1190,6 @@ namespace iroha {
         const shared_model::interface::types::AccountIdType &creator_id,
         const shared_model::interface::types::HashType &query_hash) {
       using QueryTuple = QueryType<std::string>;
-      using PermissionTuple = boost::tuple<int>;
 
       auto cmd = fmt::format(
           R"(WITH has_perms AS ({}),
@@ -1202,14 +1200,14 @@ namespace iroha {
       )",
           getAccountRolePermissionCheckSql(Role::kGetRoles));
 
-      return executeQuery<QueryTuple, PermissionTuple>(
+      return executeQuery<QueryTuple>(
           [&] {
             return (sql_.prepare << cmd,
                     soci::use(creator_id, "role_account_id"),
                     soci::use(q.roleId(), "role_name"));
           },
           query_hash,
-          [this, &q, &creator_id, &query_hash](auto range, auto &) {
+          [this, &q, &creator_id, &query_hash](auto range) {
             auto range_without_nulls = resultWithoutNulls(std::move(range));
             if (range_without_nulls.empty()) {
               return this->logAndReturnErrorResponse(
@@ -1236,7 +1234,6 @@ namespace iroha {
         const shared_model::interface::types::HashType &query_hash) {
       using QueryTuple =
           QueryType<shared_model::interface::types::DomainIdType, uint32_t>;
-      using PermissionTuple = boost::tuple<int>;
 
       auto cmd = fmt::format(
           R"(WITH has_perms AS ({}),
@@ -1247,14 +1244,14 @@ namespace iroha {
       )",
           getAccountRolePermissionCheckSql(Role::kReadAssets));
 
-      return executeQuery<QueryTuple, PermissionTuple>(
+      return executeQuery<QueryTuple>(
           [&] {
             return (sql_.prepare << cmd,
                     soci::use(creator_id, "role_account_id"),
                     soci::use(q.assetId(), "asset_id"));
           },
           query_hash,
-          [this, &q, &creator_id, &query_hash](auto range, auto &) {
+          [this, &q, &creator_id, &query_hash](auto range) {
             auto range_without_nulls = resultWithoutNulls(std::move(range));
             if (range_without_nulls.empty()) {
               return this->logAndReturnErrorResponse(
@@ -1350,7 +1347,6 @@ namespace iroha {
       using QueryTuple = QueryType<std::string,
                                    shared_model::interface::types::AddressType,
                                    std::string>;
-      using PermissionTuple = boost::tuple<int>;
 
       auto cmd = fmt::format(
           R"(WITH has_perms AS ({})
@@ -1359,13 +1355,13 @@ namespace iroha {
       )",
           getAccountRolePermissionCheckSql(Role::kGetPeers));
 
-      return executeQuery<QueryTuple, PermissionTuple>(
+      return executeQuery<QueryTuple>(
           [&] {
             return (sql_.prepare << cmd,
                     soci::use(creator_id, "role_account_id"));
           },
           query_hash,
-          [&](auto range, auto &) {
+          [&](auto range) {
             shared_model::interface::types::PeerList peers;
             for (const auto &row : range) {
               iroha::ametsuchi::apply(
@@ -1424,16 +1420,14 @@ namespace iroha {
                     shared_model::interface::types::EvmTopicsHexString
                     >;
 
-      using PermissionTuple = std::tuple<int>;
-
-      return executeQuery<QueryTuple, PermissionTuple>(
+      return executeQuery<QueryTuple>(
           [&] {
             return (sql_.prepare << cmd,
                     soci::use(creator_id, "creator_account_id"),
                     soci::use(q.txHash(), "tx_hash"));
           },
           query_hash,
-          [&](auto range, auto &) {
+          [&](auto range) {
             auto range_without_nulls = resultWithoutNulls(std::move(range));
 
             using RecordsCollection = std::vector<std::unique_ptr<shared_model::interface::EngineReceipt>>;
@@ -1518,9 +1512,10 @@ namespace iroha {
           },
           // Permission missing error is not going to happen in case of that
           // query for now
-          notEnoughPermissionsResponse(perm_converter_, Role::kGetMyEngineReceipts,
-                    Role::kGetAllEngineReceipts,
-                    Role::kGetDomainEngineReceipts));
+          notEnoughPermissionsResponse(perm_converter_,
+                                       Role::kGetMyEngineReceipts,
+                                       Role::kGetAllEngineReceipts,
+                                       Role::kGetDomainEngineReceipts));
     }
 
     template <typename ReturnValueType>

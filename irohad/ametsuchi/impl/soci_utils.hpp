@@ -124,7 +124,7 @@ namespace iroha {
     template <typename T>
     constexpr auto rebind(T &&t) {
       auto transform = [](auto &&... vals) {
-        return boost::make_tuple(*std::forward<decltype(vals)>(vals)...);
+        return std::make_tuple(*std::forward<decltype(vals)>(vals)...);
       };
 
       using ReturnType = decltype(boost::make_optional(

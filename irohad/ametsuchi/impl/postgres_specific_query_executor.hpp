@@ -165,7 +165,6 @@ namespace iroha {
        * @return query response created as a result of query execution
        */
       template <typename QueryTuple,
-                typename PermissionTuple,
                 typename QueryExecutor,
                 typename ResponseCreator,
                 typename PermissionsErrResponse>
