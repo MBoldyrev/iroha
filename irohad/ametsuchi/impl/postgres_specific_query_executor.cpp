@@ -1428,13 +1428,26 @@ namespace iroha {
           query_hash,
           [&](auto range, auto &) {
             auto range_without_nulls = resultWithoutNulls(std::move(range));
-            std::vector<std::unique_ptr<shared_model::interface::EngineReceipt>>records;
-            std::unique_ptr<shared_model::plain::EngineReceipt> record;
+
+            using RecordsCollection = std::vector<std::unique_ptr<shared_model::interface::EngineReceipt>>;
+            using RecordPtr = std::unique_ptr<shared_model::plain::EngineReceipt>;
+            using EngineLogPtr = std::unique_ptr<shared_model::plain::EngineLog>;
+
+            RecordsCollection records;
+            RecordPtr record;
+            EngineLogPtr log;
             uint32_t l_ix;
+
+            auto store_record = [](RecordsCollection &records, RecordPtr &&rec, EngineLogPtr &&el) {
+              assert(!!rec);
+              assert(!!el);
+              rec->getMutableLogs().emplace_back(std::move(el));
+              records.emplace_back(std::move(rec));
+            };
 
             for (const auto &row : range_without_nulls) {
               iroha::ametsuchi::apply(
-                  row, [&records, &l_ix](auto &cmd_index,
+                  row, [&store_record, &record, &log, &records, &l_ix](auto &cmd_index,
                                   auto &tx_hash,
                                   auto &tx_index,
                                   auto &block_height,
@@ -1448,7 +1461,7 @@ namespace iroha {
                                   auto &log_topic
                                   ) {
 
-                    if (record.empty()) {
+                    if (!record) {
                       record = std::make_unique<shared_model::plain::EngineReceipt>(
                                   cmd_index,
                                   tx_hash,
@@ -1461,7 +1474,7 @@ namespace iroha {
                                );
                     } else if (tx_hash != records.back()->getTxHash() ||
                         cmd_index != records.back()->commandIndex()) {
-                      records.emplace_back(std::move(record));
+                      store_record(records, std::move(record), std::move(log));
                       record = std::make_unique<shared_model::plain::EngineReceipt>(
                                   cmd_index,
                                   tx_hash,
@@ -1472,21 +1485,24 @@ namespace iroha {
                                   payload_type,
                                   payload
                                );
+
                     }
 
-                    auto &log_collection = record->getMutableLogs();
-
-                    if (log_collection.empty() || logs_ix != l_ix) {
-                      log_collection.emplace_back(
-                        std::make_unique<shared_model::plain::EngineLog>(log_address, log_data)
-                      );
+                    if (!log) {
+                      log = std::make_unique<shared_model::plain::EngineLog>(log_address, log_data);
                       l_ix = logs_ix;
                     }
-                    log_collection.back()->addTopic(log_topic);
+                    if (logs_ix != l_ix) {
+                      record->getMutableLogs().emplace_back(std::move(log));
+                      log = std::make_unique<shared_model::plain::EngineLog>(log_address, log_data);
+                      l_ix = logs_ix;
+                    }
+                    log->addTopic(log_topic);
                   });
             }
-            if (!!record)
-              records.emplace_back(std::move(record));
+            if (!!record) {
+              store_record(records, std::move(record), std::move(log));
+            }
 
             return query_response_factory_->createEngineReceiptsResponse(records, query_hash);
           },
