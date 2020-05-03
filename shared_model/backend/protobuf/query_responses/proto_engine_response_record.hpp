@@ -8,6 +8,7 @@
 
 #include "interfaces/query_responses/engine_response_record.hpp"
 
+#include "cryptography/hash.hpp"
 #include "interfaces/common_objects/types.hpp"
 #include "qry_responses.pb.h"
 
@@ -35,6 +36,8 @@ namespace shared_model {
      private:
       const TransportType &proto_;
       shared_model::interface::EngineReceipt::EngineLogsCollectionType engine_logs_;
+      shared_model::interface::types::HashType tx_hash_;
+      shared_model::interface::types::HashType block_hash_;
     };
   }  // namespace proto
 }  // namespace shared_model

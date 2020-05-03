@@ -397,10 +397,10 @@ shared_model::proto::ProtoQueryResponseFactory::createEngineReceiptsResponse(
           }
 
           proto_receipt->set_command_index(receipt->commandIndex());
-          proto_receipt->set_tx_hash(receipt->getTxHash());
+          proto_receipt->set_tx_hash(receipt->getTxHash().hex());
           proto_receipt->set_tx_index(receipt->getTxIndex());
           proto_receipt->set_block_height(receipt->getBlockHeight());
-          proto_receipt->set_block_hash(receipt->getBlockHash());
+          proto_receipt->set_block_hash(receipt->getBlockHash().hex());
           proto_receipt->set_from(receipt->getFrom());
 
           switch (receipt->getPayloadType()) {

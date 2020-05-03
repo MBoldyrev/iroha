@@ -39,6 +39,7 @@ namespace shared_model {
       static Hash fromHexString(const std::string &hex);
 
       bool operator==(Blob const &rhs) const;
+      bool operator==(Hash const &rhs) const;
 
       std::string toString() const override;
     };

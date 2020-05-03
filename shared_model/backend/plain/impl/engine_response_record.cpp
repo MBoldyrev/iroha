@@ -9,15 +9,15 @@ using namespace shared_model::interface::types;
 using namespace shared_model::plain;
 
 EngineReceipt::EngineReceipt(
-    interface::types::CommandIndexType                  cmd_index,
-    interface::types::HashType                          &&tx_hash,
-    interface::types::TxIndexType                       tx_index,
-    interface::types::HeightType                        block_height,
-    interface::types::HashType                          &&block_hash,
-    interface::types::AccountIdType                     &&account_id_type,
-    interface::EngineReceipt::PayloadType               payload_type,
-    interface::types::EvmAddressHexString               &&payload
-    ) 
+    shared_model::interface::types::CommandIndexType    cmd_index,
+    shared_model::interface::types::HashType            &&tx_hash,
+    shared_model::interface::types::TxIndexType         tx_index,
+    shared_model::interface::types::HeightType          block_height,
+    shared_model::interface::types::HashType            &&block_hash,
+    shared_model::interface::types::AccountIdType       &&account_id_type,
+    shared_model::interface::EngineReceipt::PayloadType payload_type,
+    shared_model::interface::types::EvmAddressHexString &&payload
+    )
     : cmd_index_(cmd_index)
     , tx_hash_(std::move(tx_hash))
     , tx_index_(tx_index)
@@ -28,42 +28,42 @@ EngineReceipt::EngineReceipt(
     , payload_(std::move(payload))
     { }
 
-interface::types::CommandIndexType  EngineReceipt::commandIndex() const {
+shared_model::interface::types::CommandIndexType  EngineReceipt::commandIndex() const {
     return cmd_index_;
 }
 
-interface::types::HashType const &EngineReceipt::getTxHash() const {
+shared_model::interface::types::HashType const &EngineReceipt::getTxHash() const {
     return tx_hash_;
 }
 
-interface::types::TxIndexType  EngineReceipt::getTxIndex() const {
+shared_model::interface::types::TxIndexType  EngineReceipt::getTxIndex() const {
     return tx_index_;
 }
 
-interface::types::HeightType  EngineReceipt::getBlockHeight() const {
+shared_model::interface::types::HeightType  EngineReceipt::getBlockHeight() const {
     return block_height_;
 }
 
-interface::types::HashType const &EngineReceipt::getBlockHash() const {
+shared_model::interface::types::HashType const &EngineReceipt::getBlockHash() const {
     return block_hash_;
 }
 
-interface::types::AccountIdType  EngineReceipt::getFrom() const {
+shared_model::interface::types::AccountIdType  EngineReceipt::getFrom() const {
     return account_id_type_;
 }
 
-interface::EngineReceipt::PayloadType  EngineReceipt::getPayloadType() const {
+shared_model::interface::EngineReceipt::PayloadType  EngineReceipt::getPayloadType() const {
     return payload_type_;
 }
 
-interface::types::EvmAddressHexString const &EngineReceipt::getPayload() const {
+shared_model::interface::types::EvmAddressHexString const &EngineReceipt::getPayload() const {
     return payload_;
 }
 
-interface::EngineLogsCollectionType const &EngineReceipt::getEngineLogs() const {
+shared_model::interface::EngineReceipt::EngineLogsCollectionType const &EngineReceipt::getEngineLogs() const {
     return engine_logs_;
 }
 
-shared_model::plain::EngineReceipt::EngineLogsCollection &EngineReceipt::getMutableLogs() {
+shared_model::interface::EngineReceipt::EngineLogsCollectionType &EngineReceipt::getMutableLogs() {
     return engine_logs_;
 }
