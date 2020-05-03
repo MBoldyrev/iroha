@@ -22,6 +22,7 @@
 #include "common/byteutils.hpp"
 #include "cryptography/public_key.hpp"
 #include "interfaces/common_objects/amount.hpp"
+#include "interfaces/common_objects/string_types.hpp"
 #include "interfaces/iroha_internal/block.hpp"
 #include "interfaces/permission_to_string.hpp"
 #include "interfaces/queries/asset_pagination_meta.hpp"
@@ -1403,18 +1404,19 @@ namespace iroha {
 
       using QueryTuple =
           QueryType<shared_model::interface::types::CommandIndexType,
-                    shared_model::interface::types::HashType,
+                    std::string,
                     shared_model::interface::types::TxIndexType,
                     shared_model::interface::types::HeightType,
-                    shared_model::interface::types::HashType,
+                    std::string,
                     shared_model::interface::types::AccountIdType,
-                    shared_model::interface::EngineReceipt::PayloadType,
+                    uint32_t,
                     shared_model::interface::types::EvmAddressHexString,
                     uint32_t,
                     shared_model::interface::types::EvmAddressHexString,
                     shared_model::interface::types::EvmDataHexString,
                     shared_model::interface::types::EvmTopicsHexString
                     >;
+
       using PermissionTuple = boost::tuple<int>;
 
       return executeQuery<QueryTuple, PermissionTuple>(
@@ -1426,42 +1428,52 @@ namespace iroha {
           query_hash,
           [&](auto range, auto &) {
             auto range_without_nulls = resultWithoutNulls(std::move(range));
-            std::vector<std::unique_ptr<shared_model::plain::EngineReceipt>>records;
-
+            std::vector<std::unique_ptr<shared_model::interface::EngineReceipt>>records;
+            std::unique_ptr<shared_model::plain::EngineReceipt> record;
             uint32_t l_ix;
+
             for (const auto &row : range_without_nulls) {
               iroha::ametsuchi::apply(
-                  row, [&](auto &cmd_index, 
-                                  auto &tx_hash, 
-                                  auto &tx_index, 
-                                  auto &block_height, 
-                                  auto &block_hash, 
-                                  auto &account_id_type, 
-                                  auto &payload_type, 
-                                  auto &payload, 
+                  row, [&records, &l_ix](auto &cmd_index,
+                                  auto &tx_hash,
+                                  auto &tx_index,
+                                  auto &block_height,
+                                  auto &block_hash,
+                                  auto &account_id_type,
+                                  auto &payload_type,
+                                  auto &payload,
                                   auto &logs_ix,
                                   auto &log_address,
                                   auto &log_data,
                                   auto &log_topic
                                   ) {
 
-                    if (records.empty() || 
-                        tx_hash != records.back()->getTxHash() ||
-                        cmd_index != records.back()->commandIndex()
-                    ) {
-                      records.emplace_back(std::make_unique<shared_model::plain::EngineReceipt>(
-                                  cmd_index, 
-                                  tx_hash, 
-                                  tx_index, 
-                                  block_height, 
-                                  block_hash, 
-                                  account_id_type, 
-                                  payload_type, 
+                    if (record.empty()) {
+                      record = std::make_unique<shared_model::plain::EngineReceipt>(
+                                  cmd_index,
+                                  tx_hash,
+                                  tx_index,
+                                  block_height,
+                                  block_hash,
+                                  account_id_type,
+                                  payload_type,
                                   payload
-                               ));
+                               );
+                    } else if (tx_hash != records.back()->getTxHash() ||
+                        cmd_index != records.back()->commandIndex()) {
+                      records.emplace_back(std::move(record));
+                      record = std::make_unique<shared_model::plain::EngineReceipt>(
+                                  cmd_index,
+                                  tx_hash,
+                                  tx_index,
+                                  block_height,
+                                  block_hash,
+                                  account_id_type,
+                                  payload_type,
+                                  payload
+                               );
                     }
 
-                    auto &record = records.back();
                     auto &log_collection = record->getMutableLogs();
 
                     if (log_collection.empty() || logs_ix != l_ix) {
@@ -1473,8 +1485,10 @@ namespace iroha {
                     log_collection.back()->addTopic(log_topic);
                   });
             }
-            return query_response_factory_->createEngineReceiptsResponse(records,
-                                                                 query_hash);
+            if (!!record)
+              records.emplace_back(std::move(record));
+
+            return query_response_factory_->createEngineReceiptsResponse(records, query_hash);
           },
           // Permission missing error is not going to happen in case of that
           // query for now
