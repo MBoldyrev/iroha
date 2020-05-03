@@ -1413,13 +1413,13 @@ namespace iroha {
                     shared_model::interface::types::TxIndexType,
                     shared_model::interface::types::HeightType,
                     std::string,
-                    std::string,
+                    shared_model::interface::types::AccountIdType,
                     uint32_t,
-                    std::string,
+                    shared_model::interface::types::EvmAddressHexString,
                     uint32_t,
-                    std::string,
-                    std::string,
-                    std::string
+                    shared_model::interface::types::EvmAddressHexString,
+                    shared_model::interface::types::EvmDataHexString,
+                    shared_model::interface::types::EvmTopicsHexString
                     >;
 
       using PermissionTuple = std::tuple<int>;
@@ -1453,18 +1453,18 @@ namespace iroha {
             for (const auto &row : range_without_nulls) {
               iroha::ametsuchi::apply(
                   row, [&store_record, &record, &log, &records, &l_ix](
-                                  shared_model::interface::types::CommandIndexType &cmd_index,
-                                  std::string &tx_hash,
-                                  shared_model::interface::types::TxIndexType &tx_index,
-                                  shared_model::interface::types::HeightType &block_height,
-                                  std::string &block_hash,
-                                  std::string &account_id_type,
-                                  uint32_t &payload_type,
-                                  std::string &payload,
-                                  uint32_t &logs_ix,
-                                  std::string &log_address,
-                                  std::string &log_data,
-                                  std::string &log_topic
+                                  auto &cmd_index,
+                                  auto &tx_hash,
+                                  auto &tx_index,
+                                  auto &block_height,
+                                  auto &block_hash,
+                                  auto &account_id_type,
+                                  auto &payload_type,
+                                  auto &payload,
+                                  auto &logs_ix,
+                                  auto &log_address,
+                                  auto &log_data,
+                                  auto &log_topic
                                   ) {
 
                     {
