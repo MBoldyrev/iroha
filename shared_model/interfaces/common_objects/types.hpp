@@ -38,6 +38,12 @@ namespace shared_model {
       using BlobType = crypto::Blob;
       /// Type of account id
       using AccountIdType = std::string;
+      /// Type of evm address
+      using EvmAddressHexString = std::string;
+      /// Types of evm data
+      using EvmDataHexString = std::string;
+      // Type of evm topics
+      using EvmTopicsHexString = std::string;
       /// Type of precision
       using PrecisionType = uint8_t;
       /// Type of height (for Block, Proposal etc)
