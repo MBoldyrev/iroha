@@ -12,6 +12,7 @@
 #include <boost/range/adaptor/transformed.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <boost/tuple/tuple.hpp>
+#include <tuple>
 #include "common/bind.hpp"
 
 namespace iroha {
@@ -52,6 +53,28 @@ namespace iroha {
     using concat = decltype(concat_impl<Tuple1, Tuple2>(
         std::make_index_sequence<length_v<std::decay_t<Tuple1>>>{},
         std::make_index_sequence<length_v<std::decay_t<Tuple2>>>{}));
+
+    /// tuple with types from two given tuples
+    template <class Tuple1, class Tuple2>
+    using concat = decltype(concat_impl<Tuple1, Tuple2>(
+        std::make_index_sequence<length_v<std::decay_t<Tuple1>>>{},
+        std::make_index_sequence<length_v<std::decay_t<Tuple2>>>{}));
+
+    template <class Tuple1, class Tuple2>
+    struct TupleConcatHelper {};
+
+    template <class... Types1, class... Types2>
+    struct TupleConcatHelper<std::tuple<Types1...>, std::tuple<Types2...>> {
+      using ConcatType =
+          decltype(std::tuple_cat(std::declval<std::tuple<Types1...>>(),
+                                  std::declval<std::tuple<Types2...>>()));
+    };
+
+    template <class... Types1, class... Types2>
+    struct TupleConcatHelper<boost::tuple<Types1...>, boost::tuple<Types2...>> {
+      using ConcatType =
+          concat<boost::tuple<Types1...>, boost::tuple<Types2...>>;
+    };
 
     /// index sequence helper for index_apply
     template <typename F, std::size_t... Is>

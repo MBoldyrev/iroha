@@ -252,7 +252,9 @@ namespace iroha {
         const shared_model::interface::types::HashType &query_hash,
         ResponseCreator &&response_creator,
         PermissionsErrResponse &&perms_err_response) {
-      using T = concat<QueryTuple, PermissionTuple>;
+      //using T = concat<QueryTuple, PermissionTuple>;
+      using T =
+          typename TupleConcatHelper<QueryTuple, PermissionTuple>::ConcatType;
       try {
         soci::rowset<T> st = std::forward<QueryExecutor>(query_executor)();
         auto range = boost::make_iterator_range(st.begin(), st.end());
