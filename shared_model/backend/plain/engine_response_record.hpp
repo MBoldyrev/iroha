@@ -15,6 +15,8 @@ namespace shared_model {
 
     class EngineReceipt final : public interface::EngineReceipt {
      public:
+      using EngineLogsCollection = std::vector<std::unique_ptr<shared_model::plain::EngineLog>>;
+
       EngineReceipt(
           interface::types::CommandIndexType                  cmd_index,
           interface::types::HashType                          &&tx_hash,
@@ -23,8 +25,7 @@ namespace shared_model {
           interface::types::HashType                          &&block_hash,
           interface::types::AccountIdType                     &&account_id_type,
           interface::EngineReceipt::PayloadType               payload_type,
-          interface::types::EvmAddressHexString               &&payload,
-          interface::EngineReceipt::EngineLogsCollectionType  &&engine_logs
+          interface::types::EvmAddressHexString               &&payload
           );
 
       interface::types::CommandIndexType commandIndex() const override;
@@ -37,16 +38,18 @@ namespace shared_model {
       interface::types::EvmAddressHexString const &getPayload() const override;
       interface::EngineLogsCollectionType const &getEngineLogs() const override;
 
+      EngineLogsCollection &getMutableLogs();
+
      private:
-      interface::types::CommandIndexType const                  cmd_index_;
-      interface::types::HashType const                          tx_hash_;
-      interface::types::TxIndexType const                       tx_index_;
-      interface::types::HeightType const                        block_height_;
-      interface::types::HashType const                          block_hash_;
-      interface::types::AccountIdType const                     account_id_type_;
-      interface::EngineReceipt::PayloadType const               payload_type_;
-      interface::types::EvmAddressHexString const               payload_;
-      interface::EngineReceipt::EngineLogsCollectionType const  engine_logs_;
+      interface::types::CommandIndexType const    cmd_index_;
+      interface::types::HashType const            tx_hash_;
+      interface::types::TxIndexType const         tx_index_;
+      interface::types::HeightType const          block_height_;
+      interface::types::HashType const            block_hash_;
+      interface::types::AccountIdType const       account_id_type_;
+      interface::EngineReceipt::PayloadType const payload_type_;
+      interface::types::EvmAddressHexString const payload_;
+      EngineLogsCollection                        engine_logs_;
     };
   }  // namespace plain
 }  // namespace shared_model

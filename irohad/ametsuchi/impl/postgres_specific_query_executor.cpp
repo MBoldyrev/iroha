@@ -1403,7 +1403,18 @@ namespace iroha {
 
       using QueryTuple =
           QueryType<shared_model::interface::types::CommandIndexType,
-                    shared_model::interface::types::SmartContractCodeType>;
+                    shared_model::interface::types::HashType,
+                    shared_model::interface::types::TxIndexType,
+                    shared_model::interface::types::HeightType,
+                    shared_model::interface::types::HashType,
+                    shared_model::interface::types::AccountIdType,
+                    shared_model::interface::EngineReceipt::PayloadType,
+                    shared_model::interface::types::EvmAddressHexString,
+                    uint32_t,
+                    shared_model::interface::types::EvmAddressHexString,
+                    shared_model::interface::types::EvmDataHexString,
+                    shared_model::interface::types::EvmTopicsHexString
+                    >;
       using PermissionTuple = boost::tuple<int>;
 
       return executeQuery<QueryTuple, PermissionTuple>(
@@ -1415,34 +1426,51 @@ namespace iroha {
           query_hash,
           [&](auto range, auto &) {
             auto range_without_nulls = resultWithoutNulls(std::move(range));
-            std::vector<
-                std::unique_ptr<shared_model::interface::EngineReceipt>>
-                records;
+            std::vector<std::unique_ptr<shared_model::plain::EngineReceipt>>records;
+
+            uint32_t l_ix;
             for (const auto &row : range_without_nulls) {
               iroha::ametsuchi::apply(
-                  row, [&records](auto &cmd_index, auto &tx_hash, auto &tx_index, auto &block_height, auto &block_hash, auto &account_id_type, auto &payload_type, auto &payload, ) {
+                  row, [&](auto &cmd_index, 
+                                  auto &tx_hash, 
+                                  auto &tx_index, 
+                                  auto &block_height, 
+                                  auto &block_hash, 
+                                  auto &account_id_type, 
+                                  auto &payload_type, 
+                                  auto &payload, 
+                                  auto &logs_ix,
+                                  auto &log_address,
+                                  auto &log_data,
+                                  auto &log_topic
+                                  ) {
 
-/*
-      EngineReceipt(
-          interface::types::CommandIndexType                  cmd_index,
-          interface::types::HashType                          &&tx_hash,
-          interface::types::TxIndexType                       tx_index,
-          interface::types::HeightType                        block_height,
-          interface::types::HashType                          &&block_hash,
-          interface::types::AccountIdType                     &&account_id_type,
-          interface::EngineReceipt::PayloadType               payload_type,
-          interface::types::EvmAddressHexString               &&payload,
-          interface::EngineReceipt::EngineLogsCollectionType  &&engine_logs
-          );
-*/
+                    if (records.empty() || 
+                        tx_hash != records.back()->getTxHash() ||
+                        cmd_index != records.back()->commandIndex()
+                    ) {
+                      records.emplace_back(std::make_unique<shared_model::plain::EngineReceipt>(
+                                  cmd_index, 
+                                  tx_hash, 
+                                  tx_index, 
+                                  block_height, 
+                                  block_hash, 
+                                  account_id_type, 
+                                  payload_type, 
+                                  payload
+                               ));
+                    }
 
+                    auto &record = records.back();
+                    auto &log_collection = record->getMutableLogs();
 
-                    records.push_back(
-                        std::make_unique<
-                            shared_model::plain::EngineReceipt>(
-                            cmd_index, 
-                            engine_response
-                            ));
+                    if (log_collection.empty() || logs_ix != l_ix) {
+                      log_collection.emplace_back(
+                        std::make_unique<shared_model::plain::EngineLog>(log_address, log_data)
+                      );
+                      l_ix = logs_ix;
+                    }
+                    log_collection.back()->addTopic(log_topic);
                   });
             }
             return query_response_factory_->createEngineReceiptsResponse(records,

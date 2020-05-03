@@ -16,8 +16,7 @@ EngineReceipt::EngineReceipt(
     interface::types::HashType                          &&block_hash,
     interface::types::AccountIdType                     &&account_id_type,
     interface::EngineReceipt::PayloadType               payload_type,
-    interface::types::EvmAddressHexString               &&payload,
-    interface::EngineReceipt::EngineLogsCollectionType  &&engine_logs
+    interface::types::EvmAddressHexString               &&payload
     ) 
     : cmd_index_(cmd_index)
     , tx_hash_(std::move(tx_hash))
@@ -27,7 +26,6 @@ EngineReceipt::EngineReceipt(
     , account_id_type_(std::move(account_id_type))
     , payload_type_(payload_type)
     , payload_(std::move(payload))
-    , engine_logs_(std::move(engine_logs))
     { }
 
 interface::types::CommandIndexType  EngineReceipt::commandIndex() const {
@@ -63,5 +61,9 @@ interface::types::EvmAddressHexString const &EngineReceipt::getPayload() const {
 }
 
 interface::EngineLogsCollectionType const &EngineReceipt::getEngineLogs() const {
+    return engine_logs_;
+}
+
+shared_model::plain::EngineReceipt::EngineLogsCollection &EngineReceipt::getMutableLogs() {
     return engine_logs_;
 }
