@@ -1393,7 +1393,7 @@ namespace iroha {
         const shared_model::interface::types::AccountIdType &creator_id,
         const shared_model::interface::types::HashType &query_hash) {
       auto cmd = fmt::format(R"(
-            WITH has_perms AS ({}),
+            WITH has_perms AS (SELECT 1),
             engine_responses AS (
             SELECT cmd_index, engine_response
             FROM engine_response_records
@@ -1424,7 +1424,7 @@ namespace iroha {
 
       using PermissionTuple = std::tuple<int>;
 
-      return executeQuery<QT, PermissionTuple>(
+      return executeQuery<QueryTuple, PermissionTuple>(
           [&] {
             return (sql_.prepare << cmd,
                     soci::use(creator_id, "creator_account_id"),
@@ -1516,7 +1516,9 @@ namespace iroha {
           },
           // Permission missing error is not going to happen in case of that
           // query for now
-          notEnoughPermissionsResponse(perm_converter_, Role::kGetBlocks));
+          notEnoughPermissionsResponse(perm_converter_, Role::kGetMyEngineReceipts,
+                    Role::kGetAllEngineReceipts,
+                    Role::kGetDomainEngineReceipts));
     }
 
     template <typename ReturnValueType>
