@@ -5,6 +5,7 @@
 
 #include "ametsuchi/impl/postgres_specific_query_executor.hpp"
 
+#include <tuple>
 #include <boost/algorithm/string/join.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/range/adaptor/filtered.hpp>
@@ -21,6 +22,7 @@
 #include "common/bind.hpp"
 #include "common/byteutils.hpp"
 #include "cryptography/public_key.hpp"
+#include "cryptography/hash.hpp"
 #include "interfaces/common_objects/amount.hpp"
 #include "interfaces/common_objects/string_types.hpp"
 #include "interfaces/iroha_internal/block.hpp"
@@ -141,6 +143,9 @@ namespace {
   /// Query result is a tuple of optionals, since there could be no entry
   template <typename... Value>
   using QueryType = boost::tuple<std::optional<Value>...>;
+
+  template <typename... Value>
+  using QT = std::tuple<std::optional<Value>...>;
 
   /**
    * Create an error response in case user does not have permissions to perform
@@ -1403,23 +1408,23 @@ namespace iroha {
                     Role::kGetDomainEngineReceipts)*/);
 
       using QueryTuple =
-          QueryType<shared_model::interface::types::CommandIndexType,
+          QT<shared_model::interface::types::CommandIndexType,
                     std::string,
                     shared_model::interface::types::TxIndexType,
                     shared_model::interface::types::HeightType,
                     std::string,
-                    shared_model::interface::types::AccountIdType,
+                    std::string,
                     uint32_t,
-                    shared_model::interface::types::EvmAddressHexString,
+                    std::string,
                     uint32_t,
-                    shared_model::interface::types::EvmAddressHexString,
-                    shared_model::interface::types::EvmDataHexString,
-                    shared_model::interface::types::EvmTopicsHexString
+                    std::string,
+                    std::string,
+                    std::string
                     >;
 
-      using PermissionTuple = boost::tuple<int>;
+      using PermissionTuple = std::tuple<int>;
 
-      return executeQuery<QueryTuple, PermissionTuple>(
+      return executeQuery<QT, PermissionTuple>(
           [&] {
             return (sql_.prepare << cmd,
                     soci::use(creator_id, "creator_account_id"),
@@ -1447,45 +1452,48 @@ namespace iroha {
 
             for (const auto &row : range_without_nulls) {
               iroha::ametsuchi::apply(
-                  row, [&store_record, &record, &log, &records, &l_ix](auto &cmd_index,
-                                  auto &tx_hash,
-                                  auto &tx_index,
-                                  auto &block_height,
-                                  auto &block_hash,
-                                  auto &account_id_type,
-                                  auto &payload_type,
-                                  auto &payload,
-                                  auto &logs_ix,
-                                  auto &log_address,
-                                  auto &log_data,
-                                  auto &log_topic
+                  row, [&store_record, &record, &log, &records, &l_ix](
+                                  shared_model::interface::types::CommandIndexType &cmd_index,
+                                  std::string &tx_hash,
+                                  shared_model::interface::types::TxIndexType &tx_index,
+                                  shared_model::interface::types::HeightType &block_height,
+                                  std::string &block_hash,
+                                  std::string &account_id_type,
+                                  uint32_t &payload_type,
+                                  std::string &payload,
+                                  uint32_t &logs_ix,
+                                  std::string &log_address,
+                                  std::string &log_data,
+                                  std::string &log_topic
                                   ) {
 
-                    if (!record) {
-                      record = std::make_unique<shared_model::plain::EngineReceipt>(
-                                  cmd_index,
-                                  tx_hash,
-                                  tx_index,
-                                  block_height,
-                                  block_hash,
-                                  account_id_type,
-                                  payload_type,
-                                  payload
-                               );
-                    } else if (tx_hash != records.back()->getTxHash() ||
-                        cmd_index != records.back()->commandIndex()) {
-                      store_record(records, std::move(record), std::move(log));
-                      record = std::make_unique<shared_model::plain::EngineReceipt>(
-                                  cmd_index,
-                                  tx_hash,
-                                  tx_index,
-                                  block_height,
-                                  block_hash,
-                                  account_id_type,
-                                  payload_type,
-                                  payload
-                               );
-
+                    {
+                      auto th = shared_model::crypto::Hash::fromHexString(tx_hash);
+                      if (!record) {
+                        record = std::make_unique<shared_model::plain::EngineReceipt>(
+                                    cmd_index,
+                                    std::move(th),
+                                    tx_index,
+                                    block_height,
+                                    shared_model::crypto::Hash::fromHexString(block_hash),
+                                    account_id_type,
+                                    payload_type,
+                                    payload
+                                 );
+                      } else if (th != records.back()->getTxHash() ||
+                          cmd_index != records.back()->commandIndex()) {
+                        store_record(records, std::move(record), std::move(log));
+                        record = std::make_unique<shared_model::plain::EngineReceipt>(
+                                    cmd_index,
+                                    std::move(th),
+                                    tx_index,
+                                    block_height,
+                                    shared_model::crypto::Hash::fromHexString(block_hash),
+                                    account_id_type,
+                                    payload_type,
+                                    payload
+                                 );
+                      }
                     }
 
                     if (!log) {
