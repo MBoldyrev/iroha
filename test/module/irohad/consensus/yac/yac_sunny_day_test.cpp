@@ -19,6 +19,8 @@ using namespace iroha::consensus::yac;
 using namespace framework::test_subscriber;
 using namespace std;
 
+static constexpr size_t kRandomFixedNumber = 42;
+
 /**
  * @given yac & 4 peers
  * @when the 3 peers send the yac votes for the same hash
@@ -78,7 +80,8 @@ TEST_F(YacTest, ValidCaseWhenReceiveCommit) {
 
   EXPECT_CALL(*crypto, verify(_)).WillRepeatedly(Return(true));
 
-  setNetworkOrderCheckerSingleVote(my_order.value(), my_hash, 42);
+  setNetworkOrderCheckerSingleVote(
+      my_order.value(), my_hash, kRandomFixedNumber);
 
   yac->vote(my_hash, my_order.value());
 
@@ -119,7 +122,8 @@ TEST_F(YacTest, ValidCaseWhenReceiveCommitTwice) {
 
   EXPECT_CALL(*crypto, verify(_)).WillRepeatedly(Return(true));
 
-  setNetworkOrderCheckerSingleVote(my_order.value(), my_hash, 42);
+  setNetworkOrderCheckerSingleVote(
+      my_order.value(), my_hash, kRandomFixedNumber);
 
   yac->vote(my_hash, my_order.value());
 
@@ -161,7 +165,6 @@ TEST_F(YacTest, ValidCaseWhenSoloConsensus) {
   });
 
   auto vote_message = createVote(my_hash, std::to_string(0));
-  std::vector<VoteMessage> votes{{vote_message}};
 
   {
     ::testing::InSequence seq;

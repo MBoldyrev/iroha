@@ -46,7 +46,7 @@ class NetworkUtil {
   /// create votes of peers by their number
   /// @param peers indices of peers in @a peers_
   /// @param hash for all votes
-  /// @return vactor of votes for the @a hash from each of @peers
+  /// @return vector of votes for the @a hash from each of @peers
   auto createVotes(const std::vector<size_t> &peers,
                    const YacHash &hash) const {
     std::vector<VoteMessage> result;

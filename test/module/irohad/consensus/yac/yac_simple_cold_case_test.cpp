@@ -31,6 +31,8 @@ using namespace framework::test_subscriber;
 using namespace std;
 using namespace shared_model::interface::types;
 
+static constexpr size_t kRandomFixedNumber = 27;
+
 /**
  * @given Yac and ordering over some peers
  * @when yac gets a call to \ref vote()
@@ -42,7 +44,7 @@ TEST_F(YacTest, YacWhenVoting) {
   auto order = ClusterOrdering::create(default_peers);
   ASSERT_TRUE(order);
 
-  setNetworkOrderCheckerSingleVote(order.value(), my_hash, 20);
+  setNetworkOrderCheckerSingleVote(order.value(), my_hash, kRandomFixedNumber);
 
   yac->vote(my_hash, *order);
 }
@@ -254,7 +256,8 @@ class YacAlternativeOrderTest : public YacTest {
  * @then alternative order is used for sending votes
  */
 TEST_F(YacAlternativeOrderTest, Voting) {
-  setNetworkOrderCheckerSingleVote(alternative_order, my_hash, 20);
+  setNetworkOrderCheckerSingleVote(
+      alternative_order, my_hash, kRandomFixedNumber);
 
   yac->vote(my_hash, order, alternative_order);
 }
@@ -267,7 +270,8 @@ TEST_F(YacAlternativeOrderTest, Voting) {
  *       and an outcome for synchronization is emitted
  */
 TEST_F(YacAlternativeOrderTest, OnState) {
-  setNetworkOrderCheckerSingleVote(alternative_order, my_hash, 20);
+  setNetworkOrderCheckerSingleVote(
+      alternative_order, my_hash, kRandomFixedNumber);
 
   yac->vote(my_hash, order, alternative_order);
 
@@ -293,7 +297,8 @@ TEST_F(YacAlternativeOrderTest, OnState) {
  *       kNotSentNotProcessed action is not executed
  */
 TEST_F(YacAlternativeOrderTest, OnStateCurrentRoundAlternativePeer) {
-  setNetworkOrderCheckerSingleVote(alternative_order, my_hash, 20);
+  setNetworkOrderCheckerSingleVote(
+      alternative_order, my_hash, kRandomFixedNumber);
 
   yac->vote(my_hash, order, alternative_order);
 
