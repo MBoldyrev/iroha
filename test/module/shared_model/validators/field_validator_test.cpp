@@ -23,7 +23,9 @@
 #include "backend/protobuf/queries/proto_tx_pagination_meta.hpp"
 #include "builders/protobuf/queries.hpp"
 #include "builders/protobuf/transaction.hpp"
+#include "cryptography/crypto_provider/crypto_verifier.hpp"
 #include "module/irohad/common/validators_config.hpp"
+#include "module/shared_model/cryptography/crypto_defaults.hpp"
 #include "module/shared_model/validators/validators_fixture.hpp"
 #include "validators/field_validator.hpp"
 #include "validators/validation_error_output.hpp"
@@ -147,6 +149,11 @@ class FieldValidatorTest : public ValidatorsTest {
                                           &FieldValidator::validatePrecision,
                                           &FieldValidatorTest::precision,
                                           precision_test_cases));
+
+    field_validators.insert(makeValidator("input",
+                                          &FieldValidator::validateBytecode,
+                                          &FieldValidatorTest::input,
+                                          engine_input_cases));
 
     // TODO: add validation to all fields
     for (const auto &field : {"value",
@@ -319,6 +326,18 @@ class FieldValidatorTest : public ValidatorsTest {
   std::vector<FieldTestCase> asset_id_test_cases = idTestCases(
       "asset_id", &FieldValidatorTest::asset_id, '#', {'A', '-', ' '}, 32);
 
+  std::vector<FieldTestCase> callee_cases{
+      {"too big", [&] { callee = std::string(42, 'a'); }, false, ""},
+      {"too small", [&] { callee = std::string(38, 'a'); }, false, ""},
+      {"size doesnt matter", [&] { callee.reset(); }, true, ""},
+      {"size-zero", [&] { callee = ""; }, false, ""},
+      {"just fine", [&] { callee = std::string(40, 'a'); }, true, ""},
+      {"garbage", [&] { callee = std::string(40, 'z'); }, false, ""}};
+
+  std::vector<FieldTestCase> engine_input_cases{
+      {"not hex", [&] { input = "not hex"sv; }, false, ""},
+      {"hex", [&] { input = "600D"sv; }, true, ""}};
+
   std::vector<FieldTestCase> amount_test_cases{
       {"valid_amount", [&] { amount = "100"; }, true, ""},
       {"zero_amount",
@@ -409,7 +428,11 @@ class FieldValidatorTest : public ValidatorsTest {
 
   std::vector<FieldTestCase> public_key_test_cases{
       makeValidCase(&FieldValidatorTest::public_key, std::string(64, '0')),
-      invalidPublicKeyTestCase("invalid_key_length", std::string(128, '0')),
+      invalidPublicKeyTestCase(
+          "too long public key",
+          std::string(
+              shared_model::crypto::CryptoVerifier::kMaxPublicKeySize * 2 + 2,
+              '0')),
       invalidPublicKeyTestCase("empty_string", "")};
 
   std::vector<FieldTestCase> peer_test_cases{
@@ -457,7 +480,7 @@ class FieldValidatorTest : public ValidatorsTest {
       // invalid pubkey
       makeInvalidPeerPubkeyTestCase("invalid_peer_pubkey_length",
                                     "182.13.35.1:3040",
-                                    std::string(123, '0')),
+                                    std::string(200, '0')),
       makeInvalidPeerPubkeyTestCase(
           "invalid_peer_pubkey_empty", "182.13.35.1:3040", "")
       // clang-format on
@@ -721,6 +744,21 @@ class FieldValidatorTest : public ValidatorsTest {
           &FieldValidatorTest::amount,
           [](auto &&x) { return shared_model::interface::Amount(x); },
           amount_test_cases),
+      makeValidator("caller",
+                    &FieldValidator::validateAccountName,
+                    &FieldValidatorTest::account_name,
+                    account_name_test_cases),
+      std::make_pair("callee",
+                     FieldTest{[this] {
+                                 if (callee) {
+                                   return field_validator.validateEvmHexAddress(
+                                       callee.value());
+                                 }
+                                 return decltype(
+                                     field_validator.validateEvmHexAddress(
+                                         callee.value())){};
+                               },
+                               callee_cases}),
       makeTransformValidator("peer",
                              &FieldValidator::validatePeer,
                              &FieldValidatorTest::peer,
@@ -774,7 +812,8 @@ class FieldValidatorTest : public ValidatorsTest {
           &FieldValidator::validateTxPaginationMeta,
           &FieldValidatorTest::tx_pagination_meta,
           [](auto &&x) { return proto::TxPaginationMeta(x); },
-          tx_pagination_meta_test_cases)};
+          tx_pagination_meta_test_cases),
+      std::make_pair("type", FieldTest{[] { return std::nullopt; }, {}})};
 };
 
 /**

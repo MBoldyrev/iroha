@@ -51,18 +51,6 @@ namespace iroha {
   };
 
   /**
-   * Class provides operator() for batch comparison
-   */
-  class BatchHashEquality {
-   public:
-    /**
-     * The function used to compare batches for equality:
-     * check only hashes of batches, without signatures
-     */
-    bool operator()(const DataType &left_tx, const DataType &right_tx) const;
-  };
-
-  /**
    * Class provides the default behavior for the batch completer.
    * Complete, if all transactions have at least quorum number of signatures.
    * Expired if at least one transaction is expired.
@@ -133,7 +121,7 @@ namespace iroha {
      */
     std::unordered_set<DataType,
                        iroha::model::PointerBatchHasher,
-                       BatchHashEquality>
+                       shared_model::interface::BatchHashEquality>
     getBatches() const;
 
     /**
@@ -179,12 +167,13 @@ namespace iroha {
     using BatchesForwardCollectionType = boost::
         any_range<BatchPtr, boost::forward_traversal_tag, const BatchPtr &>;
 
-    using BatchesBimap = boost::bimap<
-        boost::bimaps::multiset_of<
-            shared_model::interface::types::TimestampType>,
-        boost::bimaps::unordered_set_of<DataType,
-                                        iroha::model::PointerBatchHasher,
-                                        BatchHashEquality>>;
+    using BatchesBimap =
+        boost::bimap<boost::bimaps::multiset_of<
+                         shared_model::interface::types::TimestampType>,
+                     boost::bimaps::unordered_set_of<
+                         DataType,
+                         iroha::model::PointerBatchHasher,
+                         shared_model::interface::BatchHashEquality>>;
 
     MstState(const CompleterType &completer, logger::LoggerPtr log);
 

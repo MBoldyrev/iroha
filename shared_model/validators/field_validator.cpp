@@ -6,6 +6,7 @@
 #include "validators/field_validator.hpp"
 
 #include <limits>
+#include <string_view>
 
 #include <fmt/core.h>
 #include <boost/algorithm/string_regex.hpp>
@@ -24,6 +25,7 @@
 #include "interfaces/queries/asset_pagination_meta.hpp"
 #include "interfaces/queries/query_payload_meta.hpp"
 #include "interfaces/queries/tx_pagination_meta.hpp"
+#include "multihash/multihash.hpp"
 #include "validators/field_validator.hpp"
 #include "validators/validation_error_helpers.hpp"
 
@@ -101,16 +103,20 @@ namespace {
   const RegexValidator kAccountDetailKeyValidator{"DetailKey",
                                                   R"([A-Za-z0-9_]{1,64})"};
   const RegexValidator kRoleIdValidator{"RoleId", R"#([a-z_0-9]{1,32})#"};
+  const RegexValidator kHexValidator{
+      "Hex", R"#(([0-9a-fA-F][0-9a-fA-F])*)#", "Hex encoded string expected"};
   const RegexValidator kPublicKeyHexValidator{
       "PublicKeyHex",
-      fmt::format(
-          "[A-Fa-f0-9]{{{}}}",
-          shared_model::validation::FieldValidator::public_key_size * 2)};
+      fmt::format("[A-Fa-f0-9]{{1,{}}}",
+                  shared_model::crypto::CryptoVerifier::kMaxPublicKeySize * 2)};
   const RegexValidator kSignatureHexValidator{
       "SignatureHex",
-      fmt::format(
-          "[A-Fa-f0-9]{{{}}}",
-          shared_model::validation::FieldValidator::signature_size * 2)};
+      fmt::format("[A-Fa-f0-9]{{1,{}}}",
+                  shared_model::crypto::CryptoVerifier::kMaxSignatureSize * 2)};
+  const RegexValidator kEvmAddressValidator{
+      "EvmHexAddress",
+      R"#([0-9a-fA-F]{40})#",
+      "Hex encoded 20-byte address expected"};
 }  // namespace
 
 namespace shared_model {
@@ -130,6 +136,17 @@ namespace shared_model {
     std::optional<ValidationError> FieldValidator::validateAssetId(
         const interface::types::AssetIdType &asset_id) const {
       return kAssetIdValidator.validate(asset_id);
+    }
+
+    std::optional<ValidationError> FieldValidator::validateEvmHexAddress(
+        std::string_view address) const {
+      return kEvmAddressValidator.validate(address);
+    }
+
+    std::optional<ValidationError> FieldValidator::validateBytecode(
+        interface::types::EvmCodeHexStringView input) const {
+      return kHexValidator.validate(
+          static_cast<std::string_view const &>(input));
     }
 
     std::optional<ValidationError> FieldValidator::validatePeer(
@@ -314,14 +331,15 @@ namespace shared_model {
         auto sig_format_error = validateSignatureForm(signature.value());
         sig_error_creator |= sig_format_error;
 
-        if (not sig_format_error
-            and not shared_model::crypto::CryptoVerifier<>::verify(
-                    crypto::Signed(crypto::Blob::fromHexString(
-                        signature.value().signedData())),
-                    source,
-                    crypto::PublicKey(crypto::Blob::fromHexString(
-                        signature.value().publicKey())))) {
-          sig_error_creator.addReason("Crypto verification failed.");
+        if (not sig_format_error) {
+          using namespace shared_model::interface::types;
+          if (auto e = resultToOptionalError(
+                  shared_model::crypto::CryptoVerifier::verify(
+                      SignedHexStringView{signature.value().signedData()},
+                      source,
+                      PublicKeyHexStringView{signature.value().publicKey()}))) {
+            sig_error_creator.addReason(e.value());
+          }
         }
         error_creator |= std::move(sig_error_creator)
                              .getValidationErrorWithGeneratedName([&] {
