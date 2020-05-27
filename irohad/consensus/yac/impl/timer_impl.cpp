@@ -23,21 +23,24 @@ namespace iroha {
                 .subscribe([handler{std::move(handler)}](auto) { handler(); });
         {
           std::lock_guard<std::mutex> lock(timer_lifetime_mutex);
-          timer_lifetime_ = timer_lifetime;
+          if (not stop_requested_) {
+            timer_lifetime_ = timer_lifetime;
+          }
         }
       }
 
-      void TimerImpl::deny() {
+      void TimerImpl::deny(bool stop_requested) {
         rxcpp::composite_subscription timer_lifetime;
         {
           std::lock_guard<std::mutex> lock(timer_lifetime_mutex);
+          stop_requested_ = stop_requested;
           timer_lifetime = timer_lifetime_;
         }
         timer_lifetime.unsubscribe();
       }
 
       TimerImpl::~TimerImpl() {
-        deny();
+        deny(true);
         coordinator_lifetime_.unsubscribe();
       }
     }  // namespace yac

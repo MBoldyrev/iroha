@@ -26,7 +26,7 @@ namespace iroha {
         /**
          * Stop timer
          */
-        virtual void deny() = 0;
+        virtual void deny(bool stop_requested = false) = 0;
 
         virtual ~Timer() = default;
       };

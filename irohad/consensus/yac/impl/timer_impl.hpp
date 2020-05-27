@@ -29,7 +29,7 @@ namespace iroha {
         TimerImpl &operator=(const TimerImpl &) = delete;
 
         void invokeAfterDelay(std::function<void()> handler) override;
-        void deny() override;
+        void deny(bool stop_requested = false) override;
 
         ~TimerImpl() override;
 
@@ -39,6 +39,7 @@ namespace iroha {
         rxcpp::composite_subscription coordinator_lifetime_;
         rxcpp::observe_on_one_worker coordination_;
         rxcpp::composite_subscription timer_lifetime_;
+        bool stop_requested_{false};
       };
     }  // namespace yac
   }    // namespace consensus

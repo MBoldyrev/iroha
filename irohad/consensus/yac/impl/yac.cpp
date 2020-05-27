@@ -200,7 +200,7 @@ namespace iroha {
       }
 
       void Yac::closeRound() {
-        timer_->deny();
+        timer_->deny(true);
       }
 
       ClusterOrdering &Yac::getCurrentOrder() {
