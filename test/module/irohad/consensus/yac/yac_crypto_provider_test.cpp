@@ -32,8 +32,8 @@ namespace iroha {
         void SetUp() override {
           using namespace shared_model::crypto;
           crypto_provider = std::make_shared<CryptoProviderImpl>(
-              makeDefaultSigner(),
-              iroha::test::getTestCryptoVerifier(),
+              shared_model::crypto::CryptoProvider{
+                  makeDefaultSigner(), iroha::test::getTestCryptoVerifier()},
               getTestLogger("CryptoProviderImpl"));
         }
 

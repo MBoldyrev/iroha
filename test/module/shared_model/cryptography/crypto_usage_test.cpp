@@ -248,7 +248,7 @@ TEST(CryptoUsageTest, UnimplementedCryptoMultihashPubkey) {
       iroha::multihash::Type{123}, "blah"_byterange, hex_pubkey);
 
   using namespace shared_model::interface::types;
-  auto verified = CryptoVerifier::verify(
+  auto verified = iroha::test::getTestCryptoVerifier()->verify(
       "F000"_hex_sig, Blob{"moo"}, PublicKeyHexStringView{hex_pubkey});
   IROHA_ASSERT_RESULT_ERROR(verified);
   EXPECT_THAT(verified.assumeError(),

@@ -124,8 +124,8 @@ namespace integration_framework {
           og_network_notifier_(std::make_shared<OgNetworkNotifier>()),
           yac_crypto_(
               std::make_shared<iroha::consensus::yac::CryptoProviderImpl>(
-                  signer_,
-                  iroha::test::getTestCryptoVerifier(),
+                  shared_model::crypto::CryptoProvider{
+                      signer_, iroha::test::getTestCryptoVerifier()},
                   consensus_log_manager_->getChild("Crypto")->getLogger())) {
       mst_transport_->subscribe(mst_network_notifier_);
       yac_transport_->subscribe(yac_network_notifier_);

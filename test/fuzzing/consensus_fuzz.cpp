@@ -65,8 +65,9 @@ namespace fuzzing {
 
       crypto_provider_ =
           std::make_shared<iroha::consensus::yac::CryptoProviderImpl>(
-              shared_model::crypto::makeDefaultSigner(),
-              iroha::test::getMockCryptoVerifier(),
+              shared_model::crypto::CryptoProvider{
+                  shared_model::crypto::makeDefaultSigner(),
+                  iroha::test::getMockCryptoVerifier()},
               logger::getDummyLoggerPtr());
 
       std::vector<std::shared_ptr<shared_model::interface::Peer>>
