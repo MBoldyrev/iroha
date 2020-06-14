@@ -79,26 +79,21 @@ target_link_libraries(application
     generator
     )
 
-add_executable(irohad
-    impl/crypto_init.cpp
-    irohad.cpp
-    )
+add_executable(irohad irohad.cpp)
 target_link_libraries(irohad
     application
     raw_block_loader
     gflags
     RapidJSON::rapidjson
-    keys_manager
     common
+    crypto_init
     iroha_conf_loader
     irohad_utility_service
     irohad_utility_status_notifier
     logger
     logger_manager
-    multihash
     irohad_version
     pg_connection_init
-    shared_model_cryptography
     )
 
 add_library(iroha_conf_loader iroha_conf_loader.cpp)

@@ -22,11 +22,11 @@
 #include "common/irohad_version.hpp"
 #include "common/result.hpp"
 #include "common/visitor.hpp"
+#include "cryptography/crypto_init/from_config.hpp"
 #include "interfaces/common_objects/string_view_types.hpp"
 #include "logger/logger.hpp"
 #include "logger/logger_manager.hpp"
 #include "main/application.hpp"
-#include "main/impl/crypto_init.hpp"
 #include "main/impl/pg_connection_init.hpp"
 #include "main/iroha_conf_literals.hpp"
 #include "main/iroha_conf_loader.hpp"
@@ -44,6 +44,10 @@ static const uint32_t kMaxRoundsDelayDefault = 3000;
 static const uint32_t kStaleStreamMaxRoundsDefault = 2;
 static const std::string kDefaultWorkingDatabaseName{"iroha_default"};
 static const std::chrono::milliseconds kExitCheckPeriod{1000};
+const std::string kDefaultCryptoSignerTag{
+    config_members::kCryptoProviderDefault};
+const std::string kDefaultCryptoVerifierTag{
+    config_members::kCryptoProviderDefault};
 static const IrohadConfig::Crypto kDefaultCryptoConfig{
     {}, kDefaultCryptoSignerTag, kDefaultCryptoVerifierTag};
 
@@ -272,7 +276,9 @@ int main(int argc, char *argv[]) {
         std::chrono::milliseconds(config.vote_delay),
         std::chrono::minutes(
             config.mst_expiration_time.value_or(kMstExpirationTimeDefault)),
-        makeCryptoProvider(config.crypto.value_or(kDefaultCryptoConfig)),
+        iroha::makeCryptoProvider(config.crypto.value_or(kDefaultCryptoConfig),
+                                  FLAGS_keypair_name,
+                                  log_manager->getChild("Crypto")),
         std::chrono::milliseconds(
             config.max_round_delay_ms.value_or(kMaxRoundsDelayDefault)),
         config.stale_stream_max_rounds.value_or(kStaleStreamMaxRoundsDefault),

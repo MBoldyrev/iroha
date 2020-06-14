@@ -65,7 +65,9 @@ struct IrohadConfig {
   boost::optional<UtilityService> utility_service;
 
   struct Crypto {
-    struct Default {};
+    struct Default {
+      std::string keypair;
+    };
     struct HsmUtimaco {};
 
     using ProviderVariant = std::variant<Default, HsmUtimaco>;
