@@ -38,6 +38,13 @@ if(USE_LIBURSA)
   )
 endif()
 
+if(USE_HSM_UTIMACO)
+  add_subdirectory(hsm_utimaco)
+  target_link_libraries(shared_model_cryptography
+    hsm_utimaco
+  )
+endif()
+
 add_library(crypto_blob_hasher blob_hasher.cpp)
 target_link_libraries(crypto_blob_hasher
     common

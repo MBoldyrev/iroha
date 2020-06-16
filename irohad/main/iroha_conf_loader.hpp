@@ -6,8 +6,10 @@
 #ifndef IROHA_CONF_LOADER_HPP
 #define IROHA_CONF_LOADER_HPP
 
+#include <optional>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 #include "common/result_fwd.hpp"
 #include "interfaces/common_objects/common_objects_factory.hpp"
@@ -68,7 +70,30 @@ struct IrohadConfig {
     struct Default {
       std::string keypair;
     };
-    struct HsmUtimaco {};
+
+    struct HsmUtimaco {
+      struct Log {
+        std::string path;
+        std::string level;
+        // rotation option?
+      };
+
+      struct Auth {
+        std::string user;
+        std::optional<std::string> key;
+        std::optional<std::string> password;
+      };
+
+      struct KeyHandle {
+        std::string name;
+        std::optional<std::string> group;
+      };
+
+      std::vector<std::string> devices;
+      std::vector<Auth> auth;
+      std::optional<KeyHandle> signing_key;
+      std::optional<Log> log;
+    };
 
     using ProviderVariant = std::variant<Default, HsmUtimaco>;
     using ProviderId = std::string;
