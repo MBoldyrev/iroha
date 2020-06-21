@@ -11,6 +11,7 @@
 #include "cryptography/crypto_provider/crypto_signer_internal.hpp"
 #include "cryptography/crypto_provider/crypto_verifier.hpp"
 #include "cryptography/ed25519_sha3_impl/crypto_provider.hpp"
+#include "cryptography/ed25519_sha3_impl/verifier.hpp"
 #include "interfaces/common_objects/string_view_types.hpp"
 #include "logger/logger_manager.hpp"
 #include "multihash/multihash.hpp"
@@ -18,6 +19,7 @@
 
 #if defined(USE_LIBURSA)
 #include "cryptography/ed25519_ursa_impl/crypto_provider.hpp"
+#include "cryptography/ed25519_ursa_impl/verifier.hpp"
 #define ED25519_PROVIDER CryptoProviderEd25519Ursa
 #endif
 
@@ -60,7 +62,7 @@ namespace {
               using iroha::multihash::Type;
               switch (public_key.type) {
 #if defined(ED25519_PROVIDER)
-                case Type::ed25519pub:
+                case Type::kEd25519Sha2_256:
                   return std::make_unique<
                       CryptoSignerInternal<ED25519_PROVIDER>>(
                       std::move(keypair));
@@ -78,23 +80,22 @@ namespace {
     }
     return std::move(signer_result).assumeValue();
   }
-
-  std::unique_ptr<shared_model::crypto::CryptoVerifier>
-  makeCryptoVerifierInternal() {
-    return std::make_unique<shared_model::crypto::CryptoVerifier>();
-  }
 }  // namespace
 
-namespace iroha {
-  void makeCryptoProviderInternal(iroha::PartialCryptoInit initializer,
-                                  IrohadConfig::Crypto::Default const &param,
-                                  logger::LoggerManagerTreePtr log_manager) {
-    if (initializer.signer) {
-      initializer.signer->get() =
-          makeCryptoSignerInternal(param.keypair, log_manager);
-    }
-    if (initializer.verifier) {
-      initializer.verifier->get() = makeCryptoVerifierInternal();
-    }
+void iroha::initCryptoProviderInternal(
+    iroha::PartialCryptoInit initializer,
+    IrohadConfig::Crypto::Default const &param,
+    logger::LoggerManagerTreePtr log_manager) {
+  if (initializer.init_signer) {
+    initializer.init_signer.value()(
+        makeCryptoSignerInternal(param.keypair, log_manager));
   }
-}  // namespace iroha
+  if (initializer.init_verifier) {
+    initializer.init_verifier.value()(
+        std::make_unique<shared_model::crypto::ed25519_sha3::Verifier>());
+#if defined(USE_LIBURSA)
+    initializer.init_verifier.value()(
+        std::make_unique<shared_model::crypto::ursa::Verifier>());
+#endif
+  }
+}

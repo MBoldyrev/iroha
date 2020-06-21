@@ -51,7 +51,7 @@ namespace config_members {
   const char *UtilityService = "utility_service";
   const char *kCrypto = "crypto";
   const char *kSigner = "signer";
-  const char *kVerifier = "verifier";
+  const char *kVerifiers = "verifiers";
   const char *kProviders = "providers";
   const char *kCryptoProviderDefault = "default";
   const char *kCryptoProviderUtimaco = "utimaco";

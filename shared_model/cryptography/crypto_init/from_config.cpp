@@ -5,12 +5,14 @@
 
 #include "cryptography/crypto_init/from_config.hpp"
 
+#include <memory>
+
 #include "common/result.hpp"
 #include "cryptography/crypto_init/internal.hpp"
-#include "cryptography/crypto_init/utimaco.hpp"
 #include "cryptography/crypto_provider/crypto_provider.hpp"
 #include "cryptography/crypto_provider/crypto_signer.hpp"
 #include "cryptography/crypto_provider/crypto_verifier.hpp"
+#include "cryptography/hsm_utimaco/init.hpp"
 #include "interfaces/common_objects/string_view_types.hpp"
 #include "logger/logger_manager.hpp"
 #include "main/iroha_conf_literals.hpp"
@@ -18,10 +20,11 @@
 #include "multihash/multihash.hpp"
 #include "multihash/type.hpp"
 
+using namespace shared_model::crypto;
+
 namespace {
-  void checkCrypto(
-      shared_model::crypto::CryptoProvider const &crypto_provider) {
-    shared_model::crypto::Blob test_blob{"12345"};
+  void checkCrypto(CryptoProvider const &crypto_provider) {
+    Blob test_blob{"12345"};
     auto signature = crypto_provider.signer->sign(test_blob);
     if (auto e = iroha::expected::resultToOptionalError(
             crypto_provider.verifier->verify(
@@ -35,12 +38,11 @@ namespace {
 }  // namespace
 
 namespace iroha {
-  shared_model::crypto::CryptoProvider makeCryptoProvider(
-      IrohadConfig::Crypto const &config,
-      std::string const &keypair_name,
-      logger::LoggerManagerTreePtr log_manager) {
-    using namespace shared_model::crypto;
+  CryptoProvider makeCryptoProvider(IrohadConfig::Crypto const &config,
+                                    std::string const &keypair_name,
+                                    logger::LoggerManagerTreePtr log_manager) {
     CryptoProvider crypto_provider;
+    crypto_provider.verifier = std::make_shared<CryptoVerifier>();
 
     struct AlgorithmInitializer {
       IrohadConfig::Crypto::ProviderVariant connection_params;
@@ -83,21 +85,28 @@ namespace iroha {
       return init_it->second;
     };
 
-    get_initializer(config.signer).what_to_init.signer = crypto_provider.signer;
-    get_initializer(config.verifier).what_to_init.verifier =
-        crypto_provider.verifier;
+    get_initializer(config.signer).what_to_init.init_signer =
+        [&crypto_provider](auto signer) {
+          crypto_provider.signer = std::move(signer);
+        };
+    for (auto const &verifier : config.verifiers) {
+      get_initializer(verifier).what_to_init.init_verifier =
+          [&crypto_provider](auto signer) {
+            crypto_provider.verifier->addSpecificVerifier(std::move(signer));
+          };
+    }
 
     for (auto const &pair : initializers) {
       auto &initializer = pair.second;
       std::visit(
           iroha::make_visitor(
               [&](IrohadConfig::Crypto::Default const &param) {
-                makeCryptoProviderInternal(initializer.what_to_init,
+                initCryptoProviderInternal(initializer.what_to_init,
                                            param,
                                            log_manager->getChild("Internal"));
               },
               [&](IrohadConfig::Crypto::HsmUtimaco const &param) {
-                makeCryptoProviderUtimaco(initializer.what_to_init,
+                initCryptoProviderUtimaco(initializer.what_to_init,
                                           param,
                                           log_manager->getChild("Utimaco"));
               }),

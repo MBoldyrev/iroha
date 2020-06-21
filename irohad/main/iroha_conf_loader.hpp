@@ -15,6 +15,7 @@
 #include "interfaces/common_objects/common_objects_factory.hpp"
 #include "interfaces/common_objects/types.hpp"
 #include "logger/logger_manager.hpp"
+#include "multihash/type.hpp"
 #include "torii/tls_params.hpp"
 
 struct IrohadConfig {

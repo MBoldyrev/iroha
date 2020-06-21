@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef IROHA_CRYPTO_VERIFIER_HPP
-#define IROHA_CRYPTO_VERIFIER_HPP
+#ifndef IROHA_CRYPTO_VERIFIER_MULTIHASH_HPP
+#define IROHA_CRYPTO_VERIFIER_MULTIHASH_HPP
 
 #include <vector>
 
@@ -22,6 +22,8 @@ namespace shared_model {
      */
     class CryptoVerifierMultihash {
      public:
+      virtual ~CryptoVerifierMultihash() = default;
+
       /**
        * Verify signature attached to source data
        * @param signedData - cryptographic signature
@@ -30,11 +32,11 @@ namespace shared_model {
        * @return a result of void if signature is correct or error message
        * otherwise or if verification could not be completed
        */
-      virtual iroha::expected::Result<void, const char *> verify(
-          shared_model::interface::types::SignedHexStringView signature,
-          shared_model::interface::types::ByteRange source,
+      virtual iroha::expected::Result<void, std::string> verify(
           iroha::multihash::Type type,
-          shared_model::interface::types::PublicKeyHexStringView public_key)
+          shared_model::interface::types::SignatureByteRangeView signature,
+          shared_model::interface::types::ByteRange source,
+          shared_model::interface::types::PublicKeyByteRangeView public_key)
           const = 0;
 
       virtual std::vector<iroha::multihash::Type> getSupportedTypes() const = 0;

@@ -3,33 +3,36 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "cryptography/hsm_utimaco/crypto_signer.hpp"
+#include "cryptography/hsm_utimaco/signer.hpp"
 
 #include <fmt/format.h>
-#include "CXI/include/cxi.h"
+#include "common/hexutils.hpp"
 #include "cryptography/blob.hpp"
 #include "cryptography/hsm_utimaco/common.hpp"
+#include "cryptography/hsm_utimaco/safe_cxi.hpp"
+#include "interfaces/common_objects/byte_range.hpp"
 #include "multihash/multihash.hpp"
 
 using namespace shared_model::crypto;
 using namespace shared_model::crypto::hsm_utimaco;
+using namespace shared_model::interface::types;
 
-CryptoSignerUtimaco::CryptoSignerUtimaco(std::shared_ptr<Connection> connection,
-                                         std::unique_ptr<cxi::Key> key,
-                                         iroha::multihash::Type multihash_type,
-                                         int cxi_algo)
+Signer::Signer(std::shared_ptr<Connection> connection,
+               std::unique_ptr<cxi::Key> key,
+               iroha::multihash::Type multihash_type,
+               int cxi_algo)
     : connection_holder_(std::move(connection)),
       connection_(*connection_holder_),
       key_(std::move(key)),
-      public_key_(iroha::multihash::encode(multihash_type,
-                                           key_->getPublicKey().toString())),
+      public_key_(iroha::multihash::encode<std::string>(
+          multihash_type, cxiToIrohaBufferView(key_->getPublicKey()))),
       cxi_algo_(cxi_algo) {
-  assert(multihashEd25519ToCxiHashAlgo(multihash_type) == cxi_algo_);
+  assert(multihashToCxiHashAlgo(multihash_type) == cxi_algo_);
 }
 
-CryptoSignerUtimaco::~CryptoSignerUtimaco() = default;
+Signer::~Signer() = default;
 
-std::string CryptoSignerUtimaco::sign(const Blob &blob) const {
+std::string Signer::sign(const shared_model::crypto::Blob &blob) const {
   std::lock_guard<std::mutex> lock{connection_.mutex};
 
   cxi::MechanismParameter mech;
@@ -42,15 +45,14 @@ std::string CryptoSignerUtimaco::sign(const Blob &blob) const {
                             irohaToCxiBuffer(blob.range()),
                             nullptr);
 
-  return std::move(result).toString();
+  return iroha::bytestringToHexstring(cxiToIrohaBufferView(std::move(result)));
 }
 
-shared_model::interface::types::PublicKeyHexStringView
-CryptoSignerUtimaco::publicKey() const {
-  return shared_model::interface::types::PublicKeyHexStringView{public_key_};
+PublicKeyHexStringView Signer::publicKey() const {
+  return PublicKeyHexStringView{public_key_};
 }
 
-std::string CryptoSignerUtimaco::toString() const {
+std::string Signer::toString() const {
   return fmt::format("HSM Utimaco cryptographic signer with public key '{}'",
                      public_key_);
 }

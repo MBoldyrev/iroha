@@ -49,7 +49,7 @@ const std::string kDefaultCryptoSignerTag{
 const std::string kDefaultCryptoVerifierTag{
     config_members::kCryptoProviderDefault};
 static const IrohadConfig::Crypto kDefaultCryptoConfig{
-    {}, kDefaultCryptoSignerTag, kDefaultCryptoVerifierTag};
+    {}, kDefaultCryptoSignerTag, {kDefaultCryptoVerifierTag}};
 
 /**
  * Gflag validator.

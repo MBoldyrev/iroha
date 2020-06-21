@@ -18,7 +18,7 @@ namespace iroha {
    * @param log_manager logger node for components
    * throws InitCryptoProviderException on failure
    */
-  void makeCryptoProviderInternal(iroha::PartialCryptoInit initializer,
+  void initCryptoProviderInternal(iroha::PartialCryptoInit initializer,
                                   IrohadConfig::Crypto::Default const &param,
                                   logger::LoggerManagerTreePtr log_manager);
 }  // namespace iroha

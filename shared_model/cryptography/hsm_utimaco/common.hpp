@@ -3,39 +3,43 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef IROHA_CRYPTO_HSM_UTIMACO_CONNECTION_HPP
-#define IROHA_CRYPTO_HSM_UTIMACL_CONNECTION_HPP
+#ifndef IROHA_CRYPTO_HSM_UTIMACO_COMMON_HPP
+#define IROHA_CRYPTO_HSM_UTIMACO_COMMON_HPP
 
 #include <memory>
 #include <mutex>
+#include <optional>
 
 #include <boost/preprocessor/repetition/repeat.hpp>
 #include <boost/preprocessor/tuple/elem.hpp>
-#include "CXI/include/cxi.h"
+#include <utility>
+#include "cryptography/hsm_utimaco/safe_cxi.hpp"
 #include "interfaces/common_objects/byte_range.hpp"
 #include "multihash/type.hpp"
 
-namespace shared_model {
-  namespace crypto {
-    namespace hsm_utimaco {
+namespace shared_model::crypto::hsm_utimaco {
 
-      inline cxi::ByteArray irohaToCxiBuffer(
-          shared_model::interface::types::ByteRange range) {
-        static_assert(sizeof(*range.data()) == sizeof(char), "type mismatch");
-        return cxi::ByteArray{reinterpret_cast<char const *>(range.data()),
-                              static_cast<int>(range.length())};
-      }
+  inline cxi::ByteArray irohaToCxiBuffer(
+      shared_model::interface::types::ByteRange range) {
+    static_assert(sizeof(*range.data()) == sizeof(char), "type mismatch");
+    return cxi::ByteArray{reinterpret_cast<char const *>(range.data()),
+                          static_cast<int>(range.length())};
+  }
 
-      // clang-format off
-#define EL0 (iroha::multihash::Type::kEcdsaSha2_224, CXI_MECH_HASH_ALGO_SHA224)
-#define EL1 (iroha::multihash::Type::kEcdsaSha2_256, CXI_MECH_HASH_ALGO_SHA256)
-#define EL2 (iroha::multihash::Type::kEcdsaSha2_384, CXI_MECH_HASH_ALGO_SHA384)
-#define EL3 (iroha::multihash::Type::kEcdsaSha2_512, CXI_MECH_HASH_ALGO_SHA512)
-#define EL4 (iroha::multihash::Type::kEcdsaSha3_224, CXI_MECH_HASH_ALGO_SHA3_224)
-#define EL5 (iroha::multihash::Type::kEcdsaSha3_256, CXI_MECH_HASH_ALGO_SHA3_256)
-#define EL6 (iroha::multihash::Type::kEcdsaSha3_384, CXI_MECH_HASH_ALGO_SHA3_384)
-#define EL7 (iroha::multihash::Type::kEcdsaSha3_512, CXI_MECH_HASH_ALGO_SHA3_512)
-      // clang-format on
+  inline shared_model::interface::types::ByteRange cxiToIrohaBufferView(
+      cxi::ByteArray const &buffer) {
+    return shared_model::interface::types::makeByteRange(
+        buffer.get(), static_cast<size_t>(buffer.length()));
+  }
+
+#define EL0 (Type::kEcdsaSha2_224, CXI_MECH_HASH_ALGO_SHA224)
+#define EL1 (Type::kEcdsaSha2_256, CXI_MECH_HASH_ALGO_SHA256)
+#define EL2 (Type::kEcdsaSha2_384, CXI_MECH_HASH_ALGO_SHA384)
+#define EL3 (Type::kEcdsaSha2_512, CXI_MECH_HASH_ALGO_SHA512)
+#define EL4 (Type::kEcdsaSha3_224, CXI_MECH_HASH_ALGO_SHA3_224)
+#define EL5 (Type::kEcdsaSha3_256, CXI_MECH_HASH_ALGO_SHA3_256)
+#define EL6 (Type::kEcdsaSha3_384, CXI_MECH_HASH_ALGO_SHA3_384)
+#define EL7 (Type::kEcdsaSha3_512, CXI_MECH_HASH_ALGO_SHA3_512)
 
 #define NUM_ELEMS 8
 
@@ -52,20 +56,34 @@ namespace shared_model {
 #define SW_ALL_RIGHT(v) \
   switch (v) { BOOST_PP_REPEAT(NUM_ELEMS, SWR, ) }
 
-      inline std::optional<iroha::multihash::Type>
-      CxiHashAlgoToMultihashEd25519Type(int algo) {
-        SW_ALL_RIGHT(algo)
-        return std::nullopt;
-      }
+  inline std::optional<iroha::multihash::Type> CxiHashAlgoToMultihashEcdsaType(
+      int algo) {
+    using iroha::multihash::Type;
+    SW_ALL_RIGHT(algo)
+    return std::nullopt;
+  }
 
-      inline std::optional<int> multihashEd25519ToCxiHashAlgo(
-          iroha::multihash::Type type) {
-        SW_ALL_LEFT(type)
-        return std::nullopt;
-      }
+  inline std::optional<int> multihashToCxiHashAlgo(
+      iroha::multihash::Type type) {
+    using iroha::multihash::Type;
+    SW_ALL_LEFT(type)
+    return std::nullopt;
+  }
 
-    }  // namespace hsm_utimaco
-  }    // namespace crypto
-}  // namespace shared_model
+#undef EL0
+#undef EL1
+#undef EL2
+#undef EL3
+#undef EL4
+#undef EL5
+#undef EL6
+#undef EL7
+#undef NUM_ELEMS
+#undef SWL
+#undef SWR
+#undef SW_ALL_LEFT
+#undef SW_ALL_RIGHT
+
+}  // namespace shared_model::crypto::hsm_utimaco
 
 #endif

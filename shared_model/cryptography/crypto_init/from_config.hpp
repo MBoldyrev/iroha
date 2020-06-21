@@ -6,6 +6,7 @@
 #ifndef IROHA_CRYPTO_INIT_HPP
 #define IROHA_CRYPTO_INIT_HPP
 
+#include <functional>
 #include <stdexcept>
 #include <string>
 
@@ -13,17 +14,23 @@
 #include "logger/logger_manager_fwd.hpp"
 #include "main/iroha_conf_loader.hpp"
 
+namespace shared_model::crypto {
+  class CryptoVerifierMultihash;
+}
+
 namespace iroha {
   class InitCryptoProviderException : public std::runtime_error {
     using std::runtime_error::runtime_error;
   };
 
   struct PartialCryptoInit {
-    std::optional<std::reference_wrapper<
-        std::shared_ptr<shared_model::crypto::CryptoSigner>>>
-        signer;
-    std::vector<std::unique_ptr<shared_model::crypto::CryptoVerifierMultihash>>
-        verifiers;
+    using InitSignerFunc = std::function<void(
+        std::unique_ptr<shared_model::crypto::CryptoSigner>)>;
+    using InitVerifierFunc = std::function<void(
+        std::unique_ptr<shared_model::crypto::CryptoVerifierMultihash>)>;
+
+    std::optional<InitSignerFunc> init_signer;
+    std::optional<InitVerifierFunc> init_verifier;
   };
 
   /**

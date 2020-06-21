@@ -7,6 +7,8 @@
 
 #include <fstream>
 #include <limits>
+#include <optional>
+#include <string>
 #include <type_traits>
 
 #include <fmt/core.h>
@@ -18,6 +20,7 @@
 #include "common/files.hpp"
 #include "common/result.hpp"
 #include "main/iroha_conf_literals.hpp"
+#include "multihash/type.hpp"
 #include "torii/tls_params.hpp"
 
 /// The length of the string around the error place to print in case of JSON
@@ -186,9 +189,9 @@ class JsonDeserializerImpl {
         auto child_path = sublevelPath(children_section_path, child_tag);
         auto child_conf = parent_config.registerChild(
             std::move(child_tag),
-            getOptValByKey<logger::LogLevel>(
+            getBoostOptValByKey<logger::LogLevel>(
                 child_path, child_obj, config_members::LogLevel),
-            getOptValByKey<logger::LogPatterns>(
+            getBoostOptValByKey<logger::LogPatterns>(
                 child_path, child_obj, config_members::LogPatternsSection));
         addChildrenLoggerConfigs(std::move(child_path), *child_conf, child_obj);
       }
@@ -235,10 +238,20 @@ class JsonDeserializerImpl {
   /// A variant of tryGetValByKey for optional destination
   template <typename TDest, typename TKey>
   bool tryGetValByKey(const std::string &path,
-                      boost::optional<TDest> &dest,
+                      std::optional<TDest> &dest,
                       const rapidjson::Value::ConstObject &obj,
                       const TKey &key) {
     dest = getOptValByKey<TDest>(path, obj, key);
+    return true;  // value loaded any way, either from file or boost::none
+  }
+
+  /// A variant of tryGetValByKey for optional destination
+  template <typename TDest, typename TKey>
+  bool tryGetValByKey(const std::string &path,
+                      boost::optional<TDest> &dest,
+                      const rapidjson::Value::ConstObject &obj,
+                      const TKey &key) {
+    dest = getBoostOptValByKey<TDest>(path, obj, key);
     return true;  // value loaded any way, either from file or boost::none
   }
 
@@ -251,7 +264,26 @@ class JsonDeserializerImpl {
    * @return the value if present in the JSON object, otherwise boost::none.
    */
   template <typename TDest, typename TKey>
-  boost::optional<TDest> getOptValByKey(
+  std::optional<TDest> getOptValByKey(const std::string &path,
+                                      const rapidjson::Value::ConstObject &obj,
+                                      const TKey &key) {
+    TDest val;
+    if (tryGetValByKey(path, val, obj, key)) {
+      return std::make_optional(std::move(val));
+    }
+    return std::nullopt;
+  }
+
+  /**
+   * Gets an optional value by a key from a JSON object.
+   * @param path - current config node path used to denote the possible error
+   *    place.
+   * @param obj - the source JSON object
+   * @param key - the key for the requested value
+   * @return the value if present in the JSON object, otherwise boost::none.
+   */
+  template <typename TDest, typename TKey>
+  boost::optional<TDest> getBoostOptValByKey(
       const std::string &path,
       const rapidjson::Value::ConstObject &obj,
       const TKey &key) {
@@ -382,9 +414,8 @@ JsonDeserializerImpl::getVal<std::unique_ptr<shared_model::interface::Peer>>(
   getValByKey(path, address, obj, config_members::Address);
   std::string public_key_str;
   getValByKey(path, public_key_str, obj, config_members::PublicKey);
-  boost::optional<std::string> tls_certificate_path =
-      getOptValByKey<std::string>(
-          path, obj, config_members::TlsCertificatePath);
+  std::optional<std::string> tls_certificate_path = getOptValByKey<std::string>(
+      path, obj, config_members::TlsCertificatePath);
 
   std::optional<std::string> tls_certificate_str;
   if (tls_certificate_path) {
@@ -493,7 +524,7 @@ inline void JsonDeserializerImpl::getVal<IrohadConfig::Crypto>(
   const auto obj = src.GetObject();
   getValByKey(path, dest.providers, obj, config_members::kProviders);
   getValByKey(path, dest.signer, obj, config_members::kSigner);
-  getValByKey(path, dest.verifiers, obj, config_members::kVerifier);
+  getValByKey(path, dest.verifiers, obj, config_members::kVerifiers);
 }
 
 template <>
@@ -585,9 +616,10 @@ inline void JsonDeserializerImpl::getVal<iroha::multihash::Type>(
     iroha::multihash::Type &dest,
     const rapidjson::Value &src) {
   assert_fatal(src.IsString(), path + " must be a string");
-  str_type = src.GetString();
+  std::string str_type = src.GetString();
+  using iroha::multihash::Type;
   static std::unordered_map<std::string, Type> map{
-      {"Ed25519_SHA2", Type::ed25519pub},
+      {"Ed25519_SHA2", Type::kEd25519Sha2_256},
       {"ECDSA_SHA2_224", Type::kEcdsaSha2_224},
       {"ECDSA_SHA2_256", Type::kEcdsaSha2_256},
       {"ECDSA_SHA2_384", Type::kEcdsaSha2_384},
@@ -596,12 +628,11 @@ inline void JsonDeserializerImpl::getVal<iroha::multihash::Type>(
       {"ECDSA_SHA3_256", Type::kEcdsaSha3_256},
       {"ECDSA_SHA3_384", Type::kEcdsaSha3_384},
       {"ECDSA_SHA3_512", Type::kEcdsaSha3_512}};
-  auto it = map.find(type);
+  auto it = map.find(str_type);
   if (it == map.end()) {
-    throw JsonDeserializerException {
-      fmt::format("Unknown signature type specified. Allowed values are: '{}'.",
-                  fmt::join(map | boost::range::adaptors::map_keys(), "', '"));
-    };
+    throw JsonDeserializerException{fmt::format(
+        "Unknown signature type specified. Allowed values are: '{}'.",
+        fmt::join(map | boost::adaptors::map_keys, "', '"))};
   }
   dest = it->second;
 }

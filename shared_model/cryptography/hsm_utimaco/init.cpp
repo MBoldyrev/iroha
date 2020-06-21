@@ -8,12 +8,19 @@
 #include <unordered_map>
 
 #include <boost/range/adaptor/map.hpp>
-#include "CXI/include/cxi.h"
+#include "cryptography/crypto_init/from_config.hpp"
+#include "cryptography/hsm_utimaco/common.hpp"
+#include "cryptography/hsm_utimaco/connection.hpp"
+#include "cryptography/hsm_utimaco/formatters.hpp"
+#include "cryptography/hsm_utimaco/safe_cxi.hpp"
+#include "cryptography/hsm_utimaco/signer.hpp"
+#include "cryptography/hsm_utimaco/verifier.hpp"
+
+using namespace shared_model::crypto;
 
 namespace {
   constexpr int kActionTimeoutMs{5000};
   constexpr int kConnectTimeoutMs{10000};
-  constexpr size_t kTransportBufferSizeBytes = 10 * 1024;
 
   // throws InitCryptoProviderException
   cxi::Log::levels const &getCxiLogLevel(std::string const &level) {
@@ -26,67 +33,56 @@ namespace {
         {"debug", cxi::Log::LEVEL_DEBUG}};
     auto it = map.find(level);
     if (it == map.end()) {
-      throw InitCryptoProviderException {
-        fmt::format(
-            "Unknown log level specified. Allowed values are: '{}'.",
-            fmt::join(map | boost::range::adaptors::map_keys(), "', '"));
-      };
+      throw iroha::InitCryptoProviderException{
+          fmt::format("Unknown log level specified. Allowed values are: '{}'.",
+                      fmt::join(map | boost::adaptors::map_keys, "', '"))};
     }
     return it->second;
   }
 
   // throws InitCryptoProviderException
-  iroha::multihash::Type const &getMultihashType(std::string const &type) {
-    using iroha::multihash::Type;
-    // types supported by Utimaco
-    static std::unordered_map<std::string, Type> map{
-        {"ECDSA_SHA2_224", Type::kEcdsaSha2_224},
-        {"ECDSA_SHA2_256", Type::kEcdsaSha2_256},
-        {"ECDSA_SHA2_384", Type::kEcdsaSha2_384},
-        {"ECDSA_SHA2_512", Type::kEcdsaSha2_512},
-        {"ECDSA_SHA3_224", Type::kEcdsaSha3_224},
-        {"ECDSA_SHA3_256", Type::kEcdsaSha3_256},
-        {"ECDSA_SHA3_384", Type::kEcdsaSha3_384},
-        {"ECDSA_SHA3_512", Type::kEcdsaSha3_512}};
-    auto it = map.find(type);
-    if (it == map.end()) {
-      throw InitCryptoProviderException {
-        fmt::format(
-            "Unknown signature type specified. Allowed values are: '{}'.",
-            fmt::join(map | boost::range::adaptors::map_keys(), "', '"));
-      };
-    }
-    return it->second;
-  }
-
-  // throws InitCryptoProviderException
-  std::unique_ptr<Connection> makeConnection(
+  std::unique_ptr<hsm_utimaco::Connection> makeConnection(
       IrohadConfig::Crypto::HsmUtimaco const &config) {
     std::vector<char const *> devices_raw;
     devices_raw.reserve(config.devices.size());
     for (auto const &device : config.devices) {
-      devices_raw.emplace_back(devices_raw.c_str());
+      devices_raw.emplace_back(device.c_str());
     }
 
-    auto connection = std::make_unique<Connection>();
+    auto connection = std::make_unique<hsm_utimaco::Connection>();
     connection->cxi = std::make_unique<cxi::Cxi>(devices_raw.data(),
                                                  devices_raw.size(),
                                                  kActionTimeoutMs,
                                                  kConnectTimeoutMs);
+
+    for (auto const &auth : config.auth) {
+      if (auth.key) {
+        char const *password = nullptr;
+        if (auth.password) {
+          password = auth.password.value().c_str();
+        }
+        connection->cxi->logon_sign(
+            auth.user.c_str(), auth.key.value().c_str(), password, true);
+      } else if (auth.password) {
+        connection->cxi->logon_pass(
+            auth.user.c_str(), auth.password.value().c_str(), true);
+      }
+    }
+
     return connection;
   }
 
   // throws InitCryptoProviderException
   std::unique_ptr<shared_model::crypto::CryptoSigner> makeSigner(
       IrohadConfig::Crypto::HsmUtimaco const &config,
-      std::shared_ptr<Connection> connection) {
+      std::shared_ptr<hsm_utimaco::Connection> connection) {
     auto const &signer_config = config.signer.value();
 
     // get the signature type
     iroha::multihash::Type multihash_type = signer_config.type;
-    auto cxi_algo = multihashEd25519ToCxiHashAlgo(type);
+    auto cxi_algo = hsm_utimaco::multihashToCxiHashAlgo(signer_config.type);
     if (not cxi_algo) {
-      throw InitCryptoProviderException{"Unsupported signature type."};
+      throw iroha::InitCryptoProviderException{"Unsupported signature type."};
     }
 
     // prepare the signing key
@@ -98,21 +94,23 @@ namespace {
     }
     std::unique_ptr<cxi::Key> key;
     try {
-      key = std::make_unique<cxi::Key>(connection.cxi->key_open(0, key_descr));
+      key = std::make_unique<cxi::Key>(connection->cxi->key_open(0, key_descr));
     } catch (const cxi::Exception &e) {
-      return iroha::expected::makeError(
-          fmt::format("Could not open signing key: {}", e));
+      throw iroha::InitCryptoProviderException{
+          fmt::format("Could not open signing key: {}", e)};
     }
     if (not key) {
-      return iroha::expected::makeError("Could not open signing key.");
+      throw iroha::InitCryptoProviderException{"Could not open signing key."};
     }
 
-    return std::make_unique<CryptoSignerUtimaco>(
-        std::move(connection), std::move(key), multihash_type, cxi_algo);
+    return std::make_unique<hsm_utimaco::Signer>(std::move(connection),
+                                                 std::move(key),
+                                                 multihash_type,
+                                                 cxi_algo.value());
   }
 }  // namespace
 
-void iroha::makeCryptoProviderUtimaco(
+void iroha::initCryptoProviderUtimaco(
     iroha::PartialCryptoInit initializer,
     IrohadConfig::Crypto::HsmUtimaco const &config,
     logger::LoggerManagerTreePtr log_manager) {
@@ -121,12 +119,14 @@ void iroha::makeCryptoProviderUtimaco(
                                  getCxiLogLevel(config.log->level));
   }
 
-  std::shared_ptr<Connection> = makeConnection(config);
+  std::shared_ptr<hsm_utimaco::Connection> connection = makeConnection(config);
 
-  if (initializer.signer) {
-    initializer.signer->get() = makeSigner(config, connection);
+  if (initializer.init_signer) {
+    initializer.init_signer.value()(makeSigner(config, connection));
   }
 
-  initializer.verifiers.emplace_back(std::make_unique<CryptoVerifier>(
-      connection, config.temporary_key.name, config.temporary_key.group));
+  if (initializer.init_verifier) {
+    initializer.init_verifier.value()(std::make_unique<hsm_utimaco::Verifier>(
+        connection, config.temporary_key.name, config.temporary_key.group));
+  }
 }

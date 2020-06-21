@@ -24,7 +24,8 @@ namespace iroha {
       //
       // --- public key and signature types ---
       //
-      ed25519pub = 0xed,
+      kEd25519Sha2_256 = 0xed,
+      kEd25519Sha3_256 = 0xed3256,
 
       kEcdsaSha2_224 = 0xecd21e,
       kEcdsaSha2_256 = 0xecd220,

@@ -10,7 +10,7 @@
 
 #include <string>
 
-#include "CXI/include/exception.h"
+#include "cryptography/hsm_utimaco/safe_cxi.hpp"
 
 namespace fmt {
   template <>

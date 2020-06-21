@@ -3,14 +3,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "cryptography/hsm_utimaco/crypto_verifier.hpp"
+#include "cryptography/hsm_utimaco/verifier.hpp"
 
 #include <fmt/format.h>
-#include "CXI/include/cxi.h"
 #include "common/hexutils.hpp"
 #include "common/result.hpp"
 #include "cryptography/hsm_utimaco/common.hpp"
 #include "cryptography/hsm_utimaco/formatters.hpp"
+#include "cryptography/hsm_utimaco/safe_cxi.hpp"
+#include "interfaces/common_objects/byte_range.hpp"
 
 using namespace shared_model::crypto::hsm_utimaco;
 using namespace shared_model::interface::types;
@@ -18,10 +19,10 @@ using namespace shared_model::interface::types;
 namespace {
 
   iroha::expected::Result<cxi::ByteArray, std::string> makeCxiKeyImportBlob(
-      iroha::multihash::Type type, PublicKeyHexStringView public_key) {
+      iroha::multihash::Type type, PublicKeyByteRangeView public_key) {
     // this is precompiled blob for ed25519 public keys import,
     // other formats need different ones
-    char const kEcdsaEd25519ImportBase[] = {
+    unsigned char const kEcdsaEd25519ImportBase[] = {
         0x4b, 0x42, 0x00, 0x00, 0x00, 0x59, 0x42, 0x48, 0x00, 0x00, 0x00,
         0x27, 0x50, 0x4c, 0x00, 0x00, 0x00, 0x21, 0x00, 0x03, 0x00, 0x04,
         0x00, 0x00, 0x00, 0x04, 0x00, 0x04, 0x00, 0x04, 0x00, 0x00, 0x00,
@@ -40,22 +41,17 @@ namespace {
       case iroha::multihash::Type::kEcdsaSha3_256:
       case iroha::multihash::Type::kEcdsaSha3_384:
       case iroha::multihash::Type::kEcdsaSha3_512: {
-        const auto public_key_binary_size =
-            iroha::hexstringToBytestringSize(public_key);
-        if (public_key_binary_size != kPublicKeySize) {
-          return iroha::expected::makeError(fmt::format(
-              "Wrong public key size: {}.", public_key_binary_size));
-        }
         const size_t kPublicKeySize = 32;
-        return iroha::hexstringToBytestringResult(public_key) |
-                   [&](std::string const &public_key)
-                   -> iroha::expected::Result<cxi::ByteArray, std::string> {
-          cxi::ByteArray import_blob{kEcdsaEd25519ImportBase,
-                                     kEcdsaEd25519ImportBaseSize};
-          assert(public_key.size() == kPublicKeySize);
-          import_blob.appendString(public_key.c_str());
-          return import_blob;
-        };
+        if (ByteRange{public_key}.size() != kPublicKeySize) {
+          return iroha::expected::makeError(fmt::format(
+              "Wrong public key size: {}.", ByteRange{public_key}.size()));
+        }
+        cxi::ByteArray import_blob{
+            reinterpret_cast<char const *>(kEcdsaEd25519ImportBase),
+            kEcdsaEd25519ImportBaseSize};
+        import_blob.appendString(
+            reinterpret_cast<char const *>(ByteRange{public_key}.data()));
+        return import_blob;
       }
       default:
         return iroha::expected::makeError("Unsupported public key type.");
@@ -65,7 +61,7 @@ namespace {
   iroha::expected::Result<cxi::Key, std::string> makeCxiKey(
       cxi::Cxi &cxi,
       iroha::multihash::Type type,
-      PublicKeyHexStringView public_key,
+      PublicKeyByteRangeView public_key,
       std::string const &temporary_key_name,
       std::optional<std::string> const &temporary_key_group) {
     return makeCxiKeyImportBlob(type, public_key) | [&](auto const &import_blob)
@@ -89,60 +85,63 @@ namespace {
   }
 }  // namespace
 
-CryptoVerifier::CryptoVerifier(std::shared_ptr<Connection> connection,
-                               std::string temporary_key_name,
-                               std::optional<std::string> temporary_key_group)
+Verifier::Verifier(std::shared_ptr<Connection> connection,
+                   std::string temporary_key_name,
+                   std::optional<std::string> temporary_key_group)
     : connection_holder_(std::move(connection)),
       connection_(*connection_holder_),
       temporary_key_name_(std::move(temporary_key_name)),
       temporary_key_group_(std::move(temporary_key_group)) {}
 
-iroha::expected::Result<void, const char *> CryptoVerifier::verify(
-    SignedHexStringView signature,
-    ByteRange source,
+Verifier::~Verifier() = default;
+
+iroha::expected::Result<void, std::string> Verifier::verify(
     iroha::multihash::Type type,
-    PublicKeyHexStringView public_key) const {
+    shared_model::interface::types::SignatureByteRangeView signature,
+    shared_model::interface::types::ByteRange message,
+    shared_model::interface::types::PublicKeyByteRangeView public_key) const {
+  using ReturnType = iroha::expected::Result<void, std::string>;
+
+  auto cxi_algo = multihashToCxiHashAlgo(type);
+  if (not cxi_algo) {
+    return iroha::expected::makeError("Unsupported signature type.");
+  }
+
   std::lock_guard<std::mutex> lock{connection_.mutex};
 
   cxi::Cxi &cxi = *connection_.cxi;
 
   return makeCxiKey(
              cxi, type, public_key, temporary_key_name_, temporary_key_group_)
-      | [&source, &signature](cxi::Key const &key) {
-          return iroha::hexstringToBytestringResult(signature) |
-              [&source, &key](cxi::ByteArray signature) {
-                cxi::ByteArray message = irohaToCxiBuffer(source);
+             | [&cxi, cxi_algo, &message, &signature](
+                   cxi::Key key) -> ReturnType {
+    cxi::ByteArray cxi_message{irohaToCxiBuffer(message)};
+    cxi::ByteArray cxi_signature{irohaToCxiBuffer(signature)};
 
-                MechanismParameter mech;
-                auto cxi_algo = multihashEd25519ToCxiHashAlgo(type);
-                if (not cxi_algo) {
-                  return iroha::expected::makeError(
-                      "Unsupported signature type.");
-                }
-                mech.set(cxi_algo.value());
+    cxi::MechanismParameter mech;
+    mech.set(cxi_algo.value());
 
-                bool verification_successful = false;
-                try {
-                  verification_successful =
-                      cxi.verify(CXI_FLAG_HASH_DATA | CXI_FLAG_CRYPT_FINAL,
-                                 key,
-                                 mech,
-                                 message,
-                                 &signature,
-                                 nullptr);
-                } catch (const cxi::Exception &e) {
-                  return iroha::expected::makeError(
-                      "Signature verification failed: {}", e);
-                }
+    bool verification_successful = false;
+    try {
+      verification_successful =
+          cxi.verify(CXI_FLAG_HASH_DATA | CXI_FLAG_CRYPT_FINAL,
+                     key,
+                     mech,
+                     cxi_message,
+                     &cxi_signature,
+                     nullptr);
+    } catch (const cxi::Exception &e) {
+      return iroha::expected::makeError(
+          fmt::format("Signature verification failed: {}", e));
+    }
 
-                if (verification_successful) {
-                  return iroha::expected::Value<void>{};
-                }
-                return iroha::expected::makeError("Wrong signature.");
-              };
-        };
+    if (verification_successful) {
+      return iroha::expected::Value<void>{};
+    }
+    return iroha::expected::makeError("Wrong signature.");
+  };
 }
 
-std::vector<iroha::multihash::Type> CryptoVerifier::getSupportedTypes() const {
+std::vector<iroha::multihash::Type> Verifier::getSupportedTypes() const {
   return {};
 }
