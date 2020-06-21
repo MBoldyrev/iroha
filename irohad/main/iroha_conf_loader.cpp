@@ -492,14 +492,8 @@ inline void JsonDeserializerImpl::getVal<IrohadConfig::Crypto>(
   assert_fatal(src.IsObject(), path + " crypto config must be an object.");
   const auto obj = src.GetObject();
   getValByKey(path, dest.providers, obj, config_members::kProviders);
-  assert_fatal(
-      dest.providers.count(config_members::kCryptoProviderDefault) == 0,
-      fmt::format(
-          "{}: provider name '{}' is reserved and can not be redefined.",
-          path,
-          config_members::kCryptoProviderDefault));
   getValByKey(path, dest.signer, obj, config_members::kSigner);
-  getValByKey(path, dest.verifier, obj, config_members::kVerifier);
+  getValByKey(path, dest.verifiers, obj, config_members::kVerifier);
 }
 
 template <>
@@ -509,7 +503,59 @@ inline void JsonDeserializerImpl::getVal<IrohadConfig::Crypto::HsmUtimaco>(
     const rapidjson::Value &src) {
   assert_fatal(src.IsObject(), path + " Utimaco HSM config must be an object.");
   const auto obj = src.GetObject();
-  // TODO
+  getValByKey(path, dest.devices, obj, config_members::kDevices);
+  getValByKey(path, dest.auth, obj, config_members::kAuthentication);
+  getValByKey(path, dest.signer, obj, config_members::kSigner);
+  getValByKey(path, dest.temporary_key, obj, config_members::kTempKey);
+  getValByKey(path, dest.log, obj, config_members::LogSection);
+}
+
+template <>
+inline void JsonDeserializerImpl::getVal<IrohadConfig::Crypto::HsmUtimaco::Log>(
+    const std::string &path,
+    IrohadConfig::Crypto::HsmUtimaco::Log &dest,
+    const rapidjson::Value &src) {
+  assert_fatal(src.IsObject(), path + " must be an object.");
+  const auto obj = src.GetObject();
+  getValByKey(path, dest.path, obj, config_members::Path);
+  getValByKey(path, dest.level, obj, config_members::LogLevel);
+}
+
+template <>
+inline void
+JsonDeserializerImpl::getVal<IrohadConfig::Crypto::HsmUtimaco::Auth>(
+    const std::string &path,
+    IrohadConfig::Crypto::HsmUtimaco::Auth &dest,
+    const rapidjson::Value &src) {
+  assert_fatal(src.IsObject(), path + " must be an object.");
+  const auto obj = src.GetObject();
+  getValByKey(path, dest.user, obj, config_members::User);
+  getValByKey(path, dest.key, obj, config_members::kKey);
+  getValByKey(path, dest.password, obj, config_members::Password);
+}
+
+template <>
+inline void
+JsonDeserializerImpl::getVal<IrohadConfig::Crypto::HsmUtimaco::KeyHandle>(
+    const std::string &path,
+    IrohadConfig::Crypto::HsmUtimaco::KeyHandle &dest,
+    const rapidjson::Value &src) {
+  assert_fatal(src.IsObject(), path + " must be an object.");
+  const auto obj = src.GetObject();
+  getValByKey(path, dest.name, obj, config_members::kName);
+  getValByKey(path, dest.group, obj, config_members::kGroup);
+}
+
+template <>
+inline void
+JsonDeserializerImpl::getVal<IrohadConfig::Crypto::HsmUtimaco::Signer>(
+    const std::string &path,
+    IrohadConfig::Crypto::HsmUtimaco::Signer &dest,
+    const rapidjson::Value &src) {
+  assert_fatal(src.IsObject(), path + " must be an object.");
+  const auto obj = src.GetObject();
+  getValByKey(path, dest.signing_key, obj, config_members::kKey);
+  getValByKey(path, dest.type, obj, config_members::Type);
 }
 
 template <>
@@ -531,6 +577,33 @@ inline void JsonDeserializerImpl::getVal<IrohadConfig::Crypto::ProviderVariant>(
     throw JsonDeserializerException{
         fmt::format("Unknown crypto provider type: '{}'", type)};
   }
+}
+
+template <>
+inline void JsonDeserializerImpl::getVal<iroha::multihash::Type>(
+    const std::string &path,
+    iroha::multihash::Type &dest,
+    const rapidjson::Value &src) {
+  assert_fatal(src.IsString(), path + " must be a string");
+  str_type = src.GetString();
+  static std::unordered_map<std::string, Type> map{
+      {"Ed25519_SHA2", Type::ed25519pub},
+      {"ECDSA_SHA2_224", Type::kEcdsaSha2_224},
+      {"ECDSA_SHA2_256", Type::kEcdsaSha2_256},
+      {"ECDSA_SHA2_384", Type::kEcdsaSha2_384},
+      {"ECDSA_SHA2_512", Type::kEcdsaSha2_512},
+      {"ECDSA_SHA3_224", Type::kEcdsaSha3_224},
+      {"ECDSA_SHA3_256", Type::kEcdsaSha3_256},
+      {"ECDSA_SHA3_384", Type::kEcdsaSha3_384},
+      {"ECDSA_SHA3_512", Type::kEcdsaSha3_512}};
+  auto it = map.find(type);
+  if (it == map.end()) {
+    throw JsonDeserializerException {
+      fmt::format("Unknown signature type specified. Allowed values are: '{}'.",
+                  fmt::join(map | boost::range::adaptors::map_keys(), "', '"));
+    };
+  }
+  dest = it->second;
 }
 
 template <>

@@ -89,9 +89,15 @@ struct IrohadConfig {
         std::optional<std::string> group;
       };
 
+      struct Signer {
+        KeyHandle signing_key;
+        iroha::multihash::Type type;
+      };
+
       std::vector<std::string> devices;
       std::vector<Auth> auth;
-      std::optional<KeyHandle> signing_key;
+      std::optional<Signer> signer;
+      KeyHandle temporary_key;
       std::optional<Log> log;
     };
 
@@ -101,7 +107,7 @@ struct IrohadConfig {
 
     ProviderList providers;
     ProviderId signer;
-    ProviderId verifier;
+    std::vector<ProviderId> verifiers;
   };
 
   boost::optional<Crypto> crypto;

@@ -22,9 +22,8 @@ namespace iroha {
     std::optional<std::reference_wrapper<
         std::shared_ptr<shared_model::crypto::CryptoSigner>>>
         signer;
-    std::optional<std::reference_wrapper<
-        std::shared_ptr<shared_model::crypto::CryptoVerifier>>>
-        verifier;
+    std::vector<std::unique_ptr<shared_model::crypto::CryptoVerifierMultihash>>
+        verifiers;
   };
 
   /**

@@ -7,14 +7,15 @@ set(UTIMACO_CRYPTO_APIS_DIR /home/mikhail/work/utimaco-hsm/Utimaco-Block-safe/Ut
 
 add_library(cxi SHARED IMPORTED)
 set_target_properties(cxi PROPERTIES
-  INTERFACE_INCLUDE_DIRECTORIES ${UTIMACO_CRYPTO_APIS_DIR}/CXI/include
+  INTERFACE_INCLUDE_DIRECTORIES ${UTIMACO_CRYPTO_APIS_DIR}
   #INTERFACE_LINK_DIRECTORIES ${UTIMACO_CRYPTO_APIS_DIR}/CXI/lib
   IMPORTED_LOCATION ${UTIMACO_CRYPTO_APIS_DIR}/CXI/lib/libcxi.so
   )
 
 add_library(hsm_utimaco
-  connection.cpp
+  #connection.cpp
   crypto_signer.cpp
+  crypto_verifier.cpp
   )
 target_link_libraries(hsm_utimaco
   common

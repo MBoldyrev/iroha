@@ -26,6 +26,15 @@ namespace iroha {
       //
       ed25519pub = 0xed,
 
+      kEcdsaSha2_224 = 0xecd21e,
+      kEcdsaSha2_256 = 0xecd220,
+      kEcdsaSha2_384 = 0xecd228,
+      kEcdsaSha2_512 = 0xecd240,
+      kEcdsaSha3_224 = 0xecd31e,
+      kEcdsaSha3_256 = 0xecd320,
+      kEcdsaSha3_384 = 0xecd328,
+      kEcdsaSha3_512 = 0xecd340,
+
     };
   }  // namespace multihash
 }  // namespace iroha

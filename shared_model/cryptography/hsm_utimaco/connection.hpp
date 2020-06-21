@@ -7,19 +7,30 @@
 #define IROHA_CRYPTO_HSM_UTIMACL_CONNECTION_HPP
 
 #include <memory>
-#include <string>
+#include <mutex>
 
 //#include "cxi.h"
-#include "interfaces/common_objects/string_view_types.hpp"
-#include "main/iroha_conf_loader.hpp"
+//#include "interfaces/common_objects/string_view_types.hpp"
+//#include "main/iroha_conf_loader.hpp"
+
+namespace cxi {
+  class Cxi;
+}
 
 namespace shared_model {
   namespace crypto {
     namespace hsm_utimaco {
+
+      struct Connection {
+        std::unique_ptr<cxi::Cxi> cxi;
+        std::mutex mutex;
+      };
+
       /**
        * Connection - abstraction of connection to HSM Utimaco node.
        * Also performs authentication at startup.
        */
+      /*
       class Connection {
        public:
         explicit Connection(IrohadConfig::Crypto::HsmUtimaco const &config);
@@ -45,6 +56,8 @@ namespace shared_model {
         struct Impl;
         std::unique_ptr<Impl> impl_;
       };
+      */
+
     }  // namespace hsm_utimaco
   }    // namespace crypto
 }  // namespace shared_model

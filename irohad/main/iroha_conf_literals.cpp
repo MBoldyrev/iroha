@@ -55,4 +55,10 @@ namespace config_members {
   const char *kProviders = "providers";
   const char *kCryptoProviderDefault = "default";
   const char *kCryptoProviderUtimaco = "utimaco";
+  const char *kDevices = "devices";
+  const char *kAuthentication = "authentication";
+  const char *kTempKey = "temporary_key";
+  const char *kGroup = "group";
+  const char *kKey = "key";
+  const char *kName = "name";
 }  // namespace config_members
