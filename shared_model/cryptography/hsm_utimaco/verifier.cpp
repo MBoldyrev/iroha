@@ -42,15 +42,17 @@ namespace {
       case iroha::multihash::Type::kEcdsaSha3_384:
       case iroha::multihash::Type::kEcdsaSha3_512: {
         const size_t kPublicKeySize = 32;
-        if (ByteRange{public_key}.size() != kPublicKeySize) {
+        ByteRange public_key_range{public_key};
+        if (public_key_range.size() != kPublicKeySize) {
           return iroha::expected::makeError(fmt::format(
-              "Wrong public key size: {}.", ByteRange{public_key}.size()));
+              "Wrong public key size: {}.", public_key_range.size()));
         }
         cxi::ByteArray import_blob{
             reinterpret_cast<char const *>(kEcdsaEd25519ImportBase),
             kEcdsaEd25519ImportBaseSize};
-        import_blob.appendString(
-            reinterpret_cast<char const *>(ByteRange{public_key}.data()));
+        import_blob.append(
+            reinterpret_cast<char const *>(public_key_range.data()),
+            public_key_range.size());
         return import_blob;
       }
       default:
@@ -143,5 +145,8 @@ iroha::expected::Result<void, std::string> Verifier::verify(
 }
 
 std::vector<iroha::multihash::Type> Verifier::getSupportedTypes() const {
-  return {};
+  using iroha::multihash::Type;
+#define ALGO_COMMA(z, i, ...) BOOST_PP_TUPLE_ELEM(2, 0, ALGOS_EL##i),
+  return {BOOST_PP_REPEAT(NUM_ALGOS, ALGO_COMMA, )};
+#undef ALGO_COMMA
 }

@@ -25,7 +25,11 @@ Signer::Signer(std::shared_ptr<Connection> connection,
       connection_(*connection_holder_),
       key_(std::move(key)),
       public_key_(iroha::multihash::encode<std::string>(
-          multihash_type, cxiToIrohaBufferView(key_->getPublicKey()))),
+          multihash_type,
+          cxiToIrohaBufferView(cxi::KeyBlob{
+              connection_.cxi->key_export(
+                  CXI_KEY_BLOB_SIMPLE | CXI_KEY_TYPE_PUBLIC, *key_, NULL, 0)}
+                                   .getPublic()))),
       cxi_algo_(cxi_algo) {
   assert(multihashToCxiHashAlgo(multihash_type) == cxi_algo_);
 }

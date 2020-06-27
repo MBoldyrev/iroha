@@ -50,6 +50,7 @@ namespace {
     }
 
     auto connection = std::make_unique<hsm_utimaco::Connection>();
+
     connection->cxi = std::make_unique<cxi::Cxi>(devices_raw.data(),
                                                  devices_raw.size(),
                                                  kActionTimeoutMs,
@@ -95,18 +96,18 @@ namespace {
     std::unique_ptr<cxi::Key> key;
     try {
       key = std::make_unique<cxi::Key>(connection->cxi->key_open(0, key_descr));
+      if (not key) {
+        throw iroha::InitCryptoProviderException{"Could not open signing key."};
+      }
+
+      return std::make_unique<hsm_utimaco::Signer>(std::move(connection),
+                                                   std::move(key),
+                                                   multihash_type,
+                                                   cxi_algo.value());
     } catch (const cxi::Exception &e) {
       throw iroha::InitCryptoProviderException{
           fmt::format("Could not open signing key: {}", e)};
     }
-    if (not key) {
-      throw iroha::InitCryptoProviderException{"Could not open signing key."};
-    }
-
-    return std::make_unique<hsm_utimaco::Signer>(std::move(connection),
-                                                 std::move(key),
-                                                 multihash_type,
-                                                 cxi_algo.value());
   }
 }  // namespace
 
