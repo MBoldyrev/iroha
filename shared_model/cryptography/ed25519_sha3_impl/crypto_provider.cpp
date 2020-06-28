@@ -5,7 +5,10 @@
 
 #include "cryptography/ed25519_sha3_impl/crypto_provider.hpp"
 
-#include "cryptography/ed25519_sha3_impl/internal/ed25519_impl.hpp"
+#include <ed25519_cpp/ed25519.hpp>
+#include <ed25519_cpp/randombytes.hpp>
+#include <ed25519_cpp/sha256.hpp>
+#include "common/hexutils.hpp"
 #include "cryptography/ed25519_sha3_impl/signer.hpp"
 #include "cryptography/ed25519_sha3_impl/verifier.hpp"
 
@@ -27,12 +30,19 @@ namespace shared_model {
     }
 
     Seed CryptoProviderEd25519Sha3::generateSeed() {
-      return Seed(iroha::create_seed().to_string());
+      unsigned char seed_buf[kSeedLength];
+      iroha_ed25519::v2::randombytes(seed_buf, sizeof(seed_buf));
+      return Seed(makeByteRange(seed_buf, sizeof(seed_buf)));
     }
 
     Seed CryptoProviderEd25519Sha3::generateSeed(
         const std::string &passphrase) {
-      return Seed(iroha::create_seed(passphrase).to_string());
+      iroha_ed25519::v2::Sha256 passphrase_hash;
+      if (not iroha_ed25519::v2::sha256(
+              passphrase_hash, iroha_ed25519::v2::MessageView{passphrase})) {
+        return {};
+      }
+      return Seed(makeByteRange(passphrase_hash));
     }
 
     Keypair CryptoProviderEd25519Sha3::generateKeypair() {
@@ -41,10 +51,12 @@ namespace shared_model {
 
     Keypair CryptoProviderEd25519Sha3::generateKeypair(const Seed &seed) {
       assert(seed.size() == kSeedLength);
-      auto keypair = iroha::create_keypair(
-          iroha::blob_t<kSeedLength>::from_raw(seed.blob().data()));
-      return Keypair(PublicKeyHexStringView{keypair.pubkey.to_hexstring()},
-                     PrivateKey(keypair.privkey.to_string()));
+      iroha_ed25519::v2::PrivateKeyView private_key{seed.range()};
+      iroha_ed25519::v2::PublicKey public_key;
+      iroha_ed25519::v2::derive_public_key(private_key, public_key);
+      return Keypair(PublicKeyHexStringView{iroha::bytestringToHexstring(
+                         makeByteRange(public_key))},
+                     PrivateKey{makeByteRange(private_key)});
     }
 
     constexpr size_t CryptoProviderEd25519Sha3::kHashLength;

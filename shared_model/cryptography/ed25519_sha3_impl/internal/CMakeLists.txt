@@ -8,13 +8,13 @@ add_library(hash
         )
 
 target_link_libraries(hash
-        iroha::ed25519
+        custom_ed25519
         common
         )
 
-add_library(ed25519_crypto
-        ed25519_impl.cpp
-        )
-target_link_libraries(ed25519_crypto
-        hash
-        )
+#add_library(ed25519_crypto
+#        ed25519_impl.cpp
+#        )
+#target_link_libraries(ed25519_crypto
+#        hash
+#        )

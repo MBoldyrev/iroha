@@ -3,7 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <ed25519/ed25519.h>
+#include <ed25519_cpp/ed25519.hpp>
+#include <ed25519_cpp/randombytes.hpp>
+#include <ed25519_cpp/sha256.hpp>
+#include <ed25519_cpp/sha512.hpp>
 
 #include "cryptography/ed25519_sha3_impl/internal/ed25519_impl.hpp"
 #include "cryptography/ed25519_sha3_impl/internal/sha3_hash.hpp"
@@ -21,11 +24,12 @@ namespace iroha {
              const pubkey_t &pub,
              const privkey_t &priv) {
     sig_t sig;
-    ed25519_sign(reinterpret_cast<signature_t *>(sig.data()),
-                 msg,
-                 msgsize,
-                 reinterpret_cast<const public_key_t *>(pub.data()),
-                 reinterpret_cast<const private_key_t *>(priv.data()));
+    iroha_ed25519::v2::sign(
+        reinterpret_cast<signature_t *>(sig.data()),
+        msg,
+        msgsize,
+        reinterpret_cast<const public_key_t *>(pub.data()),
+        reinterpret_cast<const private_key_t *>(priv.data()));
     return sig;
   }
 
