@@ -23,7 +23,6 @@ def get_supported_data_model_ids():
 def execute(cmd_serialized: memoryview):
     cmd = kv_schema_pb2.Command()
     cmd.ParseFromString(cmd_serialized)
-    print(cmd)
     which = cmd.payload.WhichOneof('command')
     global _tx_kv_storage
     if which == 'set':
@@ -44,14 +43,14 @@ def execute(cmd_serialized: memoryview):
 def commit_transaction():
     global _tx_kv_storage
     global _block_kv_storage
-    _block_kv_storage.update(_tx_kv_storage)
+    _block_kv_storage = _tx_kv_storage.copy()
 
 
 def commit_block():
     commit_transaction()
     global _block_kv_storage
     global _persistent_kv_storage
-    _persistent_kv_storage.update(_block_kv_storage)
+    _persistent_kv_storage = _block_kv_storage.copy()
     _save_persistent()
 
 

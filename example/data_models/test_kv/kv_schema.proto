@@ -6,7 +6,7 @@
 syntax = "proto3";
 package test_kv.protocol;
 
-import "commands.proto";
+import "primitive.proto";
 
 message Set {
   string key = 1;
