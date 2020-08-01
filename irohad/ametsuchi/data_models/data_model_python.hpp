@@ -33,6 +33,9 @@ namespace iroha::ametsuchi {
 
     void rollbackBlock() override;
 
+    QueryResult query(
+        shared_model::proto::QueryModel const &qry) const override;
+
     std::vector<shared_model::interface::DataModelId> getSupportedDataModelIds()
         const override;
 

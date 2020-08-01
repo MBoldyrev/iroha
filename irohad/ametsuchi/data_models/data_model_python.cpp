@@ -9,7 +9,10 @@
 #include <pybind11/embed.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
+
 #include <memory>
+#include <rxcpp/rx-lite.hpp>
+#include "qry_responses.pb.h"
 
 namespace py = pybind11;
 using namespace iroha::ametsuchi;
@@ -23,6 +26,14 @@ namespace {
   char const *kPythonCommitBlockFunctionName = "commit_block";
   char const *kPythonRollbackTxFunctionName = "rollback_transaction";
   char const *kPythonRollbackBlockFunctionName = "rollback_block";
+  char const *kPythonQueryFunctionName = "query";
+
+  iroha::protocol::ModelQueryResponse makeQueryErrorResponse(
+      iroha::protocol::ErrorResponse::Reason,
+      std::string message,
+      uint32_t error_code) {
+    // TODO
+  }
 }  // namespace
 
 struct DataModelPython::Impl {
@@ -32,6 +43,7 @@ struct DataModelPython::Impl {
   py::function func_commit_block;
   py::function func_rollback_tx;
   py::function func_rollback_block;
+  py::function func_query;
 };
 
 DataModelPython::DataModelPython(std::vector<std::string> python_paths,
@@ -68,6 +80,7 @@ DataModelPython::DataModelPython(std::vector<std::string> python_paths,
   init_python_func(impl.func_commit_block, kPythonCommitBlockFunctionName);
   init_python_func(impl.func_rollback_tx, kPythonRollbackTxFunctionName);
   init_python_func(impl.func_rollback_block, kPythonRollbackBlockFunctionName);
+  init_python_func(impl.func_query, kPythonQueryFunctionName);
 }
 
 DataModelPython::~DataModelPython() {
@@ -120,6 +133,31 @@ void DataModelPython::rollbackTransaction() {
 
 void DataModelPython::rollbackBlock() {
   impl_->func_rollback_block();
+}
+
+QueryResult DataModelPython::query(
+    shared_model::proto::QueryModel const &qry) const {
+  return rxcpp::observable<>::create<iroha::protocol::ModelQueryResponse>(
+      [qry_str{qry.getTransport().SerializeAsString()}](auto subscriber) {
+        try {
+          py::memoryview qry_mem_view{py::memoryview::from_memory(
+              qry_str.data(), static_cast<long>(qry_str.size()))};
+
+          for (auto py_val : impl_->func_query(qry_mem_view)) {
+            if (not subscriber.is_subscribed()) {
+              break;
+            }
+            py::buffer_info py_val_mem_view{py::buffer{py_val}.request()};
+            iroha::protocol::QueryModelResponse proto_val;
+            proto_val.ParseFromArray(py_val_mem_view.ptr, py_val_mem_view.size);
+            subscriber.on_next(std::move(proto_val));
+          }
+          subscriber.on_completed();
+        } catch (std::runtime_error const &e) {
+          subscriber.on_next(makeQueryErrorResponse(1, e.what()));
+          subscriber.on_completed();
+        }
+      });
 }
 
 std::vector<shared_model::interface::DataModelId>
