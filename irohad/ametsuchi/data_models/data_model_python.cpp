@@ -80,8 +80,8 @@ CommandResult DataModelPython::execute(
   std::string const cmd_str{cmd.getTransport().SerializeAsString()};
 
   try {
-    py::memoryview cmd_mem_view{
-        py::buffer_info{cmd_str.data(), static_cast<long>(cmd_str.size())}};
+    py::memoryview cmd_mem_view{py::memoryview::from_memory(
+        cmd_str.data(), static_cast<long>(cmd_str.size()))};
 
     py::object py_result_obj = impl_->func_execute(cmd_mem_view);
 
