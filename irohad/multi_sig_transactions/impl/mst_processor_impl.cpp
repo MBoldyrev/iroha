@@ -8,70 +8,11 @@
 #include <utility>
 
 #include <rxcpp/operators/rx-filter.hpp>
-#include <rxcpp/operators/rx-flat_map.hpp>
 #include <rxcpp/operators/rx-map.hpp>
 #include <rxcpp/operators/rx-take.hpp>
 #include "logger/logger.hpp"
 
 using shared_model::interface::types::PublicKeyHexStringView;
-
-namespace {
-  using namespace iroha;
-
-  auto sendState(std::weak_ptr<logger::Logger> log,
-                 std::weak_ptr<network::MstTransport> transport,
-                 std::weak_ptr<MstStorage> storage,
-                 std::weak_ptr<MstTimeProvider> time_provider) {
-    return
-        [log_ = std::move(log),
-         transport_ = std::move(transport),
-         storage_ = std::move(storage),
-         time_provider_ = std::move(time_provider)](auto tpl)
-            -> rxcpp::observable<std::tuple<  // sent successfully
-                std::shared_ptr<shared_model::interface::Peer>,  // to this peer
-                MstState                                         // this state
-                >> {
-          auto &[dst_peer, size] = tpl;
-
-          auto log = log_.lock();
-          auto transport = transport_.lock();
-          auto storage = storage_.lock();
-          auto time_provider = time_provider_.lock();
-
-          if (log and transport and storage and time_provider) {
-            auto current_time = time_provider->getCurrentTime();
-            auto diff = storage->getDiffState(
-                PublicKeyHexStringView{dst_peer->pubkey()}, current_time);
-            if (not diff.isEmpty()) {
-              log->info("Propagate new data[{}]", size);
-              return transport->sendState(dst_peer, diff)
-                  .take(1)
-                  .filter([](auto is_ok) { return is_ok; })
-                  .map([dst_peer = std::move(dst_peer),
-                        diff = std::move(diff)](auto) {
-                    return std::make_tuple(std::move(dst_peer),
-                                           std::move(diff));
-                  });
-            }
-          }
-
-          return rxcpp::observable<>::empty<
-              std::tuple<std::shared_ptr<shared_model::interface::Peer>,
-                         MstState>>();
-        };
-  }
-
-  auto onSendStateResponse(std::weak_ptr<MstStorage> storage) {
-    return [storage_ = std::move(storage)](auto tpl) {
-      auto &[dst_peer, diff] = tpl;
-
-      auto storage = storage_.lock();
-      if (storage) {
-        storage->apply(PublicKeyHexStringView{dst_peer->pubkey()}, diff);
-      }
-    };
-  }
-}  // namespace
 
 namespace iroha {
 
@@ -87,16 +28,39 @@ namespace iroha {
         storage_(std::move(storage)),
         strategy_(std::move(strategy)),
         time_provider_(std::move(time_provider)),
-        propagation_subscriber_(
-            strategy_->emitter()
-                .flat_map([](auto data) {
-                  return rxcpp::observable<>::iterate(data).map(
-                      [size = data.size()](auto dst_peer) {
-                        return std::make_tuple(std::move(dst_peer), size);
-                      });
-                })
-                .flat_map(sendState(log_, transport_, storage_, time_provider_))
-                .subscribe(onSendStateResponse(storage_))) {}
+        propagation_subscriber_(strategy_->emitter().subscribe(
+            [log_wp = std::weak_ptr<logger::Logger>{log_},
+             transport_wp = std::weak_ptr<network::MstTransport>{transport_},
+             storage_wp = std::weak_ptr<MstStorage>{storage_},
+             time_provider_wp = std::weak_ptr<MstTimeProvider>{time_provider_}](
+                PropagationStrategy::PropagationData const &data) {
+              auto log = log_wp.lock();
+              auto transport = transport_wp.lock();
+              auto storage = storage_wp.lock();
+              auto time_provider = time_provider_wp.lock();
+
+              if (log and transport and storage and time_provider) {
+                auto const current_time = time_provider->getCurrentTime();
+                auto const peers_number = data.size();
+
+                for (auto const &dst_peer : data) {
+                  auto diff = storage->getDiffState(
+                      PublicKeyHexStringView{dst_peer->pubkey()}, current_time);
+                  if (not diff.isEmpty()) {
+                    log->info("Propagate new data[{}]", peers_number);
+                    transport->sendState(dst_peer, diff)
+                        .take(1)
+                        .filter([](auto is_ok) { return is_ok; })
+                        .map([storage,
+                              dst_peer = std::move(dst_peer),
+                              diff = std::move(diff)](auto) {
+                          storage->apply(
+                              PublicKeyHexStringView{dst_peer->pubkey()}, diff);
+                        });
+                  }
+                }
+              }
+            })) {}
 
   FairMstProcessor::~FairMstProcessor() {
     propagation_subscriber_.unsubscribe();
