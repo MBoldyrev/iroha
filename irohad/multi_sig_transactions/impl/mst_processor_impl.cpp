@@ -51,9 +51,9 @@ namespace iroha {
                     transport->sendState(dst_peer, diff)
                         .take(1)
                         .filter([](auto is_ok) { return is_ok; })
-                        .map([storage,
-                              dst_peer = std::move(dst_peer),
-                              diff = std::move(diff)](auto) {
+                        .subscribe([storage,
+                                    dst_peer = std::move(dst_peer),
+                                    diff = std::move(diff)](auto) {
                           storage->apply(
                               PublicKeyHexStringView{dst_peer->pubkey()}, diff);
                         });
